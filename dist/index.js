@@ -57,11 +57,14 @@ function create2D(width, height, value) {
     }
     return arr;
 }
+exports.create2D = create2D;
+//import 'path2d';
 class Mask {
-    constructor(width, height, mask = create2D(width, height, 1)) {
+    constructor(width, height, default_value = 1, mask = create2D(width, height, default_value)) {
         this.width = width;
         this.height = height;
         this.mask = mask;
+        this.path = new Path2D();
     }
 }
 exports.Mask = Mask;
@@ -72,6 +75,7 @@ class DataBuffer {
         this.height = height;
         this.values = values;
         this.color = new Color();
+        this.mask = null;
     }
     reset() {
         for (let i = 0; i < this.height; ++i) {
@@ -79,9 +83,45 @@ class DataBuffer {
                 this.values[i][j] = 0;
             }
         }
+        this.setMask(null);
+    }
+    setMask(mask) {
+        this.mask = mask;
     }
 }
 exports.DataBuffer = DataBuffer;
+function weavingRandomMasks(m, size, width, height) {
+    let masks = Array(m);
+    size = Math.floor(size);
+    for (let i = 0; i < m; i++) {
+        masks[i] = new Mask(width, height, 0);
+    }
+    for (let row = 0; row < height; row += size) {
+        let row_max = Math.min(row + size, height);
+        for (let col = 0; col < width; col += size) {
+            let col_max = Math.min(col + size, width);
+            let selected = Math.floor(Math.random() * m);
+            let mask = masks[selected];
+            mask.path.rect(row, col, size, size);
+            for (let r = row; r < row_max; r++) {
+                for (let c = col; c < col_max; c++) {
+                    mask.mask[r][c] = 1;
+                }
+            }
+        }
+    }
+    return masks;
+}
+exports.weavingRandomMasks = weavingRandomMasks;
+function renderTileWeaving(image, tile, buffers, bufferValues) {
+    for (let i = 0; i < buffers.length; i++) {
+        let databuffer = buffers[i];
+        let color = databuffer.color.whiten(bufferValues[i]);
+        image.setMask(databuffer.mask);
+        image.fillByTile(color, tile);
+    }
+}
+exports.renderTileWeaving = renderTileWeaving;
 var TileAggregation;
 (function (TileAggregation) {
     TileAggregation[TileAggregation["Min"] = 0] = "Min";
@@ -151,7 +191,7 @@ class PixelTiling {
         }
         return {
             done: this.y >= this.height,
-            value: new Tile(x, y, new Mask(1, 1, [[1]]))
+            value: new Tile(x, y, new Mask(1, 1))
         };
     }
 }
@@ -193,6 +233,10 @@ class Image {
         this.width = width;
         this.height = height;
         this.pixels = pixels;
+        this.mask = null;
+    }
+    setMask(m) {
+        this.mask = m;
     }
     fillByTile(color, tile) {
         for (let r = tile.y; r < tile.y + tile.mask.height; r++) {
@@ -201,6 +245,10 @@ class Image {
             for (let c = tile.x; c < tile.x + tile.mask.width; c++) {
                 if (c >= this.width)
                     break;
+                if (this.mask != null && r < this.mask.width && c < this.mask.height) {
+                    if (this.mask.mask[r][c] == 0)
+                        continue;
+                }
                 let v = tile.mask.mask[r - tile.y][c - tile.x];
                 this.pixels[r][c] = color.darken(v);
             }
@@ -239,6 +287,7 @@ class CanvasRenderer {
     }
 }
 exports.CanvasRenderer = CanvasRenderer;
+/// <reference path="multivariate-normal.d.ts" />
 const multivariate_normal_1 = __importDefault(require("multivariate-normal"));
 class TestMain {
     constructor() {
@@ -344,6 +393,15 @@ class TestMain {
             outputImage3.fillByTile(color, tile);
         }
         CanvasRenderer.render(outputImage3, 'canvas3');
+        let bigRectangularTiling = new RectangularTiling(width, height, 8, 8);
+        let outputImage4 = new Image(width, height);
+        let masks = weavingRandomMasks(3, 4, width, height);
+        for (let tile of bigRectangularTiling) {
+            let bufferValues = dataBuffers.map((buffer) => tile.aggregate(buffer, TileAggregation.Sum));
+            // TODO: we need to RE-normalize buffer values.
+            renderTileWeaving(outputImage4, tile, dataBuffers, bufferValues);
+        }
+        CanvasRenderer.render(outputImage4, 'canvas4');
     }
 }
 exports.TestMain = TestMain;
