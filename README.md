@@ -2,6 +2,8 @@
 
 ## Development
 
+Install NodeJS and NPM from https://nodejs.org/en/download/
+
 Clone the repo:
 
 ```bash
