@@ -162,7 +162,6 @@ export class Tile extends Point {
       if(r >= buffer.height) break;
       for(let c = this.x; c < this.x + this.mask.width; c++) {
         if(c >= buffer.width) break;
-        cnt ++;
         if(cnt == 0)
           val = buffer.values[r][c];
         else {
@@ -180,6 +179,7 @@ export class Tile extends Point {
               break;
           }
         }
+        cnt ++;
       }
     }
 
@@ -467,7 +467,7 @@ export class TestMain {
 
     for(let tile of bigRectangularTiling) { // hope we can use ES2016
       let bufferValues:number[] = dataBuffers.map(
-        (buffer):number => tile.aggregate(buffer, TileAggregation.Sum)
+        (buffer):number => tile.aggregate(buffer, TileAggregation.Mean)
       )
 
       // TODO: we need to RE-normalize buffer values.
