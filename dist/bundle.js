@@ -1,4 +1,3 @@
-var MCS =
 /******/ (function(modules) { // webpackBootstrap
 /******/ 	// The module cache
 /******/ 	var installedModules = {};
@@ -22082,6 +22081,7 @@ class CanvasRenderer {
     }
 }
 exports.CanvasRenderer = CanvasRenderer;
+/// <reference path="multivariate-normal.d.ts" />
 const multivariate_normal_1 = __importDefault(__webpack_require__(11));
 class TestMain {
     constructor() {

@@ -13,10 +13,14 @@ module.exports = {
     resolve: {
         extensions: [".tsx", ".ts", ".js"]
     },
+    devServer: {
+        contentBase: './'
+    },
     //watch:true,
     output: {
         filename: 'bundle.js',
         path: path.resolve(__dirname, 'dist'),
+        publicPath: '/dist/',
         library: 'MCS'
     }
 };

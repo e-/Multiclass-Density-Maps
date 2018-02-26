@@ -1,98 +1,86 @@
 "use strict";
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = Object.setPrototypeOf ||
-        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+}
 Object.defineProperty(exports, "__esModule", { value: true });
-var Color = /** @class */ (function () {
-    function Color(r, g, b, a) {
-        if (r === void 0) { r = 0; }
-        if (g === void 0) { g = 0; }
-        if (b === void 0) { b = 0; }
-        if (a === void 0) { a = 1; }
+class Color {
+    constructor(r = 1, g = 1, b = 1, a = 1) {
         this.r = r;
         this.g = g;
         this.b = b;
         this.a = a;
     }
-    Color.prototype.clamp = function () {
+    clamp() {
         return new Color(Math.min(Math.max(this.r, 0), 1), Math.min(Math.max(this.g, 0), 1), Math.min(Math.max(this.b, 0), 1), Math.min(Math.max(this.a, 0), 1));
-    };
-    Color.prototype.clone = function () {
+    }
+    clone() {
         return new Color(this.r, this.g, this.b, this.a);
-    };
-    Color.prototype.darken = function (v) {
+    }
+    darken(v) {
         return new Color(this.r * v, this.g * v, this.b * v, this.a);
-    };
-    Color.prototype.dissolve = function (v) {
+    }
+    whiten(v) {
+        return new Color(this.r + (1 - v) * (1 - this.r), this.g + (1 - v) * (1 - this.g), this.b + (1 - v) * (1 - this.b), this.a);
+    }
+    dissolve(v) {
         return new Color(this.r * v, this.g * v, this.b * v, this.a * v);
-    };
-    Color.compose = function (a, fa, b, fb) {
+    }
+    add(c) {
+        return new Color(this.r + c.r, this.g + c.g, this.b + c.b, this.a + c.a);
+    }
+    static compose(a, fa, b, fb) {
         return new Color(a.r * fa + b.r * fb, a.g * fa + b.g * fb, a.b * fa + b.b * fb, a.a * fa + b.a * fb);
-    };
-    return Color;
-}());
+    }
+}
 exports.Color = Color;
-var Point = /** @class */ (function () {
-    function Point(x, y) {
+class Point {
+    constructor(x, y) {
         this.x = x;
         this.y = y;
     }
-    return Point;
-}());
+}
 exports.Point = Point;
-var Rect = /** @class */ (function () {
-    function Rect(min, max) {
+class Rect {
+    constructor(min, max) {
         this.min = min;
         this.max = max;
     }
-    return Rect;
-}());
+}
 exports.Rect = Rect;
 function create2D(width, height, value) {
-    var arr = [];
-    for (var i = 0; i < height; ++i) {
+    let arr = [];
+    for (let i = 0; i < height; ++i) {
         arr.push(new Array(width));
-        for (var j = 0; j < width; ++j) {
+        for (let j = 0; j < width; ++j) {
             arr[i][j] = value;
         }
     }
     return arr;
 }
-var Mask = /** @class */ (function () {
-    function Mask(width, height, mask) {
-        if (mask === void 0) { mask = create2D(width, height, 1); }
+class Mask {
+    constructor(width, height, mask = create2D(width, height, 1)) {
         this.width = width;
         this.height = height;
         this.mask = mask;
     }
-    return Mask;
-}());
+}
 exports.Mask = Mask;
-var DataBuffer = /** @class */ (function () {
-    function DataBuffer(name, width, height, values) {
-        if (values === void 0) { values = create2D(width, height, 0); }
+class DataBuffer {
+    constructor(name, width, height, values = create2D(width, height, 0)) {
         this.name = name;
         this.width = width;
         this.height = height;
         this.values = values;
         this.color = new Color();
     }
-    DataBuffer.prototype.reset = function () {
-        for (var i = 0; i < this.height; ++i) {
-            for (var j = 0; j < this.width; ++j) {
+    reset() {
+        for (let i = 0; i < this.height; ++i) {
+            for (let j = 0; j < this.width; ++j) {
                 this.values[i][j] = 0;
             }
         }
-    };
-    return DataBuffer;
-}());
+    }
+}
 exports.DataBuffer = DataBuffer;
 var TileAggregation;
 (function (TileAggregation) {
@@ -101,28 +89,25 @@ var TileAggregation;
     TileAggregation[TileAggregation["Sum"] = 2] = "Sum";
     TileAggregation[TileAggregation["Max"] = 3] = "Max";
 })(TileAggregation = exports.TileAggregation || (exports.TileAggregation = {}));
-var Tile = /** @class */ (function (_super) {
-    __extends(Tile, _super);
-    function Tile(x, y, mask) {
-        var _this = _super.call(this, x, y) || this;
-        _this.mask = mask;
-        return _this;
+class Tile extends Point {
+    constructor(x, y, mask) {
+        super(x, y);
+        this.mask = mask;
     }
-    Tile.prototype.aggregate = function (buffer, op) {
-        if (op === void 0) { op = TileAggregation.Mean; }
-        var val = 0;
-        var cnt = 0;
-        for (var r = this.y; r < this.y + this.mask.height; r++) {
+    aggregate(buffer, op = TileAggregation.Mean) {
+        let val = 0;
+        let cnt = 0;
+        for (let r = this.y; r < this.y + this.mask.height; r++) {
             if (r >= buffer.height)
                 break;
-            for (var c = this.x; c < this.x + this.mask.width; c++) {
+            for (let c = this.x; c < this.x + this.mask.width; c++) {
                 if (c >= buffer.width)
                     break;
                 cnt++;
                 if (cnt == 0)
                     val = buffer.values[r][c];
                 else {
-                    var current = buffer.values[r][c];
+                    let current = buffer.values[r][c];
                     switch (op) {
                         case TileAggregation.Min:
                             val = Math.min(val, current);
@@ -142,24 +127,23 @@ var Tile = /** @class */ (function (_super) {
             val /= cnt;
         }
         return val;
-    };
-    return Tile;
-}(Point));
+    }
+}
 exports.Tile = Tile;
-var PixelTiling = /** @class */ (function () {
-    function PixelTiling(width, height) {
+class PixelTiling {
+    constructor(width, height) {
         this.width = width;
         this.height = height;
         this.x = 0;
         this.y = 0;
     }
-    PixelTiling.prototype[Symbol.iterator] = function () {
+    [Symbol.iterator]() {
         this.x = 0;
         this.y = 0;
         return this;
-    };
-    PixelTiling.prototype.next = function () {
-        var x = this.x, y = this.y;
+    }
+    next() {
+        let x = this.x, y = this.y;
         this.x++;
         if (this.x > this.width) {
             this.y++;
@@ -169,51 +153,198 @@ var PixelTiling = /** @class */ (function () {
             done: this.y >= this.height,
             value: new Tile(x, y, new Mask(1, 1, [[1]]))
         };
-    };
-    return PixelTiling;
-}());
+    }
+}
 exports.PixelTiling = PixelTiling;
-var Image = /** @class */ (function () {
-    function Image(width, height, pixels) {
-        if (pixels === void 0) { pixels = create2D(width, height, new Color()); }
+class RectangularTiling {
+    constructor(width, height, tileWidth, tileHeight) {
+        this.width = width;
+        this.height = height;
+        this.tileWidth = tileWidth;
+        this.tileHeight = tileHeight;
+        this.rows = 0;
+        this.cols = 0;
+        this.row = 0;
+        this.col = 0;
+        this.rows = Math.ceil(height / tileHeight);
+        this.cols = Math.ceil(width / tileWidth);
+    }
+    [Symbol.iterator]() {
+        this.row = 0;
+        this.col = 0;
+        return this;
+    }
+    next() {
+        let row = this.row, col = this.col;
+        this.col++;
+        if (this.col >= this.cols) {
+            this.row++;
+            this.col = 0;
+        }
+        return {
+            done: this.row >= this.rows,
+            value: new Tile(col * this.tileWidth, row * this.tileHeight, new Mask(this.tileWidth, this.tileHeight))
+        };
+    }
+}
+exports.RectangularTiling = RectangularTiling;
+class Image {
+    constructor(width, height, pixels = create2D(width, height, new Color())) {
         this.width = width;
         this.height = height;
         this.pixels = pixels;
     }
-    Image.prototype.fillByTile = function (color, tile) {
-        for (var r = tile.y; r < tile.y + tile.mask.height; r++) {
+    fillByTile(color, tile) {
+        for (let r = tile.y; r < tile.y + tile.mask.height; r++) {
             if (r >= this.height)
                 break;
-            for (var c = tile.x; c < tile.x + tile.mask.width; c++) {
+            for (let c = tile.x; c < tile.x + tile.mask.width; c++) {
                 if (c >= this.width)
                     break;
-                var v = tile.mask.mask[r - tile.y][c - tile.x];
+                let v = tile.mask.mask[r - tile.y][c - tile.x];
                 this.pixels[r][c] = color.darken(v);
             }
         }
-    };
-    Image.prototype.fillByRect = function (color, rect) {
-        for (var r = rect.min.y; r < rect.max.y; r++) {
+    }
+    fillByRect(color, rect) {
+        for (let r = rect.min.y; r < rect.max.y; r++) {
             if (r >= this.height)
                 break;
-            for (var c = rect.min.x; c < rect.max.x; c++) {
+            for (let c = rect.min.x; c < rect.max.x; c++) {
                 if (c >= this.width)
                     break;
                 this.pixels[r][c] = color.clone();
             }
         }
-    };
-    return Image;
-}());
-exports.Image = Image;
-var TestMain = /** @class */ (function () {
-    function TestMain(x) {
-        this.x = x;
     }
-    TestMain.prototype.main = function () {
-        console.log(1234277721);
-    };
-    return TestMain;
-}());
+}
+exports.Image = Image;
+class CanvasRenderer {
+    static render(image, id) {
+        let canvas = document.getElementById(id);
+        canvas.width = image.width;
+        canvas.height = image.height;
+        let ctx = canvas.getContext('2d');
+        let imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+        var data = imageData.data;
+        for (let i = 0; i < data.length; i += 4) {
+            let r = Math.floor(i / 4 / image.width);
+            let c = i / 4 % image.width;
+            data[i] = image.pixels[r][c].r * 255;
+            data[i + 1] = image.pixels[r][c].g * 255;
+            data[i + 2] = image.pixels[r][c].b * 255;
+            data[i + 3] = image.pixels[r][c].a * 255;
+        }
+        ctx.putImageData(imageData, 0, 0);
+    }
+}
+exports.CanvasRenderer = CanvasRenderer;
+const multivariate_normal_1 = __importDefault(require("multivariate-normal"));
+class TestMain {
+    constructor() {
+    }
+    randomPointsWithClass(n, mean, cov) {
+        let dist = multivariate_normal_1.default(mean, cov);
+        return new Array(n).fill(0).map(() => {
+            let point = dist.sample();
+            return point;
+        });
+    }
+    bin(points, binSize, bounds) {
+        let count = create2D(binSize, binSize, 0);
+        points.forEach(([x, y]) => {
+            let xb = Math.floor((x - bounds[0][0]) / (bounds[0][1] - bounds[0][0]) * binSize);
+            let yb = Math.floor((y - bounds[1][0]) / (bounds[1][1] - bounds[1][0]) * binSize);
+            if (xb >= binSize)
+                xb = binSize - 1;
+            if (yb >= binSize)
+                yb = binSize - 1;
+            if (xb < 0)
+                xb = 0;
+            if (yb < 0)
+                yb = 0;
+            count[yb][xb]++;
+        });
+        return count;
+    }
+    normalize(binned) {
+        let arrayMax = (arr) => Math.max.apply({}, arr);
+        let maxValue = arrayMax(binned.map(rows => arrayMax(rows.map(row => arrayMax(row)))));
+        return binned.map(rows => rows.map(row => row.map(value => value / maxValue)));
+    }
+    composeMax(buffers, bufferValues) {
+        let best = bufferValues[0];
+        let bestIndex = 0;
+        bufferValues.forEach((bufferValue, i) => {
+            if (bufferValue > best) {
+                best = bufferValue;
+                bestIndex = i;
+            }
+        });
+        return buffers[bestIndex].color.whiten(best);
+    }
+    composeMix(buffers, bufferValues) {
+        let sum = 0;
+        let ret = new Color(0, 0, 0, 1);
+        bufferValues.forEach((bufferValue, i) => {
+            sum += bufferValue;
+            ret = ret.add(buffers[i].color.whiten(bufferValue));
+        });
+        if (sum > 0)
+            ret = ret.dissolve(1 / buffers.length); // TODO: is this correct?
+        return ret;
+    }
+    main() {
+        let nClass = 3;
+        let width = 256, height = 256;
+        let pointSets = [
+            this.randomPointsWithClass(3000, [2, 3], [[1, 0.3], [0.3, 1]]),
+            this.randomPointsWithClass(3000, [-1, -3.5], [[1, -0.1], [-0.1, 1]]),
+            this.randomPointsWithClass(3000, [1, -2], [[1, 0.6], [0.6, 1]])
+        ];
+        // binning on the client side since we do not have a server
+        let binned = pointSets.map(points => this.bin(points, width, [[-7, 7], [-7, 7]]));
+        // normlize bins
+        binned = this.normalize(binned);
+        // computeDerivedBuffers()
+        let dataBuffers = binned.map((binnedPoints, i) => {
+            return new DataBuffer(`class ${i}`, width, height, binnedPoints);
+        });
+        let colors = [
+            new Color(31 / 255, 120 / 255, 180 / 255, 1),
+            new Color(255 / 255, 127 / 255, 0 / 255, 1),
+            new Color(51 / 255, 160 / 255, 44 / 255, 1) // green
+        ];
+        // assignProperties()
+        dataBuffers.forEach((dataBuffer, i) => {
+            dataBuffer.color = colors[i];
+        });
+        let pixelTiling = new PixelTiling(width, height);
+        let outputImage1 = new Image(width, height);
+        for (let tile of pixelTiling) {
+            let bufferValues = dataBuffers.map((buffer) => tile.aggregate(buffer, TileAggregation.Sum));
+            let color = this.composeMax(dataBuffers, bufferValues);
+            outputImage1.fillByTile(color, tile);
+        }
+        CanvasRenderer.render(outputImage1, 'canvas1');
+        let rectangularTiling = new RectangularTiling(width, height, width / 64, height / 64);
+        let outputImage2 = new Image(width, height);
+        for (let tile of rectangularTiling) {
+            let bufferValues = dataBuffers.map((buffer) => tile.aggregate(buffer, TileAggregation.Sum));
+            // TODO: we need to RE-normalize buffer values.
+            let color = this.composeMax(dataBuffers, bufferValues);
+            outputImage2.fillByTile(color, tile);
+        }
+        CanvasRenderer.render(outputImage2, 'canvas2');
+        let outputImage3 = new Image(width, height);
+        for (let tile of rectangularTiling) {
+            let bufferValues = dataBuffers.map((buffer) => tile.aggregate(buffer, TileAggregation.Sum));
+            // TODO: we need to RE-normalize buffer values.
+            let color = this.composeMix(dataBuffers, bufferValues);
+            outputImage3.fillByTile(color, tile);
+        }
+        CanvasRenderer.render(outputImage3, 'canvas3');
+    }
+}
 exports.TestMain = TestMain;
 //# sourceMappingURL=index.js.map

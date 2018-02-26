@@ -257,6 +257,7 @@ export class CanvasRenderer {
   }
 }
 
+/// <reference path="multivariate-normal.d.ts" />
 import MN from "multivariate-normal";
 
 export class TestMain {
