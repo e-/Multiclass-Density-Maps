@@ -1,110 +1,13 @@
-export class Color {
-  constructor(public r:number = 1, public g:number = 1, public b:number = 1, public a:number = 1) {
+import CanvasRenderer from './canvas-renderer';
+import Mask from './mask';
+import Image from './image';
+import Tile, {TileAggregation} from './tile';
+import DataBuffer from './data-buffer';
+import Color from './color';
+import * as util from './util';
 
-  }
-
-  clamp() {
-    return new Color(
-      Math.min(Math.max(this.r, 0), 1),
-      Math.min(Math.max(this.g, 0), 1),
-      Math.min(Math.max(this.b, 0), 1),
-      Math.min(Math.max(this.a, 0), 1)
-    );
-  }
-
-  clone() {
-    return new Color(this.r, this.g, this.b, this.a);
-  }
-
-  darken(v:number) {
-    return new Color(this.r * v, this.g * v, this.b * v, this.a);
-  }
-
-  whiten(v:number) {
-    return new Color(
-      this.r + (1 - v) * (1 - this.r),
-      this.g + (1 - v) * (1 - this.g),
-      this.b + (1 - v) * (1 - this.b),
-      this.a);
-  }
-
-  dissolve(v:number) {
-    return new Color(this.r * v, this.g * v, this.b * v, this.a * v);
-  }
-
-  add(c:Color) {
-    return new Color(
-      this.r + c.r,
-      this.g + c.g,
-      this.b + c.b,
-      this.a + c.a
-    );
-  }
-
-  static compose(a:Color, fa:number, b:Color, fb:number) {
-    return new Color(
-      a.r * fa + b.r * fb,
-      a.g * fa + b.g * fb,
-      a.b * fa + b.b * fb,
-      a.a * fa + b.a * fb
-    );
-  }
-}
-
-export class Point {
-  constructor(public x: number, public y:number) {
-
-  }
-}
-
-export class Rect {
-  constructor(public min:Point, public max:Point) {
-
-  }
-}
-
-export function create2D<T>(width:number, height:number, value:T) {
-  let arr:T[][] = [];
-  for(let i = 0; i < height; ++i) {
-    arr.push(new Array(width));
-    for(let j = 0; j < width; ++j) {
-      arr[i][j] = value;
-    }
-  }
-
-  return arr;
-}
-
-//import 'path2d';
-
-export class Mask {
-  path:Path2D = new Path2D();
-  constructor(public width:number, public height:number,
-              default_value:number = 1,
-              public mask:number[][] = create2D<number>(width, height, default_value)) {
-  }
-}
-
-export class DataBuffer {
-  color:Color = new Color();
-  mask:Mask | null = null;
-
-  constructor(public name:string, public width:number, public height:number, public values:number[][] = create2D<number>(width, height, 0)) {
-  }
-
-  reset() {
-    for(let i = 0; i < this.height; ++i) {
-      for(let j = 0; j < this.width; ++j) {
-        this.values[i][j] = 0;
-      }
-    }
-    this.setMask(null);
-  }
-
-  setMask(mask:Mask|null): void {
-      this.mask = mask;
-  }
-}
+/// <reference path="multivariate-normal.d.ts" />
+import MN from "multivariate-normal";
 
 export function weavingRandomMasks(m: number, size: number, width: number, height: number) : Mask[]
 {
@@ -138,56 +41,6 @@ export function renderTileWeaving(image:Image, tile:Tile, buffers:DataBuffer[], 
     let color:Color = databuffer.color.whiten(bufferValues[i]);
     image.setMask(databuffer.mask);
     image.fillByTile(color, tile);
-  }
-}
-
-
-export enum TileAggregation {
-  Min,
-  Mean,
-  Sum,
-  Max
-}
-
-export class Tile extends Point {
-  constructor(x:number, y:number, public mask:Mask) {
-    super(x, y);
-  }
-
-  aggregate(buffer:DataBuffer, op:TileAggregation = TileAggregation.Mean): number {
-    let val = 0;
-    let cnt = 0;
-
-    for(let r = this.y; r < this.y + this.mask.height; r++) {
-      if(r >= buffer.height) break;
-      for(let c = this.x; c < this.x + this.mask.width; c++) {
-        if(c >= buffer.width) break;
-        if(cnt == 0)
-          val = buffer.values[r][c];
-        else {
-          let current = buffer.values[r][c];
-          switch(op) {
-            case TileAggregation.Min:
-              val = Math.min(val, current);
-              break;
-            case TileAggregation.Mean:
-            case TileAggregation.Sum:
-              val += current;
-              break;
-            case TileAggregation.Max:
-              val = Math.max(val, current);
-              break;
-          }
-        }
-        cnt ++;
-      }
-    }
-
-    if(op === TileAggregation.Mean && cnt > 0) {
-      val /= cnt;
-    }
-
-    return val;
   }
 }
 
@@ -252,67 +105,7 @@ export class RectangularTiling {
   }
 }
 
-export class Image {
-  mask:Mask | null = null;
-  constructor(public width:number, public height:number, public pixels:Color[][] = create2D<Color>(width, height, new Color())) {
-  }
 
-  setMask(m:Mask|null): void {
-      this.mask = m;
-  }
-
-  fillByTile(color:Color, tile:Tile) {
-    for(let r = tile.y; r < tile.y + tile.mask.height; r++) {
-      if(r >= this.height) break;
-      for(let c = tile.x; c < tile.x + tile.mask.width; c++) {
-        if(c >= this.width) break;
-          if(this.mask != null && r < this.mask.width && c < this.mask.height) {
-              if (this.mask.mask[r][c] == 0) continue;
-          }
-
-        let v = tile.mask.mask[r - tile.y][c - tile.x];
-        this.pixels[r][c] = color.darken(v);
-      }
-    }
-  }
-
-  fillByRect(color:Color, rect:Rect) {
-    for(let r = rect.min.y; r < rect.max.y; r++) {
-      if(r >= this.height) break;
-      for(let c = rect.min.x; c < rect.max.x; c++) {
-        if(c >= this.width) break;
-        this.pixels[r][c] = color.clone();
-      }
-    }
-  }
-}
-
-export class CanvasRenderer {
-  static render(image:Image, id:string) {
-    let canvas:any = document.getElementById(id);
-    canvas.width = image.width;
-    canvas.height = image.height;
-
-    let ctx = canvas.getContext('2d');
-    let imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-    var data = imageData.data;
-
-    for (let i = 0; i < data.length; i += 4) {
-      let r = Math.floor(i / 4 / image.width);
-      let c = i / 4 % image.width;
-
-      data[i] = image.pixels[r][c].r * 255;
-      data[i + 1] = image.pixels[r][c].g * 255;
-      data[i + 2] = image.pixels[r][c].b * 255;
-      data[i + 3] = image.pixels[r][c].a * 255;
-    }
-
-    ctx.putImageData(imageData, 0, 0);
-  }
-}
-
-/// <reference path="multivariate-normal.d.ts" />
-import MN from "multivariate-normal";
 
 export class TestMain {
   constructor() {
@@ -328,7 +121,7 @@ export class TestMain {
   }
 
   bin(points:[number, number][], binSize:number, bounds:[[number, number], [number, number]]):number[][] {
-    let count = create2D(binSize, binSize, 0);
+    let count = util.create2D(binSize, binSize, 0);
 
     points.forEach(([x, y]) => {
       let xb = Math.floor((x - bounds[0][0]) / (bounds[0][1] - bounds[0][0]) * binSize);
@@ -478,3 +271,5 @@ export class TestMain {
     CanvasRenderer.render(outputImage4, 'canvas4');
   }
 }
+
+export * from './vega-extractor';

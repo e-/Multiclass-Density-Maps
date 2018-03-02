@@ -5,12 +5,13 @@
   "main": "src/index.ts",
   "dependencies": {},
   "devDependencies": {
-    "multivariate-normal": "^0.1.1",
-    "webpack": "^3.11.0",
-    "webpack-dev-server": "^2.11.1",
     "eslint": "^4.18.1",
+    "multivariate-normal": "^0.1.1",
     "ts-loader": "^3.5.0",
-    "typescript": "^2.7.2"
+    "typescript": "^2.7.2",
+    "vega-embed": "^3.0.0",
+    "webpack": "^3.11.0",
+    "webpack-dev-server": "^2.11.1"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
