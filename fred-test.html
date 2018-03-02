@@ -20,24 +20,29 @@
 
             d3.json("data/us.json", function(error, us) {
               if (error) throw error;
-              else console.log(us);
 
-              let onestate = topojson.feature(us, us.objects.states.geometries[41]);
-              let allstate = topojson.feature(us, us.objects.states.geometries);
+              // remove alaska, Hawai and puerto-rico
+              us.objects.states.geometries.splice(49, 4);
 
-              var projection  = d3.geoMercator().fitExtent([[0, 0], [512, 280]], onestate);
+              let onestate = topojson.feature(us, us.objects.states.geometries[48]);
+              let allstate = topojson.feature(us, us.objects.states);
+
+              console.log(d3.geoBounds(onestate) );
+              console.log(d3.geoBounds(allstate) );
+
+              var projection  = d3.geoMercator().fitSize([512, 280], allstate);
               var context     = d3.select("#canvas0").node().getContext("2d"),
                   gp          = d3.geoPath(projection);
               var path        = gp.context(context);
 
               //var projection2 = d3.geoTransverseMercator().rotate([74 + 30 / 60, -38 - 50 / 60]).fitExtent([[0, 0], [1024, 600]], onestate);;
-              var projection2 = d3.geoMercator().fitExtent([[0, 0], [512, 280]], onestate);
+              var projection2 = d3.geoMercator().fitSize([512, 280], onestate);
               var gp2    = d3.geoPath(projection2);
               var path2 = gp2.context(context);
 
               context.beginPath();
               // render all the us = all the counties
-              context.strokeStyle="#ff0";
+              context.strokeStyle="rgba(255, 255, 0, 0.3)";
               path(topojson.mesh(us));
               context.stroke();
 
