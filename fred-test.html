@@ -5,18 +5,24 @@
         <title>Fred tests ts</title>
             <script src="https://d3js.org/d3.v4.min.js"></script>
             <script src="https://unpkg.com/topojson-client@3"></script>
-            <script src="node_modules/jquery/dist/jquery.js"></script>
     </head>
 
-    <body style="background:#ffc">
-        <div style="position:relative">
-          <img    style="position:absolute" src="data/census.snappy_w.png"/>
-          <canvas style="position:absolute" id="canvas0" width="512" height="280"  style="background:#fff"></canvas>
+    <body style="background:#ffc;">
+        <div id="container0" style="display:inline-block;position:relative; width:512px; height:280px">
+          <img    style="position:absolute" id="img1"    src="data/census.snappy_a.png"/>
+          <img    style="position:absolute" id="img2"    src="data/census.snappy_b.png"/>
+          <img    style="position:absolute" id="img3"    src="data/census.snappy_h.png"/>
+          <img    style="position:absolute" id="img4"    src="data/census.snappy_o.png"/>
+          <img    style="position:absolute" id="img5"    src="data/census.snappy_w.png"/>
+          <canvas style="position:absolute" id="canvas0" width="512" height="280"></canvas>
         </div>
+        <canvas style="position:relative" id="canvas1" width="512" height="280"></canvas>
         <div id='debugdiv'></div>
+        <table id="table0" border="1" style="border-collapse:collapse;background:white">
+            <tr><th>State ID</th><th>Asian</th><th>Black</th><th>Hispanic</th><th>Other</th><th>white</th></tr>
+        </table>
         <script src="dist/fred-test.js"></script>
         <script>
-
 
             d3.json("data/us.json", function(error, us) {
               if (error) throw error;
@@ -24,21 +30,49 @@
               // remove alaska, Hawai and puerto-rico
               us.objects.states.geometries.splice(49, 4);
 
-              let onestate = topojson.feature(us, us.objects.states.geometries[48]);
               let allstate = topojson.feature(us, us.objects.states);
 
-              console.log(d3.geoBounds(onestate) );
-              console.log(d3.geoBounds(allstate) );
+              //console.log(d3.geoBounds(allstate) );
 
-              var projection  = d3.geoMercator().fitSize([512, 280], allstate);
-              var context     = d3.select("#canvas0").node().getContext("2d"),
+              // One projection for the whole USA
+              let projection  = d3.geoMercator().fitSize([512, 280], allstate);
+              let canvas      = d3.select("#canvas0").node();
+              let context     = canvas.getContext("2d"),
                   gp          = d3.geoPath(projection);
-              var path        = gp.context(context);
+              let path        = gp.context(context);
 
-              //var projection2 = d3.geoTransverseMercator().rotate([74 + 30 / 60, -38 - 50 / 60]).fitExtent([[0, 0], [1024, 600]], onestate);;
-              var projection2 = d3.geoMercator().fitSize([512, 280], onestate);
-              var gp2    = d3.geoPath(projection2);
-              var path2 = gp2.context(context);
+              for (let j=1; j<=48; j++){
+                  // render just one state
+                  let onestate = topojson.feature(us, us.objects.states.geometries[j]); // Florida
+                  context.clearRect(0, 0, canvas.width, canvas.height);
+                  path(onestate);
+
+                  let bb = gp.bounds(onestate);
+                  context.fillStyle="rgba(0, 0, 0, 1.0)";
+                  context.fill();
+                  context.beginPath();
+
+                  // now make the compositing to extract pixels from the image toward a new canvas
+                  var base = d3.select("#table0");
+                  var tr1 = base.append("tr");
+                  var td0 = tr1.append("td").text(j);
+
+                  for (let i=1; i<=5; i++) {
+                      var td1 = tr1.append("td");
+                      var canvas1 = td1.append("canvas").attr("width", Math.ceil(bb[1][0]-bb[0][0])).attr("height", Math.ceil(bb[1][1]-bb[0][1]));
+                      var context1     = canvas1.node().getContext("2d");
+                      context1.translate(-bb[0][0], -bb[0][1]);
+                      context1.drawImage(d3.select("#canvas0").node(),0,0);
+                      context1.globalCompositeOperation="source-in";
+                      context1.drawImage(d3.select("#img"+i).node(),0,0);
+                  }
+              }
+
+
+              onestate = topojson.feature(us, us.objects.states.geometries[48]); // Florida
+
+              // let's clear that and draw something nice in the canvas used as a mask !
+              context.clearRect(0, 0, canvas.width, canvas.height);
 
               context.beginPath();
               // render all the us = all the counties
@@ -46,15 +80,13 @@
               path(topojson.mesh(us));
               context.stroke();
 
-              // render all the us = all the counties
-              //path(topojson.mesh(us, us.objects.states));
-
               context.beginPath();
               // render just one state = NY
               path(topojson.mesh(us, us.objects.states.geometries[12]));
               context.fillStyle="rgba(0, 128, 0, 0.5)";
               context.fill();
               context.beginPath();
+
 
               // render just one state = Mass
               path(topojson.mesh(us, us.objects.states.geometries[16]));
@@ -80,23 +112,24 @@
               context.fill();
               context.beginPath();
 
-              // display them all
-
-
 
               context.beginPath();
+              //render just florida in Big !
+              // another projection for just Florida
+              let projection2 = d3.geoMercator().fitSize([512, 280], onestate);
+              let gp2         = d3.geoPath(projection2);
+              let path2       = gp2.context(context);
               path2(onestate);
-
-              //render just the states
-              //path(topojson.mesh(us, us.objects.states));
-              //path(topojson.feature(us, us.objects.states)); // do the same
               context.fillStyle="rgba(128, 0, 0, 0.5)";
               context.fill();
+
+
             });
 
             let user = new Student("Jean-Daniel", "M.", "Fekete");
             d3.select("#debugdiv").style('background', '#fdd');
-            d3.select("#debugdiv").node().append("fred "+greeter(user));
+            d3.select("#debugdiv").node().append("fred says "+greeter(user));
         </script>
+
     </body>
 </html>
