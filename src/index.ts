@@ -478,3 +478,5 @@ export class TestMain {
     CanvasRenderer.render(outputImage4, 'canvas4');
   }
 }
+
+export * from './vega-extractor';
