@@ -143,7 +143,6 @@ class Tile extends Point {
             for (let c = this.x; c < this.x + this.mask.width; c++) {
                 if (c >= buffer.width)
                     break;
-                cnt++;
                 if (cnt == 0)
                     val = buffer.values[r][c];
                 else {
@@ -161,6 +160,7 @@ class Tile extends Point {
                             break;
                     }
                 }
+                cnt++;
             }
         }
         if (op === TileAggregation.Mean && cnt > 0) {
@@ -393,11 +393,15 @@ class TestMain {
             outputImage3.fillByTile(color, tile);
         }
         CanvasRenderer.render(outputImage3, 'canvas3');
-        let bigRectangularTiling = new RectangularTiling(width, height, 8, 8);
+        let bigRectangularTiling = new RectangularTiling(width, height, 16, 16);
         let outputImage4 = new Image(width, height);
         let masks = weavingRandomMasks(3, 4, width, height);
+        // assignProperties()
+        dataBuffers.forEach((dataBuffer, i) => {
+            dataBuffer.mask = masks[i];
+        });
         for (let tile of bigRectangularTiling) {
-            let bufferValues = dataBuffers.map((buffer) => tile.aggregate(buffer, TileAggregation.Sum));
+            let bufferValues = dataBuffers.map((buffer) => tile.aggregate(buffer, TileAggregation.Mean));
             // TODO: we need to RE-normalize buffer values.
             renderTileWeaving(outputImage4, tile, dataBuffers, bufferValues);
         }

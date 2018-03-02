@@ -1,13 +1,97 @@
 <!doctype html>
 
 <html>
-    <head><title>Fred tests ts</title></head>
-    <body>
+    <head>
+        <title>Fred tests ts</title>
+            <script src="https://d3js.org/d3.v4.min.js"></script>
+            <script src="https://unpkg.com/topojson-client@3"></script>
+            <script src="node_modules/jquery/dist/jquery.js"></script>
+    </head>
+
+    <body style="background:#ffc">
+        <div style="position:relative">
+          <img    style="position:absolute" src="data/census.snappy_w.png"/>
+          <canvas style="position:absolute" id="canvas0" width="512" height="280"  style="background:#fff"></canvas>
+        </div>
+        <div id='debugdiv'></div>
         <script src="dist/fred-test.js"></script>
         <script>
-            let user = new Student("Jane", "M.", "User");
 
-            document.body.innerHTML = greeter(user);
+
+            d3.json("data/us.json", function(error, us) {
+              if (error) throw error;
+              else console.log(us);
+
+              let onestate = topojson.feature(us, us.objects.states.geometries[41]);
+              let allstate = topojson.feature(us, us.objects.states.geometries);
+
+              var projection  = d3.geoMercator().fitExtent([[0, 0], [512, 280]], onestate);
+              var context     = d3.select("#canvas0").node().getContext("2d"),
+                  gp          = d3.geoPath(projection);
+              var path        = gp.context(context);
+
+              //var projection2 = d3.geoTransverseMercator().rotate([74 + 30 / 60, -38 - 50 / 60]).fitExtent([[0, 0], [1024, 600]], onestate);;
+              var projection2 = d3.geoMercator().fitExtent([[0, 0], [512, 280]], onestate);
+              var gp2    = d3.geoPath(projection2);
+              var path2 = gp2.context(context);
+
+              context.beginPath();
+              // render all the us = all the counties
+              context.strokeStyle="#ff0";
+              path(topojson.mesh(us));
+              context.stroke();
+
+              // render all the us = all the counties
+              //path(topojson.mesh(us, us.objects.states));
+
+              context.beginPath();
+              // render just one state = NY
+              path(topojson.mesh(us, us.objects.states.geometries[12]));
+              context.fillStyle="rgba(0, 128, 0, 0.5)";
+              context.fill();
+              context.beginPath();
+
+              // render just one state = Mass
+              path(topojson.mesh(us, us.objects.states.geometries[16]));
+              context.fillStyle="rgba(0, 0, 128, 0.5)";
+              context.fill();
+              context.beginPath();
+
+              // render just one state = California
+              path(topojson.mesh(us, us.objects.states.geometries[21]));
+              context.fillStyle="rgba(64, 64, 0, 0.5)";
+              context.fill();
+              context.beginPath();
+
+              // render just one state = Texas
+              path(topojson.mesh(us, us.objects.states.geometries[41]));
+              context.fillStyle="rgba(0, 64, 64, 0.5)";
+              context.fill();
+              context.beginPath();
+
+              // render just one state = Florida
+              path(topojson.mesh(us, us.objects.states.geometries[48]));
+              context.fillStyle="rgba(64, 0, 64, 0.5)";
+              context.fill();
+              context.beginPath();
+
+              // display them all
+
+
+
+              context.beginPath();
+              path2(onestate);
+
+              //render just the states
+              //path(topojson.mesh(us, us.objects.states));
+              //path(topojson.feature(us, us.objects.states)); // do the same
+              context.fillStyle="rgba(128, 0, 0, 0.5)";
+              context.fill();
+            });
+
+            let user = new Student("Jean-Daniel", "M.", "Fekete");
+            d3.select("#debugdiv").style('background', '#fdd');
+            d3.select("#debugdiv").node().append("fred "+greeter(user));
         </script>
     </body>
 </html>
