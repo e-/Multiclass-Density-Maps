@@ -5,6 +5,7 @@ import Tile, {TileAggregation} from './tile';
 import DataBuffer from './data-buffer';
 import Color from './color';
 import * as util from './util';
+import * as Tiling from './tiling';
 
 /// <reference path="multivariate-normal.d.ts" />
 import MN from "multivariate-normal";
@@ -43,69 +44,6 @@ export function renderTileWeaving(image:Image, tile:Tile, buffers:DataBuffer[], 
     image.fillByTile(color, tile);
   }
 }
-
-export class PixelTiling {
-  x = 0;
-  y = 0;
-
-  constructor(public width:number, public height:number) {
-
-  }
-
-  [Symbol.iterator]() {
-    this.x = 0;
-    this.y = 0;
-    return this;
-  }
-
-  public next() {
-    let x = this.x, y = this.y;
-    this.x++;
-    if (this.x > this.width) {
-      this.y++;
-      this.x = 0;
-    }
-
-    return {
-      done: this.y >= this.height,
-      value: new Tile(x, y, new Mask(1, 1))
-    }
-  }
-}
-
-export class RectangularTiling {
-  rows = 0;
-  cols = 0;
-  row = 0;
-  col = 0;
-
-  constructor(public width:number, public height:number, public tileWidth:number, public tileHeight:number) {
-    this.rows = Math.ceil(height / tileHeight);
-    this.cols = Math.ceil(width / tileWidth);
-  }
-
-  [Symbol.iterator]() {
-    this.row = 0;
-    this.col = 0;
-    return this;
-  }
-
-  public next() {
-    let row = this.row, col = this.col;
-    this.col++;
-    if (this.col >= this.cols) {
-      this.row++;
-      this.col = 0;
-    }
-
-    return {
-      done: this.row >= this.rows,
-      value: new Tile(col * this.tileWidth, row * this.tileHeight, new Mask(this.tileWidth, this.tileHeight))
-    }
-  }
-}
-
-
 
 export class TestMain {
   constructor() {
@@ -204,7 +142,7 @@ export class TestMain {
       dataBuffer.color = colors[i];
     });
 
-    let pixelTiling = new PixelTiling(width, height);
+    let pixelTiling = new Tiling.PixelTiling(width, height);
     let outputImage1 = new Image(width, height);
 
     for(let tile of pixelTiling) { // hope we can use ES2016
@@ -218,7 +156,7 @@ export class TestMain {
 
     CanvasRenderer.render(outputImage1, 'canvas1');
 
-    let rectangularTiling = new RectangularTiling(width, height, width / 64, height / 64);
+    let rectangularTiling = new Tiling.RectangularTiling(width, height, width / 64, height / 64);
     let outputImage2 = new Image(width, height);
 
     for(let tile of rectangularTiling) { // hope we can use ES2016
@@ -249,7 +187,7 @@ export class TestMain {
 
     CanvasRenderer.render(outputImage3, 'canvas3');
 
-    let bigRectangularTiling = new RectangularTiling(width, height, 16, 16);
+    let bigRectangularTiling = new Tiling.RectangularTiling(width, height, 16, 16);
     let outputImage4 = new Image(width, height);
     let masks = weavingRandomMasks(3, 4, width, height);
 
