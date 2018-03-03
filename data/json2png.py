@@ -1,9 +1,9 @@
 #!/usr/bin/env python
 
 import os.path
-import numpy as np
 import json
 import gzip
+import numpy as np
 from PIL import Image
 from scipy.misc import toimage
 from scipy.special import cbrt
@@ -15,7 +15,7 @@ def json2png(fname):
         fopen = gzip.open
         root, ext = os.path.splitext(root)
     if ext != '.json':
-        raise ValueError('Not a json file (%s): %s', ext, fname)
+        raise ValueError('Not a json file (%s): %s'%(ext, fname))
     with fopen(fname, 'r') as injson:
         histo = np.array(json.load(injson))
     histo = cbrt(histo)

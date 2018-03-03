@@ -8,7 +8,8 @@ import fastparquet
 
 
 def parquet_to_databuffers(filename, x, y, category, width=512, height=None,
-                           xmin=None, ymin=None, xmax=None, ymax=None):
+                           xmin=None, ymin=None, xmax=None, ymax=None,
+                           projection=None):
     root, ext = os.path.splitext(filename)
     if ext != '.parq':
         raise ValueError('Expected a .parq file, got ({}) {}'.format(ext, filename))
@@ -16,8 +17,9 @@ def parquet_to_databuffers(filename, x, y, category, width=512, height=None,
     pf = fastparquet.ParquetFile(filename)
     check_column_names(pf.columns, [x, y, category]) # raise if columns not there
     description = {'source': {"filename": filename, "type": "parquet"}}
-    # TODO add a projection description when appropriate
-    #xmin = xmax = ymin = ymax = None
+    if projection:
+        description['projection'] = {"type": projection}
+
     stats = pf.statistics
     if 'max' in stats:
         if xmax is None:
@@ -160,11 +162,23 @@ if __name__ == '__main__':
     parser.add_argument('x', help='x column name')
     parser.add_argument('y', help='y column name')
     parser.add_argument('category', help='category column name')
-    parser.add_argument('width', type=int, default=512, nargs='?',
+    parser.add_argument('--width', type=int, default=512, nargs='?',
                         help='width of the binned image')
-    parser.add_argument('height', default=None, nargs='?',
+    parser.add_argument('--height', type=int, default=None, nargs='?',
                         help='height of the binned image')
+    parser.add_argument('--xmin', type=float, default=None, nargs='?',
+                        help='xmin of bbox')
+    parser.add_argument('--ymin', type=float, default=None, nargs='?',
+                        help='ymin of bbox')
+    parser.add_argument('--xmax', type=float, default=None, nargs='?',
+                        help='xmax of bbox')
+    parser.add_argument('--ymax', type=float, default=None, nargs='?',
+                        help='ymax of bbox')
+    parser.add_argument('--projection', default=None, nargs='?',
+                        help='Geographic projection applied to these coordinates')
     args = parser.parse_args()
     print('args: %s'%args)
     parquet_to_databuffers(args.infile, args.x, args.y, args.category,
-                           width=args.width, height=args.height)
+                           width=args.width, height=args.height,
+                           xmin=args.xmin, xmax=args.xmax, ymin=args.ymin, ymax=args.ymax,
+                           projection=args.projection)

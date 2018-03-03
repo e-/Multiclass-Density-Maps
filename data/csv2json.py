@@ -8,7 +8,8 @@ import pandas as pd
 
 
 def csv_to_databuffers(filename, x, y, category, width=512, height=None,
-                       xmin=None, ymin=None, xmax=None, ymax=None):
+                       xmin=None, ymin=None, xmax=None, ymax=None,
+                       projection=None):
     root, ext = os.path.splitext(filename)
     if ext != '.csv':
         raise ValueError('Expected a .csv file, got ({}) {}'.format(ext, filename))
@@ -16,6 +17,8 @@ def csv_to_databuffers(filename, x, y, category, width=512, height=None,
     df = pd.read_csv(filename, usecols=[x, y, category])
     df[category] = df[category].astype("category")
     description = {'source': {"filename": filename, "type": "csv"}}
+    if projection:
+        description['projection'] = {"type": projection}
 
     if xmin is None:
         xmin = df[x].min()
@@ -133,8 +136,11 @@ if __name__ == '__main__':
                         help='xmax of bbox')
     parser.add_argument('--ymax', type=float, default=None, nargs='?',
                         help='ymax of bbox')
+    parser.add_argument('--projection', default=None, nargs='?',
+                        help='Geographic projection applied to these coordinates')
     args = parser.parse_args()
     print('args: %s'%args)
     csv_to_databuffers(args.infile, args.x, args.y, args.category,
                        width=args.width, height=args.height,
-                       xmin=args.xmin, xmax=args.xmax, ymin=args.ymin, ymax=args.ymax)
+                       xmin=args.xmin, xmax=args.xmax, ymin=args.ymin, ymax=args.ymax,
+                       projection=args.projection)

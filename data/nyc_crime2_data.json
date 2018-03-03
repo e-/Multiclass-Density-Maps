@@ -4,6 +4,9 @@
     "type": "csv",
     "rows": 1123463
   },
+  "projection": {
+    "type": "ESRI:102718"
+  },
   "encoding": {
     "x": {
       "field": "XCoordinate",
