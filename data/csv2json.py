@@ -15,6 +15,7 @@ def csv_to_databuffers(filename, x, y, category, width=512, height=None,
 
     df = pd.read_csv(filename, usecols=[x, y, category])
     df[category] = df[category].astype("category")
+    description = {'source': {"filename": filename, "type": "csv"}}
 
     if xmin is None:
         xmin = df[x].min()
@@ -24,7 +25,7 @@ def csv_to_databuffers(filename, x, y, category, width=512, height=None,
         xmax = df[x].max()
     if ymax is None:
         ymax = df[y].max()
-    xy_range = [[xmin, xmax], [ymin, ymax]]
+    xy_range = [[float(xmin), float(xmax)], [float(ymin), float(ymax)]]
     if ymax == ymin or xmax == xmin:
         raise ValueError('Invalid bounds: {}'.format(xy_range))
     if height is None:
@@ -33,9 +34,10 @@ def csv_to_databuffers(filename, x, y, category, width=512, height=None,
     bins = (width, height)
     print('Range: %s, bins: %s'%(xy_range, bins))
     histograms = {}
-
-    values = df[category].cat.categories
+    counts = {}
     cat_column = df[category]
+    values = cat_column.cat.categories
+
     for i, cat in enumerate(values):
         df_cat = df.loc[cat_column == cat, [x, y]]
         (histo, xedges, yedges) = np.histogram2d(df_cat[x], df_cat[y],
@@ -55,12 +57,59 @@ def csv_to_databuffers(filename, x, y, category, width=512, height=None,
         else:
             key = i+1
         histograms[key] = histo
+        counts[key] = len(df_cat) + counts.get(key, 0)
+
+    description['encoding'] = {
+        "x": {"field": x,
+              "type": "quantitative",
+              "bin": {
+                  "maxbins": width
+                  },
+              "aggregate": "count",
+              "scale": {
+                  "domain": xy_range[0],
+                  "range": [0, width]
+                  }
+             },
+        "y": {"field": y,
+              "type": "quantitative",
+              "bin": {
+                  "maxbins": height
+                  },
+              "aggregate": "count",
+              "scale": {
+                  "domain": xy_range[1],
+                  "range": [0, height]
+                  }
+             },
+        "z": {"field": category,
+              "type": "nominal", # or ordinal
+              "scale": {
+                  "domain": list(histograms.keys())
+                  }
+             }
+        }
 
     print('Writing files')
+    count = 0
+    buffers = []
     for (key, histo) in histograms.items():
         histo = histo.T
-        with open(root + '_%s.json'%key, 'w') as outf:
+        hmin = np.min(histo)
+        hmax = np.max(histo)
+        outfile = root + '_cat_%s.json'%key
+        with open(outfile, 'w') as outf:
             json.dump(histo.tolist(), outf)
+        data = {'url': outfile,
+                'count': counts[key],
+                'value': key,
+                'range': [int(hmin), int(hmax)]}
+        buffers.append(data)
+        count += counts[key]
+    description['buffers'] = buffers
+    description['source']['rows'] = count
+    with open(root + '_data.json', 'w') as outf:
+        json.dump(description, outf, indent=2)
 
 
 if __name__ == '__main__':

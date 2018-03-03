@@ -1,0 +1,125 @@
+{
+  "source": {
+    "filename": "nyc_crime2.csv",
+    "type": "csv",
+    "rows": 1123463
+  },
+  "encoding": {
+    "x": {
+      "field": "XCoordinate",
+      "type": "quantitative",
+      "bin": {
+        "maxbins": 1024
+      },
+      "aggregate": "count",
+      "scale": {
+        "domain": [
+          850000.0,
+          1067186.0
+        ],
+        "range": [
+          0,
+          1024
+        ]
+      }
+    },
+    "y": {
+      "field": "YCoordinate",
+      "type": "quantitative",
+      "bin": {
+        "maxbins": 843
+      },
+      "aggregate": "count",
+      "scale": {
+        "domain": [
+          121080.0,
+          300000.0
+        ],
+        "range": [
+          0,
+          843
+        ]
+      }
+    },
+    "z": {
+      "field": "Offense",
+      "type": "nominal",
+      "scale": {
+        "domain": [
+          "BURGLARY",
+          "FELONY ASSAULT",
+          "GRAND LARCENY",
+          "GRAND LARCENY OF MOTOR VEHICLE",
+          "MURDER & NON-NEGL. MANSLAUGHTE",
+          "RAPE",
+          "ROBBERY"
+        ]
+      }
+    }
+  },
+  "buffers": [
+    {
+      "url": "nyc_crime2_cat_BURGLARY.json",
+      "count": 191369,
+      "value": "BURGLARY",
+      "range": [
+        0,
+        443
+      ]
+    },
+    {
+      "url": "nyc_crime2_cat_FELONY ASSAULT.json",
+      "count": 184041,
+      "value": "FELONY ASSAULT",
+      "range": [
+        0,
+        1438
+      ]
+    },
+    {
+      "url": "nyc_crime2_cat_GRAND LARCENY.json",
+      "count": 428993,
+      "value": "GRAND LARCENY",
+      "range": [
+        0,
+        2588
+      ]
+    },
+    {
+      "url": "nyc_crime2_cat_GRAND LARCENY OF MOTOR VEHICLE.json",
+      "count": 101963,
+      "value": "GRAND LARCENY OF MOTOR VEHICLE",
+      "range": [
+        0,
+        186
+      ]
+    },
+    {
+      "url": "nyc_crime2_cat_MURDER & NON-NEGL. MANSLAUGHTE.json",
+      "count": 4574,
+      "value": "MURDER & NON-NEGL. MANSLAUGHTE",
+      "range": [
+        0,
+        17
+      ]
+    },
+    {
+      "url": "nyc_crime2_cat_RAPE.json",
+      "count": 13779,
+      "value": "RAPE",
+      "range": [
+        0,
+        581
+      ]
+    },
+    {
+      "url": "nyc_crime2_cat_ROBBERY.json",
+      "count": 198744,
+      "value": "ROBBERY",
+      "range": [
+        0,
+        382
+      ]
+    }
+  ]
+}
