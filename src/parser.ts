@@ -86,10 +86,48 @@ export interface ConfigurationDataSpec {
     data?: DataSpec;
 }
 
+export interface ConfigurationReencodingLabelScaleSpec {
+    domain: string[];
+    range: string[];
+}
+
+export interface ConfigurationReencodingLabelSpec {
+    field: string;
+    type?: string; // specify nominal
+    scale: ConfigurationReencodingLabelScaleSpec;
+}
+
+export interface ConfigurationReencodingColorScaleAssemblySpec {
+    type: string;
+}
+
+export interface ConfigurationReencodingColorScaleSpec {
+    domain?: string[];
+    range: string[];
+    type?: string;
+    assembly?: ConfigurationReencodingColorScaleAssemblySpec;
+    colorspace?: string;
+    mixing?: string
+}
+
+export interface ConfigurationReencodingColorSpec {
+    field: string;
+    type?: string; // specify nominal
+    scale: ConfigurationReencodingColorScaleSpec;
+}
+
+export interface ConfigurationReencodingSpec {
+    label?: ConfigurationReencodingLabelSpec;
+    color?: ConfigurationReencodingColorSpec;
+}
+
 export class Configuration {
     description?: string;
     background?: string;
     data?: ConfigurationDataSpec;
+    reencoding?: ConfigurationReencodingSpec;
+    rebin: any;
+
     constructor(public specs:any) {
     }
     parse() {
@@ -113,8 +151,13 @@ export class Configuration {
     }
     parseDerivedBuffers() {
     }
-    parseReencoding() {}
-    parseRebin() {}
+    parseReencoding() {
+        this.reencoding = <ConfigurationReencodingSpec>this.specs.reencoding;
+    }
+    parseRebin() {
+        if (this.specs.rebin)
+            this.rebin = this.specs.rebin;
+    }
 
     public resolve_data_url(json: any) {
         if (! this.data) return;
