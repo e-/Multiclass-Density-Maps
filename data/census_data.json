@@ -1,40 +1,34 @@
 {
     "description": "US Census Synthetic people",
-    "background": "black",
-    "data_buffers": [
-        { "name": "Asian",
-          "url": "census.snappy_a.json",
-          "color": "red"},
-        { "name": "Black",
-          "url": "census.snappy_b.json",
-          "color": "green"},
-        { "name": "Hispanic",
-          "url": "census.snappy_h.json",
-          "color": "orange"},
-        { "name": "Other",
-          "url": "census.snappy_o.json",
-          "color": "saddlebrown"},
-        { "name": "White",
-          "url": "census.snappy_w.json",
-          "color": "blue"}
-    ],
-    "derived_buffers": [
-        {"name": "all",
-         "buffers": '*',
-         "aggregate", "sum"}],
-    "projection": {
-        "type": "albersUsa"
+    "background": "Black",
+    "data": {"url": "census.snappy_data.json"},
+    "derived_buffers": {
+        'all': {'buffers': [], 'aggregate': "sum"},
     },
-    "encoding": {
-        "x": {"field": "easting", "bounds": [-13884029.0, -7453303.5],
-              "type": "quantitative", "bin": true, "aggregate": "count"},
-        "y": {"field": "northing", "bounds" [2818291.5, 6335972.0],
-              "type": "quantitative", "bin": true, "aggregate": "count"},
-        "color": {"field": "race", "type": "categorical", "aggregate": "count",
-                  "scale":    {"type": "sqrt"},
-                  "assembly": {"type": "mix"},
-                  "colorspace": "rgb",
-                  "mixing": "additive"}
+    "reencoding": {
+        "label": {
+            "field": "z",
+            "type": "nominal",
+            "scale": {
+                "domain": ['w', 'h', 'a', 'b', 'o'],
+                "range": ["White", "Hispanic", "Asian", "Black", "Other"]
+            },
+            
+        },
+        "color": {
+            'field': "z",
+            'type': "nominal",
+            'scale': {
+                'range': ["Blue", "Orange", "Red", "Green", "Brown"]
+            }
+        },
+        "color": {
+            'field': "z.*",
+            'scale': {'type': "log"},
+            'assembly': {'type': "mix"},
+            'colorspace': "rgb",
+            'mixing': "additive"
+        }
     },
-    "rebin": null,
+    "rebin": {}
 }
