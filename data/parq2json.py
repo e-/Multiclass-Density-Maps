@@ -5,11 +5,12 @@ import json
 import numpy as np
 from fastparquet.util import check_column_names
 import fastparquet
-
+import pyproj
 
 def parquet_to_databuffers(filename, x, y, category, width=512, height=None,
                            xmin=None, ymin=None, xmax=None, ymax=None,
                            projection=None):
+    proj = lambda x, y, inverse :  (x, y)
     root, ext = os.path.splitext(filename)
     if ext != '.parq':
         raise ValueError('Expected a .parq file, got ({}) {}'.format(ext, filename))
@@ -19,6 +20,7 @@ def parquet_to_databuffers(filename, x, y, category, width=512, height=None,
     description = {'source': {"filename": filename, "type": "parquet"}}
     if projection:
         description['projection'] = {"type": projection}
+        proj = pyproj.Proj(init=projection, preserve_units=True)
 
     stats = pf.statistics
     if 'max' in stats:
@@ -99,26 +101,35 @@ def parquet_to_databuffers(filename, x, y, category, width=512, height=None,
                 histograms[key] = histo
             counts[key] = len(df_cat) + counts.get(key, 0)
 
+    if projection:
+        xmin, ymin = proj(xmin, ymin, inverse=True)
+        xmax, ymax = proj(xmax, ymax, inverse=True)
+        xtype = "latitude"
+        ytype = "longitude"
+    else:
+        xtype = "quantitative"
+        ytype = "quantitative"
+
     description['encoding'] = {
         "x": {"field": x,
-              "type": "quantitative",
+              "type": xtype,
               "bin": {
                   "maxbins": width
                   },
               "aggregate": "count",
               "scale": {
-                  "domain": xy_range[0],
+                  "domain": [xmin, xmax],
                   "range": [0, width]
                   }
              },
         "y": {"field": y,
-              "type": "quantitative",
+              "type": ytype,
               "bin": {
                   "maxbins": height
                   },
               "aggregate": "count",
               "scale": {
-                  "domain": xy_range[1],
+                  "domain": [ymin, ymax],
                   "range": [0, height]
                   }
              },

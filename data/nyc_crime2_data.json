@@ -5,20 +5,20 @@
     "rows": 1123463
   },
   "projection": {
-    "type": "ESRI:102718"
+    "type": "esri:102718"
   },
   "encoding": {
     "x": {
       "field": "XCoordinate",
-      "type": "quantitative",
+      "type": "latitude",
       "bin": {
         "maxbins": 1024
       },
       "aggregate": "count",
       "scale": {
         "domain": [
-          850000.0,
-          1067186.0
+          -74.48270604450188,
+          -73.69958921931877
         ],
         "range": [
           0,
@@ -28,15 +28,15 @@
     },
     "y": {
       "field": "YCoordinate",
-      "type": "quantitative",
+      "type": "longitude",
       "bin": {
         "maxbins": 843
       },
       "aggregate": "count",
       "scale": {
         "domain": [
-          121080.0,
-          300000.0
+          40.497996081129166,
+          40.98971018966962
         ],
         "range": [
           0,

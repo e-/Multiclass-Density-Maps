@@ -4,18 +4,21 @@
     "type": "parquet",
     "rows": 306675004
   },
+  "projection": {
+    "type": "epsg:3857"
+  },
   "encoding": {
     "x": {
       "field": "easting",
-      "type": "quantitative",
+      "type": "latitude",
       "bin": {
         "maxbins": 512
       },
       "aggregate": "count",
       "scale": {
         "domain": [
-          -13884029.0,
-          -7453303.5
+          -124.72235455858674,
+          -66.95416451231523
         ],
         "range": [
           0,
@@ -25,15 +28,15 @@
     },
     "y": {
       "field": "northing",
-      "type": "quantitative",
+      "type": "longitude",
       "bin": {
         "maxbins": 280
       },
       "aggregate": "count",
       "scale": {
         "domain": [
-          2818291.5,
-          6335972.0
+          24.531359058253862,
+          49.35885267729129
         ],
         "range": [
           0,
