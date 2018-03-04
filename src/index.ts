@@ -6,6 +6,7 @@ import DataBuffer from './data-buffer';
 import Color from './color';
 import * as util from './util';
 import * as Tiling from './tiling';
+import Composer from './composer';
 
 /// <reference path="multivariate-normal.d.ts" />
 import MN from "multivariate-normal";
@@ -113,35 +114,7 @@ export class TestMain {
     return binned.map(rows => rows.map(row => row.map(value => value / maxValue)));
   }
 
-  composeMax(buffers:DataBuffer[], bufferValues:number[]):Color {
-    let best = bufferValues[0];
-    let bestIndex = 0;
-
-    bufferValues.forEach((bufferValue, i) => {
-      if(bufferValue > best) {
-        best = bufferValue;
-        bestIndex = i;
-      }
-    });
-
-    return buffers[bestIndex].color.whiten(best);
-  }
-
-  composeMix(buffers:DataBuffer[], bufferValues:number[]):Color {
-    let sum = 0;
-    let ret = new Color(0, 0, 0, 1);
-
-    bufferValues.forEach((bufferValue, i) => {
-      sum += bufferValue;
-      ret = ret.add(buffers[i].color.whiten(bufferValue));
-    });
-
-    if(sum > 0)
-      ret = ret.dissolve(1 / buffers.length); // TODO: is this correct?
-
-    return ret;
-  }
-
+  
   main() {
     let nClass = 3;
     let width = 256, height = 256;
@@ -181,7 +154,7 @@ export class TestMain {
         (buffer):number => tile.aggregate(buffer, TileAggregation.Sum)
       )
 
-      let color = this.composeMax(dataBuffers, bufferValues);
+      let color = Composer.max(dataBuffers, bufferValues);
       outputImage1.fillByTile(color, tile);
     }
 
@@ -197,7 +170,7 @@ export class TestMain {
 
       // TODO: we need to RE-normalize buffer values.
 
-      let color = this.composeMax(dataBuffers, bufferValues);
+      let color = Composer.mix(dataBuffers, bufferValues);
       outputImage2.fillByTile(color, tile);
     }
 
@@ -212,7 +185,7 @@ export class TestMain {
 
       // TODO: we need to RE-normalize buffer values.
 
-      let color = this.composeMix(dataBuffers, bufferValues);
+      let color = Composer.mix(dataBuffers, bufferValues);
       outputImage3.fillByTile(color, tile);
     }
 
