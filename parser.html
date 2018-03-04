@@ -1,0 +1,34 @@
+<!doctype html>
+<html>
+    <head>
+        <title>Scalable Rendering of Multiclass Density Maps Parser</title>
+    </head>
+    <body>
+        <h1>Rendition</h1>
+        <canvas id="canvas"></canvas>
+
+        <script src="https://d3js.org/d3-dsv.v1.min.js"></script>
+        <script src="https://d3js.org/d3-fetch.v1.min.js"></script>
+        <script src="dist/bundle.js" type="text/javascript"></script>
+        <script>
+          let testMain = new MCS.TestMain(), configuration;
+          prefix = "data/";
+          d3.json(prefix+"census_data.json")
+            .then(function(json) {
+                configuration = testMain.parse(json);
+                if (configuration != null)
+                    configuration.parse();
+                return configuration;
+            })
+            .then(function(configuration) {
+                if (configuration.data.url)
+                    return d3.json(prefix+configuration.data.url);
+                return null;
+            })
+            .then(function(json) {
+                if (json == null) return;
+                configuration.resolve_data_url(json);
+            });
+        </script>
+    </body>
+</html>

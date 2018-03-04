@@ -3,31 +3,30 @@
     "background": "Black",
     "data": {"url": "census.snappy_data.json"},
     "derived_buffers": {
-        'all': {'buffers': [], 'aggregate': "sum"},
+        "all": {"buffers": [], "aggregate": "sum"}
     },
     "reencoding": {
         "label": {
             "field": "z",
             "type": "nominal",
             "scale": {
-                "domain": ['w', 'h', 'a', 'b', 'o'],
+                "domain": ["w", "h", "a", "b", "o"],
                 "range": ["White", "Hispanic", "Asian", "Black", "Other"]
-            },
-            
-        },
-        "color": {
-            'field': "z",
-            'type': "nominal",
-            'scale': {
-                'range': ["Blue", "Orange", "Red", "Green", "Brown"]
             }
         },
         "color": {
-            'field': "z.*",
-            'scale': {'type': "log"},
-            'assembly': {'type': "mix"},
-            'colorspace': "rgb",
-            'mixing': "additive"
+            "field": "z",
+            "type": "nominal",
+            "scale": {
+                "range": ["Blue", "Orange", "Red", "Green", "Brown"]
+            }
+        },
+        "color": {
+            "field": "z.*",
+            "scale": {"type": "log"},
+            "assembly": {"type": "mix"},
+            "colorspace": "rgb",
+            "mixing": "additive"
         }
     },
     "rebin": {}

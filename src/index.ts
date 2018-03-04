@@ -7,6 +7,7 @@ import Color from './color';
 import * as util from './util';
 import * as Tiling from './tiling';
 import Composer from './composer';
+import * as Parser from './parser';
 
 /// <reference path="multivariate-normal.d.ts" />
 import MN from "multivariate-normal";
@@ -81,6 +82,10 @@ export class TestMain {
   constructor() {
 
   }
+
+    parse(json: any) : Parser.Configuration {
+        return Parser.parse(json);
+    }
 
   randomPointsWithClass(n:number, mean:any, cov:any): any[] {
     let dist = MN(mean, cov);
