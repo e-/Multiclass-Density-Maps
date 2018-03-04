@@ -10,6 +10,37 @@ import * as Tiling from './tiling';
 /// <reference path="multivariate-normal.d.ts" />
 import MN from "multivariate-normal";
 
+export function weavingSquareMasks(m: number, size: number, width: number, height: number, xincr: number = 1) : Mask[]
+{
+    let masks:Mask[] = Array<Mask>(m);
+    let i:number, j:number;
+    size = Math.floor(size);
+    if (xincr < 0) {
+        xincr = m + (xincr % m)
+    }
+
+    for (let i = 0; i < m; i++) {
+        masks[i] = new Mask(width, height, 0);
+    }
+    for (let i = 0; i < (height/size); i++) {
+        let row = i * size;
+        let row_max = Math.min(row+size, height);
+        for (let j = 0; j < (width/size); j++) {
+            let col = j * size;
+            let col_max = Math.min(col+size, width);
+            let selected = (i*xincr + j);
+            let mask = masks[selected%m];
+            mask.path.rect(row, col, size, size);
+            for (let r = row; r < row_max; r++) {
+                for (let c = col; c < col_max; c++) {
+                    mask.mask[r][c] = 1;
+                }
+            }
+        }
+    }
+    return masks;
+}
+
 export function weavingRandomMasks(m: number, size: number, width: number, height: number) : Mask[]
 {
     let masks:Mask[] = Array<Mask>(m);
@@ -190,6 +221,7 @@ export class TestMain {
     let bigRectangularTiling = new Tiling.RectangularTiling(width, height, 16, 16);
     let outputImage4 = new Image(width, height);
     let masks = weavingRandomMasks(3, 4, width, height);
+    //let masks = weavingSquareMasks(3, 4, width, height, 1);
 
     // assignProperties()
     dataBuffers.forEach((dataBuffer, i) => {
