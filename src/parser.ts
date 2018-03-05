@@ -43,10 +43,10 @@ export interface EncodingSpec {
 }
 
 export interface BufferSpec {
+    value: string;
     url?: string;
     data?: number[][];
     count?: number;
-    value: string;
     range?: [number, number]
 }
 
@@ -78,6 +78,10 @@ export class DataSpec {
     parseBuffers() {
         this.buffers = <BufferSpec[]>this.specs.buffers;
     }
+
+    resolve_buffer_url(buffer:BufferSpec, json: any) {
+        buffer.data = <number[][]>json;
+    }
 }
 
 export interface ConfigurationDataSpec {
@@ -97,15 +101,11 @@ export interface ConfigurationReencodingLabelSpec {
     scale: ConfigurationReencodingLabelScaleSpec;
 }
 
-export interface ConfigurationReencodingColorScaleAssemblySpec {
-    type: string;
-}
-
 export interface ConfigurationReencodingColorScaleSpec {
     domain?: string[];
     range: string[];
     type?: string;
-    assembly?: ConfigurationReencodingColorScaleAssemblySpec;
+    assembly?: {type: string};
     colorspace?: string;
     mixing?: string
 }
@@ -164,6 +164,14 @@ export class Configuration {
         let data = new DataSpec(json);
         data.parse();
         this.data.data = data;
+    }
+
+    public width(): number {
+        return 512;
+    }
+
+    public height(): number {
+        return 512;
     }
 }
 

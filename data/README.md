@@ -32,6 +32,8 @@ Rendition:
 The PNG files are 16 bits depth but showing the cubic roots of the
 values to equalize the intensities.
 
+See https://demographics.virginia.edu/DotMap/index.html for a live demo.
+
 ## NYC Crime Data
 
 url: http://s3.amazonaws.com/datashader-data/nyc_crime.zip
