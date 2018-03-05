@@ -6,6 +6,14 @@ export function create2D<T>(width:number, height:number, value:T) {
         arr[i][j] = value;
       }
     }
-  
+
     return arr;
+}
+
+export function amax(arr:number[] | null) {
+    return Math.max.apply(Math, arr);
+}
+
+export function amin(arr:number[] | null) {
+    return Math.min.apply(Math, arr);
 }
