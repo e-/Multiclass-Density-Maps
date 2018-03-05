@@ -171,6 +171,20 @@ export class TestMain {
 
     CanvasRenderer.render(outputImage4, 'canvas4');
     CanvasRenderer.render(outputImage5, 'canvas5');
+
+    let outputImage6 = new Image(width, height);
+    let outputImage7 = new Image(width, height);
+
+    for(let tile of rectTiles) {
+        let color6 = Composer.mean(derivedBuffers1, tile.dataValues);
+        outputImage6.fillByTile(color6, tile);
+
+        let color7 = Composer.additiveMix(derivedBuffers1, tile.dataValues);
+        outputImage7.fillByTile(color7, tile);
+    }
+
+    CanvasRenderer.render(outputImage6, 'canvas6');
+    CanvasRenderer.render(outputImage7, 'canvas7');
   }
 }
 

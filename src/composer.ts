@@ -17,18 +17,30 @@ export default class Composer {
         return buffers[bestIndex].colorScale.map(best);
     }
 
-    // static mix(buffers:DerivedBuffer[], bufferValues:number[]):Color {
-    //     let sum = 0;
-    //     let ret = new Color(0, 0, 0, 1);
+    static mean(buffers:DerivedBuffer[], values:number[]):Color {
+        let sum = 0;
+        let ret = new Color(0, 0, 0, 1);
 
-    //     bufferValues.forEach((bufferValue, i) => {
-    //       sum += bufferValue;
-    //       ret = ret.add(buffers[i].color.whiten(bufferValue));
-    //     });
+        values.forEach((value, i) => {
+          sum += value;
+          ret = ret.add(buffers[i].colorScale.map(value));
+        });
 
-    //     if(sum > 0)
-    //       ret = ret.dissolve(1 / buffers.length); // TODO: is this correct?
+        if(sum > 0)
+          ret = ret.dissolve(1 / buffers.length); // TODO: is this correct?
 
-    //     return ret;
-    // }
+        return ret;
+    }
+
+    static additiveMix(buffers:DerivedBuffer[], values:number[]):Color {
+        let sum = 0;
+        let ret = new Color(0, 0, 0, 1);
+
+        values.forEach((value, i) => {
+          ret = ret.add(buffers[i].colorScale.map(value));
+        });
+
+        ret = ret.clamp();
+        return ret;
+    }
 }
