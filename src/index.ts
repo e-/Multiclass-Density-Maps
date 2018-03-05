@@ -151,7 +151,7 @@ export class TestMain {
       dataBuffer.color = colors[i];
     });
 
-    let pixelTiling = new Tiling.PixelTiling(width, height);
+    let pixelTiling = Tiling.pixelTiling(width, height);
     let outputImage1 = new Image(width, height);
 
     for(let tile of pixelTiling) { // hope we can use ES2016
@@ -165,7 +165,7 @@ export class TestMain {
 
     CanvasRenderer.render(outputImage1, 'canvas1');
 
-    let rectangularTiling = new Tiling.RectangularTiling(width, height, width / 64, height / 64);
+    let rectangularTiling = Tiling.rectangularTiling(width, height, width / 64, height / 64);
     let outputImage2 = new Image(width, height);
 
     for(let tile of rectangularTiling) { // hope we can use ES2016
@@ -196,7 +196,7 @@ export class TestMain {
 
     CanvasRenderer.render(outputImage3, 'canvas3');
 
-    let bigRectangularTiling = new Tiling.RectangularTiling(width, height, 16, 16);
+    let bigRectangularTiling = Tiling.rectangularTiling(width, height, 16, 16);
     let outputImage4 = new Image(width, height);
     let masks = weavingRandomMasks(3, 4, width, height);
     //let masks = weavingSquareMasks(3, 4, width, height, 1);
