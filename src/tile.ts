@@ -10,11 +10,13 @@ export enum TileAggregation {
 }
 
 export default class Tile extends Point {
+    dataValues:number[] = [];
+
     constructor(x:number, y:number, public mask:Mask) {
       super(x, y);
     }
 
-    aggregate(buffer:DataBuffer, op:TileAggregation = TileAggregation.Mean): number {
+    aggregateOne(buffer:DataBuffer, op:TileAggregation = TileAggregation.Mean): number {
       let val = 0;
       let cnt = 0;
 
@@ -48,5 +50,9 @@ export default class Tile extends Point {
       }
 
       return val;
+    }
+
+    aggregate(buffers:DataBuffer[], op:TileAggregation = TileAggregation.Mean):number[] {
+        return buffers.map(buffer => this.aggregateOne(buffer, op));
     }
   }

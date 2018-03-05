@@ -8,6 +8,7 @@ import * as util from './util';
 import * as Tiling from './tiling';
 import Composer from './composer';
 import * as Parser from './parser';
+import DerivedBuffer from './derived-buffer';
 
 /// <reference path="multivariate-normal.d.ts" />
 import MN from "multivariate-normal";
@@ -68,7 +69,7 @@ export function weavingRandomMasks(m: number, size: number, width: number, heigh
     return masks;
 }
 
-export function renderTileWeaving(image:Image, tile:Tile, buffers:DataBuffer[], bufferValues:number[]) : void
+export function renderTileWeaving(image:Image, tile:Tile, buffers:DerivedBuffer[], bufferValues:number[]) : void
 {
   for (let i = 0; i < buffers.length; i++) {
     let databuffer = buffers[i];
@@ -83,9 +84,9 @@ export class TestMain {
 
   }
 
-    parse(json: any) : Parser.Configuration {
-        return Parser.parse(json);
-    }
+  parse(json: any) : Parser.Configuration {
+      return Parser.parse(json);
+  }
 
   randomPointsWithClass(n:number, mean:any, cov:any): any[] {
     let dist = MN(mean, cov);
@@ -119,7 +120,7 @@ export class TestMain {
     return binned.map(rows => rows.map(row => row.map(value => value / maxValue)));
   }
 
-  
+
   main() {
     let nClass = 3;
     let width = 256, height = 256;
@@ -129,94 +130,100 @@ export class TestMain {
       this.randomPointsWithClass(3000, [1, -2], [[1, 0.6], [0.6, 1]])
     ];
 
-    // binning on the client side since we do not have a server
-    let binned = pointSets.map(points => this.bin(points, width, [[-7, 7], [-7, 7]]))
-
-    // normlize bins
-    binned = this.normalize(binned);
-
-    // computeDerivedBuffers()
-    let dataBuffers:DataBuffer[] = binned.map((binnedPoints, i) => {
-      return new DataBuffer(`class ${i}`, width, height, binnedPoints);
-    });
-
     let colors:Color[] = [
       new Color(31 / 255, 120 / 255, 180 / 255, 1), // blue
       new Color(255 / 255, 127 / 255, 0 / 255, 1), // orange
       new Color(51 / 255, 160 / 255, 44 / 255, 1) // green
     ];
 
+
+    // data buffers contain density information that can be either created by a server or read from files (e.g., json).
+    let dataBuffers = pointSets.map((points, i) => new DataBuffer(`class ${i}`, width, height, this.bin(points, width, [[-7, 7], [-7, 7]])));
+
+    // tiling now returns an 1D array of tiles
+    let pixelTiles = Tiling.pixelTiling(width, height);
+
+    for(let tile of pixelTiles) {
+        // tile.dataValues are a array of numbers
+        tile.dataValues = tile.aggregate(dataBuffers, TileAggregation.Sum);
+    }
+
+    // get max count of bins for scale
+    let maxCount = util.amax(pixelTiles.map(tile => util.amax(tile.dataValues)));
+
+    // create scale
+    // composer
+    // scale(composer, bufferValues)
+
     // assignProperties()
-    dataBuffers.forEach((dataBuffer, i) => {
-      dataBuffer.color = colors[i];
+    let derivedBuffers = dataBuffers.map((dataBuffer, i) => {
+        let derivedBuffer = new DerivedBuffer(dataBuffer);
+        derivedBuffer.color = colors[i];
+
+        return derivedBuffer;
     });
 
-    let pixelTiling = Tiling.pixelTiling(width, height);
     let outputImage1 = new Image(width, height);
 
-    for(let tile of pixelTiling) { // hope we can use ES2016
-      let bufferValues:number[] = dataBuffers.map(
-        (buffer):number => tile.aggregate(buffer, TileAggregation.Sum)
-      )
-
-      let color = Composer.max(dataBuffers, bufferValues);
+    for(let tile of pixelTiles) {
+      let color = Composer.max(derivedBuffers, tile.dataValues);
       outputImage1.fillByTile(color, tile);
     }
 
     CanvasRenderer.render(outputImage1, 'canvas1');
 
-    let rectangularTiling = Tiling.rectangularTiling(width, height, width / 64, height / 64);
-    let outputImage2 = new Image(width, height);
+    // let rectangularTiling = Tiling.rectangularTiling(width, height, width / 64, height / 64);
+    // let outputImage2 = new Image(width, height);
 
-    for(let tile of rectangularTiling) { // hope we can use ES2016
-      let bufferValues:number[] = dataBuffers.map(
-        (buffer):number => tile.aggregate(buffer, TileAggregation.Sum)
-      )
+    // for(let tile of rectangularTiling) { // hope we can use ES2016
+    //   let bufferValues:number[] = dataBuffers.map(
+    //     (buffer):number => tile.aggregate(buffer, TileAggregation.Sum)
+    //   )
 
-      // TODO: we need to RE-normalize buffer values.
+    //   // TODO: we need to RE-normalize buffer values.
 
-      let color = Composer.mix(dataBuffers, bufferValues);
-      outputImage2.fillByTile(color, tile);
-    }
+    //   let color = Composer.mix(dataBuffers, bufferValues);
+    //   outputImage2.fillByTile(color, tile);
+    // }
 
-    CanvasRenderer.render(outputImage2, 'canvas2');
+    // CanvasRenderer.render(outputImage2, 'canvas2');
 
-    let outputImage3 = new Image(width, height);
+    // let outputImage3 = new Image(width, height);
 
-    for(let tile of rectangularTiling) { // hope we can use ES2016
-      let bufferValues:number[] = dataBuffers.map(
-        (buffer):number => tile.aggregate(buffer, TileAggregation.Sum)
-      )
+    // for(let tile of rectangularTiling) { // hope we can use ES2016
+    //   let bufferValues:number[] = dataBuffers.map(
+    //     (buffer):number => tile.aggregate(buffer, TileAggregation.Sum)
+    //   )
 
-      // TODO: we need to RE-normalize buffer values.
+    //   // TODO: we need to RE-normalize buffer values.
 
-      let color = Composer.mix(dataBuffers, bufferValues);
-      outputImage3.fillByTile(color, tile);
-    }
+    //   let color = Composer.mix(dataBuffers, bufferValues);
+    //   outputImage3.fillByTile(color, tile);
+    // }
 
-    CanvasRenderer.render(outputImage3, 'canvas3');
+    // CanvasRenderer.render(outputImage3, 'canvas3');
 
-    let bigRectangularTiling = Tiling.rectangularTiling(width, height, 16, 16);
-    let outputImage4 = new Image(width, height);
-    let masks = weavingRandomMasks(3, 4, width, height);
-    //let masks = weavingSquareMasks(3, 4, width, height, 1);
+    // let bigRectangularTiling = Tiling.rectangularTiling(width, height, 16, 16);
+    // let outputImage4 = new Image(width, height);
+    // let masks = weavingRandomMasks(3, 4, width, height);
+    // //let masks = weavingSquareMasks(3, 4, width, height, 1);
 
-    // assignProperties()
-    dataBuffers.forEach((dataBuffer, i) => {
-      dataBuffer.mask = masks[i];
-    });
+    // // assignProperties()
+    // dataBuffers.forEach((dataBuffer, i) => {
+    //   dataBuffer.mask = masks[i];
+    // });
 
-    for(let tile of bigRectangularTiling) { // hope we can use ES2016
-      let bufferValues:number[] = dataBuffers.map(
-        (buffer):number => tile.aggregate(buffer, TileAggregation.Mean)
-      )
+    // for(let tile of bigRectangularTiling) { // hope we can use ES2016
+    //   let bufferValues:number[] = dataBuffers.map(
+    //     (buffer):number => tile.aggregate(buffer, TileAggregation.Mean)
+    //   )
 
-      // TODO: we need to RE-normalize buffer values.
+    //   // TODO: we need to RE-normalize buffer values.
 
-      renderTileWeaving(outputImage4, tile, dataBuffers, bufferValues);
-    }
+    //   renderTileWeaving(outputImage4, tile, dataBuffers, bufferValues);
+    // }
 
-    CanvasRenderer.render(outputImage4, 'canvas4');
+    // CanvasRenderer.render(outputImage4, 'canvas4');
   }
 }
 
