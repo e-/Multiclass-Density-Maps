@@ -14,72 +14,6 @@ import * as Scale from './scale';
 /// <reference path="multivariate-normal.d.ts" />
 import MN from "multivariate-normal";
 
-export function weavingSquareMasks(m: number, size: number, width: number, height: number, xincr: number = 1) : Mask[]
-{
-    let masks:Mask[] = Array<Mask>(m);
-    let i:number, j:number;
-    size = Math.floor(size);
-    if (xincr < 0) {
-        xincr = m + (xincr % m)
-    }
-
-    for (let i = 0; i < m; i++) {
-        masks[i] = new Mask(width, height, 0);
-    }
-    for (let i = 0; i < (height/size); i++) {
-        let row = i * size;
-        let row_max = Math.min(row+size, height);
-        for (let j = 0; j < (width/size); j++) {
-            let col = j * size;
-            let col_max = Math.min(col+size, width);
-            let selected = (i*xincr + j);
-            let mask = masks[selected%m];
-            mask.path.rect(row, col, size, size);
-            for (let r = row; r < row_max; r++) {
-                for (let c = col; c < col_max; c++) {
-                    mask.mask[r][c] = 1;
-                }
-            }
-        }
-    }
-    return masks;
-}
-
-export function weavingRandomMasks(m: number, size: number, width: number, height: number) : Mask[]
-{
-    let masks:Mask[] = Array<Mask>(m);
-    size = Math.floor(size);
-
-    for (let i = 0; i < m; i++) {
-        masks[i] = new Mask(width, height, 0);
-    }
-    for (let row = 0; row < height; row += size) {
-        let row_max = Math.min(row+size, height);
-        for (let col = 0; col < width; col += size) {
-            let col_max = Math.min(col+size, width);
-            let selected = Math.floor(Math.random() * m);
-            let mask = masks[selected];
-            mask.path.rect(row, col, size, size);
-            for (let r = row; r < row_max; r++) {
-                for (let c = col; c < col_max; c++) {
-                    mask.mask[r][c] = 1;
-                }
-            }
-        }
-    }
-    return masks;
-}
-
-export function renderTileWeaving(image:Image, tile:Tile, buffers:DerivedBuffer[], bufferValues:number[]) : void
-{
-  for (let i = 0; i < buffers.length; i++) {
-    let databuffer = buffers[i];
-    let color:Color = databuffer.color.whiten(bufferValues[i]);
-    image.setMask(databuffer.mask);
-    image.fillByTile(color, tile);
-  }
-}
-
 export class TestMain {
   constructor() {
 
@@ -133,7 +67,6 @@ export class TestMain {
 
     // data buffers contain density information that can be either created by a server or read from files (e.g., json).
     let dataBuffers = pointSets.map((points, i) => new DataBuffer(`class ${i}`, width, height, this.bin(points, width, [[-7, 7], [-7, 7]])));
-
 
     // tiling now returns an 1D array of tiles
     let rectTiles = Tiling.rectangularTiling(width, height, width / 128, height / 128);
@@ -192,58 +125,52 @@ export class TestMain {
     CanvasRenderer.render(outputImage2, 'canvas2');
     CanvasRenderer.render(outputImage3, 'canvas3');
 
-    // let rectangularTiling = Tiling.rectangularTiling(width, height, width / 64, height / 64);
-    // let outputImage2 = new Image(width, height);
+    let bigRectTiles = Tiling.rectangularTiling(width, height, width / 16, height / 16);
 
-    // for(let tile of rectangularTiling) { // hope we can use ES2016
-    //   let bufferValues:number[] = dataBuffers.map(
-    //     (buffer):number => tile.aggregate(buffer, TileAggregation.Sum)
-    //   )
+    for(let tile of bigRectTiles) {
+        tile.dataValues = tile.aggregate(dataBuffers, TileAggregation.Sum);
+    }
 
-    //   // TODO: we need to RE-normalize buffer values.
+    let maxCount2 = util.amax(bigRectTiles.map(tile => util.amax(tile.dataValues)));
 
-    //   let color = Composer.mix(dataBuffers, bufferValues);
-    //   outputImage2.fillByTile(color, tile);
-    // }
+    let randomMasks = Mask.generateWeavingRandomMasks(dataBuffers.length, 4, width, height);
+    let squareMasks = Mask.generateWeavingSquareMasks(dataBuffers.length, 4, width, height);
 
-    // CanvasRenderer.render(outputImage2, 'canvas2');
+    let derivedBuffers4 = dataBuffers.map((dataBuffer, i) => {
+        let derivedBuffer = new DerivedBuffer(dataBuffer);
 
-    // let outputImage3 = new Image(width, height);
+        derivedBuffer.colorScale = new Scale.LinearColorScale([0, maxCount2], [Color.White, Color.Category3[i]]);
+        derivedBuffer.mask = randomMasks[i];
 
-    // for(let tile of rectangularTiling) { // hope we can use ES2016
-    //   let bufferValues:number[] = dataBuffers.map(
-    //     (buffer):number => tile.aggregate(buffer, TileAggregation.Sum)
-    //   )
+        return derivedBuffer;
+    });
 
-    //   // TODO: we need to RE-normalize buffer values.
+    let derivedBuffers5 = dataBuffers.map((dataBuffer, i) => {
+        let derivedBuffer = new DerivedBuffer(dataBuffer);
 
-    //   let color = Composer.mix(dataBuffers, bufferValues);
-    //   outputImage3.fillByTile(color, tile);
-    // }
+        derivedBuffer.colorScale = new Scale.LinearColorScale([0, maxCount2], [Color.White, Color.Category3[i]]);
+        derivedBuffer.mask = squareMasks[i];
 
-    // CanvasRenderer.render(outputImage3, 'canvas3');
+        return derivedBuffer;
+    });
 
-    // let bigRectangularTiling = Tiling.rectangularTiling(width, height, 16, 16);
-    // let outputImage4 = new Image(width, height);
-    // let masks = weavingRandomMasks(3, 4, width, height);
-    // //let masks = weavingSquareMasks(3, 4, width, height, 1);
+    let outputImage4 = new Image(width, height);
+    let outputImage5 = new Image(width, height);
 
-    // // assignProperties()
-    // dataBuffers.forEach((dataBuffer, i) => {
-    //   dataBuffer.mask = masks[i];
-    // });
+    for(let tile of bigRectTiles) {
+        derivedBuffers4.forEach((derivedBuffer, i) => {
+            let color = derivedBuffer.colorScale.map(tile.dataValues[i]);
+            outputImage4.fillByTile(color, tile, derivedBuffer.mask);
+        });
 
-    // for(let tile of bigRectangularTiling) { // hope we can use ES2016
-    //   let bufferValues:number[] = dataBuffers.map(
-    //     (buffer):number => tile.aggregate(buffer, TileAggregation.Mean)
-    //   )
+        derivedBuffers5.forEach((derivedBuffer, i) => {
+            let color = derivedBuffer.colorScale.map(tile.dataValues[i]);
+            outputImage5.fillByTile(color, tile, derivedBuffer.mask);
+        });
+    }
 
-    //   // TODO: we need to RE-normalize buffer values.
-
-    //   renderTileWeaving(outputImage4, tile, dataBuffers, bufferValues);
-    // }
-
-    // CanvasRenderer.render(outputImage4, 'canvas4');
+    CanvasRenderer.render(outputImage4, 'canvas4');
+    CanvasRenderer.render(outputImage5, 'canvas5');
   }
 }
 

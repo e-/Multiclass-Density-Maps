@@ -17,18 +17,18 @@ export default class Composer {
         return buffers[bestIndex].colorScale.map(best);
     }
 
-    static mix(buffers:DerivedBuffer[], bufferValues:number[]):Color {
-        let sum = 0;
-        let ret = new Color(0, 0, 0, 1);
+    // static mix(buffers:DerivedBuffer[], bufferValues:number[]):Color {
+    //     let sum = 0;
+    //     let ret = new Color(0, 0, 0, 1);
 
-        bufferValues.forEach((bufferValue, i) => {
-          sum += bufferValue;
-          ret = ret.add(buffers[i].color.whiten(bufferValue));
-        });
+    //     bufferValues.forEach((bufferValue, i) => {
+    //       sum += bufferValue;
+    //       ret = ret.add(buffers[i].color.whiten(bufferValue));
+    //     });
 
-        if(sum > 0)
-          ret = ret.dissolve(1 / buffers.length); // TODO: is this correct?
+    //     if(sum > 0)
+    //       ret = ret.dissolve(1 / buffers.length); // TODO: is this correct?
 
-        return ret;
-    }
+    //     return ret;
+    // }
 }

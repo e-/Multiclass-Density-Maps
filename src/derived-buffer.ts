@@ -5,8 +5,8 @@ import * as util from './util';
 import * as Scale from './scale';
 
 export default class DerivedBuffer {
-    color:Color = new Color();
-    mask:Mask | null = null;
+    // color:Color = new Color();
+    mask?:Mask;
     colorScale:Scale.ColorScale = new Scale.LinearColorScale([0, 1], [Color.White, Color.Black]);
 
     constructor(public originalDataBuffer:DataBuffer) {
