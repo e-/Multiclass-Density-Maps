@@ -4,6 +4,7 @@
   "description": "",
   "main": "src/index.ts",
   "dependencies": {
+    "@types/pngjs": "^3.3.0",
     "brace-expansion": "^1.1.11",
     "canvas": "^1.6.9",
     "jquery": "^3.3.1",
