@@ -1,63 +1,27 @@
 import Tile from './tile';
 import Mask from './mask';
 
-export class PixelTiling {
-    x = 0;
-    y = 0;
-
-    constructor(public width:number, public height:number) {
-
+export function pixelTiling (width:number, height:number) {
+  let tiles:Tile[] = [];
+  for(let row = 0; row < height; row++) {
+    for(let col = 0; col < width; col++) {
+      tiles.push(new Tile(row, col, new Mask(1, 1)));
     }
+  }
 
-    [Symbol.iterator]() {
-      this.x = 0;
-      this.y = 0;
-      return this;
-    }
-
-    public next() {
-      let x = this.x, y = this.y;
-      this.x++;
-      if (this.x > this.width) {
-        this.y++;
-        this.x = 0;
-      }
-
-      return {
-        done: this.y >= this.height,
-        value: new Tile(x, y, new Mask(1, 1))
-      }
-    }
+  return tiles;
 }
 
-export class RectangularTiling {
-    rows = 0;
-    cols = 0;
-    row = 0;
-    col = 0;
-
-    constructor(public width:number, public height:number, public tileWidth:number, public tileHeight:number) {
-      this.rows = Math.ceil(height / tileHeight);
-      this.cols = Math.ceil(width / tileWidth);
+export function rectangularTiling (width:number, height:number, tileWidth:number, tileHeight:number) {
+  let rows = Math.ceil(height/ tileHeight);
+  let cols = Math.ceil(width / tileWidth);
+  let tiles:Tile[] = [];
+  
+  for(let row = 0; row < rows; row++) {
+    for(let col = 0; col < cols; col++) {
+      tiles.push(new Tile(col * tileWidth, row * tileHeight, new Mask(tileWidth, tileHeight)));
     }
+  }
 
-    [Symbol.iterator]() {
-      this.row = 0;
-      this.col = 0;
-      return this;
-    }
-
-    public next() {
-      let row = this.row, col = this.col;
-      this.col++;
-      if (this.col >= this.cols) {
-        this.row++;
-        this.col = 0;
-      }
-
-      return {
-        done: this.row >= this.rows,
-        value: new Tile(col * this.tileWidth, row * this.tileHeight, new Mask(this.tileWidth, this.tileHeight))
-      }
-    }
+  return tiles;
 }
