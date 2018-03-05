@@ -9,6 +9,7 @@ import * as Tiling from './tiling';
 import Composer from './composer';
 import * as Parser from './parser';
 import DerivedBuffer from './derived-buffer';
+import * as Scale from './scale';
 
 /// <reference path="multivariate-normal.d.ts" />
 import MN from "multivariate-normal";
@@ -130,47 +131,66 @@ export class TestMain {
       this.randomPointsWithClass(3000, [1, -2], [[1, 0.6], [0.6, 1]])
     ];
 
-    let colors:Color[] = [
-      new Color(31 / 255, 120 / 255, 180 / 255, 1), // blue
-      new Color(255 / 255, 127 / 255, 0 / 255, 1), // orange
-      new Color(51 / 255, 160 / 255, 44 / 255, 1) // green
-    ];
-
-
     // data buffers contain density information that can be either created by a server or read from files (e.g., json).
     let dataBuffers = pointSets.map((points, i) => new DataBuffer(`class ${i}`, width, height, this.bin(points, width, [[-7, 7], [-7, 7]])));
 
-    // tiling now returns an 1D array of tiles
-    let pixelTiles = Tiling.pixelTiling(width, height);
 
-    for(let tile of pixelTiles) {
-        // tile.dataValues are a array of numbers
+    // tiling now returns an 1D array of tiles
+    let rectTiles = Tiling.rectangularTiling(width, height, width / 128, height / 128);
+
+    for(let tile of rectTiles) {
+        // tile.dataValues are an array of numbers
         tile.dataValues = tile.aggregate(dataBuffers, TileAggregation.Sum);
     }
 
     // get max count of bins for scale
-    let maxCount = util.amax(pixelTiles.map(tile => util.amax(tile.dataValues)));
-
-    // create scale
-    // composer
-    // scale(composer, bufferValues)
+    let maxCount = util.amax(rectTiles.map(tile => util.amax(tile.dataValues)));
 
     // assignProperties()
-    let derivedBuffers = dataBuffers.map((dataBuffer, i) => {
+    let derivedBuffers1 = dataBuffers.map((dataBuffer, i) => {
         let derivedBuffer = new DerivedBuffer(dataBuffer);
-        derivedBuffer.color = colors[i];
+
+        derivedBuffer.colorScale = new Scale.LinearColorScale([0, maxCount], [Color.White, Color.Category3[i]]);
+
+        return derivedBuffer;
+    });
+
+    let derivedBuffers2 = dataBuffers.map((dataBuffer, i) => {
+        let derivedBuffer = new DerivedBuffer(dataBuffer);
+
+        derivedBuffer.colorScale = new Scale.LogColorScale([1, maxCount], [Color.White, Color.Category3[i]]);
+
+        return derivedBuffer;
+    });
+
+    let derivedBuffers3 = dataBuffers.map((dataBuffer, i) => {
+        let derivedBuffer = new DerivedBuffer(dataBuffer);
+
+        derivedBuffer.colorScale = new Scale.EquiDepthColorScale(
+            rectTiles.map(tile => tile.dataValues[i]).filter(c => c > 0),
+            [Color.White, Color.Category3[i]], 3);
 
         return derivedBuffer;
     });
 
     let outputImage1 = new Image(width, height);
+    let outputImage2 = new Image(width, height);
+    let outputImage3 = new Image(width, height);
 
-    for(let tile of pixelTiles) {
-      let color = Composer.max(derivedBuffers, tile.dataValues);
-      outputImage1.fillByTile(color, tile);
+    for(let tile of rectTiles) {
+        let color1 = Composer.max(derivedBuffers1, tile.dataValues);
+        outputImage1.fillByTile(color1, tile);
+
+        let color2 = Composer.max(derivedBuffers2, tile.dataValues);
+        outputImage2.fillByTile(color2, tile);
+
+        let color3 = Composer.max(derivedBuffers3, tile.dataValues);
+        outputImage3.fillByTile(color3, tile);
     }
 
     CanvasRenderer.render(outputImage1, 'canvas1');
+    CanvasRenderer.render(outputImage2, 'canvas2');
+    CanvasRenderer.render(outputImage3, 'canvas3');
 
     // let rectangularTiling = Tiling.rectangularTiling(width, height, width / 64, height / 64);
     // let outputImage2 = new Image(width, height);
