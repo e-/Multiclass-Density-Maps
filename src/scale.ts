@@ -5,12 +5,24 @@ export interface ScaleTrait {
 }
 
 export class LinearScale implements ScaleTrait {
-    constructor(public domain: [number, number], public range: [number, number]) {
+    constructor(public domain: [number, number], public range: [number, number], clamp:boolean = true) {
 
     }
 
+    clamp(value:number) {
+        let min = Math.min.apply(Math, this.range),
+            max = Math.max.apply(Math, this.range);
+
+        if(min > value) return min;
+        if(max < value) return max;
+
+        return value;
+    }
+
     map(value:number) {
-        return this.range[0] + (this.range[1] - this.range[0]) / (this.domain[1] - this.domain[0]) * (value - this.domain[0]);
+        let ret = this.range[0] + (this.range[1] - this.range[0]) / (this.domain[1] - this.domain[0]) * (value - this.domain[0]);
+        if(this.clamp) return this.clamp(ret);
+        return ret;
     }
 }
 

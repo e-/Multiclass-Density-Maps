@@ -201,11 +201,12 @@ export class Configuration {
 
                 return dataSpec.load(base).then(() => {
                     this.data!.dataSpec = dataSpec;
+                    return this;
                 });
             })
         }
 
-        return Promise.resolve();
+        return Promise.resolve(this);
     }
 }
 

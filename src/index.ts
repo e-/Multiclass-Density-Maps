@@ -212,18 +212,53 @@ export class TestMain {
         console.log("borderline:"+po.isPointInPolys(3.0, 2.0)+" "+po.isPointInPolys(3.0, 3.0));
 
         // Testing Spec
+        this.testVisSpec();
+    }
 
+    testVisSpec() {
         util.get('data/census_data.json').then(response => {
             let config = new Parser.Configuration(response);
 
             // when we call load(), data spec and buffers are really loaded through AJAX
-            config.load('data/').then(() => {
+            return config.load('data/');
+        }).then((config:Parser.Configuration) => {
+            console.log(config);
 
-            })
+            let width = 512;
+            let height = 280;
+
+            let dataBuffers = config.data!.dataSpec!.buffers!.map((bufferSpec) =>
+                new DataBuffer('test', width, height, bufferSpec.data)
+            );
+
+            let tiles = Tiling.rectangularTiling(width, height, width / 128, height / 70);
+
+            for(let tile of tiles) {
+                // tile.dataValues are an array of numbers
+                tile.dataValues = tile.aggregate(dataBuffers, TileAggregation.Sum);
+            }
+
+            // get max count of bins for scale
+            let maxCount = util.amax(tiles.map(tile => util.amax(tile.dataValues)));
+
+            let derivedBuffers = dataBuffers.map((dataBuffer, i) => {
+                let derivedBuffer = new DerivedBuffer(dataBuffer);
+
+                derivedBuffer.colorScale = new Scale.LogColorScale([1, maxCount], [Color.White, Color.Category10[i]]);
+
+                return derivedBuffer;
+            });
+
+            let outputImage = new Image(width, height);
+
+            for(let tile of tiles) {
+                let color1 = Composer.max(derivedBuffers, tile.dataValues);
+                outputImage.fillByTile(color1, tile);
+            }
+
+            CanvasRenderer.render(outputImage, 'canvas9');
         })
-
     }
-
-  }
+}
 
 export * from './vega-extractor';

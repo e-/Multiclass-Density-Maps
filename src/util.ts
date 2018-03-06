@@ -10,12 +10,20 @@ export function create2D<T>(width:number, height:number, value:T) {
     return arr;
 }
 
-export function amax(arr:number[] | null) {
-    return Math.max.apply(Math, arr);
+export function amax(arr:number[]) {
+    let max = arr[0];
+    for(let i = 0; i < arr.length; ++i)
+        if(max < arr[i]) max = arr[i];
+
+    return max;
 }
 
-export function amin(arr:number[] | null) {
-    return Math.min.apply(Math, arr);
+export function amin(arr:number[]) {
+    let min = arr[0];
+    for(let i = 0; i < arr.length; ++i)
+        if(min > arr[i]) min = arr[i];
+
+    return min;
 }
 
 export function get(url: string): Promise<any> {
