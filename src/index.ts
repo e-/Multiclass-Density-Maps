@@ -44,7 +44,7 @@ export class TestMain {
       if(yb < 0) yb = 0;
 
       count[yb][xb]++;
-    })
+    });
 
     return count;
   }
@@ -58,7 +58,7 @@ export class TestMain {
 
   main() {
     let nClass = 3;
-    let width = 256, height = 256;
+    let width = 512, height = 512;
     let pointSets:any[] = [
       this.randomPointsWithClass(3000, [2, 3], [[1, 0.3], [0.3, 1]]),
       this.randomPointsWithClass(3000, [-1, -3.5], [[1, -0.1], [-0.1, 1]]),
@@ -69,7 +69,7 @@ export class TestMain {
     let dataBuffers = pointSets.map((points, i) => new DataBuffer(`class ${i}`, width, height, this.bin(points, width, [[-7, 7], [-7, 7]])));
 
     // tiling now returns an 1D array of tiles
-    let rectTiles = Tiling.rectangularTiling(width, height, width / 128, height / 128);
+    let rectTiles = Tiling.rectangularTiling(width, height, width / 128, height / 140);
 
     for(let tile of rectTiles) {
         // tile.dataValues are an array of numbers
@@ -135,6 +135,7 @@ export class TestMain {
 
     let randomMasks = Mask.generateWeavingRandomMasks(dataBuffers.length, 4, width, height);
     let squareMasks = Mask.generateWeavingSquareMasks(dataBuffers.length, 4, width, height);
+    let hexaMasks   = Mask.generateWeavingHexaMasks(dataBuffers.length,   4, width, height);
 
     let derivedBuffers4 = dataBuffers.map((dataBuffer, i) => {
         let derivedBuffer = new DerivedBuffer(dataBuffer);
@@ -154,8 +155,18 @@ export class TestMain {
         return derivedBuffer;
     });
 
+    let derivedBuffers6 = dataBuffers.map((dataBuffer, i) => {
+        let derivedBuffer = new DerivedBuffer(dataBuffer);
+
+        derivedBuffer.colorScale = new Scale.LinearColorScale([0, maxCount2], [Color.White, Color.Category3[i]]);
+        derivedBuffer.mask = hexaMasks[i];
+
+        return derivedBuffer;
+    });
+
     let outputImage4 = new Image(width, height);
     let outputImage5 = new Image(width, height);
+    let outputImage6 = new Image(width, height);
 
     for(let tile of bigRectTiles) {
         derivedBuffers4.forEach((derivedBuffer, i) => {
@@ -165,12 +176,18 @@ export class TestMain {
 
         derivedBuffers5.forEach((derivedBuffer, i) => {
             let color = derivedBuffer.colorScale.map(tile.dataValues[i]);
-            outputImage5.fillByTile(color, tile, derivedBuffer.mask);
+            outputImage5.fillByShapedTile(color, tile, derivedBuffer.mask, 'canvas5');
+        });
+
+        derivedBuffers6.forEach((derivedBuffer, i) => {
+            let color = derivedBuffer.colorScale.map(tile.dataValues[i]);
+            outputImage6.fillByShapedTile(color, tile, derivedBuffer.mask, 'canvas6');
         });
     }
 
     CanvasRenderer.render(outputImage4, 'canvas4');
     CanvasRenderer.render(outputImage5, 'canvas5');
+    CanvasRenderer.render(outputImage6, 'canvas6');
   }
 }
 
