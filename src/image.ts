@@ -35,7 +35,7 @@ export default class Image {
                   console.log(ctx.isPointInPath(tile.mask.path, c, r));
                 }
 
-                if (!mask.pols.isPointInPolys(c, r))
+                if (mask && !mask.pols.isPointInPolys(c, r))
                   continue;
                 //if (!ctx.isPointInPath(tile.mask.path, c, r))
                 //  continue;
