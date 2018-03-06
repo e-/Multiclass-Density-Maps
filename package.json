@@ -4,10 +4,11 @@
   "description": "",
   "main": "src/index.ts",
   "dependencies": {
-    "@types/pngjs": "^3.3.0",
     "@types/d3": "^5.0.0",
+    "@types/pngjs": "^3.3.0",
     "brace-expansion": "^1.1.11",
     "canvas": "^1.6.9",
+    "d3": "^4.13.0",
     "jquery": "^3.3.1",
     "pngjs": "^3.3.2",
     "topojson-client": "^3.0.0"

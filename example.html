@@ -2,9 +2,35 @@
 <html>
     <head>
         <title>Scalable Rendering of Multiclass Density Maps Examples</title>
+
+        <style>
+           table.cartouche {
+            background: orange;
+          }
+          table.cartouche td, table.cartouche th{
+            border:1px solid black;
+            border-collapse: collapse;
+            background: linear-gradient(to bottom right, white , #bbb);
+            padding:3px;
+            margin:0px;
+            font-family:Lucida Console;
+            font-size: 12px;
+          }
+          table.cartouche th{
+            text-align:right;
+            font-family:arial;
+            font-style: italic;
+            font-size: 14px;
+          }
+        </style>
+
     </head>
     <body>
-        <table>
+        <table  class='cartouche'>
+            <tr>
+                <th>Data</th>
+                <td>4x Random Gaussian Distributions</td>
+            </tr>
             <tr>
                 <th>Tiling</th>
                 <td>Rectangular (8px, Sum)</td>
@@ -36,7 +62,11 @@
             </tr>
         </table>
 
-        <table>
+        <table  class='cartouche'>
+            <tr>
+                <th>Data</th>
+                <td>4x Random Gaussian Distributions</td>
+            </tr>
             <tr>
                 <th>Tiling</th>
                 <td>Rectangular (16px, Sum)</td>
@@ -51,7 +81,7 @@
             </tr>
             <tr>
                 <th>Masking</th>
-                <td>(Random | Square) Weaving</td>
+                <td>(Random | Square | Hexagonal) Weaving</td>
             </tr>
 
         </table>
@@ -60,7 +90,7 @@
             <tr>
                 <th>RandomRectangularWeaving</th>
                 <th>SquareRectangularWeaving</th>
-                <th>HexagonalWeaving</th>
+                <th>HexagonalWeaving <button onclick="testMain.testSlow()">Run the slow ex</button></th>
             </tr>
             <tr>
                 <td><canvas id="canvas4"></canvas></td>
@@ -70,10 +100,14 @@
         </table>
 
 
-        <table>
+        <table  class='cartouche'>
+            <tr>
+                <th>Data</th>
+                <td>4x Random Gaussian Distributions</td>
+            </tr>
             <tr>
                 <th>Tiling</th>
-                <td>Rectangular (16px, Sum)</td>
+                <td>Rectangular (16px, Sum) </td>
             </tr>
             <tr>
                 <th>Composing</th>
@@ -100,13 +134,46 @@
                 <td><canvas id="canvas8"></canvas></td>
             </tr>
         </table>
-        
-        <h2>Census Data</h2>
-        <canvas id="canvas9"></canvas>
+
+
+        <table  class='cartouche'>
+            <tr>
+                <th>Data</th>
+                <td>US Census by race</td>
+            </tr>
+            <tr>
+                <th>Tiling</th>
+                <td>Rectangular (16px, Sum)???</td>
+            </tr>
+            <tr>
+                <th>Composing</th>
+                <td>Max ???</th>
+            </tr>
+            <tr>
+                <th>Scale</th>
+                <td>Log Scale</td>
+            </tr>
+            <tr>
+                <th>Masking</th>
+                <td>None</td>
+            </tr>
+
+        </table>
+        <table>
+            <tr>
+                <th>Census Data</th>
+                <th>...</th>
+            </tr>
+            <tr>
+                <td><canvas id="canvas9"></canvas></td>
+            </tr>
+        </table>
+
+
 
         <script src="dist/bundle.js" type="text/javascript"></script>
         <script>
-            let testMain = new MCS.TestMain();
+            var testMain = new MCS.TestMain();
 
             testMain.main();
         </script>

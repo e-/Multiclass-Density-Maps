@@ -147,7 +147,7 @@ export class TestMain {
 
         let randomMasks = Mask.generateWeavingRandomMasks(this.dataBuffers.length, bigTileSize, this.width, this.height);
         let squareMasks = Mask.generateWeavingSquareMasks(this.dataBuffers.length, bigTileSize, this.width, this.height);
-        let hexaMasks   = Mask.generateWeavingHexaMasks(dataBuffers.length, bigTileSize, width, height);
+        let hexaMasks   = Mask.generateWeavingHexaMasks(this.dataBuffers.length, bigTileSize, this.width, this.height);
 
         let derivedBuffers4 = this.dataBuffers.map((dataBuffer, i) => {
             let derivedBuffer = new DerivedBuffer(dataBuffer);
