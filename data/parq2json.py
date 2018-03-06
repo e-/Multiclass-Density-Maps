@@ -146,6 +146,7 @@ def parquet_to_databuffers(filename, x, y, category, width=512, height=None,
     buffers = []
     for (key, histo) in histograms.items():
         histo = histo.T
+        histo = np.flipud(histo)
         hmin = np.min(histo)
         hmax = np.max(histo)
         outfile = root + '_cat_%s.json'%key

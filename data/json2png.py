@@ -20,7 +20,7 @@ def json2png(fname):
         histo = np.array(json.load(injson))
     histo = cbrt(histo)
     image = toimage(histo, high=65536, low=0, mode='I')
-    image = image.transpose(Image.FLIP_TOP_BOTTOM)
+    # image = image.transpose(Image.FLIP_TOP_BOTTOM)
     image.save(root+'.png', format='PNG', bits=16)
 
 if __name__ == '__main__':

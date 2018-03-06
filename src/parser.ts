@@ -1,4 +1,5 @@
 import * as util from './util';
+import * as d3 from 'd3';
 
 export interface SourceSpec {
     filename?: string;
@@ -98,6 +99,23 @@ export class DataSpec {
     // resolve_buffer_url(buffer:BufferSpec, json: any) {
     //     buffer.data = <number[][]>json;
     // }
+
+    resolve(prefix:string, errorFn: (err:string)=>void):void {
+        if (this.buffers == undefined) return;
+        let dataSpec = this;
+        this.buffers.forEach((buffer) => {
+            if (buffer.data == null) return;
+            d3.json(prefix+buffer.url)
+                  .catch(errorFn);
+        });
+    }
+
+    resolved(): boolean {
+        if (this.buffers == undefined) return false;
+        let dataSpec = this;
+        let result = true;
+        return this.buffers.every((buffer):boolean => { return buffer.data != null; });
+    }
 }
 
 export interface ConfigurationDataSpec {
@@ -184,6 +202,16 @@ export class Configuration {
     //     data.parse();
     //     this.data.data = data;
     // }
+
+    resolve(prefix:string, errorFn: (reason:any)=>undefined): void {
+        if (this.data == undefined) return;
+        let configuration = this;
+        d3.json(prefix+this.data.url)
+              .then(function(json:any) {
+                  //configuration.resolve_data_url(json);
+              })
+              .catch(errorFn);
+    }
 
     public width(): number {
         return 512;
