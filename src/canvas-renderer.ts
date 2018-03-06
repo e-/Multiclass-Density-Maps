@@ -2,7 +2,7 @@ import Image from './image';
 
 export default class CanvasRenderer {
     static render(image:Image, id:string) {
-      console.log(image.width+"x"+image.height)
+      //console.log(image.width+"x"+image.height)
 
       let canvas:any = document.getElementById(id);
       canvas.width   = image.width;
