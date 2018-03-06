@@ -14,34 +14,22 @@ export default class Image {
             for(let c = Math.ceil(tile.x); c < tile.x + tile.mask.width; c++) {
                 if(c >= this.width) break;
                 if(mask && r < mask.height && c < mask.width && mask.mask[r][c] == 0)
-                    continue;
+                  continue;
 
                 this.pixels[r][c] = color;
             }
         }
     }
 
-    fillByShapedTile(color:Color, tile:Tile, mask:Mask|undefined, id:string ) {
-      let canvas:any = document.getElementById(id);
+    fillByShapedTile(color:Color, tile:Tile, mask:Mask|undefined) {
 
-      let ctx = canvas.getContext('2d');
-        for(let r = Math.ceil(tile.y); r < tile.y + tile.mask.height; r++) {
+          for(let r = Math.ceil(tile.y); r < tile.y + tile.mask.height; r++) {
             if(r >= this.height) break;
             for(let c = Math.ceil(tile.x); c < tile.x + tile.mask.width; c++) {
                 if(c >= this.width) break;
-                if (ctx.isPointInPath(tile.mask.path, c, r)) {
-                  console.log(r+","+c);
-                  console.log(tile.mask.path);
-                  console.log(ctx.isPointInPath(tile.mask.path, c, r));
-                }
 
                 if (mask && !mask.pols.isPointInPolys(c, r))
                   continue;
-                //if (!ctx.isPointInPath(tile.mask.path, c, r))
-                //  continue;
-
-                //if(mask && r < mask.height && c < mask.width && mask.mask[r][c] == 0)
-                //   continue;
 
                 this.pixels[r][c] = color;
             }

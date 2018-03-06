@@ -56,10 +56,14 @@ export class TestMain {
         return binned.map(rows => rows.map(row => row.map(value => value / maxValue)));
     }
 
+    dataBuffers:DataBuffer[] = [];
+    width:number             = 256;
+    height:number            = 256;
+    maxCount2:number         = 0;
 
     main() {
         let nClass = 3;
-        let width = 256, height = 256;
+
         let pointSets:any[] = [
         this.randomPointsWithClass(3000, [2, 3], [[1, 0.3], [0.3, 1]]),
         this.randomPointsWithClass(3000, [-1, -3.5], [[1, -0.1], [-0.1, 1]]),
@@ -67,22 +71,22 @@ export class TestMain {
         ];
 
         // data buffers contain density information that can be either created by a server or read from files (e.g., json).
-        let dataBuffers = pointSets.map((points, i) => new DataBuffer(`class ${i}`, width, height, this.bin(points, width, [[-7, 7], [-7, 7]])));
+        this.dataBuffers = pointSets.map((points, i) => new DataBuffer(`class ${i}`, this.width, this.height, this.bin(points, this.width, [[-7, 7], [-7, 7]])));
 
 
         // tiling now returns an 1D array of tiles
-        let rectTiles = Tiling.rectangularTiling(width, height, width / 128, height / 128);
+        let rectTiles = Tiling.rectangularTiling(this.width, this.height, this.width / 128, this.height / 128);
 
         for(let tile of rectTiles) {
             // tile.dataValues are an array of numbers
-            tile.dataValues = tile.aggregate(dataBuffers, TileAggregation.Sum);
+            tile.dataValues = tile.aggregate(this.dataBuffers, TileAggregation.Sum);
         }
 
         // get max count of bins for scale
         let maxCount = util.amax(rectTiles.map(tile => util.amax(tile.dataValues)));
 
         // assignProperties()
-        let derivedBuffers1 = dataBuffers.map((dataBuffer, i) => {
+        let derivedBuffers1 = this.dataBuffers.map((dataBuffer, i) => {
             let derivedBuffer = new DerivedBuffer(dataBuffer);
 
             derivedBuffer.colorScale = new Scale.LinearColorScale([0, maxCount], [Color.White, Color.Category10[i]]);
@@ -90,7 +94,7 @@ export class TestMain {
             return derivedBuffer;
         });
 
-        let derivedBuffers2 = dataBuffers.map((dataBuffer, i) => {
+        let derivedBuffers2 = this.dataBuffers.map((dataBuffer, i) => {
             let derivedBuffer = new DerivedBuffer(dataBuffer);
 
             derivedBuffer.colorScale = new Scale.LogColorScale([1, maxCount], [Color.White, Color.Category10[i]]);
@@ -98,7 +102,7 @@ export class TestMain {
             return derivedBuffer;
         });
 
-        let derivedBuffers3 = dataBuffers.map((dataBuffer, i) => {
+        let derivedBuffers3 = this.dataBuffers.map((dataBuffer, i) => {
             let derivedBuffer = new DerivedBuffer(dataBuffer);
 
             derivedBuffer.colorScale = new Scale.EquiDepthColorScale(
@@ -108,9 +112,9 @@ export class TestMain {
             return derivedBuffer;
         });
 
-        let outputImage1 = new Image(width, height);
-        let outputImage2 = new Image(width, height);
-        let outputImage3 = new Image(width, height);
+        let outputImage1 = new Image(this.width, this.height);
+        let outputImage2 = new Image(this.width, this.height);
+        let outputImage3 = new Image(this.width, this.height);
 
         for(let tile of rectTiles) {
             let color1 = Composer.max(derivedBuffers1, tile.dataValues);
@@ -127,47 +131,38 @@ export class TestMain {
         CanvasRenderer.render(outputImage2, 'canvas2');
         CanvasRenderer.render(outputImage3, 'canvas3');
 
-        let bigRectTiles = Tiling.rectangularTiling(width, height, width / 16, height / 16);
+        let bigRectTiles = Tiling.rectangularTiling(this.width, this.height, this.width / 16, this.height / 16);
 
         for(let tile of bigRectTiles) {
-            tile.dataValues = tile.aggregate(dataBuffers, TileAggregation.Sum);
+            tile.dataValues = tile.aggregate(this.dataBuffers, TileAggregation.Sum);
         }
 
-        let maxCount2 = util.amax(bigRectTiles.map(tile => util.amax(tile.dataValues)));
+        this.maxCount2 = util.amax(bigRectTiles.map(tile => util.amax(tile.dataValues)));
 
-        let randomMasks = Mask.generateWeavingRandomMasks(dataBuffers.length, 4, width, height);
-        let squareMasks = Mask.generateWeavingSquareMasks(dataBuffers.length, 4, width, height);
-        let hexaMasks   = Mask.generateWeavingHexaMasks(dataBuffers.length,   4, width, height);
+        let randomMasks = Mask.generateWeavingRandomMasks(this.dataBuffers.length, 4, this.width, this.height);
+        let squareMasks = Mask.generateWeavingSquareMasks(this.dataBuffers.length, 4, this.width, this.height);
 
-        let derivedBuffers4 = dataBuffers.map((dataBuffer, i) => {
+        let derivedBuffers4 = this.dataBuffers.map((dataBuffer, i) => {
             let derivedBuffer = new DerivedBuffer(dataBuffer);
 
-            derivedBuffer.colorScale = new Scale.LinearColorScale([0, maxCount2], [Color.White, Color.Category10[i]]);
+            derivedBuffer.colorScale = new Scale.LinearColorScale([0, this.maxCount2], [Color.White, Color.Category10[i]]);
             derivedBuffer.mask = randomMasks[i];
 
             return derivedBuffer;
         });
 
-        let derivedBuffers5 = dataBuffers.map((dataBuffer, i) => {
+        let derivedBuffers5 = this.dataBuffers.map((dataBuffer, i) => {
             let derivedBuffer = new DerivedBuffer(dataBuffer);
 
-            derivedBuffer.colorScale = new Scale.LinearColorScale([0, maxCount2], [Color.White, Color.Category10[i]]);
+            derivedBuffer.colorScale = new Scale.LinearColorScale([0, this.maxCount2], [Color.White, Color.Category10[i]]);
             derivedBuffer.mask = squareMasks[i];
 
             return derivedBuffer;
         });
 
-        let derivedBuffers6 = dataBuffers.map((dataBuffer, i) => {
-            let derivedBuffer = new DerivedBuffer(dataBuffer);
 
-            derivedBuffer.colorScale = new Scale.LinearColorScale([0, maxCount2], [Color.White, Color.Category10[i]]);
-            derivedBuffer.mask = hexaMasks[i];
-
-            return derivedBuffer;
-        });
-        let outputImage4 = new Image(width, height);
-        let outputImage5 = new Image(width, height);
-        let outputImage6 = new Image(width, height);
+        let outputImage4 = new Image(this.width, this.height);
+        let outputImage5 = new Image(this.width, this.height);
 
         for(let tile of bigRectTiles) {
             derivedBuffers4.forEach((derivedBuffer, i) => {
@@ -179,18 +174,14 @@ export class TestMain {
                 let color = derivedBuffer.colorScale.map(tile.dataValues[i]);
                 outputImage5.fillByTile(color, tile, derivedBuffer.mask);
             });
-            derivedBuffers6.forEach((derivedBuffer, i) => {
-                let color = derivedBuffer.colorScale.map(tile.dataValues[i]);
-                outputImage6.fillByShapedTile(color, tile, derivedBuffer.mask, 'canvas6');
-            });
+
         }
 
         CanvasRenderer.render(outputImage4, 'canvas4');
         CanvasRenderer.render(outputImage5, 'canvas5');
-        CanvasRenderer.render(outputImage6, 'canvas6');
 
-        let outputImage7 = new Image(width, height);
-        let outputImage8 = new Image(width, height);
+        let outputImage7 = new Image(this.width, this.height);
+        let outputImage8 = new Image(this.width, this.height);
 
         for(let tile of rectTiles) {
             let color7 = Composer.mean(derivedBuffers1, tile.dataValues);
@@ -203,16 +194,48 @@ export class TestMain {
         CanvasRenderer.render(outputImage7, 'canvas7');
         CanvasRenderer.render(outputImage8, 'canvas8');
 
+
+        // Testing Spec
+        this.testVisSpec();
+    }
+
+    testSlow(){
         // testing polys
         let po:Polys2D = new Polys2D("test");
         po.addPoly([1.5, 3.5, 2.0], [1.0, 1.5, 3.0]);
         po.addPoly([2.0, 4.0, 3.0], [4.0, 2.0, 5.0]);
-        console.log("should be true:"+po.isPointInPolys(2.5, 2.0)+" "+po.isPointInPolys(2.0, 2.5)+" "+po.isPointInPolys(3.0, 4.0)+" "+po.isPointInPolys(2.5, 2.0)+" "+po.isPointInPolys(2.99, 2.0));
-        console.log("should be false:"+po.isPointInPolys(2.5, 1.1)+" "+po.isPointInPolys(3.0, 2.5)+" "+po.isPointInPolys(2.5, 2.8)+" "+po.isPointInPolys(1.6, 2.0)+" "+po.isPointInPolys(3.01, 2.0));
-        console.log("borderline:"+po.isPointInPolys(3.0, 2.0)+" "+po.isPointInPolys(3.0, 3.0));
+        console.log("Run polygon tests");
+        console.log("  should be true:"+ po.isPointInPolys(2.5, 2.0)+" "+po.isPointInPolys(2.0, 2.5)+" "+po.isPointInPolys(3.0, 4.0)+" "+po.isPointInPolys(2.5, 2.0)+" "+po.isPointInPolys(2.99, 2.0));
+        console.log("  should be false:"+po.isPointInPolys(2.5, 1.1)+" "+po.isPointInPolys(3.0, 2.5)+" "+po.isPointInPolys(2.5, 2.8)+" "+po.isPointInPolys(1.6, 2.0)+" "+po.isPointInPolys(3.01, 2.0));
+        console.log("  borderline:"+     po.isPointInPolys(3.0, 2.0)+" "+po.isPointInPolys(3.0, 3.0));
 
-        // Testing Spec
-        this.testVisSpec();
+        // tiling now returns an 1D array of tiles
+        let rectTiles = Tiling.rectangularTiling(this.width, this.height, this.width / 128, this.height / 128);
+
+        for(let tile of rectTiles) {
+            // tile.dataValues are an array of numbers
+            tile.dataValues = tile.aggregate(this.dataBuffers, TileAggregation.Sum);
+        }
+        let hexaMasks   = Mask.generateWeavingHexaMasks(this.dataBuffers.length,   4, this.width, this.height);
+        let bigRectTiles = Tiling.rectangularTiling(this.width, this.height, this.width / 16, this.height / 16);
+        let derivedBuffers6 = this.dataBuffers.map((dataBuffer, i) => {
+            let derivedBuffer = new DerivedBuffer(dataBuffer);
+
+            derivedBuffer.colorScale = new Scale.LinearColorScale([0, this.maxCount2], [Color.White, Color.Category10[i]]);
+            derivedBuffer.mask = hexaMasks[i];
+
+            return derivedBuffer;
+        });
+        let outputImage6 = new Image(this.width, this.height);
+        for(let tile of bigRectTiles) {
+            derivedBuffers6.forEach((derivedBuffer, i) => {
+                let color = derivedBuffer.colorScale.map(tile.dataValues[i]);
+                outputImage6.fillByShapedTile(color, tile, derivedBuffer.mask);
+            });
+        }
+        CanvasRenderer.render2(outputImage6, 'canvas6');
+        console.log(outputImage6);
+
     }
 
     testVisSpec() {
