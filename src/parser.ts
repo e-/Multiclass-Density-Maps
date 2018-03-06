@@ -1,3 +1,4 @@
+import * as util from './util';
 
 export interface SourceSpec {
     filename?: string;
@@ -57,13 +58,12 @@ export class DataSpec {
     public buffers?: BufferSpec[];
 
     constructor(public specs:any) {
-    }
-    parse() {
         this.parseSource();
         this.parseProjection();
         this.parseEncoding();
         this.parseBuffers();
     }
+
     parseSource() {
         if ('source' in this.specs)
             this.source = <SourceSpec>this.specs.source;
@@ -79,15 +79,31 @@ export class DataSpec {
         this.buffers = <BufferSpec[]>this.specs.buffers;
     }
 
-    resolve_buffer_url(buffer:BufferSpec, json: any) {
-        buffer.data = <number[][]>json;
+    load(base:string = '') {
+        let requests:Promise<void>[] = [];
+
+        this.buffers!.forEach((buffer) => {
+            if(!buffer.data) {
+                let promise = util.get(base + buffer.url!).then((data) => {
+                    buffer.data = JSON.parse(data);
+                })
+
+                requests.push(promise);
+            }
+        })
+
+        return Promise.all(requests);
     }
+
+    // resolve_buffer_url(buffer:BufferSpec, json: any) {
+    //     buffer.data = <number[][]>json;
+    // }
 }
 
 export interface ConfigurationDataSpec {
     url?: string;
     type?: string;
-    data?: DataSpec;
+    dataSpec?: DataSpec;
 }
 
 export interface ConfigurationReencodingLabelScaleSpec {
@@ -129,8 +145,10 @@ export class Configuration {
     rebin: any;
 
     constructor(public specs:any) {
-    }
-    parse() {
+        if(typeof this.specs === 'string') {
+            this.specs = JSON.parse(this.specs as string);
+        }
+
         this.parseDescription();
         this.parseBackground();
         this.parseData();
@@ -138,6 +156,7 @@ export class Configuration {
         this.parseReencoding();
         this.parseRebin();
     }
+
     parseDescription() {
         if ('description' in this.specs)
             this.description = this.specs.description;
@@ -159,12 +178,12 @@ export class Configuration {
             this.rebin = this.specs.rebin;
     }
 
-    public resolve_data_url(json: any) {
-        if (! this.data) return;
-        let data = new DataSpec(json);
-        data.parse();
-        this.data.data = data;
-    }
+    // public resolve_data_url(json: any) {
+    //     if (! this.data) return;
+    //     let data = new DataSpec(json);
+    //     data.parse();
+    //     this.data.data = data;
+    // }
 
     public width(): number {
         return 512;
@@ -172,6 +191,21 @@ export class Configuration {
 
     public height(): number {
         return 512;
+    }
+
+    // load data from the server if this.data contains url
+    load(base:string = '') {
+        if(!this.data!.dataSpec && this.data!.url) {
+            return util.get(base + this.data!.url!).then(response => {
+                let dataSpec = new DataSpec(JSON.parse(response));
+
+                return dataSpec.load(base).then(() => {
+                    this.data!.dataSpec = dataSpec;
+                });
+            })
+        }
+
+        return Promise.resolve();
     }
 }
 
