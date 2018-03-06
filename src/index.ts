@@ -247,7 +247,7 @@ export class TestMain {
                 outputImage.fillByTile(color1, tile);
             }
 
-            CanvasRenderer.render(outputImage, 'canvas8');
+            CanvasRenderer.render(outputImage, 'canvas9');
         })
     }
 }
