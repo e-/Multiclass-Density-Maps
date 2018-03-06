@@ -5,15 +5,17 @@
         <title>Fred tests ts</title>
             <script src="https://d3js.org/d3.v4.min.js"></script>
             <script src="https://unpkg.com/topojson-client@3"></script>
+            <script src="node_modules/pngjs/lib/png.js"></script>
+
     </head>
 
     <body style="background:#ffc;">
         <div id="container0" style="display:inline-block;position:relative; width:512px; height:280px">
-          <img    style="position:absolute" id="img1"    src="data/census.snappy_a.png"/>
-          <img    style="position:absolute" id="img2"    src="data/census.snappy_b.png"/>
-          <img    style="position:absolute" id="img3"    src="data/census.snappy_h.png"/>
-          <img    style="position:absolute" id="img4"    src="data/census.snappy_o.png"/>
-          <img    style="position:absolute" id="img5"    src="data/census.snappy_w.png"/>
+          <img    style="position:absolute" id="img1"    src="data/census.snappy_cat_a.png"/>
+          <img    style="position:absolute" id="img2"    src="data/census.snappy_cat_b.png"/>
+          <img    style="position:absolute" id="img3"    src="data/census.snappy_cat_h.png"/>
+          <img    style="position:absolute" id="img4"    src="data/census.snappy_cat_o.png"/>
+          <img    style="position:absolute" id="img5"    src="data/census.snappy_cat_w.png"/>
           <canvas style="position:absolute" id="canvas0" width="512" height="280"></canvas>
         </div>
         <canvas style="position:relative" id="canvas1" width="512" height="280"></canvas>
@@ -23,6 +25,11 @@
         </table>
         <script src="dist/fred-test.js"></script>
         <script>
+
+            d3.json("data/communes.json", function(error, france) {
+              console.log(france);
+            });
+
 
             d3.json("data/us.json", function(error, us) {
               if (error) throw error;
@@ -129,6 +136,7 @@
             let user = new Student("Jean-Daniel", "M.", "Fekete");
             d3.select("#debugdiv").style('background', '#fdd');
             d3.select("#debugdiv").node().append("fred says "+greeter(user));
+            printInfos();
         </script>
 
     </body>
