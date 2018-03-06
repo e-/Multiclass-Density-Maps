@@ -59,6 +59,13 @@ export default class Color {
     static Blue = new Color(31 / 255, 120 / 255, 180 / 255, 1); // Blue
     static Orange = new Color(255 / 255, 127 / 255, 0 / 255, 1); // orange
     static Green = new Color(51 / 255, 160 / 255, 44 / 255, 1); // green
+    static Red = new Color(211 / 255, 39 / 255, 40 / 255, 1);
+    static Purple = new Color(148 / 255, 103 / 255, 189 / 255, 1);
+    static Brown = new Color(140 / 255, 86 / 255, 75 / 255, 1);
+    static Pink = new Color(227 / 255, 119 / 255, 194 / 255, 1);
+    static Gray = new Color(127 / 255, 127 / 255, 127 / 255, 1);
+    static Yellow = new Color(188 / 255, 189 / 255, 34 / 255, 1);
+    static Skyblue = new Color(23 / 255, 190 / 255, 207 / 255, 1);
 
-    static Category3 = [Color.Blue, Color.Orange, Color.Green];
+    static Category10 = [Color.Blue, Color.Orange, Color.Green, Color.Red, Color.Purple, Color.Brown, Color.Pink, Color.Gray, Color.Yellow, Color.Skyblue];
 }
