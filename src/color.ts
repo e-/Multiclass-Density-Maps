@@ -32,6 +32,10 @@ export default class Color {
         return new Color(this.r * v, this.g * v, this.b * v, this.a * v);
     }
 
+    toString(){
+        return ""+this.r+" "+this.g+" "+this.b+" "+this.a;
+    }
+
     add(c:Color) {
         return new Color(
         this.r + c.r,
