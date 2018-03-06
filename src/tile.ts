@@ -20,10 +20,11 @@ export default class Tile extends Point {
       let val = 0;
       let cnt = 0;
 
-      for(let r = this.y; r < this.y + this.mask.height; r++) {
+      for(let r = Math.ceil(this.y); r < this.y + this.mask.height; r++) {
         if(r >= buffer.height) break;
-        for(let c = this.x; c < this.x + this.mask.width; c++) {
+        for(let c = Math.ceil(this.x); c < this.x + this.mask.width; c++) {
           if(c >= buffer.width) break;
+          if (!buffer.values[r]) console.log(r);
           if(cnt == 0)
             val = buffer.values[r][c];
           else {
