@@ -10,6 +10,7 @@ import Composer from './composer';
 import * as Parser from './parser';
 import DerivedBuffer from './derived-buffer';
 import * as Scale from './scale';
+import Polys2D from './fred-test'
 
 /// <reference path="multivariate-normal.d.ts" />
 import MN from "multivariate-normal";
@@ -201,6 +202,14 @@ export class TestMain {
 
         CanvasRenderer.render(outputImage7, 'canvas7');
         CanvasRenderer.render(outputImage8, 'canvas8');
+
+        // testing polys
+        let po:Polys2D = new Polys2D("test");
+        po.addPoly([1.5, 3.5, 2.0], [1.0, 1.5, 3.0]);
+        po.addPoly([2.0, 4.0, 3.0], [4.0, 2.0, 5.0]);
+        console.log("should be true:"+po.isPointInPolys(2.5, 2.0)+" "+po.isPointInPolys(2.0, 2.5)+" "+po.isPointInPolys(3.0, 4.0)+" "+po.isPointInPolys(2.5, 2.0)+" "+po.isPointInPolys(2.99, 2.0));
+        console.log("should be false:"+po.isPointInPolys(2.5, 1.1)+" "+po.isPointInPolys(3.0, 2.5)+" "+po.isPointInPolys(2.5, 2.8)+" "+po.isPointInPolys(1.6, 2.0)+" "+po.isPointInPolys(3.01, 2.0));
+        console.log("borderline:"+po.isPointInPolys(3.0, 2.0)+" "+po.isPointInPolys(3.0, 3.0));
 
         // Testing Spec
 
