@@ -58,20 +58,27 @@ export class TestMain {
 
 
     main() {
-        let nClass = 3;
+
+        // general settings for the examples
+        let fineTileSize = 2;
+        let bigTileSize = 8;
+
+        let nClass = 4;
         let width = 256, height = 256;
         let pointSets:any[] = [
-        this.randomPointsWithClass(3000, [2, 3], [[1, 0.3], [0.3, 1]]),
-        this.randomPointsWithClass(3000, [-1, -3.5], [[1, -0.1], [-0.1, 1]]),
-        this.randomPointsWithClass(3000, [1, -2], [[1, 0.6], [0.6, 1]])
+        this.randomPointsWithClass(5000, [-1, -1], [[3, 0], [0, 3]]),
+        this.randomPointsWithClass(5000, [1, -1], [[3, 0], [0, 3]]),
+        this.randomPointsWithClass(5000, [-1, 1], [[3, 0], [0, 3]]),
+        this.randomPointsWithClass(5000, [1, 1], [[3, 0], [0, 3]])
         ];
 
         // data buffers contain density information that can be either created by a server or read from files (e.g., json).
         let dataBuffers = pointSets.map((points, i) => new DataBuffer(`class ${i}`, width, height, this.bin(points, width, [[-7, 7], [-7, 7]])));
 
 
+
         // tiling now returns an 1D array of tiles
-        let rectTiles = Tiling.rectangularTiling(width, height, width / 128, height / 128);
+        let rectTiles = Tiling.rectangularTiling(width, height, fineTileSize, fineTileSize);
 
         for(let tile of rectTiles) {
             // tile.dataValues are an array of numbers
@@ -127,7 +134,7 @@ export class TestMain {
         CanvasRenderer.render(outputImage2, 'canvas2');
         CanvasRenderer.render(outputImage3, 'canvas3');
 
-        let bigRectTiles = Tiling.rectangularTiling(width, height, width / 16, height / 16);
+        let bigRectTiles = Tiling.rectangularTiling(width, height, bigTileSize, bigTileSize);
 
         for(let tile of bigRectTiles) {
             tile.dataValues = tile.aggregate(dataBuffers, TileAggregation.Sum);
@@ -135,9 +142,9 @@ export class TestMain {
 
         let maxCount2 = util.amax(bigRectTiles.map(tile => util.amax(tile.dataValues)));
 
-        let randomMasks = Mask.generateWeavingRandomMasks(dataBuffers.length, 4, width, height);
-        let squareMasks = Mask.generateWeavingSquareMasks(dataBuffers.length, 4, width, height);
-        let hexaMasks   = Mask.generateWeavingHexaMasks(dataBuffers.length,   4, width, height);
+        let randomMasks = Mask.generateWeavingRandomMasks(dataBuffers.length, bigTileSize, width, height);
+        let squareMasks = Mask.generateWeavingSquareMasks(dataBuffers.length, bigTileSize, width, height);
+        let hexaMasks   = Mask.generateWeavingHexaMasks(dataBuffers.length, bigTileSize, width, height);
 
         let derivedBuffers4 = dataBuffers.map((dataBuffer, i) => {
             let derivedBuffer = new DerivedBuffer(dataBuffer);
@@ -179,15 +186,15 @@ export class TestMain {
                 let color = derivedBuffer.colorScale.map(tile.dataValues[i]);
                 outputImage5.fillByTile(color, tile, derivedBuffer.mask);
             });
-            derivedBuffers6.forEach((derivedBuffer, i) => {
-                let color = derivedBuffer.colorScale.map(tile.dataValues[i]);
-                outputImage6.fillByShapedTile(color, tile, derivedBuffer.mask, 'canvas6');
-            });
+            // derivedBuffers6.forEach((derivedBuffer, i) => {
+            //     let color = derivedBuffer.colorScale.map(tile.dataValues[i]);
+            //     outputImage6.fillByShapedTile(color, tile, derivedBuffer.mask, 'canvas6');
+            // });
         }
 
         CanvasRenderer.render(outputImage4, 'canvas4');
         CanvasRenderer.render(outputImage5, 'canvas5');
-        CanvasRenderer.render(outputImage6, 'canvas6');
+        // CanvasRenderer.render(outputImage6, 'canvas6');
 
         let outputImage7 = new Image(width, height);
         let outputImage8 = new Image(width, height);
