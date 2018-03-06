@@ -27,8 +27,8 @@ export class TestMain {
     randomPointsWithClass(n:number, mean:any, cov:any): any[] {
         let dist = MN(mean, cov);
         return new Array(n).fill(0).map(() => {
-        let point = dist.sample();
-        return point;
+      let point = dist.sample();
+      return point;
         });
     }
 
@@ -36,15 +36,15 @@ export class TestMain {
         let count = util.create2D(binSize, binSize, 0);
 
         points.forEach(([x, y]) => {
-        let xb = Math.floor((x - bounds[0][0]) / (bounds[0][1] - bounds[0][0]) * binSize);
-        let yb = Math.floor((y - bounds[1][0]) / (bounds[1][1] - bounds[1][0]) * binSize);
+      let xb = Math.floor((x - bounds[0][0]) / (bounds[0][1] - bounds[0][0]) * binSize);
+      let yb = Math.floor((y - bounds[1][0]) / (bounds[1][1] - bounds[1][0]) * binSize);
 
-        if(xb >= binSize) xb = binSize - 1;
-        if(yb >= binSize) yb = binSize - 1;
-        if(xb < 0) xb = 0;
-        if(yb < 0) yb = 0;
+      if(xb >= binSize) xb = binSize - 1;
+      if(yb >= binSize) yb = binSize - 1;
+      if(xb < 0) xb = 0;
+      if(yb < 0) yb = 0;
 
-        count[yb][xb]++;
+      count[yb][xb]++;
         });
 
         return count;
@@ -70,10 +70,10 @@ export class TestMain {
 
         let nClass = 4;
         let pointSets:any[] = [
-        this.randomPointsWithClass(5000, [-1, -1], [[3, 0], [0, 3]]),
-        this.randomPointsWithClass(5000, [1, -1], [[3, 0], [0, 3]]),
-        this.randomPointsWithClass(5000, [-1, 1], [[3, 0], [0, 3]]),
-        this.randomPointsWithClass(5000, [1, 1], [[3, 0], [0, 3]])
+      this.randomPointsWithClass(5000, [-1, -1], [[3, 0], [0, 3]]),
+      this.randomPointsWithClass(5000, [1, -1],  [[3, 0], [0, 3]]),
+      this.randomPointsWithClass(5000, [-1, 1],  [[3, 0], [0, 3]]),
+      this.randomPointsWithClass(5000, [1, 1],   [[3, 0], [0, 3]])
         ];
 
         // data buffers contain density information that can be either created by a server or read from files (e.g., json).
@@ -258,7 +258,7 @@ export class TestMain {
             let height = 280;
 
             let dataBuffers = config.data!.dataSpec!.buffers!.map((bufferSpec) =>
-                new DataBuffer('test', width, height, bufferSpec.data)
+              new DataBuffer('test', width, height, bufferSpec.data)
             );
 
             let tiles = Tiling.rectangularTiling(width, height, width / 128, height / 70);
