@@ -20,8 +20,14 @@ export class TestMain {
 
     }
 
-    parse(json: any) : Parser.Configuration {
-        return Parser.parse(json);
+    parse_url(url:string, callback:(conf:Parser.Configuration)=>void) {
+        util.get(url).then(response => {
+            let config = new Parser.Configuration(response);
+
+            // when we call load(), data spec and buffers are really loaded through AJAX
+            return config.load('data/');
+        })
+        .then(callback);
     }
 
     randomPointsWithClass(n:number, mean:any, cov:any): any[] {

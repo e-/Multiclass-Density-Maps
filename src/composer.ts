@@ -19,15 +19,15 @@ export default class Composer {
 
     static mean(buffers:DerivedBuffer[], values:number[]):Color {
         let sum = 0;
-        let ret = new Color(0, 0, 0, 1);
+        let ret = new Color(0, 0, 0, 0);
 
         values.forEach((value, i) => {
           sum += value;
-          ret = ret.add(buffers[i].colorScale.map(value));
+          ret = ret.add(buffers[i].colorScale.map(value).dissolve(value));
         });
 
         if(sum > 0)
-          ret = ret.dissolve(1 / buffers.length); // TODO: is this correct?
+          ret = ret.dissolve(1 / sum); // TODO: is this correct?
 
         return ret;
     }

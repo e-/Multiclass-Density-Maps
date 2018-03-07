@@ -86,6 +86,7 @@ export class DataSpec {
         this.buffers!.forEach((buffer) => {
             if(!buffer.data) {
                 let promise = util.get(base + buffer.url!).then((data) => {
+                    console.log('Loaded '+buffer.url);
                     buffer.data = JSON.parse(data);
                 })
 
@@ -123,15 +124,28 @@ export interface ConfigurationReencodingColorScaleSpec {
     mixing?: string
 }
 
+export interface ConfigurationReencodingFacetSpec {
+    value?: boolean;
+}
+
 export interface ConfigurationReencodingColorSpec {
     field: string;
     type?: string; // specify nominal
     scale: ConfigurationReencodingColorScaleSpec;
 }
 
-export interface ConfigurationReencodingSpec {
+export interface ConfigurationReencodingHatchingSpec {
+    domain?: string[];
+    range: string[];
+    type?: string;
+}
+
+
+export interface ConfigurationReencodingSpec {    
     label?: ConfigurationReencodingLabelSpec;
     color?: ConfigurationReencodingColorSpec;
+    facet?: ConfigurationReencodingFacetSpec;
+    hatching?: ConfigurationReencodingHatchingSpec;
 }
 
 export class Configuration {
@@ -186,6 +200,7 @@ export class Configuration {
     // load data from the server if this.data contains url
     load(base:string = '') {
         if(!this.data!.dataSpec && this.data!.url) {
+            console.log('Loading '+this.data!.url!);
             return util.get(base + this.data!.url!).then(response => {
                 let dataSpec = new DataSpec(JSON.parse(response));
 
@@ -203,3 +218,4 @@ export class Configuration {
 export function parse(json: any): Configuration {
     return new Configuration(json);
 }
+
