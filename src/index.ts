@@ -153,7 +153,6 @@ export class TestMain {
 
         let randomMasks = Mask.generateWeavingRandomMasks(this.dataBuffers.length, bigTileSize, this.width, this.height);
         let squareMasks = Mask.generateWeavingSquareMasks(this.dataBuffers.length, bigTileSize, this.width, this.height);
-        let hexaMasks   = Mask.generateWeavingHexaMasks(this.dataBuffers.length, bigTileSize, this.width, this.height);
 
         let derivedBuffers4 = this.dataBuffers.map((dataBuffer, i) => {
             let derivedBuffer = new DerivedBuffer(dataBuffer);
@@ -212,7 +211,7 @@ export class TestMain {
         this.testVisSpec();
     }
 
-    testSlow(){
+    testSlow(id:number){
         // testing polys
         let po:Polys2D = new Polys2D("test");
         po.addPoly([1.5, 3.5, 2.0], [1.0, 1.5, 3.0]);
@@ -245,7 +244,16 @@ export class TestMain {
         });
         let outputImage6 = new Image(this.width, this.height);
 
-        outputImage6.fillByShapedTile(bigRectTiles, derivedBuffers6);
+        //outputImage6.fillByShapedTile(bigRectTiles, derivedBuffers6);
+        if (id<0)
+          for(let tile of bigRectTiles) {
+            derivedBuffers6.forEach((derivedBuffer, i) => {
+                let color = derivedBuffer.colorScale.map(tile.dataValues[i]);
+                outputImage6.fillByTile(color, tile, derivedBuffer.mask);
+            });
+          }
+        else
+          outputImage6.fillMask(derivedBuffers6[id].mask);
 
         CanvasRenderer.render(outputImage6, 'canvas6');
 

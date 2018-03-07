@@ -21,7 +21,17 @@ export default class Image {
             }
         }
     }
-
+    fillMask(mask:Mask|undefined){
+      if (!mask) return;
+        for(let r = 0; r < this.height ; r++) {
+            for(let c = 0; c < this.width ; c++) {
+                if(mask.mask[r][c] == 0)
+                    this.pixels[r][c] = new Color(0, 0, 0, 1);
+                else
+                    this.pixels[r][c] = new Color(1, 1, 1, 1);
+            }
+        }
+    }
 
     fillByShapedTile(tiles:Tile[], derivedBuffers:DerivedBuffer[]) {
 

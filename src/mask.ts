@@ -53,19 +53,31 @@ export default class Mask {
         for (let i = 0; i < m; i++) {
             masks[i] = new Mask(width, height, 0);
         }
-        for (let i = 0; i < (height/size); i++) {
-            for (let j = 0; j < (width/size); j++) {
-                let row = i * size;
-                let col = j * size;
+        for (let j = 0; j < (height/size); j++) {
+            for (let i = 0; i < (width/size); i++) {
+                let col = i * size;
+                let row = j * size;
                 let selected = (((i-j%2)*xincr +(width/size)- j))%m;
                 if (j%2==1) { // brick effect
-                    row += size/2;
+                    col += size/2;
                 }
                 let mask = masks[selected];
                 let y = 3*size/16;
                 // 6 pts to make an hexagon
-                mask.pols.addPoly([row,   row+size/2, row+size, row+size,   row+size/2, row],
-                                  [col+y, col-y,      col+y,    col+size-y, col+size+y, col+size-y]);
+                mask.pols.addPoly([col,   col+size/2, col+size, col+size,   col+size/2, col],
+                                  [row+y, row-y,      row+y,    row+size-y, row+size+y, row+size-y]);
+
+                let row_min = Math.max(row-Math.ceil(y), 0);
+                let row_max = Math.min(row+size+Math.ceil(y), height);
+                let col_max = Math.min(col+size, width);
+                for (let r = row_min; r < row_max; r++) {
+                    for (let c = col; c < col_max; c++) {
+                        if (mask.pols.isPointInPoly(-1, c, r)){
+                          mask.mask[r][c] = 1;
+                        } else
+                    }
+                }
+
             }
         }
         return masks;
