@@ -10,7 +10,7 @@ import Composer from './composer';
 import * as Parser from './parser';
 import DerivedBuffer from './derived-buffer';
 import * as Scale from './scale';
-import Polys2D from './fred-test'
+import Polys2D from './polys2D'
 
 /// <reference path="multivariate-normal.d.ts" />
 import MN from "multivariate-normal";

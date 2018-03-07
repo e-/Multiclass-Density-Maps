@@ -1,5 +1,6 @@
 import * as util from './util';
-import Polys2D from './fred-test'
+import Polys2D from './polys2D'
+
 
 export default class Mask {
     path:Path2D = new Path2D();
@@ -74,7 +75,7 @@ export default class Mask {
                     for (let c = col; c < col_max; c++) {
                         if (mask.pols.isPointInPoly(-1, c, r)){
                           mask.mask[r][c] = 1;
-                        } else
+                        }
                     }
                 }
 
