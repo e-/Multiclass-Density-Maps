@@ -3,6 +3,7 @@ import Mask from './mask';
 import Tile from './tile';
 import Rect from './rect';
 import * as util from './util';
+import DerivedBuffer from './derived-buffer';
 
 export default class Image {
     constructor(public width:number, public height:number, public pixels:Color[][] = util.create2D<Color>(width, height, new Color())) {
@@ -21,19 +22,27 @@ export default class Image {
         }
     }
 
-    fillByShapedTile(color:Color, tile:Tile, mask:Mask|undefined) {
 
-          for(let r = Math.ceil(tile.y); r < tile.y + tile.mask.height; r++) {
-            if(r >= this.height) break;
-            for(let c = Math.ceil(tile.x); c < tile.x + tile.mask.width; c++) {
-                if(c >= this.width) break;
+    fillByShapedTile(tiles:Tile[], derivedBuffers:DerivedBuffer[]) {
 
-                if (mask && !mask.pols.isPointInPolys(c, r))
-                  continue;
+      for(let tile of tiles) {
+        derivedBuffers.forEach((derivedBuffer, i) => {
+            let mask:Mask|undefined = derivedBuffer.mask;
+            let color = derivedBuffer.colorScale.map(tile.dataValues[i]);
 
-                this.pixels[r][c] = color;
-            }
-        }
+            for(let r = Math.ceil(tile.y); r < tile.y + tile.mask.height; r++) {
+              if(r >= this.height) break;
+              for(let c = Math.ceil(tile.x); c < tile.x + tile.mask.width; c++) {
+                  if(c >= this.width) break;
+
+                  if (mask && !mask.pols.isPointInPolys(c, r))
+                    continue;
+
+                  this.pixels[r][c] = color;
+              }
+          }
+        });
+      }
     }
 
 

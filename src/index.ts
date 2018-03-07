@@ -244,12 +244,9 @@ export class TestMain {
             return derivedBuffer;
         });
         let outputImage6 = new Image(this.width, this.height);
-        for(let tile of bigRectTiles) {
-            derivedBuffers6.forEach((derivedBuffer, i) => {
-                let color = derivedBuffer.colorScale.map(tile.dataValues[i]);
-                outputImage6.fillByShapedTile(color, tile, derivedBuffer.mask);
-            });
-        }
+
+        outputImage6.fillByShapedTile(bigRectTiles, derivedBuffers6);
+
         CanvasRenderer.render(outputImage6, 'canvas6');
 
     }
