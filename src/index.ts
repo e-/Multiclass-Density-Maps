@@ -211,20 +211,24 @@ export class TestMain {
         let po:Polys2D = new Polys2D("test");
         po.addPoly([1.5, 3.5, 2.0], [1.0, 1.5, 3.0]);
         po.addPoly([2.0, 4.0, 3.0], [4.0, 2.0, 5.0]);
-        console.log("Run polygon tests");
+        console.log("Run polygon tests "+this.maxCount2);
         console.log("  should be true:"+ po.isPointInPolys(2.5, 2.0)+" "+po.isPointInPolys(2.0, 2.5)+" "+po.isPointInPolys(3.0, 4.0)+" "+po.isPointInPolys(2.5, 2.0)+" "+po.isPointInPolys(2.99, 2.0));
         console.log("  should be false:"+po.isPointInPolys(2.5, 1.1)+" "+po.isPointInPolys(3.0, 2.5)+" "+po.isPointInPolys(2.5, 2.8)+" "+po.isPointInPolys(1.6, 2.0)+" "+po.isPointInPolys(3.01, 2.0));
         console.log("  borderline:"+     po.isPointInPolys(3.0, 2.0)+" "+po.isPointInPolys(3.0, 3.0));
 
         // tiling now returns an 1D array of tiles
-        let rectTiles = Tiling.rectangularTiling(this.width, this.height, this.width / 128, this.height / 128);
+        //let rectTiles = Tiling.rectangularTiling(this.width, this.height, this.width / 128, this.height / 128);
 
-        for(let tile of rectTiles) {
+        //for(let tile of rectTiles) {
             // tile.dataValues are an array of numbers
+        //    tile.dataValues = tile.aggregate(this.dataBuffers, TileAggregation.Sum);
+        //}
+        let hexaMasks   = Mask.generateWeavingHexaMasks(this.dataBuffers.length,   8, this.width, this.height);
+        let bigRectTiles = Tiling.rectangularTiling(this.width, this.height, this.width / 16, this.height / 16);
+
+        for(let tile of bigRectTiles) {
             tile.dataValues = tile.aggregate(this.dataBuffers, TileAggregation.Sum);
         }
-        let hexaMasks   = Mask.generateWeavingHexaMasks(this.dataBuffers.length,   4, this.width, this.height);
-        let bigRectTiles = Tiling.rectangularTiling(this.width, this.height, this.width / 16, this.height / 16);
         let derivedBuffers6 = this.dataBuffers.map((dataBuffer, i) => {
             let derivedBuffer = new DerivedBuffer(dataBuffer);
 
@@ -240,8 +244,7 @@ export class TestMain {
                 outputImage6.fillByShapedTile(color, tile, derivedBuffer.mask);
             });
         }
-        CanvasRenderer.render2(outputImage6, 'canvas6');
-        console.log(outputImage6);
+        CanvasRenderer.render(outputImage6, 'canvas6');
 
     }
 
