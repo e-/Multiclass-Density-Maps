@@ -7,14 +7,14 @@
 
 import * as PNG from "pngjs";
 
-class Poly {
+export class Poly {
   ptx:number[]=[];
   pty:number[]=[];
 }
 
 export default class Polys2D {
     public nbpolys: number =0;
-    allpolys:Poly[]=[];
+    public allpolys:Poly[]=[];
 
     constructor(public name: string) {
     }

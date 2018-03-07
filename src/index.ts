@@ -252,11 +252,12 @@ export class TestMain {
                 outputImage6.fillByTile(color, tile, derivedBuffer.mask);
             });
           }
-        else
+        else{
           outputImage6.fillMask(derivedBuffers6[id].mask);
+        }
 
         CanvasRenderer.render(outputImage6, 'canvas6');
-
+        //CanvasRenderer.drawMask(derivedBuffers6[0].mask, 'canvas6');
     }
 
     testVisSpec() {

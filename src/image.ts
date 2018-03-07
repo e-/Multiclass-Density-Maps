@@ -21,6 +21,8 @@ export default class Image {
             }
         }
     }
+
+    // To debug, let's print the mask
     fillMask(mask:Mask|undefined){
       if (!mask) return;
         for(let r = 0; r < this.height ; r++) {
@@ -33,8 +35,8 @@ export default class Image {
         }
     }
 
+    // VERY SLOW
     fillByShapedTile(tiles:Tile[], derivedBuffers:DerivedBuffer[]) {
-
       for(let tile of tiles) {
         derivedBuffers.forEach((derivedBuffer, i) => {
             let mask:Mask|undefined = derivedBuffer.mask;

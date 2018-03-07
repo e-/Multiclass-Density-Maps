@@ -1,4 +1,6 @@
 import Image from './image';
+import Mask from './mask';
+import * as Polys2D from './polys2D';
 
 export default class CanvasRenderer {
     static render(image:Image, id:string) {
@@ -23,5 +25,24 @@ export default class CanvasRenderer {
       }
 
       ctx.putImageData(imageData, 0, 0);
+    }
+
+    static drawMask(mask:Mask|undefined, id:string){
+      if (!mask) return;
+      console.log("drawMask "+mask.pols.allpolys[0].ptx.length);
+
+      let canvas:any = document.getElementById(id);
+      let ctx = canvas.getContext('2d');
+
+
+      ctx.beginPath();
+      ctx.strokeStyle = '#000';
+      for (let j=0; j<mask.pols.allpolys.length; j++){
+        let pol:any = mask.pols.allpolys[j];
+        ctx.moveTo(pol.ptx[0], pol.pty[0]);
+        for (let i=1; i<=pol.ptx.length; i++)
+          ctx.lineTo(pol.ptx[i%pol.ptx.length], pol.pty[i%pol.ptx.length]);
+      }
+      ctx.stroke();
     }
 }
