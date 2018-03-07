@@ -211,7 +211,7 @@ export class TestMain {
         this.testVisSpec();
     }
 
-    testSlow(id:number){
+    testHexa(id:number){
         // testing polys
         let po:Polys2D = new Polys2D("test");
         po.addPoly([1.5, 3.5, 2.0], [1.0, 1.5, 3.0]);
