@@ -14,37 +14,7 @@
           let testMain = new MCS.TestMain(), configuration;
           prefix = "data/";
           console.log('Loading '+'census_data.json');
-          d3.json(prefix+"census_data.json")
-            .then(function(json) {
-                configuration = testMain.parse(json);
-                if (configuration != null)
-                    configuration.parse();
-                return configuration;
-            })
-            .then(function(configuration) {
-                if (configuration.data.url) {
-                    console.log('Loading '+configuration.data.url);
-                    return d3.json(prefix+configuration.data.url);
-                }
-                return null;
-            })
-            .then(function(json) {
-                if (json == null) return;
-                configuration.resolve_data_url(json);
-                var data = configuration.data;
-                if (! data) return;
-                var buffers = data.data.buffers;
-                for (var i = 0; i < buffers.length; i++) {
-                    var buffer = buffers[i];
-                    if (! buffer.data) {
-                        console.log('Loading '+buffer.url);
-                        d3.json(prefix+buffer.url)
-                          .then(function(json) {
-                              data.data.resolve_buffer_url(buffer, json);
-                          });
-                    }
-                }
-            });
+          testMain.parse_url(prefix+"census_data.json");
         </script>
     </body>
 </html>
