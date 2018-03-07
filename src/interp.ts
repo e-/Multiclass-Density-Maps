@@ -7,8 +7,10 @@ export class Interpreter {
     public height: number;
 
     constructor(public configuration:Parser.Configuration) {
-        this.width = configuration.width();
-        this.height = configuration.height();
+        if (! configuration.validate())
+            throw "Invalid configuration";
+        this.width = configuration.width!;
+        this.height = configuration.height!;
     }
     
 }
