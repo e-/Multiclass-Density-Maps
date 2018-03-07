@@ -47,6 +47,7 @@ export default class Mask {
         let masks:Mask[] = Array<Mask>(m);
         let i:number, j:number;
         size = Math.floor(size);
+
         if (xincr < 0) {
             xincr = m + (xincr % m)
         }
@@ -58,7 +59,8 @@ export default class Mask {
             for (let i = 0; i < (width/size); i++) {
                 let col = i * size;
                 let row = j * size;
-                let selected = (((i-j%2)*xincr +(width/size)- j))%m;
+                //let selected = (((i-j%2) +(width/size)- j))%m;
+                let selected = (i+(j*2)%8)%m;
                 if (j%2==1) { // brick effect
                     col += size/2;
                 }

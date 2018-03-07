@@ -29,7 +29,7 @@ export default class CanvasRenderer {
 
     static drawMask(mask:Mask|undefined, id:string){
       if (!mask) return;
-      console.log("drawMask "+mask.pols.allpolys[0].ptx.length);
+      //console.log("drawMask "+mask.pols.allpolys[0].ptx.length);
 
       let canvas:any = document.getElementById(id);
       let ctx = canvas.getContext('2d');

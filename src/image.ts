@@ -14,6 +14,10 @@ export default class Image {
             if(r >= this.height) break;
             for(let c = Math.ceil(tile.x); c < tile.x + tile.mask.width; c++) {
                 if(c >= this.width) break;
+
+                if(tile.mask && tile.mask.mask[r-Math.ceil(tile.y)][c-Math.ceil(tile.x)] == 0)
+                  continue;
+
                 if(mask && r < mask.height && c < mask.width && mask.mask[r][c] == 0)
                   continue;
 

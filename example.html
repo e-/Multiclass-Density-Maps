@@ -23,6 +23,7 @@
             font-size: 14px;
           }
         </style>
+        <script type="text/javascript" src="jslibs/rhill-voronoi-core.js"></script>
 
     </head>
     <body>
@@ -107,11 +108,11 @@
             </tr>
             <tr>
                 <th>Tiling</th>
-                <td>Rectangular (16px, Sum) </td>
+                <td>Rectangular (16px, Sum) | Voronoi(16|32|64, Sum) </td>
             </tr>
             <tr>
                 <th>Composing</th>
-                <td>(Mean | AdditiveMix)</th>
+                <td>(Mean | AdditiveMix | None)</th>
             </tr>
             <tr>
                 <th>Scale</th>
@@ -119,7 +120,7 @@
             </tr>
             <tr>
                 <th>Masking</th>
-                <td>None</td>
+                <td>None | None | Random Weaving</td>
             </tr>
 
         </table>
@@ -128,10 +129,14 @@
             <tr>
                 <th>MeanComposing</th>
                 <th>AdditiveMixComposing</th>
+                <th>Voronoi Tiling <button onclick="testMain.testVoronoi(16)">16 </button>
+                                   <button onclick="testMain.testVoronoi(32)">32 </button>
+                                   <button onclick="testMain.testVoronoi(64)">64 </button></th>
             </tr>
             <tr>
                 <td><canvas id="canvas7"></canvas></td>
                 <td><canvas id="canvas8"></canvas></td>
+                <td><canvas id="canvas9"></canvas></td>
             </tr>
         </table>
 
@@ -163,9 +168,12 @@
             <tr>
                 <th>Census Data</th>
                 <th>...</th>
+                <th>...</th>
             </tr>
             <tr>
-                <td><canvas id="canvas9"></canvas></td>
+                <td><canvas id="canvas10"></canvas></td>
+                <td><canvas id="canvas11"></canvas></td>
+                <td><canvas id="canvas12"></canvas></td>
             </tr>
         </table>
 

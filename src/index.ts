@@ -15,6 +15,7 @@ import Polys2D from './polys2D'
 /// <reference path="multivariate-normal.d.ts" />
 import MN from "multivariate-normal";
 
+
 export class TestMain {
     constructor() {
 
@@ -206,6 +207,9 @@ export class TestMain {
         CanvasRenderer.render(outputImage7, 'canvas7');
         CanvasRenderer.render(outputImage8, 'canvas8');
 
+        this.testHexa(-1);
+
+        this.testVoronoi(16);
 
         // Testing Spec
         this.testVisSpec();
@@ -260,6 +264,38 @@ export class TestMain {
         //CanvasRenderer.drawMask(derivedBuffers6[0].mask, 'canvas6');
     }
 
+    testVoronoi(n:number){
+        // tiling now returns an 1D array of tiles
+        let randomMasks = Mask.generateWeavingRandomMasks(this.dataBuffers.length, 4, this.width, this.height);
+        let voronoiTiles = Tiling.voronoiTiling(this.width, this.height, n);
+
+        for(let tile of voronoiTiles) {
+            tile.dataValues = tile.aggregate(this.dataBuffers, TileAggregation.Sum);
+        }
+
+        let derivedBuffers9 = this.dataBuffers.map((dataBuffer, i) => {
+            let derivedBuffer = new DerivedBuffer(dataBuffer);
+
+            derivedBuffer.colorScale = new Scale.LinearColorScale([0, this.maxCount2], [Color.White, Color.Category10[i]]);
+            derivedBuffer.mask = randomMasks[i];
+
+            return derivedBuffer;
+        });
+        let outputImage9 = new Image(this.width, this.height);
+
+        for(let tile of voronoiTiles) {
+          derivedBuffers9.forEach((derivedBuffer, i) => {
+              let color = derivedBuffer.colorScale.map(tile.dataValues[i]);
+              outputImage9.fillByTile(color, tile, derivedBuffer.mask);
+          });
+        }
+
+        CanvasRenderer.render(outputImage9, 'canvas9');
+
+        for (let k in voronoiTiles)
+          CanvasRenderer.drawMask(voronoiTiles[k].mask, 'canvas9');
+    }
+
     testVisSpec() {
         util.get('data/census_data.json').then(response => {
             let config = new Parser.Configuration(response);
@@ -301,7 +337,7 @@ export class TestMain {
                 outputImage.fillByTile(color1, tile);
             }
 
-            CanvasRenderer.render(outputImage, 'canvas9');
+            CanvasRenderer.render(outputImage, 'canvas10');
         })
     }
 }
