@@ -154,6 +154,9 @@ export class Configuration {
     data?: ConfigurationDataSpec;
     reencoding?: ConfigurationReencodingSpec;
     rebin: any;
+    valid?: boolean;
+    width?: number;
+    height?: number;
 
     constructor(public specs:any) {
         if(typeof this.specs === 'string') {
@@ -189,12 +192,22 @@ export class Configuration {
             this.rebin = this.specs.rebin;
     }
 
-    public width(): number {
-        return 512;
-    }
-
-    public height(): number {
-        return 512;
+    public validate():boolean {
+        if (this.valid != undefined)
+            return this.valid;
+        if (! this.data)
+            return false;
+        let data = this.data.dataSpec;
+        if (! data || ! data.encoding || ! data.encoding.x || ! data.encoding.y)
+            return false;
+        let x_enc = data.encoding.x,
+            y_enc = data.encoding.y;
+        var x = undefined, y = undefined;
+        if (x_enc && x_enc.bin && 'maxbins' in x_enc.bin)
+            x = x_enc.bin;
+        if (y_enc && y_enc.bin && 'maxbins' in y_enc.bin)
+            y = y_enc.bin;
+        return false;
     }
 
     // load data from the server if this.data contains url
