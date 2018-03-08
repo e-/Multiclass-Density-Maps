@@ -338,7 +338,57 @@ export class TestMain {
             }
 
             CanvasRenderer.render(outputImage, 'canvas10');
-        })
+        });
+    }
+
+    testUSShapes(tileSize:number) {
+        util.get('data/census_data.json').then(response => {
+            let config = new Parser.Configuration(response);
+
+            // when we call load(), data spec and buffers are really loaded through AJAX
+            return config.load('data/');
+        }).then((config:Parser.Configuration) => {
+            console.log(config);
+
+            let width  = config.data!.dataSpec!.encoding!.x!.bin!.maxbins;
+            let height = config.data!.dataSpec!.encoding!.y!.bin!.maxbins;
+
+            if (!width || !height) {
+              width  =256;
+              height  =256;
+            }
+
+            let dataBuffers = config.data!.dataSpec!.buffers!.map((bufferSpec) =>
+              new DataBuffer('test', width?width:100, height?height:100, bufferSpec.data)
+            );
+
+            let tiles = Tiling.rectangularTiling(width, height, tileSize, tileSize);
+
+            for(let tile of tiles) {
+                // tile.dataValues are an array of numbers
+                tile.dataValues = tile.aggregate(dataBuffers, TileAggregation.Sum);
+            }
+
+            // get max count of bins for scale
+            let maxCount = util.amax(tiles.map(tile => util.amax(tile.dataValues)));
+
+            let derivedBuffers = dataBuffers.map((dataBuffer, i) => {
+                let derivedBuffer = new DerivedBuffer(dataBuffer);
+
+                derivedBuffer.colorScale = new Scale.LogColorScale([1, maxCount], [Color.White, Color.Category10[i]]);
+
+                return derivedBuffer;
+            });
+
+            let outputImage = new Image(width, height);
+
+            for(let tile of tiles) {
+                let color1 = Composer.max(derivedBuffers, tile.dataValues);
+                outputImage.fillByTile(color1, tile);
+            }
+
+            CanvasRenderer.render(outputImage, 'canvas11');
+        });
     }
 }
 
