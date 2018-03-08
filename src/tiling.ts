@@ -1,8 +1,7 @@
 import Tile from './tile';
 import Mask from './mask';
+import * as d3 from 'd3';
 
-// I will use the voronoi lib without typechecking.
-declare var Voronoi:any;
 
 export function pixelTiling (width:number, height:number) {
   let tiles:Tile[] = [];
@@ -17,42 +16,35 @@ export function pixelTiling (width:number, height:number) {
 
 export function voronoiTiling(width:number, height:number, nbsites:number) {
   let tiles:Tile[] = [];
-
-  let voronoi:any = new Voronoi();
-  let sites = [];
-  let bbox = {xl: 0, xr: width, yt: 0.0, yb: height};
-  let diagram;
-
-  for (var i=0; i<nbsites; i++){
+  let voronoi = d3.voronoi().extent([[0, 0], [width , height ]]);
+  let sites:[number, number][] = [];//   = d3.range(nbsites).map(function(d) { return [Math.random() * (width) , Math.random() * (height) ];});
+   for (var i=0; i<nbsites; i++){
     let x = Math.random()*width;
     let y = Math.random()*height;
-    sites.push({x:x, y:y, id:sites.length});
+    sites.push([x, y]);
   }
+  let polys = voronoi.polygons(sites);
+  //let polys    = diagram.polygons();
 
-  diagram = voronoi.compute(sites, bbox);
 
-
-  for (let c in diagram.cells) {
-    let site = diagram.cells[c].site;
+  for (let p in polys){
     let minx = width;
     let maxx = 0;
     let miny = height;
     let maxy = 0;
     let ptsx = [];
     let ptsy = [];
-    for (let he in diagram.cells[c].halfedges) {
-      let p1    = diagram.cells[c].halfedges[he].getStartpoint();
-      //let p2    = diagram.cells[c].halfedges[he].getEndpoint();
-      ptsx.push(p1.x);
-      ptsy.push(p1.y);
-
-      minx = Math.min(minx, p1.x);
-      maxx = Math.max(maxx, p1.x);
-      miny = Math.min(miny, p1.y);
-      maxy = Math.max(maxy, p1.y);
-
-      //console.log((maxx-minx)+"x"+(maxy-miny));
+      console.log(polys[p]);
+    for (let k=0; k<polys[p].length; k++){
+      ptsx.push(polys[p][k][0]);
+      ptsy.push(polys[p][k][1]);
+      minx = Math.min(minx, polys[p][k][0]);
+      maxx = Math.max(maxx, polys[p][k][0]);
+      miny = Math.min(miny, polys[p][k][1]);
+      maxy = Math.max(maxy, polys[p][k][1]);
     }
+
+
     let mask:Mask = new Mask(Math.ceil(maxx-minx)+1, Math.ceil(maxy-miny)+1, 0);
     mask.pols.addPoly(ptsx, ptsy);
     for (let r = Math.floor(miny); r < Math.ceil(maxy); r++) {
@@ -62,19 +54,12 @@ export function voronoiTiling(width:number, height:number, nbsites:number) {
         }
       }
     }
-
     tiles.push(new Tile(Math.floor(minx), Math.floor(miny), mask));
   }
 
-  for(let row = 0; row < height; row+=4) {
-    for(let col = 0; col < width; col+=4) {
-      //tiles.push(new Tile(col, row, new Mask(4, 4)));
-    }
-  }
-  voronoi.recycle(diagram);
-
   return tiles;
 }
+
 
 export function rectangularTiling (width:number, height:number, tileWidth:number, tileHeight:number) {
   let rows = Math.ceil(height / tileHeight);
