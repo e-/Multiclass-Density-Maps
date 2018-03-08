@@ -1,14 +1,17 @@
 import * as util from './util';
 import Polys2D from './polys2D'
 
-
 export default class Mask {
     path:Path2D = new Path2D();
     pols:Polys2D = new Polys2D("shape");
+    maskCanvas:HTMLCanvasElement;
 
     constructor(public width:number, public height:number,
                 default_value:number = 1,
                 public mask:number[][] = util.create2D<number>(width, height, default_value)) {
+        this.maskCanvas = <HTMLCanvasElement>document.createElement('canvas');
+        this.maskCanvas.width  = width;
+        this.maskCanvas.height = height;
     }
 
     static generateWeavingSquareMasks(m: number, size: number, width: number, height: number, xincr: number = 1) : Mask[]
@@ -48,6 +51,9 @@ export default class Mask {
         let i:number, j:number;
         size = Math.floor(size);
 
+
+
+
         if (xincr < 0) {
             xincr = m + (xincr % m)
         }
@@ -64,7 +70,10 @@ export default class Mask {
                 if (j%2==1) { // brick effect
                     col += size/2;
                 }
-                let mask = masks[selected];
+                let mask   = masks[selected];
+                let ctx    = mask.maskCanvas.getContext("2d");
+                let pixels = ctx!.getImageData(0, 0, mask.width, mask.height);
+
                 let y = 3*size/16;
                 // 6 pts to make an hexagon
                 mask.pols.addPoly([col,   col+size/2, col+size, col+size,   col+size/2, col],
@@ -77,10 +86,14 @@ export default class Mask {
                     for (let c = col; c < col_max; c++) {
                         if (mask.pols.isPointInPoly(-1, c, r)){
                           mask.mask[r][c] = 1;
+                          pixels.data[c*4+r*4*mask.width +0] = 255;
+                          pixels.data[c*4+r*4*mask.width +1] = 255;
+                          pixels.data[c*4+r*4*mask.width +2] = 255;
+                          pixels.data[c*4+r*4*mask.width +3] = 255;
                         }
                     }
                 }
-
+                ctx!.putImageData(pixels, 0, 0);
             }
         }
         return masks;

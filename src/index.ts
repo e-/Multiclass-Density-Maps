@@ -11,6 +11,7 @@ import * as Parser from './parser';
 import DerivedBuffer from './derived-buffer';
 import * as Scale from './scale';
 import Polys2D from './polys2D'
+import * as d3 from 'd3';
 
 /// <reference path="multivariate-normal.d.ts" />
 import MN from "multivariate-normal";
@@ -66,7 +67,6 @@ export class TestMain {
     dataBuffers:DataBuffer[] = [];
     width:number             = 256;
     height:number            = 256;
-    maxCount2:number         = 0;
 
     main() {
 
@@ -150,7 +150,8 @@ export class TestMain {
             tile.dataValues = tile.aggregate(this.dataBuffers, TileAggregation.Sum);
         }
 
-        this.maxCount2 = util.amax(bigRectTiles.map(tile => util.amax(tile.dataValues)));
+        let maxCount2 = util.amax(bigRectTiles.map(tile => util.amax(tile.dataValues)));
+        console.log("  maxCount2:"+maxCount2);
 
         let randomMasks = Mask.generateWeavingRandomMasks(this.dataBuffers.length, bigTileSize, this.width, this.height);
         let squareMasks = Mask.generateWeavingSquareMasks(this.dataBuffers.length, bigTileSize, this.width, this.height);
@@ -158,7 +159,7 @@ export class TestMain {
         let derivedBuffers4 = this.dataBuffers.map((dataBuffer, i) => {
             let derivedBuffer = new DerivedBuffer(dataBuffer);
 
-            derivedBuffer.colorScale = new Scale.LinearColorScale([0, this.maxCount2], [Color.White, Color.Category10[i]]);
+            derivedBuffer.colorScale = new Scale.LinearColorScale([0, maxCount2], [Color.White, Color.Category10[i]]);
             derivedBuffer.mask = randomMasks[i];
 
             return derivedBuffer;
@@ -167,7 +168,7 @@ export class TestMain {
         let derivedBuffers5 = this.dataBuffers.map((dataBuffer, i) => {
             let derivedBuffer = new DerivedBuffer(dataBuffer);
 
-            derivedBuffer.colorScale = new Scale.LinearColorScale([0, this.maxCount2], [Color.White, Color.Category10[i]]);
+            derivedBuffer.colorScale = new Scale.LinearColorScale([0, maxCount2], [Color.White, Color.Category10[i]]);
             derivedBuffer.mask = squareMasks[i];
 
             return derivedBuffer;
@@ -220,7 +221,7 @@ export class TestMain {
         let po:Polys2D = new Polys2D("test");
         po.addPoly([1.5, 3.5, 2.0], [1.0, 1.5, 3.0]);
         po.addPoly([2.0, 4.0, 3.0], [4.0, 2.0, 5.0]);
-        console.log("Run polygon tests "+this.maxCount2);
+        console.log("Run polygon tests ");
         console.log("  should be true:"+ po.isPointInPolys(2.5, 2.0)+" "+po.isPointInPolys(2.0, 2.5)+" "+po.isPointInPolys(3.0, 4.0)+" "+po.isPointInPolys(2.5, 2.0)+" "+po.isPointInPolys(2.99, 2.0));
         console.log("  should be false:"+po.isPointInPolys(2.5, 1.1)+" "+po.isPointInPolys(3.0, 2.5)+" "+po.isPointInPolys(2.5, 2.8)+" "+po.isPointInPolys(1.6, 2.0)+" "+po.isPointInPolys(3.01, 2.0));
         console.log("  borderline:"+     po.isPointInPolys(3.0, 2.0)+" "+po.isPointInPolys(3.0, 3.0));
@@ -235,13 +236,16 @@ export class TestMain {
         let hexaMasks   = Mask.generateWeavingHexaMasks(this.dataBuffers.length,   8, this.width, this.height);
         let bigRectTiles = Tiling.rectangularTiling(this.width, this.height, this.width / 16, this.height / 16);
 
+
         for(let tile of bigRectTiles) {
             tile.dataValues = tile.aggregate(this.dataBuffers, TileAggregation.Sum);
         }
+        let maxCount2 = util.amax(bigRectTiles.map(tile => util.amax(tile.dataValues)));
+
         let derivedBuffers6 = this.dataBuffers.map((dataBuffer, i) => {
             let derivedBuffer = new DerivedBuffer(dataBuffer);
 
-            derivedBuffer.colorScale = new Scale.LinearColorScale([0, this.maxCount2], [Color.White, Color.Category10[i]]);
+            derivedBuffer.colorScale = new Scale.LinearColorScale([0, maxCount2], [Color.White, Color.Category10[i]]);
             derivedBuffer.mask = hexaMasks[i];
 
             return derivedBuffer;
@@ -272,11 +276,12 @@ export class TestMain {
         for(let tile of voronoiTiles) {
             tile.dataValues = tile.aggregate(this.dataBuffers, TileAggregation.Sum);
         }
+        let maxCount2 = util.amax(voronoiTiles.map(tile => util.amax(tile.dataValues)));
 
         let derivedBuffers9 = this.dataBuffers.map((dataBuffer, i) => {
             let derivedBuffer = new DerivedBuffer(dataBuffer);
 
-            derivedBuffer.colorScale = new Scale.LinearColorScale([0, this.maxCount2], [Color.White, Color.Category10[i]]);
+            derivedBuffer.colorScale = new Scale.LinearColorScale([0, maxCount2], [Color.White, Color.Category10[i]]);
             derivedBuffer.mask = randomMasks[i];
 
             return derivedBuffer;
@@ -292,8 +297,9 @@ export class TestMain {
 
         CanvasRenderer.render(outputImage9, 'canvas9');
 
-        for (let k in voronoiTiles)
-          CanvasRenderer.drawMask(voronoiTiles[k].mask, 'canvas9');
+        if(d3.select("#borderVoronoi").property("checked"))
+          for (let k in voronoiTiles)
+            CanvasRenderer.drawMask(voronoiTiles[k].mask, 'canvas9');
     }
 
     testVisSpec() {
@@ -363,6 +369,7 @@ export class TestMain {
             );
 
             let tiles = Tiling.rectangularTiling(width, height, tileSize, tileSize);
+            let ustiles = Tiling.topojsonTiling(width, height, "data/us.json");
 
             for(let tile of tiles) {
                 // tile.dataValues are an array of numbers

@@ -1,6 +1,7 @@
 import Tile from './tile';
 import Mask from './mask';
 import * as d3 from 'd3';
+import * as util from './util';
 
 
 export function pixelTiling (width:number, height:number) {
@@ -14,6 +15,19 @@ export function pixelTiling (width:number, height:number) {
   return tiles;
 }
 
+export function topojsonTiling(width:number, height:number, filename:string) {
+  util.get(filename).then(response => {
+     console.log(response);
+  });
+
+  //d3.json(filename, function(error, us) {
+  //  if (error) throw error;
+
+    // remove alaska, Hawai and puerto-rico
+  //  us.objects.states.geometries.splice(49, 4);
+  //});
+}
+
 export function voronoiTiling(width:number, height:number, nbsites:number) {
   let tiles:Tile[] = [];
   let voronoi = d3.voronoi().extent([[0, 0], [width , height ]]);
@@ -24,8 +38,6 @@ export function voronoiTiling(width:number, height:number, nbsites:number) {
     sites.push([x, y]);
   }
   let polys = voronoi.polygons(sites);
-  //let polys    = diagram.polygons();
-
 
   for (let p in polys){
     let minx = width;
@@ -34,7 +46,7 @@ export function voronoiTiling(width:number, height:number, nbsites:number) {
     let maxy = 0;
     let ptsx = [];
     let ptsy = [];
-      console.log(polys[p]);
+
     for (let k=0; k<polys[p].length; k++){
       ptsx.push(polys[p][k][0]);
       ptsy.push(polys[p][k][1]);
