@@ -5,7 +5,6 @@
         <title>Fred tests ts</title>
             <script src="https://d3js.org/d3.v4.min.js"></script>
             <script src="https://unpkg.com/topojson-client@3"></script>
-            <script src="node_modules/pngjs/lib/png.js"></script>
 
     </head>
 
@@ -23,12 +22,11 @@
         <table id="table0" border="1" style="border-collapse:collapse;background:white">
             <tr><th>State ID</th><th>Asian</th><th>Black</th><th>Hispanic</th><th>Other</th><th>white</th></tr>
         </table>
-        <script src="dist/fred-test.js"></script>
         <script>
 
-            d3.json("data/communes.json", function(error, france) {
+            /*d3.json("data/communes.json", function(error, france) {
               console.log(france);
-            });
+            });*/
 
 
             d3.json("data/us.json", function(error, us) {
@@ -40,6 +38,13 @@
               let allstate = topojson.feature(us, us.objects.states);
 
               //console.log(d3.geoBounds(allstate) );
+              console.log("allstate:");
+              console.log(allstate);
+
+              let res0 = topojson.merge(us, us.objects.states.geometries);
+
+              console.log("merge:");
+              console.log(res0);
 
               // One projection for the whole USA
               let projection  = d3.geoMercator().fitSize([512, 280], allstate);
@@ -48,9 +53,9 @@
                   gp          = d3.geoPath(projection);
               let path        = gp.context(context);
 
-              for (let j=1; j<=48; j++){
+              for (let j=0; j<=48; j++){
                   // render just one state
-                  let onestate = topojson.feature(us, us.objects.states.geometries[j]); // Florida
+                  let onestate = topojson.feature(us, us.objects.states.geometries[j]);
                   context.clearRect(0, 0, canvas.width, canvas.height);
                   path(onestate);
 
@@ -95,6 +100,17 @@
               context.beginPath();
 
 
+              // render just one state = ????
+              path(topojson.mesh(us, us.objects.states.geometries[0]));
+              context.fillStyle="rgba(255, 255, 255, 0.5)";
+              context.fill();
+              context.beginPath();
+
+              // render just one state = ????
+              path(topojson.mesh(us, us.objects.states.geometries[5]));
+              context.fillStyle="rgba(128, 255, 255, 0.5)";
+              context.fill();
+              context.beginPath();
               // render just one state = Mass
               path(topojson.mesh(us, us.objects.states.geometries[16]));
               context.fillStyle="rgba(0, 0, 128, 0.5)";
@@ -133,10 +149,6 @@
 
             });
 
-            let user = new Student("Jean-Daniel", "M.", "Fekete");
-            d3.select("#debugdiv").style('background', '#fdd');
-            d3.select("#debugdiv").node().append("fred says "+greeter(user));
-            printInfos();
         </script>
 
     </body>

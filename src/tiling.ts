@@ -1,8 +1,10 @@
 import Tile from './tile';
 import Mask from './mask';
+import * as GeoJSON from 'geojson';
 import * as d3 from 'd3';
+import * as D3Geo from 'd3-geo';
 import * as util from './util';
-
+import * as topo from 'topojson';
 
 export function pixelTiling (width:number, height:number) {
   let tiles:Tile[] = [];
@@ -15,18 +17,70 @@ export function pixelTiling (width:number, height:number) {
   return tiles;
 }
 
-export function topojsonTiling(width:number, height:number, filename:string) {
-  util.get(filename).then(response => {
-     console.log(response);
-  });
 
-  //d3.json(filename, function(error, us) {
-  //  if (error) throw error;
+export function topojsonTiling(width:number, height:number, us:any):Tile[] {
+  let tiles:Tile[] = [];
 
-    // remove alaska, Hawai and puerto-rico
-  //  us.objects.states.geometries.splice(49, 4);
-  //});
+  // remove alaska, Hawai and puerto-rico
+  us.objects.states.geometries.splice(49, 4);
+
+  let allstate:any    = topo.feature(us, us.objects.states);
+
+  // mainland states
+  for (let j=0; j<=48; j++){
+
+    // just one shape
+    let onestate:any = topo.feature(us, us.objects.states.geometries[j]);
+    let projection   = d3.geoMercator().fitSize([width, height], allstate);
+    let gp           = d3.geoPath(projection);
+    let bb           = gp.bounds(onestate);
+
+    // now let's create a mask for that shape
+    let mask:Mask    = new Mask(Math.ceil(bb[1][0])-Math.floor(bb[0][0]), Math.ceil(bb[1][1])-Math.floor(bb[0][1]), 0);
+    let canvas1      = mask.maskCanvas;
+    let context1:any = canvas1.getContext("2d");
+
+    // a new projection for that shape. Normally just a translate from projection
+    let projection2  = d3.geoMercator().fitSize([canvas1.width, canvas1.height], onestate);
+    let gp2          = d3.geoPath(projection2);
+    let path         = gp2.context(context1);
+
+    // now render the shape (black opaque over black transparent)
+    context1.clearRect(0, 0, canvas1.width, canvas1.height);
+    context1.fillStyle="rgba(0, 0, 0, 1.0)";
+    path(onestate);
+    context1.fill();
+
+    // let's get an array of pixels from the result drawing
+    let pixels = context1!.getImageData(0, 0, canvas1.width, canvas1.height);
+
+    // and use it to update the mask
+    for (let r = 0; r < canvas1.height; r++) {
+        for (let c = 0; c < canvas1.width; c++) {
+            if (pixels.data[c*4+r*4*canvas1.width +3] > 127){
+              mask.mask[r][c] = 1;
+            }
+        }
+    }
+
+    // use it to update the vector mask as well
+    for (let i in onestate.geometry.coordinates) {
+      let main =onestate.geometry.coordinates[i][0]; // no holes ?
+      // project the points
+      var ptsx = main.map(function(value:any,index:any) { return projection(value)![0]; });
+      var ptsy = main.map(function(value:any,index:any) { return projection(value)![1]; });
+      mask.pols.addPoly(ptsx, ptsy);
+    }
+
+    // now with a correct mask we can create the tile
+    let tile:Tile = new Tile(Math.floor(bb[0][0]), Math.floor(bb[0][1]), mask);
+    tile.id = j;
+    tiles.push(tile);
+  }
+
+  return tiles;
 }
+
 
 export function voronoiTiling(width:number, height:number, nbsites:number) {
   let tiles:Tile[] = [];

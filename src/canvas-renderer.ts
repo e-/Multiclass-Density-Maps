@@ -27,9 +27,9 @@ export default class CanvasRenderer {
       ctx.putImageData(imageData, 0, 0);
     }
 
-    static drawMask(mask:Mask|undefined, id:string){
+    static drawVectorMask(mask:Mask|undefined, id:string){
       if (!mask) return;
-      //console.log("drawMask "+mask.pols.allpolys[0].ptx.length);
+      //console.log("drawMask "+mask.pols.allpolys.length);
 
       let canvas:any = document.getElementById(id);
       let ctx = canvas.getContext('2d');

@@ -265,7 +265,6 @@ export class TestMain {
         }
 
         CanvasRenderer.render(outputImage6, 'canvas6');
-        //CanvasRenderer.drawMask(derivedBuffers6[0].mask, 'canvas6');
     }
 
     testVoronoi(n:number){
@@ -299,7 +298,7 @@ export class TestMain {
 
         if(d3.select("#borderVoronoi").property("checked"))
           for (let k in voronoiTiles)
-            CanvasRenderer.drawMask(voronoiTiles[k].mask, 'canvas9');
+            CanvasRenderer.drawVectorMask(voronoiTiles[k].mask, 'canvas9');
     }
 
     testVisSpec() {
@@ -347,55 +346,91 @@ export class TestMain {
         });
     }
 
-    testUSShapes(tileSize:number) {
+    testUSShapes(debug:number) {
         util.get('data/census_data.json').then(response => {
             let config = new Parser.Configuration(response);
 
             // when we call load(), data spec and buffers are really loaded through AJAX
             return config.load('data/');
         }).then((config:Parser.Configuration) => {
-            console.log(config);
+          //console.log(config);
 
-            let width  = config.data!.dataSpec!.encoding!.x!.bin!.maxbins;
-            let height = config.data!.dataSpec!.encoding!.y!.bin!.maxbins;
+          let width  = config.data!.dataSpec!.encoding!.x!.bin!.maxbins;
+          let height = config.data!.dataSpec!.encoding!.y!.bin!.maxbins;
 
-            if (!width || !height) {
-              width  =256;
-              height  =256;
-            }
+          if (!width || !height) {
+            width  = 256;
+            height  =256;
+          }
 
-            let dataBuffers = config.data!.dataSpec!.buffers!.map((bufferSpec) =>
-              new DataBuffer('test', width?width:100, height?height:100, bufferSpec.data)
+          util.get("data/us.json").then(result => {
+            let topous = JSON.parse(result);
+
+            let dataBuffers = config.data!.dataSpec!.buffers!.map((bufferSpec, i) => {
+              let db:DataBuffer = new DataBuffer('test', width?width:100, height?height:100, bufferSpec.data);
+              return db;
+              }
             );
 
-            let tiles = Tiling.rectangularTiling(width, height, tileSize, tileSize);
-            let ustiles = Tiling.topojsonTiling(width, height, "data/us.json");
+            let ustiles = Tiling.topojsonTiling(width!, height!, topous);
 
-            for(let tile of tiles) {
+            let randomMasks = Mask.generateWeavingRandomMasks(dataBuffers.length, 4, width!, height!);
+
+            for(let tile of ustiles) {
                 // tile.dataValues are an array of numbers
                 tile.dataValues = tile.aggregate(dataBuffers, TileAggregation.Sum);
             }
 
             // get max count of bins for scale
-            let maxCount = util.amax(tiles.map(tile => util.amax(tile.dataValues)));
+            let maxCount = util.amax(ustiles.map(tile => util.amax(tile.dataValues)));
 
-            let derivedBuffers = dataBuffers.map((dataBuffer, i) => {
+            let derivedBuffers11 = dataBuffers.map((dataBuffer, i) => {
                 let derivedBuffer = new DerivedBuffer(dataBuffer);
 
-                derivedBuffer.colorScale = new Scale.LogColorScale([1, maxCount], [Color.White, Color.Category10[i]]);
+                derivedBuffer.colorScale = new Scale.LinearColorScale([1, maxCount], [Color.White, Color.Category10[i]]);
+                derivedBuffer.mask       = randomMasks[i];
 
                 return derivedBuffer;
             });
 
-            let outputImage = new Image(width, height);
+            let outputImage11 = new Image(width!, height!);
 
-            for(let tile of tiles) {
-                let color1 = Composer.max(derivedBuffers, tile.dataValues);
-                outputImage.fillByTile(color1, tile);
+            for(let tile of ustiles) {
+              derivedBuffers11.forEach((derivedBuffer, i) => {
+                  let color = derivedBuffers11[i].colorScale.map(tile.dataValues[i]);
+                  outputImage11.fillByTile(color, tile, derivedBuffers11[i].mask);
+              });
             }
+            let color = derivedBuffers11[0].colorScale.map(ustiles[0].dataValues[0]);
+            outputImage11.fillByTileDebug(color, ustiles[0], derivedBuffers11[0].mask);
 
-            CanvasRenderer.render(outputImage, 'canvas11');
-        });
+            color = derivedBuffers11[1].colorScale.map(ustiles[0].dataValues[1]);
+            outputImage11.fillByTileDebug(color, ustiles[0], derivedBuffers11[1].mask);
+
+            color = derivedBuffers11[2].colorScale.map(ustiles[0].dataValues[2]);
+            outputImage11.fillByTileDebug(color, ustiles[0], derivedBuffers11[2].mask);
+
+            color = derivedBuffers11[3].colorScale.map(ustiles[0].dataValues[3]);
+            outputImage11.fillByTileDebug(color, ustiles[0], derivedBuffers11[3].mask);
+
+            //color = derivedBuffers11[4].colorScale.map(ustiles[0].dataValues[4]);
+            //outputImage11.fillByTileDebug(color, ustiles[0], derivedBuffers11[4].mask);
+
+
+
+            //outputImage11.fillMask(derivedBuffers11[0].mask);
+            //outputImage11.fillMask(ustiles[0].mask);
+
+            CanvasRenderer.render(outputImage11, 'canvas11');
+
+            //for(let tile of ustiles) {
+            //    d3.select("#debugus").append(function() { return tile.mask.maskCanvas;});
+            //}
+            for(let tile of ustiles) CanvasRenderer.drawVectorMask(tile.mask, 'canvas11');
+
+          });
+
+        })
     }
 }
 

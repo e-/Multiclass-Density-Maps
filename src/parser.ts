@@ -86,7 +86,7 @@ export class DataSpec {
         this.buffers!.forEach((buffer) => {
             if(!buffer.data) {
                 let promise = util.get(base + buffer.url!).then((data) => {
-                    console.log('Loaded '+buffer.url);
+                    //console.log('Loaded '+buffer.url);
                     buffer.data = JSON.parse(data);
                 })
 
@@ -141,7 +141,7 @@ export interface ConfigurationReencodingHatchingSpec {
 }
 
 
-export interface ConfigurationReencodingSpec {    
+export interface ConfigurationReencodingSpec {
     label?: ConfigurationReencodingLabelSpec;
     color?: ConfigurationReencodingColorSpec;
     facet?: ConfigurationReencodingFacetSpec;

@@ -5,6 +5,7 @@
   "main": "src/index.ts",
   "dependencies": {
     "@types/d3": "^5.0.0",
+    "@types/geojson": "^7946.0.2",
     "@types/pngjs": "^3.3.0",
     "@types/topojson": "^3.0.2",
     "brace-expansion": "^1.1.11",
@@ -13,17 +14,17 @@
     "jquery": "^3.3.1",
     "jquery-ui": "^1.12.1",
     "pngjs": "^3.3.2",
-    "topojson-client": "^3.0.0",
-    "ts-topojson": "0.0.11"
+    "topojson": "^3.0.2",
+    "topojson-client": "^3.0.0"
   },
   "devDependencies": {
-    "eslint": "^4.18.1",
+    "eslint": "^4.18.2",
     "multivariate-normal": "^0.1.1",
     "ts-loader": "^3.5.0",
     "typescript": "^2.7.2",
-    "vega-embed": "^3.0.0",
+    "vega-embed": "^3.1.1",
     "webpack": "^3.11.0",
-    "webpack-dev-server": "^2.11.1"
+    "webpack-dev-server": "^2.11.2"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",

@@ -5,7 +5,7 @@
 // found types for this lib here :
 // https://www.npmjs.com/package/@types/pngjs
 
-import * as PNG from "pngjs";
+//import * as PNG from "pngjs";
 
 class Poly {
   ptx:number[]=[];
@@ -65,13 +65,6 @@ export default class Polys2D {
       return res;
     }
 }
-
-
-interface Person {
-    firstName: string;
-    lastName: string;
-}
-
 
 
 
