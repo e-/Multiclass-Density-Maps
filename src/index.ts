@@ -387,7 +387,8 @@ export class TestMain {
             let derivedBuffers11 = dataBuffers.map((dataBuffer, i) => {
                 let derivedBuffer = new DerivedBuffer(dataBuffer);
 
-                derivedBuffer.colorScale = new Scale.LinearColorScale([1, maxCount], [Color.White, Color.Category10[i]]);
+                //derivedBuffer.colorScale = new Scale.LinearColorScale([1, maxCount], [Color.White, Color.Category10[i]]);
+                derivedBuffer.colorScale = new Scale.CubicRootColorScale([1, maxCount], [Color.White, Color.Category10[i]]);
                 derivedBuffer.mask       = randomMasks[i];
 
                 return derivedBuffer;
