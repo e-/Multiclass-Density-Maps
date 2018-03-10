@@ -4,15 +4,19 @@ import * as Polys2D from './polys2D';
 
 export default class CanvasRenderer {
 
-    static render(image:Image, id:string) {
+    static render(image:Image, id:string, options:{blur?:number} = {}) {
         let canvas:any = document.getElementById(id);
         canvas.width   = image.width;
         canvas.height  = image.height;
 
-        let ctx:CanvasRenderingContext2D = canvas.getContext('2d');
+        let ctx:any = canvas.getContext('2d');
         let imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
 
         this.renderToImageData(image, imageData);
+
+        // does not work when used with image data
+        if(options.blur) ctx.filter = `blur(${options.blur}px`;
+
         ctx.putImageData(imageData, 0, 0);
     }
 

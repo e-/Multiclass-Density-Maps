@@ -140,6 +140,7 @@ export class TestMain {
         CanvasRenderer.render(outputImage1, 'canvas1');
         CanvasRenderer.render(outputImage2, 'canvas2');
         CanvasRenderer.render(outputImage3, 'canvas3');
+        // CanvasRenderer.render(outputImage3, 'canvas3-blurred', {blur: 10});
 
         let bigRectTiles = Tiling.rectangularTiling(this.width, this.height, bigTileSize, bigTileSize);
 
