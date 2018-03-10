@@ -1,6 +1,7 @@
 // Interpreter from a parsed specification
 
 import * as Parser from './parser';
+import CanvasRenderer from './canvas-renderer';
 
 export class Interpreter {
     public width: number;
@@ -13,4 +14,8 @@ export class Interpreter {
         this.height = configuration.height!;
     }
     
+    render(id:string) {
+        CanvasRenderer.render(image, id);
+    }
+
 }

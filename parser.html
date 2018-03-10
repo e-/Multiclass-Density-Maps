@@ -14,7 +14,16 @@
           let testMain = new MCS.TestMain(), configuration;
           prefix = "data/";
           console.log('Loading '+'census_data.json');
-          testMain.parse_url(prefix+"census_data.json");
+          testMain.parse_url(prefix+"census_data.json",
+                             function(conf) {
+                                 if (conf.validate()) {
+                                     console.log('validated w='+conf.width+' h='+conf.height);
+                                     
+                                 }
+                                 else
+                                     console.log('not validated');
+                             });
+          
         </script>
     </body>
 </html>

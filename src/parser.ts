@@ -7,14 +7,6 @@ export interface SourceSpec {
     rows?: number;
 }
 
-export interface ProjectionSpec {
-    type: string;
-}
-
-export interface XYEncodingBinSpec {
-    maxbins?: number;
-}
-
 export interface XYEncodingScaleSpec {
     domain: [number, number];
     range: [number, number];
@@ -23,7 +15,7 @@ export interface XYEncodingScaleSpec {
 export interface XYEncodingSpec {
     field: string;
     type?: string; // specify quantitative, latitude, longitude
-    bin?: XYEncodingBinSpec;
+    bin?: {maxbins?: number};
     aggregate?: string; // count, maybe sum etc.
     scale: XYEncodingScaleSpec;
 }
@@ -50,6 +42,10 @@ export interface BufferSpec {
     data?: number[][];
     count?: number;
     range?: [number, number]
+}
+
+export interface ProjectionSpec {
+    type: string;
 }
 
 export class DataSpec {
@@ -154,7 +150,6 @@ export class Configuration {
     data?: ConfigurationDataSpec;
     reencoding?: ConfigurationReencodingSpec;
     rebin: any;
-    valid?: boolean;
     width?: number;
     height?: number;
 
@@ -193,21 +188,62 @@ export class Configuration {
     }
 
     public validate():boolean {
-        if (this.valid != undefined)
-            return this.valid;
         if (! this.data)
             return false;
+        let widths = new Map<string,number>(), heights = new Map<string,number>();
         let data = this.data.dataSpec;
-        if (! data || ! data.encoding || ! data.encoding.x || ! data.encoding.y)
+        if (! data ||
+            ! data.encoding ||
+            ! data.encoding.x ||
+            ! data.encoding.y ||
+            ! data.buffers)
             return false;
         let x_enc = data.encoding.x,
             y_enc = data.encoding.y;
         var x = undefined, y = undefined;
-        if (x_enc && x_enc.bin && 'maxbins' in x_enc.bin)
-            x = x_enc.bin;
-        if (y_enc && y_enc.bin && 'maxbins' in y_enc.bin)
-            y = y_enc.bin;
-        return false;
+        if (x_enc) {
+            if (x_enc.bin && 'maxbins' in x_enc.bin && x_enc.bin.maxbins)
+                widths.set('maxbins', x_enc.bin.maxbins);
+            if (x_enc.scale && x_enc.scale.range &&
+                x_enc.scale.range instanceof Array && x_enc.scale.range.length > 1)
+                widths.set('range', x_enc.scale.range[1]);
+        }
+        if (y_enc) {
+            if (y_enc.bin && 'maxbins' in y_enc.bin && y_enc.bin.maxbins)
+                heights.set('maxbins', y_enc.bin.maxbins);
+            if (y_enc.scale && y_enc.scale.range &&
+                y_enc.scale.range instanceof Array && y_enc.scale.range.length > 1)
+                heights.set('range', y_enc.scale.range[1]);
+        }
+        var error = '';
+        data.buffers.forEach((buffer) => {
+            if (buffer.data instanceof Array) {
+                heights.set(buffer.value, buffer.data.length);
+                widths.set(buffer.value, buffer.data[0].length);
+            }
+            else {
+                error = 'invalid buffer '+buffer.value;
+            }
+        });
+        widths.forEach((width, k) => {
+            if (this.width == undefined)
+                this.width = width;
+            else if (this.width != width) {
+                console.log('Inconsistent widths for '+k+' :'+width+' instead of '+this.width);
+                error = k;
+            }
+        });
+        heights.forEach((height, k) => {
+            if (this.height == undefined)
+                this.height = height;
+            else if (this.height != height) {
+                console.log('Inconsistent heights for '+k+' :'+height+' instead of '+this.height);
+                error = k;
+            }
+        });
+        if (error != '')
+            return false;
+        return true;
     }
 
     // load data from the server if this.data contains url
