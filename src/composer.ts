@@ -43,4 +43,8 @@ export default class Composer {
         ret = ret.clamp();
         return ret;
     }
+
+    static one(buffer:DerivedBuffer, value:number):Color {
+        return buffer.colorScale.map(value);
+    }
 }

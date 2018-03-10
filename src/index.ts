@@ -69,23 +69,20 @@ export class TestMain {
     height:number            = 256;
 
     main() {
-
-
         // general settings for the examples
         let fineTileSize = 2;
         let bigTileSize = 8;
 
         let nClass = 4;
         let pointSets:any[] = [
-      this.randomPointsWithClass(5000, [-1, -1], [[3, 0], [0, 3]]),
-      this.randomPointsWithClass(5000, [1, -1],  [[3, 0], [0, 3]]),
-      this.randomPointsWithClass(5000, [-1, 1],  [[3, 0], [0, 3]]),
-      this.randomPointsWithClass(5000, [1, 1],   [[3, 0], [0, 3]])
+            this.randomPointsWithClass(5000, [-1, -1], [[3, 0], [0, 3]]),
+            this.randomPointsWithClass(5000, [1, -1],  [[3, 0], [0, 3]]),
+            this.randomPointsWithClass(5000, [-1, 1],  [[3, 0], [0, 3]]),
+            this.randomPointsWithClass(5000, [1, 1],   [[3, 0], [0, 3]])
         ];
 
         // data buffers contain density information that can be either created by a server or read from files (e.g., json).
         this.dataBuffers = pointSets.map((points, i) => new DataBuffer(`class ${i}`, this.width, this.height, this.bin(points, this.width, [[-7, 7], [-7, 7]])));
-
 
         // tiling now returns an 1D array of tiles
         let rectTiles = Tiling.rectangularTiling(this.width, this.height, fineTileSize, fineTileSize);
@@ -174,7 +171,6 @@ export class TestMain {
             return derivedBuffer;
         });
 
-
         let outputImage4 = new Image(this.width, this.height);
         let outputImage5 = new Image(this.width, this.height);
 
@@ -214,6 +210,22 @@ export class TestMain {
 
         // Testing Spec
         this.testVisSpec();
+
+
+        // small multiples
+
+        // prepare nClass images
+        let outputImages:Image[] = new Array(this.dataBuffers.length).fill(0).map(() => new Image(this.width, this.height));
+
+        derivedBuffers3.forEach((derivedBuffer, i) => {
+            for(let tile of rectTiles) {
+                let color = Composer.one(derivedBuffer, tile.dataValues[i]);
+                outputImages[i].fillByTile(color, tile);
+            }
+        })
+
+        CanvasRenderer.renderMultiples(outputImages, 'canvas12');
+
     }
 
     testHexa(id:number){
