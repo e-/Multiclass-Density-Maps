@@ -1,3 +1,4 @@
+import Point from './point';
 import Color from './color';
 import Mask from './mask';
 import Tile from './tile';
@@ -95,4 +96,31 @@ export default class Image {
         }
       }
     }
+
+    // default to center
+    putImageByTile(imageData:ImageData, tile:Tile) {
+        let width = imageData.width;
+        let height = imageData.height;
+
+        let topLeft = new Point(tile.x + tile.mask.width / 2 - width / 2 , tile.y + tile.mask.height / 2 - height / 2).round();
+
+        let data = imageData.data;
+
+        for(let r = 0; r < height; r++) {
+            for(let c = 0; c < width; c++) {
+                let tr = r + topLeft.y; // target row
+                let tc = c + topLeft.x; // target column
+
+                if(tr < 0 || tc < 0 || tr >= this.height || tc >= this.width) continue;
+
+                this.pixels[tr][tc] = new Color(
+                    data[(r * width + c) * 4    ] / 255,
+                    data[(r * width + c) * 4 + 1] / 255,
+                    data[(r * width + c) * 4 + 2] / 255,
+                    data[(r * width + c) * 4 + 3] / 255,
+                );
+            }
+        }
+    }
   }
+

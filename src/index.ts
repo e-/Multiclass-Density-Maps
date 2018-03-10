@@ -227,6 +227,8 @@ export class TestMain {
 
         CanvasRenderer.renderMultiples(outputImages, 'canvas12');
 
+
+        this.testUSVega();
     }
 
     testHexa(id:number){
@@ -446,6 +448,60 @@ export class TestMain {
 
         })
     }
+
+    testUSVega() {
+        util.get('data/census_data.json').then(response => {
+            let config = new Parser.Configuration(response);
+
+            // when we call load(), data spec and buffers are really loaded through AJAX
+            return config.load('data/');
+        }).then((config:Parser.Configuration) => {
+          let width  = config.data!.dataSpec!.encoding!.x!.bin!.maxbins!;
+          let height = config.data!.dataSpec!.encoding!.y!.bin!.maxbins!;
+
+          util.get("data/us.json").then(result => {
+            let topous = JSON.parse(result);
+
+            let dataBuffers = config.data!.dataSpec!.buffers!.map((bufferSpec, i) => {
+              let db:DataBuffer = new DataBuffer(`test${i}`, width, height, bufferSpec.data);
+              return db;
+            });
+
+            let ustiles = Tiling.topojsonTiling(width, height, topous);
+
+            for(let tile of ustiles) {
+                tile.dataValues = tile.aggregate(dataBuffers, TileAggregation.Sum);
+            }
+
+            let maxCount = util.amax(ustiles.map(tile => util.amax(tile.dataValues)));
+
+            let derivedBuffers = dataBuffers.map((dataBuffer, i) => new DerivedBuffer(dataBuffer))
+
+            let outputImage = new Image(width!, height!);
+            let promises = [];
+            for(let tile of ustiles) {
+                if(tile.mask.width < 30 || tile.mask.height < 30) continue;
+
+                let promise = Composer.bars(derivedBuffers, tile.dataValues, {
+                    width: 16,
+                    height: 20,
+                    'y.scale.domain': [1, maxCount],
+                    'y.scale.type': 'log'
+                }).then((vegaPixels) => {
+                    outputImage.putImageByTile(vegaPixels, tile);
+                })
+
+                promises.push(promise);
+            }
+
+            Promise.all(promises).then(() => {
+                CanvasRenderer.render(outputImage, 'canvas13');
+                for(let tile of ustiles) CanvasRenderer.drawVectorMask(tile.mask, 'canvas13');
+            });
+          });
+
+        })
+    }
 }
 
-export * from './vega-extractor';
+export { default as extract } from './vega-extractor';
