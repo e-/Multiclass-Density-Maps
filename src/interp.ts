@@ -13,9 +13,9 @@ export class Interpreter {
         this.width = configuration.width!;
         this.height = configuration.height!;
     }
-    
+
     render(id:string) {
-        CanvasRenderer.render(image, id);
+        //CanvasRenderer.render(image, id);
     }
 
 }

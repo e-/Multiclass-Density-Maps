@@ -77,7 +77,7 @@ export default class CanvasRenderer {
         let mWidth = width / cols;
         let mHeight = height / rows;
 
-        console.log(mWidth, mHeight);
+        //console.log(mWidth, mHeight);
         images.forEach((image, i) => {
             this.renderToImageData(image, imageData);
 

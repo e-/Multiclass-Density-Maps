@@ -13,6 +13,10 @@ import * as Scale from './scale';
 import Polys2D from './polys2D'
 import * as d3 from 'd3';
 
+import jquery from 'jquery';
+import 'jquery-ui';
+import "jquery-ui/ui/widgets/slider";
+
 /// <reference path="multivariate-normal.d.ts" />
 import MN from "multivariate-normal";
 
@@ -149,7 +153,6 @@ export class TestMain {
         }
 
         let maxCount2 = util.amax(bigRectTiles.map(tile => util.amax(tile.dataValues)));
-        console.log("  maxCount2:"+maxCount2);
 
         let randomMasks = Mask.generateWeavingRandomMasks(this.dataBuffers.length, bigTileSize, this.width, this.height);
         let squareMasks = Mask.generateWeavingSquareMasks(this.dataBuffers.length, bigTileSize, this.width, this.height);
@@ -210,8 +213,28 @@ export class TestMain {
         this.testVoronoi(16);
 
         // Testing Spec
-        this.testVisSpec();
+        this.testVisSpec(2);
+        // with interactivity
+        let me = this;
+        jquery( "#slider10" ).css("background", "#ddd").slider({
+          min:   1,
+          value: 2,
+          max:   64,
+          slide:function( event:any, ui:any){
+            me.testVisSpec(ui.value);
+          }}
+        );
 
+        // Testing US per state weaving
+        this.testUSShapes(2);
+        jquery( "#slider11" ).css("background", "#ddd").slider({
+          min:   1,
+          value: 2,
+          max:   64,
+          slide:function( event:any, ui:any){
+            me.testUSShapes(ui.value);
+          }}
+        );
 
         // small multiples
 
@@ -236,18 +259,11 @@ export class TestMain {
         let po:Polys2D = new Polys2D("test");
         po.addPoly([1.5, 3.5, 2.0], [1.0, 1.5, 3.0]);
         po.addPoly([2.0, 4.0, 3.0], [4.0, 2.0, 5.0]);
-        console.log("Run polygon tests ");
-        console.log("  should be true:"+ po.isPointInPolys(2.5, 2.0)+" "+po.isPointInPolys(2.0, 2.5)+" "+po.isPointInPolys(3.0, 4.0)+" "+po.isPointInPolys(2.5, 2.0)+" "+po.isPointInPolys(2.99, 2.0));
-        console.log("  should be false:"+po.isPointInPolys(2.5, 1.1)+" "+po.isPointInPolys(3.0, 2.5)+" "+po.isPointInPolys(2.5, 2.8)+" "+po.isPointInPolys(1.6, 2.0)+" "+po.isPointInPolys(3.01, 2.0));
-        console.log("  borderline:"+     po.isPointInPolys(3.0, 2.0)+" "+po.isPointInPolys(3.0, 3.0));
+        //console.log("Run polygon tests ");
+        //console.log("  should be true:"+ po.isPointInPolys(2.5, 2.0)+" "+po.isPointInPolys(2.0, 2.5)+" "+po.isPointInPolys(3.0, 4.0)+" "+po.isPointInPolys(2.5, 2.0)+" "+po.isPointInPolys(2.99, 2.0));
+        //console.log("  should be false:"+po.isPointInPolys(2.5, 1.1)+" "+po.isPointInPolys(3.0, 2.5)+" "+po.isPointInPolys(2.5, 2.8)+" "+po.isPointInPolys(1.6, 2.0)+" "+po.isPointInPolys(3.01, 2.0));
+        //console.log("  borderline:"+     po.isPointInPolys(3.0, 2.0)+" "+po.isPointInPolys(3.0, 3.0));
 
-        // tiling now returns an 1D array of tiles
-        //let rectTiles = Tiling.rectangularTiling(this.width, this.height, this.width / 128, this.height / 128);
-
-        //for(let tile of rectTiles) {
-            // tile.dataValues are an array of numbers
-        //    tile.dataValues = tile.aggregate(this.dataBuffers, TileAggregation.Sum);
-        //}
         let hexaMasks   = Mask.generateWeavingHexaMasks(this.dataBuffers.length,   8, this.width, this.height);
         let bigRectTiles = Tiling.rectangularTiling(this.width, this.height, this.width / 16, this.height / 16);
 
@@ -316,14 +332,16 @@ export class TestMain {
             CanvasRenderer.drawVectorMask(voronoiTiles[k].mask, 'canvas9');
     }
 
-    testVisSpec() {
+
+    testVisSpec(size:number) {
+        //console.log("testVisSpec "+size);
         util.get('data/census_data.json').then(response => {
             let config = new Parser.Configuration(response);
 
             // when we call load(), data spec and buffers are really loaded through AJAX
             return config.load('data/');
         }).then((config:Parser.Configuration) => {
-            console.log(config);
+            //console.log(config);
 
             let width = 512;
             let height = 280;
@@ -332,7 +350,7 @@ export class TestMain {
               new DataBuffer('test', width, height, bufferSpec.data)
             );
 
-            let tiles = Tiling.rectangularTiling(width, height, width / 128, height / 70);
+            let tiles = Tiling.rectangularTiling(width, height, size, size);
 
             for(let tile of tiles) {
                 // tile.dataValues are an array of numbers
@@ -361,7 +379,7 @@ export class TestMain {
         });
     }
 
-    testUSShapes(debug:number) {
+    testUSShapes(weavingSize:number) {
         util.get('data/census_data.json').then(response => {
             let config = new Parser.Configuration(response);
 
@@ -389,7 +407,7 @@ export class TestMain {
 
             let ustiles = Tiling.topojsonTiling(width!, height!, topous);
 
-            let randomMasks = Mask.generateWeavingRandomMasks(dataBuffers.length, 4, width!, height!);
+            let randomMasks = Mask.generateWeavingRandomMasks(dataBuffers.length, weavingSize, width!, height!);
 
             for(let tile of ustiles) {
                 // tile.dataValues are an array of numbers
@@ -417,32 +435,14 @@ export class TestMain {
                   outputImage11.fillByTile(color, tile, derivedBuffers11[i].mask);
               });
             }
-            let color = derivedBuffers11[0].colorScale.map(ustiles[0].dataValues[0]);
-            outputImage11.fillByTileDebug(color, ustiles[0], derivedBuffers11[0].mask);
-
-            color = derivedBuffers11[1].colorScale.map(ustiles[0].dataValues[1]);
-            outputImage11.fillByTileDebug(color, ustiles[0], derivedBuffers11[1].mask);
-
-            color = derivedBuffers11[2].colorScale.map(ustiles[0].dataValues[2]);
-            outputImage11.fillByTileDebug(color, ustiles[0], derivedBuffers11[2].mask);
-
-            color = derivedBuffers11[3].colorScale.map(ustiles[0].dataValues[3]);
-            outputImage11.fillByTileDebug(color, ustiles[0], derivedBuffers11[3].mask);
-
-            //color = derivedBuffers11[4].colorScale.map(ustiles[0].dataValues[4]);
-            //outputImage11.fillByTileDebug(color, ustiles[0], derivedBuffers11[4].mask);
-
-
-
             //outputImage11.fillMask(derivedBuffers11[0].mask);
             //outputImage11.fillMask(ustiles[0].mask);
 
             CanvasRenderer.render(outputImage11, 'canvas11');
 
-            //for(let tile of ustiles) {
-            //    d3.select("#debugus").append(function() { return tile.mask.maskCanvas;});
-            //}
-            for(let tile of ustiles) CanvasRenderer.drawVectorMask(tile.mask, 'canvas11');
+            // draw frontiers
+            for(let tile of ustiles)
+              CanvasRenderer.drawVectorMask(tile.mask, 'canvas11');
 
           });
 

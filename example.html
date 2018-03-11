@@ -3,6 +3,7 @@
     <head>
         <title>Scalable Rendering of Multiclass Density Maps Examples</title>
 
+        <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
         <style>
            table.cartouche {
             background: orange;
@@ -48,7 +49,7 @@
                 <td>None</td>
             </tr>
         </table>
-    
+
         <table>
             <tr>
                 <th>Small Multiples</th>
@@ -57,7 +58,7 @@
                 <td><canvas id="canvas12"></canvas></td>
             </tr>
         </table>
-    
+
         <table class="cartouche">
             <tr>
                 <th>Data</th>
@@ -200,14 +201,12 @@
 
         <table>
             <tr>
-                <th>Census Data</th>
-                <th>US shapes Weaving<button onclick="testMain.testUSShapes(0)">Run </button></th>
-                <th>...</th>
+                <th>Census Data <div id="slider10" style="margin-left:15px;display:inline-block;width:200px;height:10px"></div></th>
+                <th>US shapes Weaving <div id="slider11" style="margin-left:15px;display:inline-block;width:200px;height:10px"></div></th>
             </tr>
             <tr>
                 <td><canvas id="canvas10"></canvas></td>
                 <td><canvas id="canvas11"></canvas></td>
-                <td><div id="debugus"></div></td>
             </tr>
         </table>
 

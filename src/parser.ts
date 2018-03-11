@@ -249,7 +249,7 @@ export class Configuration {
     // load data from the server if this.data contains url
     load(base:string = '') {
         if(!this.data!.dataSpec && this.data!.url) {
-            console.log('Loading '+this.data!.url!);
+            //console.log('Loading '+this.data!.url!);
             return util.get(base + this.data!.url!).then(response => {
                 let dataSpec = new DataSpec(JSON.parse(response));
 
