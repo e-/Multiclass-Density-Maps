@@ -23,6 +23,7 @@ export default class Interpreter {
     public bufferNames:string[];
     public colors:Color[] = Color.Category10;
     public labels:Map<string,string>;
+    public rebin:any;
 
     constructor(public configuration:Parser.Configuration) {
         if (! configuration.validate())
@@ -39,6 +40,7 @@ export default class Interpreter {
         else if (colormap.length != 0) {
             console.log('Not enough colors in colormap, ignored');
         }
+        this.rebin = configuration.rebin;
     }
 
     public interpret(context={}) {
@@ -49,8 +51,49 @@ export default class Interpreter {
     computeDerivedBuffers(context={}) {
     }
 
-    computeReencoding(context={}) {
+    computeRebin(context={}) {
+        var tiling = this.tiling;
+        if (! this.rebin || this.rebin.type=="none") {
+            console.log('No rebin');
+            tiling = Tiling.pixelTiling(this.width,
+                                        this.height);
+        }
+        else if (this.rebin.type == "square") {
+            let size = this.rebin.size || 10;
+            console.log('Square rebin size='+size);
+            tiling = Tiling.rectangularTiling(this.width,
+                                              this.height,
+                                              size, size);
+        }
+        else if (this.rebin.type == "rect") {
+            let width = this.rebin.width || 10,
+                height = this.rebin.height || 10;
+            console.log('Square rebin w='+width+' h='+height);
+            tiling = Tiling.rectangularTiling(this.width,
+                                              this.height,
+                                              width, height);
+        }
+        else if (this.rebin.type == "topojson") {
+            let url = this.rebin.url,
+                feature = this.rebin.feature || null;
+            console.log('topojson rebin url='+url
+                        +' feature='+feature);
+            // TODO get the projection, transform, clip, etc.
+            tiling = Tiling.topojsonTiling(this.width,
+                                           this.height,
+                                           feature);
+        }
+        else if (this.rebin.type == "voronoi") {
+            let points = this.rebin.sites || 4;
+            console.log('voronoi rebin sites='+points);
+            tiling = Tiling.voronoiTiling(this.width,
+                                          this.height,
+                                          points);
+        }
+        this.tiling = tiling;
+    }
 
+    computeReencoding(context={}) {
     }
 
     render(id:string) {
