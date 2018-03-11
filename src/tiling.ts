@@ -102,12 +102,15 @@ export function voronoiTiling(width:number, height:number, nbsites:number) {
     let ptsy = [];
 
     for (let k=0; k<polys[p].length; k++){
-      ptsx.push(polys[p][k][0]);
-      ptsy.push(polys[p][k][1]);
-      minx = Math.min(minx, polys[p][k][0]);
-      maxx = Math.max(maxx, polys[p][k][0]);
-      miny = Math.min(miny, polys[p][k][1]);
-      maxy = Math.max(maxy, polys[p][k][1]);
+      let x = Math.min(width, Math.max(0, polys[p][k][0]));
+      let y = Math.min(height, Math.max(0, polys[p][k][1]));
+      ptsx.push(x);
+      ptsy.push(y);
+
+      minx = Math.min(minx, x);
+      maxx = Math.max(maxx, x);
+      miny = Math.min(miny, y);
+      maxy = Math.max(maxy, y);
     }
 
 

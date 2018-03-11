@@ -163,10 +163,8 @@
             <tr>
                 <th>MeanComposing</th>
                 <th>AdditiveMixComposing</th>
-                <th>Voronoi Tiling <button onclick="testMain.testVoronoi(16)">16 </button>
-                                   <button onclick="testMain.testVoronoi(32)">32 </button>
-                                   <button onclick="testMain.testVoronoi(64)">64 </button>
-                                  <input type="checkbox"/ id="borderVoronoi">border</th>
+                <th>Voronoi Tiling  <select id="compo9" onchange="testMain.testVoronoi()"><option>16</option><option>32</option><option>64</option><option selected>128</option></select>
+                                    <input type="checkbox" checked onchange="testMain.testVoronoi()" id="border9"/>border</th>
             </tr>
             <tr>
                 <td><canvas id="canvas7"></canvas></td>
@@ -203,8 +201,9 @@
             <tr>
                 <th>Census Data <div id="slider10" style="margin-left:15px;display:inline-block;width:200px;height:10px"></div></th>
                 <th>US shapes Weaving <div id="slider11" style="margin-left:15px;display:inline-block;width:200px;height:10px"></div>
-                         <select id="compo11a" onchange="testMain.testUSShapes(2)"><option>Min</option><option>Max</option><option>Mean</option><option selected>Sum</option></select>
-                         <select id="compo11b" onchange="testMain.testUSShapes(2)"><option>Linear</option><option>Log</option><option>EquiDepth</option><option>SquareRoot</option><option selected>CubicRoot</option></select>
+                         <select id="compo11a" onchange="testMain.testUSShapes()"><option>Min</option><option>Max</option><option>Mean</option><option selected>Sum</option></select>
+                         <select id="compo11b" onchange="testMain.testUSShapes()"><option>Linear</option><option>Log</option><option>EquiDepth</option><option>SquareRoot</option><option selected>CubicRoot</option>
+                            <input type="checkbox" checked onchange="testMain.testUSShapes()" id="border11"/>border</th></select>
                 </th>
             </tr>
             <tr>

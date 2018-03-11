@@ -215,7 +215,7 @@ export class TestMain {
 
         this.testHexa(-1);
 
-        this.testVoronoi(16);
+        this.testVoronoi();
 
         // Testing Spec
         this.testVisSpec(2);
@@ -231,13 +231,13 @@ export class TestMain {
         );
 
         // Testing US per state weaving
-        this.testUSShapes(2);
+        this.testUSShapes();
         jquery( "#slider11" ).css("background", "#ddd").slider({
           min:   1,
           value: 2,
           max:   32,
           slide:function( event:any, ui:any){
-            me.testUSShapes(ui.value);
+            me.testUSShapes();
           }}
         );
 
@@ -303,10 +303,12 @@ export class TestMain {
         CanvasRenderer.render(outputImage6, 'canvas6');
     }
 
-    testVoronoi(n:number){
+    testVoronoi(){
         // tiling now returns an 1D array of tiles
-        let randomMasks = Mask.generateWeavingRandomMasks(this.dataBuffers.length, 4, this.width, this.height);
+        let n            = parseInt(jquery("#compo9 option:selected").text());
+        let randomMasks  = Mask.generateWeavingRandomMasks(this.dataBuffers.length, 4, this.width, this.height);
         let voronoiTiles = Tiling.voronoiTiling(this.width, this.height, n);
+
 
         for(let tile of voronoiTiles) {
             tile.dataValues = tile.aggregate(this.dataBuffers, TileAggregation.Sum);
@@ -332,7 +334,7 @@ export class TestMain {
 
         CanvasRenderer.render(outputImage9, 'canvas9');
 
-        if(d3.select("#borderVoronoi").property("checked"))
+        if(d3.select("#border9").property("checked"))
           for (let k in voronoiTiles)
             CanvasRenderer.drawVectorMask(voronoiTiles[k].mask, 'canvas9');
     }
@@ -384,7 +386,7 @@ export class TestMain {
         });
     }
 
-    testUSShapes(weavingSize:number) {
+    testUSShapes() {
         util.get('data/census_data.json').then(response => {
             let config = new Parser.Configuration(response);
 
@@ -412,6 +414,7 @@ export class TestMain {
 
             let ustiles = Tiling.topojsonTiling(width!, height!, topous);
 
+            let weavingSize = jquery("#slider11").slider("option", "value")
             let randomMasks = Mask.generateWeavingRandomMasks(dataBuffers.length, weavingSize, width!, height!);
 
             for(let tile of ustiles) {
@@ -426,7 +429,6 @@ export class TestMain {
                   tile.dataValues = tile.aggregate(dataBuffers, TileAggregation.Max);
             }
 
-            weavingSize = jquery("#slider11").slider("option", "value")
 
             // get max count of bins for scale
             let maxCount = util.amax(ustiles.map(tile => util.amax(tile.dataValues)));
@@ -463,8 +465,9 @@ export class TestMain {
             CanvasRenderer.render(outputImage11, 'canvas11');
 
             // draw frontiers
-            for(let tile of ustiles)
-              CanvasRenderer.drawVectorMask(tile.mask, 'canvas11');
+            if(d3.select("#border11").property("checked"))
+              for(let tile of ustiles)
+                CanvasRenderer.drawVectorMask(tile.mask, 'canvas11');
 
           });
 
