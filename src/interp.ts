@@ -95,8 +95,9 @@ export default class Interpreter {
 
     computeReencoding(context={}) {
     }
-    
+
     render(id:string) {
+        //CanvasRenderer.render(image, id);
         let ctx = CanvasRenderer.render(this.image, id);
         if (this.strokeCanvas) {
             ctx.setTransform(1, 0, 0, 1, 0, 0); // reset
