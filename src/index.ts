@@ -224,7 +224,7 @@ export class TestMain {
         jquery( "#slider10" ).css("background", "#ddd").slider({
           min:   1,
           value: 2,
-          max:   64,
+          max:   32,
           slide:function( event:any, ui:any){
             me.testVisSpec(ui.value);
           }}
@@ -235,7 +235,7 @@ export class TestMain {
         jquery( "#slider11" ).css("background", "#ddd").slider({
           min:   1,
           value: 2,
-          max:   64,
+          max:   32,
           slide:function( event:any, ui:any){
             me.testUSShapes(ui.value);
           }}
@@ -397,8 +397,9 @@ export class TestMain {
 
           if (!width || !height) {
             width  = 256;
-            height  =256;
+            height = 256;
           }
+
 
           util.get("data/us.json").then(result => {
             let topous = JSON.parse(result);
@@ -415,8 +416,17 @@ export class TestMain {
 
             for(let tile of ustiles) {
                 // tile.dataValues are an array of numbers
-                tile.dataValues = tile.aggregate(dataBuffers, TileAggregation.Sum);
+                if (jquery("#compo11a option:selected").text()=='Min')
+                  tile.dataValues = tile.aggregate(dataBuffers, TileAggregation.Min);
+                else if (jquery("#compo11a option:selected").text()=='Sum')
+                  tile.dataValues = tile.aggregate(dataBuffers, TileAggregation.Sum);
+                else if (jquery("#compo11a option:selected").text()=='Mean')
+                  tile.dataValues = tile.aggregate(dataBuffers, TileAggregation.Mean);
+                else if (jquery("#compo11a option:selected").text()=='Max')
+                  tile.dataValues = tile.aggregate(dataBuffers, TileAggregation.Max);
             }
+
+            weavingSize = jquery("#slider11").slider("option", "value")
 
             // get max count of bins for scale
             let maxCount = util.amax(ustiles.map(tile => util.amax(tile.dataValues)));
@@ -424,8 +434,16 @@ export class TestMain {
             let derivedBuffers11 = dataBuffers.map((dataBuffer, i) => {
                 let derivedBuffer = new DerivedBuffer(dataBuffer);
 
-                //derivedBuffer.colorScale = new Scale.LinearColorScale([1, maxCount], [Color.White, Color.Category10[i]]);
-                derivedBuffer.colorScale = new Scale.CubicRootColorScale([1, maxCount], [Color.White, Color.Category10[i]]);
+                if (jquery("#compo11b option:selected").text()=="Linear")
+                  derivedBuffer.colorScale = new Scale.LinearColorScale([1, maxCount], [Color.White, Color.Category10[i]]);
+                else if (jquery("#compo11b option:selected").text()=="Log")
+                  derivedBuffer.colorScale = new Scale.LogColorScale([1, maxCount], [Color.White, Color.Category10[i]]);
+                else if (jquery("#compo11b option:selected").text()=="CubicRoot")
+                  derivedBuffer.colorScale = new Scale.CubicRootColorScale([1, maxCount], [Color.White, Color.Category10[i]]);
+                else if (jquery("#compo11b option:selected").text()=="SquareRoot")
+                  derivedBuffer.colorScale = new Scale.SquareRootColorScale([1, maxCount], [Color.White, Color.Category10[i]]);
+                  else if (jquery("#compo11b option:selected").text()=="EquiDepth")
+                  derivedBuffer.colorScale = new Scale.EquiDepthColorScale([1, maxCount], [Color.White, Color.Category10[i]]);
                 derivedBuffer.mask       = randomMasks[i];
 
                 return derivedBuffer;

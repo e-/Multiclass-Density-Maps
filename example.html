@@ -202,7 +202,10 @@
         <table>
             <tr>
                 <th>Census Data <div id="slider10" style="margin-left:15px;display:inline-block;width:200px;height:10px"></div></th>
-                <th>US shapes Weaving <div id="slider11" style="margin-left:15px;display:inline-block;width:200px;height:10px"></div></th>
+                <th>US shapes Weaving <div id="slider11" style="margin-left:15px;display:inline-block;width:200px;height:10px"></div>
+                         <select id="compo11a" onchange="testMain.testUSShapes(2)"><option>Min</option><option>Max</option><option>Mean</option><option selected>Sum</option></select>
+                         <select id="compo11b" onchange="testMain.testUSShapes(2)"><option>Linear</option><option>Log</option><option>EquiDepth</option><option>SquareRoot</option><option selected>CubicRoot</option></select>
+                </th>
             </tr>
             <tr>
                 <td><canvas id="canvas10"></canvas></td>
