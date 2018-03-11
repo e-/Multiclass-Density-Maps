@@ -1,5 +1,7 @@
 import * as util from './util';
 import * as d3 from 'd3';
+import DataBuffer from './data-buffer';
+
 
 export interface SourceSpec {
     filename?: string;
@@ -150,8 +152,9 @@ export class Configuration {
     data?: ConfigurationDataSpec;
     reencoding?: ConfigurationReencodingSpec;
     rebin: any;
-    width?: number;
-    height?: number;
+    width: number = -1;
+    height: number= -1;
+    bufferNames:string[] = [];
 
     constructor(public specs:any) {
         if(typeof this.specs === 'string') {
@@ -216,7 +219,12 @@ export class Configuration {
                 heights.set('range', y_enc.scale.range[1]);
         }
         var error = '';
-        data.buffers.forEach((buffer) => {
+        this.bufferNames = [];
+        data.buffers.forEach((buffer, i) => {
+            if (buffer.value)
+                this.bufferNames.push(buffer.value);
+            else
+                this.bufferNames.push(""+i);
             if (buffer.data instanceof Array) {
                 heights.set(buffer.value, buffer.data.length);
                 widths.set(buffer.value, buffer.data[0].length);
@@ -226,7 +234,7 @@ export class Configuration {
             }
         });
         widths.forEach((width, k) => {
-            if (this.width == undefined)
+            if (this.width == -1)
                 this.width = width;
             else if (this.width != width) {
                 console.log('Inconsistent widths for '+k+' :'+width+' instead of '+this.width);
@@ -234,7 +242,7 @@ export class Configuration {
             }
         });
         heights.forEach((height, k) => {
-            if (this.height == undefined)
+            if (this.height == -1)
                 this.height = height;
             else if (this.height != height) {
                 console.log('Inconsistent heights for '+k+' :'+height+' instead of '+this.height);
@@ -262,6 +270,45 @@ export class Configuration {
 
         return Promise.resolve(this);
     }
+
+    public getBuffers() : DataBuffer[] {
+        let data = this.data;
+        if (! data ||
+            ! data.dataSpec ||
+            ! data.dataSpec.buffers)
+            return [];
+        let buffers = data.dataSpec.buffers;
+        let dataBuffers = data.dataSpec.buffers.map((bufferSpec) =>
+              new DataBuffer(bufferSpec.value,
+                             this.width,
+                             this.height,
+                             bufferSpec.data));
+        return dataBuffers;
+    }
+
+    public getLabels(): Map<string,string>  {
+        let dict = new Map<string,string>();
+        if (! this.reencoding 
+            || ! this.reencoding.label
+            || ! this.reencoding.label.scale
+            || ! this.reencoding.label.scale.range)
+            return dict;
+        let ranges = this.reencoding.label.scale.range,
+            domains = this.reencoding.label.scale.domain;
+        domains.forEach((d:string, i:number) =>
+                        dict.set(d, ranges[i]));
+        return dict;
+    }
+
+    public getColors(): string[]  {
+        if (! this.reencoding 
+            || ! this.reencoding.color
+            || ! this.reencoding.color.scale
+            || ! this.reencoding.color.scale.range)
+            return [];
+        return this.reencoding.color.scale.range;
+    }
+
 }
 
 export function parse(json: any): Configuration {

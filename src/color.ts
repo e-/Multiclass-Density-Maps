@@ -70,6 +70,25 @@ export default class Color {
     static Gray = new Color(127 / 255, 127 / 255, 127 / 255, 1);
     static Yellow = new Color(188 / 255, 189 / 255, 34 / 255, 1);
     static Skyblue = new Color(23 / 255, 190 / 255, 207 / 255, 1);
+    static ColorByName:any = {
+        "white": Color.White,
+        "Black": Color.Black,
+        "blue": Color.Blue,
+        "orange": Color.Orange,
+        "green": Color.Green,
+        "red": Color.Red,
+        "purple": Color.Purple,
+        "brown": Color.Brown,
+        "pink": Color.Pink,
+        "gray": Color.Gray,
+        "yellow": Color.Yellow,
+        "skyblue": Color.Skyblue
+    };
+    static byName(name:string): Color {
+        if (name in Color.ColorByName)
+            return <Color>Color.ColorByName[name];
+         return Color.Black;
+    };
 
     static Category10 = [Color.Blue, Color.Orange, Color.Green, Color.Red, Color.Purple, Color.Brown, Color.Pink, Color.Gray, Color.Yellow, Color.Skyblue];
 }

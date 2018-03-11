@@ -12,6 +12,7 @@ import DerivedBuffer from './derived-buffer';
 import * as Scale from './scale';
 import Polys2D from './polys2D'
 import * as d3 from 'd3';
+import Interpreter from './interp';
 
 import jquery from 'jquery';
 import 'jquery-ui';
@@ -34,6 +35,10 @@ export class TestMain {
             return config.load('data/');
         })
         .then(callback);
+    }
+
+    create_interp(conf:Parser.Configuration) {
+        return new Interpreter(conf);
     }
 
     randomPointsWithClass(n:number, mean:any, cov:any): any[] {
