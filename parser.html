@@ -5,25 +5,31 @@
     </head>
     <body>
         <h1>Rendition</h1>
-        <canvas id="canvas"></canvas>
+        <canvas id="canvas" style="border:solid grey"></canvas>
 
         <script src="https://d3js.org/d3-dsv.v1.min.js"></script>
         <script src="https://d3js.org/d3-fetch.v1.min.js"></script>
         <script src="dist/bundle.js" type="text/javascript"></script>
-        <script>
-          let testMain = new MCS.TestMain(), configuration;
-          prefix = "data/";
-          console.log('Loading '+'census_data.json');
-          testMain.parse_url(prefix+"census_data.json",
-                             function(conf) {
-                                 if (conf.validate()) {
-                                     console.log('validated w='+conf.width+' h='+conf.height);
-                                     
-                                 }
-                                 else
-                                     console.log('not validated');
-                             });
-          
-        </script>
+<script>
+var testMain = new MCS.TestMain(), prefix = "data/";
+var configuration, interpreter;
+
+function render(conf) {
+  configuration = conf;
+  var interp = testMain.create_interp(conf);
+  console.log('interp w='+conf.width+' h='+conf.height);
+  interpreter = interp;
+  interp.interpret();
+  interp.render('canvas');
+}
+
+function load_configuration() {
+  console.log('Loading '+'census_data.json');
+  testMain.parse_url(prefix+"census_data.json", render);
+}
+
+window.onload = load_configuration();
+
+</script>
     </body>
 </html>

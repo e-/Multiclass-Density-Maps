@@ -12,6 +12,7 @@ import DerivedBuffer from './derived-buffer';
 import * as Scale from './scale';
 import Polys2D from './polys2D'
 import * as d3 from 'd3';
+import Interpreter from './interp';
 
 /// <reference path="multivariate-normal.d.ts" />
 import MN from "multivariate-normal";
@@ -30,6 +31,10 @@ export class TestMain {
             return config.load('data/');
         })
         .then(callback);
+    }
+
+    create_interp(conf:Parser.Configuration) {
+        return new Interpreter(conf);
     }
 
     randomPointsWithClass(n:number, mean:any, cov:any): any[] {
