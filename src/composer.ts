@@ -65,6 +65,18 @@ export default class Composer {
             mark: "bar",
             encoding: {
                 x: {field: "name", type: "ordinal"},
+                color: {
+                    field: "name",
+                    type: "ordinal",
+                    "scale": {
+                      "domain": ["w","h","a","o","b"],
+                      "range": ["#"+Color.Category10[0].toHexa(),
+                                "#"+Color.Category10[1].toHexa(),
+                                "#"+Color.Category10[2].toHexa(),
+                                "#"+Color.Category10[3].toHexa(),
+                                "#"+Color.Category10[4].toHexa()]
+                    },
+                },
                 y: {
                     field: "value",
                     "type": "quantitative",

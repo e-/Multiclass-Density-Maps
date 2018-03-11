@@ -391,7 +391,6 @@ export class TestMain {
             // when we call load(), data spec and buffers are really loaded through AJAX
             return config.load('data/');
         }).then((config:Parser.Configuration) => {
-          //console.log(config);
 
           let width  = config.data!.dataSpec!.encoding!.x!.bin!.maxbins;
           let height = config.data!.dataSpec!.encoding!.y!.bin!.maxbins;
@@ -405,7 +404,7 @@ export class TestMain {
             let topous = JSON.parse(result);
 
             let dataBuffers = config.data!.dataSpec!.buffers!.map((bufferSpec, i) => {
-              let db:DataBuffer = new DataBuffer('test', width?width:100, height?height:100, bufferSpec.data);
+              let db:DataBuffer = new DataBuffer(bufferSpec.value, width?width:100, height?height:100, bufferSpec.data);
               return db;
               }
             );
@@ -468,7 +467,7 @@ export class TestMain {
             let topous = JSON.parse(result);
 
             let dataBuffers = config.data!.dataSpec!.buffers!.map((bufferSpec, i) => {
-              let db:DataBuffer = new DataBuffer(`test${i}`, width, height, bufferSpec.data);
+              let db:DataBuffer = new DataBuffer(bufferSpec.value, width, height, bufferSpec.data);
               return db;
             });
 
@@ -491,7 +490,7 @@ export class TestMain {
                     width: 16,
                     height: 20,
                     'y.scale.domain': [1, maxCount],
-                    'y.scale.type': 'log'
+                    'y.scale.type': 'sqrt'
                 }).then((vegaPixels) => {
                     outputImage.putImageByTile(vegaPixels, tile);
                 })

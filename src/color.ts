@@ -36,6 +36,26 @@ export default class Color {
         return ""+this.r+" "+this.g+" "+this.b+" "+this.a;
     }
 
+    toHexa(){
+        let hex = ""
+        if (Math.floor(255*this.r)<16)
+          hex = hex +"0"+Math.floor(255*this.r).toString(16);
+        else
+          hex = hex +Math.floor(255*this.r).toString(16);
+
+        if (Math.floor(255*this.g)<16)
+          hex = hex +"0"+Math.floor(255*this.g).toString(16);
+        else
+          hex = hex +Math.floor(255*this.g).toString(16);
+
+        if (Math.floor(255*this.b)<16)
+          hex = hex +"0"+Math.floor(255*this.b).toString(16);
+        else
+          hex = hex +Math.floor(255*this.b).toString(16);
+
+        return hex;
+    }
+
     add(c:Color) {
         return new Color(
         this.r + c.r,
