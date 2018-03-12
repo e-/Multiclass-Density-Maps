@@ -107,4 +107,71 @@ export default class Composer {
 
         return extract(spec);
     }
+
+    static punchcard(buffers:DerivedBuffer[], values:number[],
+        options:{
+            width?:number,
+            height?:number,
+            'z.scale.domain': [number, number]
+        } = {'z.scale.domain': [0, 1]}
+    ) {
+        let n = buffers.length;
+        let cols = Math.ceil(Math.sqrt(n));
+        let width = options.width || 30;
+        let height = options.height || 30;
+
+        let spec = {
+            "$schema": "https://vega.github.io/schema/vega-lite/v2.0.json",
+            data: {
+                values: buffers.map((buffer, i) => {return {
+                    name: buffer.originalDataBuffer.name,
+                    value: values[i],
+                    row: Math.floor(i / cols),
+                    col: i % cols,
+                }})
+            },
+            mark: "circle",
+            encoding: {
+                "x": {"field": "col", "type": "ordinal"},
+                "y": {"field": "row", "type": "ordinal"},
+                "size": {
+                    "field": "value",
+                    "type": "quantitative",
+                    scale: {
+                        domain: options["z.scale.domain"]
+                    }
+                },
+                color: {
+                    "field": "name",
+                    "type": "ordinal",
+                    scale: {
+                        domain: buffers.map(b => b.originalDataBuffer.name),
+                        range: buffers.map(b => '#' + (b.color || Color.Blue).toHexa())
+                    }
+                }
+            },
+            autosize: "none",
+            config: {
+                group: {
+                    strokeWidth: 0
+                },
+                axis: {
+                    domain: false,
+                    ticks: false,
+                    labels: false,
+                    grid: false,
+                    tickExtra: false,
+                    gridColor: null
+                },
+                mark: {
+                    opacity: 1
+                }
+            },
+            width: width / 1,
+            height: height / 1, // TODO (jaemin): Why divided by 2?
+            padding: 0
+        };
+
+        return extract(spec);
+    }
 }
