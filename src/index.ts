@@ -506,9 +506,10 @@ export class TestMain {
           util.get("data/us.json").then(result => {
             let topous = JSON.parse(result);
 
+            //jquery('#compo15e .buf').remove();
             let dataBuffers = config.data!.dataSpec!.buffers!.map((bufferSpec, i) => {
               let db:DataBuffer = new DataBuffer(bufferSpec.value, width?width:100, height?height:100, bufferSpec.data);
-              jquery('#compo15e').append("<option value='"+i+"'>buffer "+bufferSpec.value+"</option>");
+              //jquery('#compo15e').append("<option class='buf' value='"+i+"'>buffer "+bufferSpec.value+"</option>");
               return db;
               }
             );
@@ -563,7 +564,10 @@ export class TestMain {
               if (jquery("#compo15d option:selected").text()=='Width')
                 propWidth = true;
 
-              outputImage15.drawTilePattern2(tile.makeHatchPattern(colors, propWidth, hatchingSize, Math.PI*parseInt(jquery("#compo15e option:selected").text())/180), tile.x+tile.mask.width/2, tile.y+tile.mask.height/2);
+              if (jquery("#compo15f option:selected").text()=="Align")
+                outputImage15.drawTilePattern2(tile.makeHatchPattern(colors, propWidth, hatchingSize, Math.PI*parseInt(jquery("#compo15e option:selected").text())/180), tile.x+tile.mask.width/2, tile.y+tile.mask.height/2);
+              else if (jquery("#compo15f option:selected").text()=="Over")
+                outputImage15.drawTilePattern2(tile.makeHatchPattern2(colors, propWidth, hatchingSize, [Math.PI*0/8, Math.PI*1/8, Math.PI*2/8, Math.PI*3/8, Math.PI*4/8]), tile.x+tile.mask.width/2, tile.y+tile.mask.height/2);
             }
 
             CanvasRenderer.render2(outputImage15, 'canvas15');
