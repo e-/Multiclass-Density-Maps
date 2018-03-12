@@ -24,6 +24,17 @@ export default class CanvasRenderer {
         return ctx;
     }
 
+    static render2(image:Image, id:string, options:{blur?:number} = {}) : CanvasRenderingContext2D { // return the context
+        let canvas:any = document.getElementById(id);
+        canvas.width   = image.width;
+        canvas.height  = image.height;
+        let ctx:CanvasRenderingContext2D = canvas.getContext('2d');
+
+        ctx.drawImage(image.imageCanvas, 0, 0);
+        return ctx;
+    }
+
+
     static renderToImageData(image:Image, imageData:ImageData) {
         let data = imageData.data;
 
