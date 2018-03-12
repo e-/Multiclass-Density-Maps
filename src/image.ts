@@ -30,6 +30,31 @@ export default class Image {
                 this.pixels[r][c] = color;
             }
         }
+      }
+
+    fillByTile2(color:Color, tile:Tile, mask?:Mask) {
+        let ctx = this.imageCanvas.getContext("2d");
+        let pixels = ctx!.getImageData(0, 0, this.width, this.height);
+        let r1 = Math.round(color.r*255);
+        let g1 = Math.round(color.g*255);
+        let b1 = Math.round(color.b*255);
+        let a1 = Math.round(color.a*255);
+        for(let r = Math.ceil(tile.y); r < Math.min(this.height, tile.y + tile.mask.height); r++) {
+          for(let c = Math.ceil(tile.x); c < Math.min(this.width, tile.x + tile.mask.width); c++) {
+            // mask of the tile
+            if(tile.mask && tile.mask.mask[r-Math.ceil(tile.y)][c-Math.ceil(tile.x)] == 0)
+              continue;
+            // global mask
+            if(mask && r < mask.height && c < mask.width && mask.mask[r][c] == 0)
+              continue;
+
+            pixels.data[c*4+r*4*this.width +0] = r1;
+            pixels.data[c*4+r*4*this.width +1] = g1;
+            pixels.data[c*4+r*4*this.width +2] = b1;
+            pixels.data[c*4+r*4*this.width +3] = a1;
+          }
+        }
+        ctx!.putImageData(pixels, 0, 0);
     }
 
 

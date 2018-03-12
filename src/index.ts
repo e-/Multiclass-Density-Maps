@@ -457,13 +457,13 @@ export class TestMain {
             for(let tile of ustiles) {
               derivedBuffers11.forEach((derivedBuffer, i) => {
                   let color = derivedBuffers11[i].colorScale.map(tile.dataValues[i]);
-                  outputImage11.fillByTile(color, tile, derivedBuffers11[i].mask);
+                  outputImage11.fillByTile2(color, tile, derivedBuffers11[i].mask);
               });
             }
             //outputImage11.fillMask(derivedBuffers11[0].mask);
             //outputImage11.fillMask(ustiles[0].mask);
 
-            CanvasRenderer.render(outputImage11, 'canvas11');
+            CanvasRenderer.render2(outputImage11, 'canvas11');
 
             // draw frontiers
             if(d3.select("#border11").property("checked"))
@@ -565,5 +565,4 @@ export class TestMain {
         });
     }
 }
-
 export { default as extract } from './vega-extractor';
