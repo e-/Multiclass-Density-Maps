@@ -1,4 +1,5 @@
 import Color from './color';
+import {Digest} from 'tdigest';
 
 export interface ScaleTrait {
     map(value:number):number;
@@ -69,12 +70,23 @@ function arange(n:number): number[] {
 }
 
 export class EquiDepthScale implements ScaleTrait {
+    digest:Digest;
     bounds:number[];
 
     constructor(public domain: number[], public level:number = 10) {
-        let sorted = domain.slice();
-        sorted.sort();
-        this.bounds = arange(level - 1).map(i => sorted[Math.floor((i + 1) / level * domain.length)]);
+        // let sorted = domain.slice();
+        // sorted.sort();
+        // this.bounds = arange(level - 1).map(i => sorted[Math.floor((i + 1) / level * domain.length)]);
+        this.digest = new Digest();
+        this.digest.push(domain);
+        this.digest.compress();
+        this.bounds = this.digest.percentile(arange(level - 1).map(i => ((i+1)/ level)));
+    }
+
+    rebin(newLevel:number) {
+        if (this.level == newLevel) return;
+        this.level = newLevel;
+        this.bounds = this.digest.p_rank(arange(this.level - 1).map(i => ((i+1)/ this.level)));
     }
 
     map(value:number) { // TODO: use binary search?
