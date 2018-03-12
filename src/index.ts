@@ -257,6 +257,7 @@ export class TestMain {
 
 
         this.testUSVega();
+        this.testPunchcard();
     }
 
     testHexa(id:number){
@@ -453,19 +454,12 @@ export class TestMain {
 
             let outputImage11 = new Image(width!, height!);
 
-            for(let j in ustiles) {
-              let tile = ustiles[j];
-              //if (j!='0') continue;
+            for(let tile of ustiles) {
               derivedBuffers11.forEach((derivedBuffer, i) => {
-                {
                   let color = derivedBuffers11[i].colorScale.map(tile.dataValues[i]);
                   outputImage11.fillByTile2(color, tile, derivedBuffers11[i].mask);
-                }
               });
             }
-
-
-
             //outputImage11.fillMask(derivedBuffers11[0].mask);
             //outputImage11.fillMask(ustiles[0].mask);
 
@@ -485,7 +479,6 @@ export class TestMain {
         util.get('data/census_data.json').then(response => {
             let config = new Parser.Configuration(response);
 
-            // when we call load(), data spec and buffers are really loaded through AJAX
             return config.load('data/');
         }).then((config:Parser.Configuration) => {
           let width  = config.data!.dataSpec!.encoding!.x!.bin!.maxbins!;
@@ -531,9 +524,45 @@ export class TestMain {
                 for(let tile of ustiles) CanvasRenderer.drawVectorMask(tile.mask, 'canvas13');
             });
           });
-
         })
     }
-}
 
+    testPunchcard() {
+        let size = 32;
+        let biggerRectTiles = Tiling.rectangularTiling(this.width, this.height, size, size);
+
+        for(let tile of biggerRectTiles) {
+            tile.dataValues = tile.aggregate(this.dataBuffers, TileAggregation.Sum);
+        }
+
+        let maxCount = util.amax(biggerRectTiles.map(tile => util.amax(tile.dataValues)));
+
+        let derivedBuffers = this.dataBuffers.map((dataBuffer, i) => {
+            let derivedBuffer = new DerivedBuffer(dataBuffer);
+
+            derivedBuffer.color = Color.Category10[i];
+
+            return derivedBuffer;
+        });
+
+        let outputImage = new Image(this.width, this.height);
+        let promises = [];
+
+        for(let tile of biggerRectTiles) {
+            let promise = Composer.punchcard(derivedBuffers, tile.dataValues, {
+                width: size,
+                height: size,
+                'z.scale.domain': [0, maxCount * 5],
+            }).then((vegaPixels) => {
+                outputImage.putImageByTile(vegaPixels, tile);
+            })
+
+            promises.push(promise);
+        }
+
+        Promise.all(promises).then(() => {
+            CanvasRenderer.render(outputImage, 'canvas14');
+        });
+    }
+}
 export { default as extract } from './vega-extractor';
