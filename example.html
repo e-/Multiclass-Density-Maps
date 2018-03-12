@@ -217,9 +217,23 @@
 
         <table>
             <tr>
+                <th>Hatching</th><td>Aggregation</td><td>Parameters <input type="checkbox" checked onchange="testMain.testHatching()" id="border15"/>border</td>
                 <th>Bar chart using Vega.js</th>
             </tr>
             <tr>
+                <th><div id="slider15" style="margin-left:1px;display:inline-block;width:120px;height:10px"></div></th>
+                <td>
+                    <select id="compo15a" onchange="testMain.testHatching()"><option>Min</option><option>Max</option><option>Mean</option><option selected>Sum</option></select>
+                         <select id="compo15b" onchange="testMain.testHatching()"><option>Linear</option><option>Log</option><option>EquiDepth</option><option>SquareRoot</option><option selected>CubicRoot</option></select>
+                </td><td>
+                    <select id="compo15c" onchange="testMain.testHatching()"><option selected>Color</option><option>Constant</option></select>
+                    <select id="compo15d" onchange="testMain.testHatching()"><option selected>Width</option><option>Constant</option></select>
+                    <select id="compo15e" onchange="testMain.testHatching()"><option>0</option><option>33</option><option selected>45</option><option>66</option><option>90</option><option disabled>──────────</option></select>
+                </td>
+                <th>...</th>
+            </tr>
+            <tr>
+                <td colspan="3"><canvas id="canvas15"></canvas></td>
                 <td><canvas id="canvas13"></canvas></td>
             </tr>
         </table>

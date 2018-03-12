@@ -25,6 +25,7 @@ export default class CanvasRenderer {
     }
 
     static render2(image:Image, id:string, options:{blur?:number} = {}) : CanvasRenderingContext2D { // return the context
+        //console.log("render2 "+id+": "+image.width+"x"+image.height)
         let canvas:any = document.getElementById(id);
         canvas.width   = image.width;
         canvas.height  = image.height;

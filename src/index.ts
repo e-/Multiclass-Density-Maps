@@ -241,6 +241,16 @@ export class TestMain {
           }}
         );
 
+        this.testHatching();
+        jquery( "#slider15" ).css("background", "#ddd").slider({
+          min:   1,
+          value: 2,
+          max:   16,
+          slide:function( event:any, ui:any){
+            me.testHatching();
+          }}
+        );
+
         // small multiples
 
         // prepare nClass images
@@ -254,7 +264,6 @@ export class TestMain {
         })
 
         CanvasRenderer.renderMultiples(outputImages, 'canvas12');
-
 
         this.testUSVega();
         this.testPunchcard();
@@ -415,7 +424,7 @@ export class TestMain {
 
             let ustiles = Tiling.topojsonTiling(width!, height!, topous);
 
-            let weavingSize = jquery("#slider11").slider("option", "value")
+            let weavingSize = jquery("#slider11").slider("option", "value");
             let randomMasks = Mask.generateWeavingRandomMasks(dataBuffers.length, weavingSize, width!, height!);
 
             for(let tile of ustiles) {
@@ -445,7 +454,7 @@ export class TestMain {
                   derivedBuffer.colorScale = new Scale.CubicRootColorScale([1, maxCount], [Color.White, Color.Category10[i]]);
                 else if (jquery("#compo11b option:selected").text()=="SquareRoot")
                   derivedBuffer.colorScale = new Scale.SquareRootColorScale([1, maxCount], [Color.White, Color.Category10[i]]);
-                  else if (jquery("#compo11b option:selected").text()=="EquiDepth")
+                else if (jquery("#compo11b option:selected").text()=="EquiDepth")
                   derivedBuffer.colorScale = new Scale.EquiDepthColorScale([1, maxCount], [Color.White, Color.Category10[i]]);
                 derivedBuffer.mask       = randomMasks[i];
 
@@ -456,8 +465,9 @@ export class TestMain {
 
             for(let tile of ustiles) {
               derivedBuffers11.forEach((derivedBuffer, i) => {
-                  let color = derivedBuffers11[i].colorScale.map(tile.dataValues[i]);
+                  let color  = derivedBuffers11[i].colorScale.map(tile.dataValues[i]);
                   outputImage11.fillByTile2(color, tile, derivedBuffers11[i].mask);
+
               });
             }
             //outputImage11.fillMask(derivedBuffers11[0].mask);
@@ -469,6 +479,99 @@ export class TestMain {
             if(d3.select("#border11").property("checked"))
               for(let tile of ustiles)
                 CanvasRenderer.drawVectorMask(tile.mask, 'canvas11');
+
+          });
+
+        })
+    }
+
+
+    testHatching(){
+      util.get('data/census_data.json').then(response => {
+            let config = new Parser.Configuration(response);
+
+            // when we call load(), data spec and buffers are really loaded through AJAX
+            return config.load('data/');
+        }).then((config:Parser.Configuration) => {
+
+          let width  = config.data!.dataSpec!.encoding!.x!.bin!.maxbins;
+          let height = config.data!.dataSpec!.encoding!.y!.bin!.maxbins;
+
+          if (!width || !height) {
+            width  = 256;
+            height = 256;
+          }
+
+
+          util.get("data/us.json").then(result => {
+            let topous = JSON.parse(result);
+
+            let dataBuffers = config.data!.dataSpec!.buffers!.map((bufferSpec, i) => {
+              let db:DataBuffer = new DataBuffer(bufferSpec.value, width?width:100, height?height:100, bufferSpec.data);
+              jquery('#compo15e').append("<option value='"+i+"'>buffer "+bufferSpec.value+"</option>");
+              return db;
+              }
+            );
+
+            let ustiles = Tiling.topojsonTiling(width!, height!, topous);
+
+            for(let tile of ustiles) {
+                // tile.dataValues are an array of numbers
+                if (jquery("#compo15a option:selected").text()=='Min')
+                  tile.dataValues = tile.aggregate(dataBuffers, TileAggregation.Min);
+                else if (jquery("#compo15a option:selected").text()=='Sum')
+                  tile.dataValues = tile.aggregate(dataBuffers, TileAggregation.Sum);
+                else if (jquery("#compo15a option:selected").text()=='Mean')
+                  tile.dataValues = tile.aggregate(dataBuffers, TileAggregation.Mean);
+                else if (jquery("#compo15a option:selected").text()=='Max')
+                  tile.dataValues = tile.aggregate(dataBuffers, TileAggregation.Max);
+            }
+
+
+            // get max count of bins for scale
+            let maxCount = util.amax(ustiles.map(tile => util.amax(tile.dataValues)));
+
+            let derivedBuffers15 = dataBuffers.map((dataBuffer, i) => {
+                let derivedBuffer = new DerivedBuffer(dataBuffer);
+
+                if (jquery("#compo15b option:selected").text()=="Linear")
+                  derivedBuffer.colorScale = new Scale.LinearColorScale([1, maxCount], [Color.White, Color.Category10[i]]);
+                else if (jquery("#compo15b option:selected").text()=="Log")
+                  derivedBuffer.colorScale = new Scale.LogColorScale([1, maxCount], [Color.White, Color.Category10[i]]);
+                else if (jquery("#compo15b option:selected").text()=="CubicRoot")
+                  derivedBuffer.colorScale = new Scale.CubicRootColorScale([1, maxCount], [Color.White, Color.Category10[i]]);
+                else if (jquery("#compo15b option:selected").text()=="SquareRoot")
+                  derivedBuffer.colorScale = new Scale.SquareRootColorScale([1, maxCount], [Color.White, Color.Category10[i]]);
+                else if (jquery("#compo15b option:selected").text()=="EquiDepth")
+                  derivedBuffer.colorScale = new Scale.EquiDepthColorScale([1, maxCount], [Color.White, Color.Category10[i]]);
+
+                return derivedBuffer;
+            });
+
+            let outputImage15 = new Image(width!, height!);
+            let hatchingSize  = jquery("#slider15").slider("option", "value")
+
+            for(let tile of ustiles) {
+              let colors:Color[] = [];
+              for(let i in derivedBuffers15)
+                if (jquery("#compo15c option:selected").text()=='Color')
+                  colors[i]  = derivedBuffers15[i].colorScale.map(tile.dataValues[i]);
+                else
+                  colors[i]  =Color.Category10[i];
+
+              let propWidth =false;
+              if (jquery("#compo15d option:selected").text()=='Width')
+                propWidth = true;
+
+              outputImage15.drawTilePattern2(tile.makeHatchPattern(colors, propWidth, hatchingSize, Math.PI*parseInt(jquery("#compo15e option:selected").text())/180), tile.x+tile.mask.width/2, tile.y+tile.mask.height/2);
+            }
+
+            CanvasRenderer.render2(outputImage15, 'canvas15');
+
+            // draw frontiers
+            if(d3.select("#border15").property("checked"))
+              for(let tile of ustiles)
+                CanvasRenderer.drawVectorMask(tile.mask, 'canvas15');
 
           });
 

@@ -33,8 +33,8 @@ export default class Image {
       }
 
     fillByTile2(color:Color, tile:Tile, mask?:Mask) {
-        let ctx = this.imageCanvas.getContext("2d");
-        let pixels = ctx!.getImageData(0, 0, this.width, this.height);
+        let ctx = this.imageCanvas.getContext("2d")!;
+        let pixels = ctx.getImageData(0, 0, this.width, this.height);
         let r1 = Math.round(color.r*255);
         let g1 = Math.round(color.g*255);
         let b1 = Math.round(color.b*255);
@@ -54,7 +54,17 @@ export default class Image {
             pixels.data[c*4+r*4*this.width +3] = a1;
           }
         }
-        ctx!.putImageData(pixels, 0, 0);
+        ctx.putImageData(pixels, 0, 0);
+    }
+
+    drawTilePattern2(canvas:HTMLCanvasElement, x:number, y:number){
+
+      let ctx = this.imageCanvas.getContext("2d")!;
+      ctx.save();
+      ctx.translate(x, y);
+      //ctx.scale(0.5, 0.5);
+      ctx.drawImage(canvas, -canvas.width/2, -canvas.height/2);
+      ctx.restore();
     }
 
 
