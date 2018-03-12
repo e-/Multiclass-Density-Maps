@@ -552,7 +552,7 @@ export class TestMain {
             let promise = Composer.punchcard(derivedBuffers, tile.dataValues, {
                 width: size,
                 height: size,
-                'z.scale.domain': [0, maxCount * 2],
+                'z.scale.domain': [0, maxCount * 5],
             }).then((vegaPixels) => {
                 outputImage.putImageByTile(vegaPixels, tile);
             })
