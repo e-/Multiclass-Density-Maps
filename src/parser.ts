@@ -143,9 +143,10 @@ export interface ConfigurationReencodingSpec {
     hatching?: ConfigurationReencodingHatchingSpec;
 }
 
-export interface ComposeSpec {
-    mix: string; // "min"|"max"|"blend"|"none";
-    mixing: "additive"|"subtractive";
+export class ComposeSpec {
+    mix: "none"|"min"|"mean"|"max"|"blend"|"weavingrandom"|"weavingsquare"|"weavinghex"="mean";
+    mixing: "additive"|"subtractive" = "additive";
+    tilesize: number = 8;
 }
 
 

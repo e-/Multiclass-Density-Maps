@@ -11,6 +11,7 @@ import Color from './color';
 import Composer from './composer';
 import * as Scale from './scale';
 import * as util from './util';
+import Mask from './mask';
 
 export default class Interpreter {
     public width: number;
@@ -31,7 +32,8 @@ export default class Interpreter {
     public rebin: any;
     public rescale:"none"|"linear"|"log"|"pow"|"sqrt"|"cbrt"|"equidepth" = "none";
     public compose:Parser.ComposeSpec;
-    public composer:(buffers:DerivedBuffer[], values:number[])=>Color;
+    public composer:(buffers:DerivedBuffer[], values:number[])=>Color = Composer.none;
+    public masks:Mask[] = [];
 
     constructor(public configuration:Parser.Configuration) {
         if (! configuration.validate())
@@ -51,17 +53,9 @@ export default class Interpreter {
         }
         this.rebin = configuration.rebin;
         if (configuration.compose === undefined)
-            this.compose = {"mix": "none", "mixing": "additive"};
+            this.compose = new Parser.ComposeSpec();
         else
             this.compose = configuration.compose;
-        if (this.compose.mix === "max")
-            this.composer = Composer.max;
-        else if (this.compose.mix === "mean")
-            this.composer = Composer.mean;
-        else if (this.compose.mix === "min")
-            this.composer = Composer.min;
-        else
-            this.composer = Composer.max;
         if (configuration.rescale)
             this.rescale = configuration.rescale;
     }
@@ -70,6 +64,7 @@ export default class Interpreter {
         this.computeDerivedBuffers(context);
         this.computeReencoding(context);
         this.computeRebin(context);
+        this.computeCompose(context);
     }
 
     computeDerivedBuffers(context={}) {
@@ -120,6 +115,29 @@ export default class Interpreter {
     computeReencoding(context={}) {
     }
 
+    computeCompose(context={}) {        
+        if (this.compose.mix === "max")
+            this.composer = Composer.max;
+        else if (this.compose.mix === "mean")
+            this.composer = Composer.mean;
+        else if (this.compose.mix === "min")
+            this.composer = Composer.min;
+        else if (this.compose.mix === "blend")
+            this.composer = Composer.additiveMix;
+        else if (this.compose.mix === "weavingrandom")
+            this.masks = Mask.generateWeavingRandomMasks(this.n,
+                                                         this.compose.tilesize||8,
+                                                         this.width, this.height);
+        else if (this.compose.mix === "weavingsquare")
+            this.masks = Mask.generateWeavingSquareMasks(this.n,
+                                                         this.compose.tilesize||8,
+                                                         this.width, this.height);
+        else if (this.compose.mix === "weavinghex")
+            this.masks = Mask.generateWeavingHexaMasks(this.n,
+                                                       this.compose.tilesize||8,
+                                                       this.width, this.height);
+    }
+
     render(id:string) {
         for (let tile of this.tiles) {
             tile.dataValues = tile.aggregate(this.dataBuffers, this.tileAggregation);
@@ -147,13 +165,27 @@ export default class Interpreter {
         this.derivedBuffers = this.dataBuffers.map((dataBuffer, i) => {
             let derivedBuffer = new DerivedBuffer(dataBuffer);
             derivedBuffer.colorScale = new Scale.ColorScale([Color.White, this.colors[i]], scale);
+            if (this.masks.length > i)
+                derivedBuffer.mask = this.masks[i];
             return derivedBuffer;
         });
 
-        for(let tile of this.tiles) {
-            let color = this.composer(this.derivedBuffers, tile.dataValues);
-            this.image.render(color, tile);
+        if (this.composer != Composer.none) {
+            for(let tile of this.tiles) {
+                let color = this.composer(this.derivedBuffers, tile.dataValues);
+                this.image.render(color, tile);
+            }
         }
+        else if (this.masks.length > 0) { // no composer
+            for (let tile of this.tiles) {
+                this.derivedBuffers.forEach((derivedBuffer, i) => {
+                    let color = derivedBuffer.colorScale.map(tile.dataValues[i]);
+                    this.image.render(color, tile, derivedBuffer.mask);
+                });
+            }
+        }
+        else 
+            console.log('No valid composition');
         //CanvasRenderer.render(image, id);
         let ctx = CanvasRenderer.render(this.image, id);
         // if (this.strokeCanvas) {

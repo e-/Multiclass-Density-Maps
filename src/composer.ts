@@ -60,6 +60,10 @@ export default class Composer {
         return ret;
     }
 
+    static none(buffers:DerivedBuffer[], values:number[]):Color {
+        return Color.None;
+    }
+
     static one(buffer:DerivedBuffer, value:number):Color {
         return buffer.colorScale.map(value);
     }
