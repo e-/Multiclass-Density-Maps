@@ -71,22 +71,26 @@ function arange(n:number): number[] {
 
 export class EquiDepthScale implements ScaleTrait {
     digest:Digest;
-    bounds:number[];
+    bounds:number[] = [];
 
     constructor(public domain: number[], public level:number = 10) {
         this.digest = new Digest();
         this.digest.push(domain);
-        this.digest.compress();
-        this.bounds = this.digest.percentile(arange(level - 1).map(i => ((i+1)/ level)));
     }
 
-    rebin(newLevel:number) {
-        if (this.level == newLevel) return;
-        this.level = newLevel;
-        this.bounds = this.digest.p_rank(arange(this.level - 1).map(i => ((i+1)/ this.level)));
+    addPoints(domain: number[]) {
+        this.digest.push(domain);
+    }
+
+    computeBounds() {
+        this.digest.compress();
+        this.bounds = this.digest.percentile(arange(this.level - 1).map(i => ((i+1)/ this.level)));
     }
 
     map(value:number) { // TODO: use binary search?
+        if (this.bounds.length==0) {
+            this.computeBounds();
+        }
         for(let i = 0; i < this.level - 1; i++) {
             if(value < this.bounds[i]) return i;
         }

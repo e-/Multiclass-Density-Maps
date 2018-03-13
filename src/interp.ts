@@ -2,20 +2,25 @@
 
 import * as Parser from './parser';
 import DataBuffer from './data-buffer';
+import DerivedBuffer from './derived-buffer';
 import CanvasRenderer from './canvas-renderer';
 import Image from './image';
 import * as Tiling from './tiling';
-import Tile from './tile';
+import Tile, {TileAggregation} from './tile';
 import Color from './color';
-
+import Composer from './composer';
+import * as Scale from './scale';
+import * as util from './util';
 
 export default class Interpreter {
     public width: number;
     public height: number;
     public n:number = 0;
     public dataBuffers:DataBuffer[] = [];
+    public derivedBuffers: DerivedBuffer[] = [];
     public image:Image;
-    public tiling:Tile[] = [];
+    public tiles:Tile[] = [];
+    public tileAggregation=TileAggregation.Mean;
     public strokeCanvas:boolean = false;
     public backgroundStroke = "grey";
     public fillCanvas:boolean = true;
@@ -24,6 +29,9 @@ export default class Interpreter {
     public colors:Color[] = Color.Category10;
     public labels:Map<string,string>;
     public rebin:any;
+    public rescale:"none"|"linear"|"log"|"pow"|"sqrt"|"cbrt"|"equidepth" = "none";
+    public compose:Parser.ComposeSpec;
+    public composer:(buffers:DerivedBuffer[], values:number[])=>Color;
 
     constructor(public configuration:Parser.Configuration) {
         if (! configuration.validate())
@@ -32,6 +40,7 @@ export default class Interpreter {
         this.height = configuration.height!;
         this.image = new Image(this.width, this.height);
         this.bufferNames = configuration.bufferNames;
+        this.n = this.bufferNames.length;
         this.dataBuffers = configuration.getBuffers();
         this.labels = configuration.getLabels();
         let colormap = configuration.getColors();
@@ -41,6 +50,20 @@ export default class Interpreter {
             console.log('Not enough colors in colormap, ignored');
         }
         this.rebin = configuration.rebin;
+        if (configuration.compose === undefined)
+            this.compose = {"mix": "none", "mixing": "additive"};
+        else
+            this.compose = configuration.compose;
+        if (this.compose.mix === "max")
+            this.composer = Composer.max;
+        else if (this.compose.mix === "mean")
+            this.composer = Composer.mean;
+        else if (this.compose.mix === "min")
+            this.composer = Composer.min;
+        else
+            this.composer = Composer.max;
+        if (configuration.rescale)
+            this.rescale = configuration.rescale;
     }
 
     public interpret(context={}) {
@@ -52,16 +75,16 @@ export default class Interpreter {
     }
 
     computeRebin(context={}) {
-        var tiling = this.tiling;
+        var tiles = this.tiles;
         if (! this.rebin || this.rebin.type=="none") {
             console.log('No rebin');
-            tiling = Tiling.pixelTiling(this.width,
+            tiles = Tiling.pixelTiling(this.width,
                                         this.height);
         }
         else if (this.rebin.type == "square") {
             let size = this.rebin.size || 10;
             console.log('Square rebin size='+size);
-            tiling = Tiling.rectangularTiling(this.width,
+            tiles = Tiling.rectangularTiling(this.width,
                                               this.height,
                                               size, size);
         }
@@ -69,7 +92,7 @@ export default class Interpreter {
             let width = this.rebin.width || 10,
                 height = this.rebin.height || 10;
             console.log('Square rebin w='+width+' h='+height);
-            tiling = Tiling.rectangularTiling(this.width,
+            tiles = Tiling.rectangularTiling(this.width,
                                               this.height,
                                               width, height);
         }
@@ -79,24 +102,57 @@ export default class Interpreter {
             console.log('topojson rebin url='+url
                         +' feature='+feature);
             // TODO get the projection, transform, clip, etc.
-            tiling = Tiling.topojsonTiling(this.width,
+            tiles = Tiling.topojsonTiling(this.width,
                                            this.height,
                                            feature);
         }
         else if (this.rebin.type == "voronoi") {
             let points = this.rebin.sites || 4;
             console.log('voronoi rebin sites='+points);
-            tiling = Tiling.voronoiTiling(this.width,
+            tiles = Tiling.voronoiTiling(this.width,
                                           this.height,
                                           points);
         }
-        this.tiling = tiling;
+        this.tiles = tiles;
     }
 
     computeReencoding(context={}) {
     }
 
     render(id:string) {
+        for (let tile of this.tiles) {
+            tile.dataValues = tile.aggregate(this.dataBuffers, this.tileAggregation);
+        }
+        var scale:Scale.ScaleTrait;
+        let maxCount = util.amax(this.tiles.map(tile => util.amax(tile.dataValues)));
+        // TODO test if scales are per-buffer or shared, for now, we'll make one per buffer
+        if (this.rescale === "linear")
+            scale = new Scale.LinearScale([0, maxCount], [0, 1]);
+        else if (this.rescale === "sqrt") 
+            scale = new Scale.SquareRootScale([0, maxCount], [0, 1]);
+        else if (this.rescale === "cbrt") 
+            scale = new Scale.CubicRootScale([0, maxCount], [0, 1]);
+        else if (this.rescale === "log") 
+            scale = new Scale.LogScale([1, maxCount], [0, 1]);
+        else if (this.rescale === "equidepth") {
+            let equidepth = new Scale.EquiDepthScale([]);
+            for (let tile of this.tiles)
+                equidepth.addPoints(tile.dataValues);
+            equidepth.computeBounds();
+            scale = equidepth;
+        }
+        
+        
+        this.derivedBuffers = this.dataBuffers.map((dataBuffer, i) => {
+            let derivedBuffer = new DerivedBuffer(dataBuffer);
+            derivedBuffer.colorScale = new Scale.ColorScale([Color.White, this.colors[i]], scale);
+            return derivedBuffer;
+        });
+
+        for(let tile of this.tiles) {
+            let color = Composer.max(this.derivedBuffers, tile.dataValues);
+            this.image.render(color, tile);
+        }
         //CanvasRenderer.render(image, id);
         let ctx = CanvasRenderer.render(this.image, id);
         if (this.strokeCanvas) {
@@ -108,3 +164,4 @@ export default class Interpreter {
     }
 
 }
+

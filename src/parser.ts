@@ -117,9 +117,6 @@ export interface ConfigurationReencodingColorScaleSpec {
     domain?: string[];
     range: string[];
     type?: string;
-    assembly?: {type: string};
-    colorspace?: string;
-    mixing?: string
 }
 
 export interface ConfigurationReencodingFacetSpec {
@@ -146,12 +143,20 @@ export interface ConfigurationReencodingSpec {
     hatching?: ConfigurationReencodingHatchingSpec;
 }
 
+export interface ComposeSpec {
+    mix: string; // "min"|"max"|"blend"|"none";
+    mixing: "additive"|"subtractive";
+}
+
+
 export class Configuration {
     description?: string;
     background?: string;
     data?: ConfigurationDataSpec;
     reencoding?: ConfigurationReencodingSpec;
     rebin: any;
+    compose?: ComposeSpec;
+    rescale: "none"|"linear"|"log"|"pow"|"sqrt"|"cbrt"|"equidepth" = "none";
     width: number = -1;
     height: number= -1;
     bufferNames:string[] = [];
@@ -167,6 +172,8 @@ export class Configuration {
         this.parseDerivedBuffers();
         this.parseReencoding();
         this.parseRebin();
+        this.parseCompose();
+        this.parseRescale();
     }
 
     parseDescription() {
@@ -188,6 +195,15 @@ export class Configuration {
     parseRebin() {
         if (this.specs.rebin)
             this.rebin = this.specs.rebin;
+    }
+    parseCompose() {
+        if (this.specs.compose)
+            this.compose = this.specs.compose
+    }
+
+    parseRescale() {
+        if (this.specs.rescale)
+            this.rescale = this.specs.rescale.type;
     }
 
     public validate():boolean {

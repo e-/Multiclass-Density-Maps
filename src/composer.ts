@@ -19,6 +19,20 @@ export default class Composer {
         return buffers[bestIndex].colorScale.map(best);
     }
 
+    static min(buffers:DerivedBuffer[], values:number[]):Color {
+        let best = values[0];
+        let bestIndex = 0;
+
+        values.forEach((value, i) => {
+          if(value < best) {
+            best = value;
+            bestIndex = i;
+          }
+        });
+
+        return buffers[bestIndex].colorScale.map(best);
+    }
+
     static mean(buffers:DerivedBuffer[], values:number[]):Color {
         let sum = 0;
         let ret = new Color(0, 0, 0, 0);

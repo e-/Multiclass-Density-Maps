@@ -78,6 +78,7 @@ export default class Color {
         return Color.compose(a, 1 - r, b, r);
     }
 
+    static None = new Color(0, 0, 0, 0);
     static White = new Color(1, 1, 1, 1);
     static Black = new Color(0, 0, 0, 1);
     static Blue = new Color(31 / 255, 120 / 255, 180 / 255, 1); // Blue
@@ -91,6 +92,7 @@ export default class Color {
     static Yellow = new Color(188 / 255, 189 / 255, 34 / 255, 1);
     static Skyblue = new Color(23 / 255, 190 / 255, 207 / 255, 1);
     static ColorByName:any = {
+        "None": Color.None,
         "white": Color.White,
         "Black": Color.Black,
         "blue": Color.Blue,
@@ -107,7 +109,7 @@ export default class Color {
     static byName(name:string): Color {
         if (name in Color.ColorByName)
             return <Color>Color.ColorByName[name];
-         return Color.Black;
+         return Color.None;
     };
 
     static Category10 = [Color.Blue, Color.Orange, Color.Green, Color.Red, Color.Purple, Color.Brown, Color.Pink, Color.Gray, Color.Yellow, Color.Skyblue];
