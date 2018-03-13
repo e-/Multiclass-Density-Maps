@@ -107,6 +107,7 @@ export default class Color {
         "skyblue": Color.Skyblue
     };
     static byName(name:string): Color {
+        name = name.toLowerCase();
         if (name in Color.ColorByName)
             return <Color>Color.ColorByName[name];
          return Color.None;

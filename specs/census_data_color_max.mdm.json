@@ -16,8 +16,7 @@
             "field": "z",
             "type": "nominal",
             "scale": {
-                "range": ["Blue", "Orange", "Red", "Green", "Brown"],
-                "scale": "log"
+                "range": ["Blue", "Orange", "Red", "Green", "Brown"]
             }
         }
     },
@@ -27,6 +26,6 @@
         "mixing": "additive"
     },
     "rescale": {
-        "type": "equidepth"
+        "type": "log"
     }
 }

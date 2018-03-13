@@ -1,5 +1,6 @@
 import Color from './color';
 import {Digest} from 'tdigest';
+import {positive} from './util';
 
 export interface ScaleTrait {
     map(value:number):number;
@@ -75,11 +76,11 @@ export class EquiDepthScale implements ScaleTrait {
 
     constructor(public domain: number[], public level:number = 10) {
         this.digest = new Digest();
-        this.digest.push(domain);
+        this.digest.push(domain.filter(positive));
     }
 
     addPoints(domain: number[]) {
-        this.digest.push(domain);
+        this.digest.push(domain.filter(positive));
     }
 
     computeBounds() {

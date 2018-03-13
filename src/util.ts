@@ -1,3 +1,5 @@
+export function positive(x:number) { return x > 0; }
+
 export function create2D<T>(width:number, height:number, value:T) {
     let arr:T[][] = [];
     for(let i = 0; i < height; ++i) {

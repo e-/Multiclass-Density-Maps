@@ -28,7 +28,7 @@ export default class Interpreter {
     public bufferNames:string[];
     public colors:Color[] = Color.Category10;
     public labels:Map<string,string>;
-    public rebin:any;
+    public rebin: any;
     public rescale:"none"|"linear"|"log"|"pow"|"sqrt"|"cbrt"|"equidepth" = "none";
     public compose:Parser.ComposeSpec;
     public composer:(buffers:DerivedBuffer[], values:number[])=>Color;
@@ -69,6 +69,7 @@ export default class Interpreter {
     public interpret(context={}) {
         this.computeDerivedBuffers(context);
         this.computeReencoding(context);
+        this.computeRebin(context);
     }
 
     computeDerivedBuffers(context={}) {
@@ -76,7 +77,7 @@ export default class Interpreter {
 
     computeRebin(context={}) {
         var tiles = this.tiles;
-        if (! this.rebin || this.rebin.type=="none") {
+        if (this.rebin.type===undefined || this.rebin.type=="none") {
             console.log('No rebin');
             tiles = Tiling.pixelTiling(this.width,
                                         this.height);
@@ -150,17 +151,17 @@ export default class Interpreter {
         });
 
         for(let tile of this.tiles) {
-            let color = Composer.max(this.derivedBuffers, tile.dataValues);
+            let color = this.composer(this.derivedBuffers, tile.dataValues);
             this.image.render(color, tile);
         }
         //CanvasRenderer.render(image, id);
         let ctx = CanvasRenderer.render(this.image, id);
-        if (this.strokeCanvas) {
-            ctx.setTransform(1, 0, 0, 1, 0, 0); // reset
-            ctx.strokeStyle = this.backgroundStroke;
-            ctx.lineWidth = 2;
-            ctx.strokeRect(0, 0, this.width, this.height);
-        }
+        // if (this.strokeCanvas) {
+        //     ctx.setTransform(1, 0, 0, 1, 0, 0); // reset
+        //     ctx.strokeStyle = this.backgroundStroke;
+        //     ctx.lineWidth = 2;
+        //     ctx.strokeRect(0, 0, this.width, this.height);
+        // }
     }
 
 }
