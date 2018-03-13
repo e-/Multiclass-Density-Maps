@@ -137,13 +137,13 @@ export class TestMain {
 
         for(let tile of rectTiles) {
             let color1 = Composer.max(derivedBuffers1, tile.dataValues);
-            outputImage1.fillByTile(color1, tile);
+            outputImage1.render(color1, tile);
 
             let color2 = Composer.max(derivedBuffers2, tile.dataValues);
-            outputImage2.fillByTile(color2, tile);
+            outputImage2.render(color2, tile);
 
             let color3 = Composer.max(derivedBuffers3, tile.dataValues);
-            outputImage3.fillByTile(color3, tile);
+            outputImage3.render(color3, tile);
         }
 
         CanvasRenderer.render(outputImage1, 'canvas1');
@@ -186,12 +186,12 @@ export class TestMain {
         for(let tile of bigRectTiles) {
             derivedBuffers4.forEach((derivedBuffer, i) => {
                 let color = derivedBuffer.colorScale.map(tile.dataValues[i]);
-                outputImage4.fillByTile(color, tile, derivedBuffer.mask);
+                outputImage4.render(color, tile, derivedBuffer.mask);
             });
 
             derivedBuffers5.forEach((derivedBuffer, i) => {
                 let color = derivedBuffer.colorScale.map(tile.dataValues[i]);
-                outputImage5.fillByTile(color, tile, derivedBuffer.mask);
+                outputImage5.render(color, tile, derivedBuffer.mask);
             });
         }
 
@@ -204,10 +204,10 @@ export class TestMain {
 
         for(let tile of rectTiles) {
             let color7 = Composer.mean(derivedBuffers1, tile.dataValues);
-            outputImage7.fillByTile(color7, tile);
+            outputImage7.render(color7, tile);
 
             let color8 = Composer.additiveMix(derivedBuffers1, tile.dataValues);
-            outputImage8.fillByTile(color8, tile);
+            outputImage8.render(color8, tile);
         }
 
         CanvasRenderer.render(outputImage7, 'canvas7');
@@ -259,7 +259,7 @@ export class TestMain {
         derivedBuffers3.forEach((derivedBuffer, i) => {
             for(let tile of rectTiles) {
                 let color = Composer.one(derivedBuffer, tile.dataValues[i]);
-                outputImages[i].fillByTile(color, tile);
+                outputImages[i].render(color, tile);
             }
         })
 
@@ -303,11 +303,11 @@ export class TestMain {
           for(let tile of bigRectTiles) {
             derivedBuffers6.forEach((derivedBuffer, i) => {
                 let color = derivedBuffer.colorScale.map(tile.dataValues[i]);
-                outputImage6.fillByTile(color, tile, derivedBuffer.mask);
+                outputImage6.render(color, tile, derivedBuffer.mask);
             });
           }
         else{
-          outputImage6.fillMask(derivedBuffers6[id].mask);
+        //   outputImage6.fillMask(derivedBuffers6[id].mask);
         }
 
         CanvasRenderer.render(outputImage6, 'canvas6');
@@ -338,7 +338,7 @@ export class TestMain {
         for(let tile of voronoiTiles) {
           derivedBuffers9.forEach((derivedBuffer, i) => {
               let color = derivedBuffer.colorScale.map(tile.dataValues[i]);
-              outputImage9.fillByTile(color, tile, derivedBuffer.mask);
+              outputImage9.render(color, tile, derivedBuffer.mask);
           });
         }
 
@@ -389,7 +389,7 @@ export class TestMain {
 
             for(let tile of tiles) {
                 let color1 = Composer.max(derivedBuffers, tile.dataValues);
-                outputImage.fillByTile(color1, tile);
+                outputImage.render(color1, tile);
             }
 
             CanvasRenderer.render(outputImage, 'canvas10');
@@ -466,14 +466,12 @@ export class TestMain {
             for(let tile of ustiles) {
               derivedBuffers11.forEach((derivedBuffer, i) => {
                   let color  = derivedBuffers11[i].colorScale.map(tile.dataValues[i]);
-                  outputImage11.fillByTile2(color, tile, derivedBuffers11[i].mask);
+                  outputImage11.render(color, tile, derivedBuffers11[i].mask);
 
               });
             }
-            //outputImage11.fillMask(derivedBuffers11[0].mask);
-            //outputImage11.fillMask(ustiles[0].mask);
 
-            CanvasRenderer.render2(outputImage11, 'canvas11');
+            CanvasRenderer.render(outputImage11, 'canvas11');
 
             // draw frontiers
             if(d3.select("#border11").property("checked"))
@@ -517,7 +515,6 @@ export class TestMain {
             let ustiles = Tiling.topojsonTiling(width!, height!, topous);
 
             for(let tile of ustiles) {
-                // tile.dataValues are an array of numbers
                 if (jquery("#compo15a option:selected").text()=='Min')
                   tile.dataValues = tile.aggregate(dataBuffers, TileAggregation.Min);
                 else if (jquery("#compo15a option:selected").text()=='Sum')
@@ -528,8 +525,6 @@ export class TestMain {
                   tile.dataValues = tile.aggregate(dataBuffers, TileAggregation.Max);
             }
 
-
-            // get max count of bins for scale
             let maxCount = util.amax(ustiles.map(tile => util.amax(tile.dataValues)));
 
             let derivedBuffers15 = dataBuffers.map((dataBuffer, i) => {
@@ -553,21 +548,28 @@ export class TestMain {
             let hatchingSize  = jquery("#slider15").slider("option", "value")
 
             for(let tile of ustiles) {
-              let colors:Color[] = [];
-              for(let i in derivedBuffers15)
-                if (jquery("#compo15c option:selected").text()=='Color')
-                  colors[i]  = derivedBuffers15[i].colorScale.map(tile.dataValues[i]);
+                let colors:Color[] = [];
+
+                for(let i in derivedBuffers15)
+                    if (jquery("#compo15c option:selected").text()=='Color')
+                        derivedBuffers15[i].color = derivedBuffers15[i].colorScale.map(tile.dataValues[i]);
+                    else
+                        derivedBuffers15[i].color = Color.Category10[i];
+
+                let propWidth = false;
+
+                if (jquery("#compo15d option:selected").text()=='Width')
+                    propWidth = true;
+
+                if (jquery("#compo15f option:selected").text()=="Align")
+                    derivedBuffers15.forEach((buffer) => { buffer.angle = Math.PI*parseInt(jquery("#compo15e option:selected").text())/180; })
                 else
-                  colors[i]  =Color.Category10[i];
+                    derivedBuffers15.forEach((buffer, i) => { buffer.angle = Math.PI * i / 8; })
 
-              let propWidth =false;
-              if (jquery("#compo15d option:selected").text()=='Width')
-                propWidth = true;
-
-              if (jquery("#compo15f option:selected").text()=="Align")
-                outputImage15.drawTilePattern2(tile.makeHatchPattern(colors, propWidth, hatchingSize, Math.PI*parseInt(jquery("#compo15e option:selected").text())/180), tile.x+tile.mask.width/2, tile.y+tile.mask.height/2);
-              else if (jquery("#compo15f option:selected").text()=="Over")
-                outputImage15.drawTilePattern2(tile.makeHatchPattern2(colors, propWidth, hatchingSize, [Math.PI*0/8, Math.PI*1/8, Math.PI*2/8, Math.PI*3/8, Math.PI*4/8]), tile.x+tile.mask.width/2, tile.y+tile.mask.height/2);
+                outputImage15.render(
+                    Composer.hatch(tile, derivedBuffers15, hatchingSize, propWidth),
+                    tile.center()
+                );
             }
 
             CanvasRenderer.render2(outputImage15, 'canvas15');
@@ -620,7 +622,7 @@ export class TestMain {
                     'y.scale.domain': [1, maxCount],
                     'y.scale.type': 'sqrt'
                 }).then((vegaPixels) => {
-                    outputImage.putImageByTile(vegaPixels, tile);
+                    outputImage.render(vegaPixels, tile);
                 })
 
                 promises.push(promise);
@@ -661,7 +663,7 @@ export class TestMain {
                 height: size,
                 'z.scale.domain': [0, maxCount * 5],
             }).then((vegaPixels) => {
-                outputImage.putImageByTile(vegaPixels, tile);
+                outputImage.render(vegaPixels, tile);
             })
 
             promises.push(promise);

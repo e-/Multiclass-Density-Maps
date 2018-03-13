@@ -35,7 +35,6 @@ export default class CanvasRenderer {
         return ctx;
     }
 
-
     static renderToImageData(image:Image, imageData:ImageData) {
         let data = imageData.data;
 

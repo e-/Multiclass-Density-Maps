@@ -51,9 +51,6 @@ export default class Mask {
         let i:number, j:number;
         size = Math.floor(size);
 
-
-
-
         if (xincr < 0) {
             xincr = m + (xincr % m)
         }

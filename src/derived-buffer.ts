@@ -10,6 +10,7 @@ export default class DerivedBuffer {
 
     colorScale:Scale.ColorScale = new Scale.LinearColorScale([0, 1], [Color.White, Color.Black]);
     color?:Color;
+    angle?:number;
 
     constructor(public originalDataBuffer:DataBuffer) {
     }
