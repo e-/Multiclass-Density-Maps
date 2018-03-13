@@ -74,9 +74,6 @@ export class EquiDepthScale implements ScaleTrait {
     bounds:number[];
 
     constructor(public domain: number[], public level:number = 10) {
-        // let sorted = domain.slice();
-        // sorted.sort();
-        // this.bounds = arange(level - 1).map(i => sorted[Math.floor((i + 1) / level * domain.length)]);
         this.digest = new Digest();
         this.digest.push(domain);
         this.digest.compress();
