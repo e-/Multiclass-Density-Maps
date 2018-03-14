@@ -12,7 +12,6 @@ import Composer from './composer';
 import * as Scale from './scale';
 import * as util from './util';
 import Mask from './mask';
-import {gaussian_blur} from './gaussian-blur';
 
 export default class Interpreter {
     public width: number;
@@ -75,19 +74,8 @@ export default class Interpreter {
 
     computeDerivedBuffers(context={}) {
         if (this.blur > 0) {
-            var newbuffers = this.dataBuffers.map((dataBuffer):number[][] => {
-                let source = Array.prototype.concat.apply(dataBuffer.values[0],
-                                                              dataBuffer.values.slice(1)),
-                    target = new Array(this.width*this.height);
-                gaussian_blur(source, target, this.width, this.height, this.blur);
-                var new_array = Array(this.height);
-                for (var i = 0; i < this.height; i++) 
-                    new_array[i] = target.slice(i*this.width, (i+1)*this.width);
-                return new_array;
-            });
-            this.dataBuffers = newbuffers.map((values:number[][], i:number) => {
-                return new DataBuffer(this.dataBuffers[i].name, this.width, this.height, values);
-            });
+            let newbuffers = this.dataBuffers.map(dataBuffer => dataBuffer.blur(this.blur));
+            this.dataBuffers = newbuffers;
         }
     }
 
