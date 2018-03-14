@@ -12,11 +12,13 @@ import Composer from './composer';
 import * as Scale from './scale';
 import * as util from './util';
 import Mask from './mask';
+import {gaussian_blur} from './gaussian-blur';
 
 export default class Interpreter {
     public width: number;
     public height: number;
     public n:number = 0;
+    public sourceBuffers:DataBuffer[] = [];
     public dataBuffers:DataBuffer[] = [];
     public derivedBuffers: DerivedBuffer[] = [];
     public image:Image;
@@ -34,6 +36,7 @@ export default class Interpreter {
     public compose:Parser.ComposeSpec;
     public composer:(buffers:DerivedBuffer[], values:number[])=>Color = Composer.none;
     public masks:Mask[] = [];
+    public blur:number=0;
 
     constructor(public configuration:Parser.Configuration) {
         if (! configuration.validate())
@@ -43,7 +46,8 @@ export default class Interpreter {
         this.image = new Image(this.width, this.height);
         this.bufferNames = configuration.bufferNames;
         this.n = this.bufferNames.length;
-        this.dataBuffers = configuration.getBuffers();
+        this.sourceBuffers = configuration.getBuffers();
+        this.dataBuffers = this.sourceBuffers;
         this.labels = configuration.getLabels();
         let colormap = configuration.getColors();
         if (colormap.length >= this.bufferNames.length)
@@ -58,6 +62,8 @@ export default class Interpreter {
             this.compose = configuration.compose;
         if (configuration.rescale)
             this.rescale = configuration.rescale;
+        if (configuration.smooth && configuration.smooth.radius)
+            this.blur = configuration.smooth.radius;
     }
 
     public interpret(context={}) {
@@ -68,6 +74,21 @@ export default class Interpreter {
     }
 
     computeDerivedBuffers(context={}) {
+        if (this.blur > 0) {
+            var newbuffers = this.dataBuffers.map((dataBuffer):number[][] => {
+                let source = Array.prototype.concat.apply(dataBuffer.values[0],
+                                                              dataBuffer.values.slice(1)),
+                    target = new Array(this.width*this.height);
+                gaussian_blur(source, target, this.width, this.height, this.blur);
+                var new_array = Array(this.height);
+                for (var i = 0; i < this.height; i++) 
+                    new_array[i] = target.slice(i*this.width, (i+1)*this.width);
+                return new_array;
+            });
+            this.dataBuffers = newbuffers.map((values:number[][], i:number) => {
+                return new DataBuffer(this.dataBuffers[i].name, this.width, this.height, values);
+            });
+        }
     }
 
     computeRebin(context={}) {

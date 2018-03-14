@@ -149,6 +149,11 @@ export class ComposeSpec {
     tilesize: number = 8;
 }
 
+export class SmoothSpec {
+    type: "gaussian-blur" = "gaussian-blur"; // for now
+    radius: number = 0;
+}
+
 export interface RebinSpec {
     type?: "none"|"square"|"rect"|"topojson"|"voronoi";
     width?: number;
@@ -163,6 +168,7 @@ export class Configuration {
     description?: string;
     background?: string;
     data?: ConfigurationDataSpec;
+    smooth?: SmoothSpec;
     reencoding?: ConfigurationReencodingSpec;
     rebin?: RebinSpec;
     compose?: ComposeSpec;
