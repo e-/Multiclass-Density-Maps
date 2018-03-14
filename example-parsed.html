@@ -6,6 +6,12 @@
 canvas {
   border: 1px solid grey;
 }
+.example {
+  font-weight: bold;
+  float:left;
+}
+.clearBoth { clear:both; }
+
 </style>        
     </head>
     <body>
@@ -18,7 +24,7 @@ canvas {
 var testMain = new MCS.TestMain(), prefix = "specs/";
 var configuration, interpreter;
 
-function render(id, desc, json) {
+function render(id, desc, json, do_break) {
   var conf = testMain.create_configuration(json);
   conf.load('data/').then(function(conf) {
       interp = testMain.create_interp(conf);
@@ -28,54 +34,118 @@ function render(id, desc, json) {
       var body = document.getElementsByTagName('body')[0],
           div = document.createElement("div"),
           canvas = document.createElement("canvas");
+      div.classList.add("example");
       canvas.id = id;
-      body.appendChild(canvas);
-      //div.appendChild(document.createTextNode(desc)); 
-      //div.appendChild(canvas);
+      div.appendChild(document.createTextNode(desc));
+      div.appendChild(document.createElement("br"));
+      div.appendChild(canvas);
+      body.appendChild(div);
+      if (do_break) {
+          var br = document.createElement("br");
+          br.classList.add('clearBoth');
+          body.appendChild(br);
+      }
       interp.render(id);
   });
 }
 
-render('canvas1','', {
-          "description": "multivariate normal data",
-          "background": "Black",
-          "data": {"url": "mn_data.json"},
-          "smooth": {},
-          "rebin": {
-          },
-          "compose": {
-              "mix": "max",
-              "mixing": "additive"
-          }
-          });
+render('canvas1','Linear Color Scale',
+       {
+           "description": "multivariate normal data",
+           "background": "Black",
+           "data": {"url": "mn_data.json"},
+           "smooth": {},
+           "rebin": {
+           },
+           "compose": {
+               "mix": "max",
+               "mixing": "additive"
+           }
+       });
 
-render('canvas2', '', {
-          "description": "multivariate normal data",
-          "background": "Black",
-          "data": {"url": "mn_data.json"},
-          "smooth": {},
-          "rebin": {
-          },
-          "compose": {
-              "mix": "mean",
-              "mixing": "additive"
-          }
-          });
+render('canvas2', 'Log Color Scale',
+       {
+           "description": "multivariate normal data",
+           "background": "Black",
+           "data": {"url": "mn_data.json"},
+           "smooth": {},
+           "rebin": {
+           },
+           "compose": {
+               "mix": "max",
+               "mixing": "additive"
+           },
+           "rescale": {
+               "type": "log"
+           }
+       });
 
-render('canvas3', '', {
-          "description": "multivariate normal data",
-          "background": "Black",
-          "data": {"url": "mn_data.json"},
-          "smooth": {},
-          "rebin": { 
-              "type": "square",
-              "size": 10
-          },
-          "compose": {
-              "mix": "mean",
-              "mixing": "additive"
-          }
-          });
+render('canvas3', 'EquiDepth Color Scale',
+       {
+           "description": "multivariate normal data",
+           "background": "Black",
+           "data": {"url": "mn_data.json"},
+           "smooth": {},
+           "rebin": { 
+           },
+           "compose": {
+               "mix": "max",
+               "mixing": "additive"
+           },
+           "rescale": {
+               "type": "equidepth"
+           }
+       }, true);
+
+
+render('canvas4','Random Rectangular Weaving',
+       {
+           "description": "multivariate normal data",
+           "background": "Black",
+           "data": {"url": "mn_data.json"},
+           "smooth": {},
+           "rebin": {
+           },
+           "compose": {
+               "mix": "weavingrandom",
+               "tilesize": 8
+           }
+       });
+
+render('canvas5', 'Square Rectangular Weaving',
+       {
+           "description": "multivariate normal data",
+           "background": "Black",
+           "data": {"url": "mn_data.json"},
+           "smooth": {},
+           "rebin": {
+           },
+           "compose": {
+               "mix": "weavingsquare",
+               "tilesize": 8
+           },
+           "rescale": {
+               "type": "linear"
+           }
+       });
+
+render('canvas6', 'EquiDepth Color Scale',
+       {
+           "description": "multivariate normal data",
+           "background": "Black",
+           "data": {"url": "mn_data.json"},
+           "smooth": {},
+           "rebin": { 
+           },
+           "compose": {
+               "mix": "weavinghex",
+               "tilesize": 8
+           },
+           "rescale": {
+               "type": "linear"
+           }
+       }, true);
+
 
 </script>
     </body>
