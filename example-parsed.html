@@ -231,6 +231,22 @@ render('canvas9','Voronoi Tiling',
            }
        });
 
+render('canvas10','Voronoi Tiling + Hatching',
+       {
+           "description": "multivariate normal data",
+           "background": "Black",
+           "data": {"url": "mn_data.json"},
+           "smooth": {},
+           "rebin": {
+               "type": "voronoi",
+               "size": 32,
+               "stroke": true
+           },
+           "compose": {
+               "mix": "hatching",
+               "tilesize": 8
+           }
+       }, true);
 
 
 </script>

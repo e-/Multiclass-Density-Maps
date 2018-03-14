@@ -144,9 +144,12 @@ export interface ConfigurationReencodingSpec {
 }
 
 export class ComposeSpec {
-    mix: "none"|"min"|"mean"|"max"|"blend"|"weavingrandom"|"weavingsquare"|"weavinghex"="mean";
+    mix: "none"|"min"|"mean"|"max"|"blend"|
+          "weavingrandom"|"weavingsquare"|"weavinghex"|
+          "hatching"="mean";
     mixing: "additive"|"subtractive" = "additive";
-    tilesize: number = 8;
+    tilesize:number = 8;
+    proportional:boolean = true;
 }
 
 export interface RebinSpec {

@@ -159,6 +159,7 @@ export default class Interpreter {
     }
 
     render(id:string) {
+        var useRender2 = false;
         for (let tile of this.tiles) {
             tile.dataValues = tile.aggregate(this.dataBuffers, this.tileAggregation);
         }
@@ -204,10 +205,24 @@ export default class Interpreter {
                 });
             }
         }
+        else if (this.compose.mix === "hatching") {
+            for(let tile of this.tiles) {
+                this.derivedBuffers.forEach((derivedBuffer:DerivedBuffer, i:number) => {
+                    derivedBuffer.color = derivedBuffer.colorScale.map(tile.dataValues[i]);
+                });
+
+                let hatch = Composer.hatch(tile, this.derivedBuffers,
+                                           this.compose.tilesize, 
+                                           this.compose.proportional);
+                this.image.render(hatch, tile.center());
+                useRender2 = true;
+            }
+        }
         else 
             console.log('No valid composition');
         //CanvasRenderer.render(image, id);
-        let ctx = CanvasRenderer.render(this.image, id);
+        let ctx = useRender2 ? CanvasRenderer.render2(this.image, id)
+              : CanvasRenderer.render(this.image, id);
         if (this.strokeMasks)
             for(let tile of this.tiles)
                 CanvasRenderer.strokeVectorMask(tile.mask, id, '#888');
