@@ -148,7 +148,7 @@ export class ComposeSpec {
           "weavingrandom"|"weavingsquare"|"weavinghex"|
           "hatching"="mean";
     mixing: "additive"|"subtractive" = "additive";
-    tilesize:number = 8;
+    size:number = 8;
     proportional:boolean = true;
 }
 

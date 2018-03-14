@@ -146,15 +146,15 @@ export default class Interpreter {
             this.composer = Composer.additiveMix;
         else if (this.compose.mix === "weavingrandom")
             this.masks = Mask.generateWeavingRandomMasks(this.n,
-                                                         this.compose.tilesize||8,
+                                                         this.compose.size||8,
                                                          this.width, this.height);
         else if (this.compose.mix === "weavingsquare")
             this.masks = Mask.generateWeavingSquareMasks(this.n,
-                                                         this.compose.tilesize||8,
+                                                         this.compose.size||8,
                                                          this.width, this.height);
         else if (this.compose.mix === "weavinghex")
             this.masks = Mask.generateWeavingHexaMasks(this.n,
-                                                       this.compose.tilesize||8,
+                                                       this.compose.size||8,
                                                        this.width, this.height);
     }
 
@@ -212,7 +212,7 @@ export default class Interpreter {
                 });
 
                 let hatch = Composer.hatch(tile, this.derivedBuffers,
-                                           this.compose.tilesize, 
+                                           this.compose.size, 
                                            this.compose.proportional);
                 this.image.render(hatch, tile.center());
                 useRender2 = true;
