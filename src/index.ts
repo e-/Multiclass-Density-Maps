@@ -400,23 +400,21 @@ export class TestMain {
         for(let tile of voronoiTiles) {
           let colors:Color[] = [];
 
+
           for(let i in derivedBuffers16)
               if (jquery("#compo16c option:selected").text()=='Color')
                   derivedBuffers16[i].color = derivedBuffers16[i].colorScale.map(tile.dataValues[i]);
               else
                   derivedBuffers16[i].color = Color.Category10[i];
 
-          derivedBuffers16.forEach((derivedBuffer, i) => {
-              let color = derivedBuffer.colorScale.map(tile.dataValues[i]);
-              //outputImage16.render(color, tile, derivedBuffer.mask);
+              let hatch:any = Composer.hatch(tile, derivedBuffers16, hatchingSize, true);
               outputImage16.render(
-                Composer.hatch(tile, derivedBuffers16, hatchingSize, false),
+                hatch,
                 tile.center()
               );
-          });
         }
 
-        CanvasRenderer.render(outputImage16, 'canvas16');
+        CanvasRenderer.render2(outputImage16, 'canvas16');
 
         if(d3.select("#border16").property("checked"))
           for (let k in voronoiTiles)

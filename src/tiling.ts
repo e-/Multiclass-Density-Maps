@@ -5,6 +5,7 @@ import * as d3 from 'd3';
 import * as D3Geo from 'd3-geo';
 import * as util from './util';
 import * as topo from 'topojson';
+import * as rn from 'random-seed';
 
 export function pixelTiling (width:number, height:number) {
   let tiles:Tile[] = [];
@@ -83,12 +84,13 @@ export function topojsonTiling(width:number, height:number, us:any):Tile[] {
 
 
 export function voronoiTiling(width:number, height:number, nbsites:number) {
+  let rand3 = rn.create('JaeminFredPierreJean-Daniel');
   let tiles:Tile[] = [];
   let voronoi = d3.voronoi().extent([[0, 0], [width , height ]]);
   let sites:[number, number][] = [];//   = d3.range(nbsites).map(function(d) { return [Math.random() * (width) , Math.random() * (height) ];});
    for (var i=0; i<nbsites; i++){
-    let x = Math.random()*width;
-    let y = Math.random()*height;
+    let x = rand3(width);
+    let y = rand3(height);
     sites.push([x, y]);
   }
   let polys = voronoi.polygons(sites);
@@ -113,16 +115,21 @@ export function voronoiTiling(width:number, height:number, nbsites:number) {
       maxy = Math.max(maxy, y);
     }
 
-
     let mask:Mask = new Mask(Math.ceil(maxx-minx)+1, Math.ceil(maxy-miny)+1, 0);
     let canvas1      = mask.maskCanvas;
     let context1:any = canvas1.getContext("2d");
+
     context1.clearRect(0, 0, canvas1.width, canvas1.height);
     context1.fillStyle="rgba(0, 0, 0, 1.0)";
-    context1.moveTo(polys[p][0][0], polys[p][0][1]);
-    for (let k=0; k<polys[p].length; k++)
-      context1.lineTo(polys[p][k][0], polys[p][k][1]);
 
+    context1.beginPath();
+    context1.moveTo(polys[p][0][0]-minx, polys[p][0][1]-miny);
+    for (let k=1; k<polys[p].length; k++){
+      let x = Math.min(width, Math.max(0, polys[p][k][0]));
+      let y = Math.min(height, Math.max(0, polys[p][k][1]));
+      context1.lineTo(x-minx, y-miny);
+    }
+    context1.lineTo(polys[p][0][0]-minx, polys[p][0][1]-miny);
     context1.fill();
 
     mask.pols.addPoly(ptsx, ptsy);

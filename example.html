@@ -182,13 +182,13 @@
                 </td>
                 <td>
                     <select id="compo16" onchange="testMain.testVoronoiHatching()">
-                        <option>16</option>
+                        <option selected>16</option>
                         <option>32</option>
                         <option>64</option>
-                        <option selected>128</option>
+                        <option>128</option>
                     </select>
                     <div id="slider16" style="margin-left:1px;display:inline-block;width:120px;height:10px"></div>
-                    <select id="compo16c" onchange="testMain.testHatching()"><option>Color</option><option selected>Constant</option></select>
+                    <select id="compo16c" onchange="testMain.testVoronoiHatching()"><option selected>Color</option><option>Constant</option></select>
                     <input type="checkbox" checked onchange="testMain.testVoronoiHatching()" id="border16"/>border
                   </td>
             </tr>
@@ -196,7 +196,7 @@
                 <td><canvas id="canvas7"></canvas></td>
                 <td><canvas id="canvas8"></canvas></td>
                 <td><canvas id="canvas9"></canvas></td>
-                <td><canvas id="canvas16"></canvas></td>
+                <td><canvas id="canvas16"></canvas></td><td><div id="debug16"></div></td>
             </tr>
         </table>
 
