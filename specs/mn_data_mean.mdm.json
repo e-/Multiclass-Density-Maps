@@ -1,0 +1,11 @@
+{
+    "description": "multivariate normal data",
+    "background": "Black",
+    "data": {"url": "../data/mn_data.json"},
+    "smooth": {},
+    "rebin": {},
+    "compose": {
+        "mix": "mean",
+        "mixing": "additive"
+    }
+}
