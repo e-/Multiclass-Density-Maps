@@ -108,7 +108,7 @@ export class TestMain {
         let derivedBuffers1 = this.dataBuffers.map((dataBuffer, i) => {
             let derivedBuffer = new DerivedBuffer(dataBuffer);
 
-            derivedBuffer.colorScale = new Scale.LinearColorScale([0, maxCount], [Color.Black, Color.Category10[i]]);
+            derivedBuffer.colorScale = new Scale.LinearColorScale([0, maxCount], [Color.White, Color.Category10[i]]);
 
             return derivedBuffer;
         });
@@ -116,7 +116,7 @@ export class TestMain {
         let derivedBuffers2 = this.dataBuffers.map((dataBuffer, i) => {
             let derivedBuffer = new DerivedBuffer(dataBuffer);
 
-            derivedBuffer.colorScale = new Scale.LogColorScale([1, maxCount], [Color.Black, Color.Category10[i]]);
+            derivedBuffer.colorScale = new Scale.LogColorScale([1, maxCount], [Color.White, Color.Category10[i]]);
 
             return derivedBuffer;
         });
@@ -126,7 +126,7 @@ export class TestMain {
 
             derivedBuffer.colorScale = new Scale.EquiDepthColorScale(
                 rectTiles.map(tile => tile.dataValues[i]).filter(c => c > 0),
-                [Color.Black, Color.Category10[i]], 3);
+                [Color.White, Color.Category10[i]], 3);
 
             return derivedBuffer;
         });
@@ -165,7 +165,7 @@ export class TestMain {
         let derivedBuffers4 = this.dataBuffers.map((dataBuffer, i) => {
             let derivedBuffer = new DerivedBuffer(dataBuffer);
 
-            derivedBuffer.colorScale = new Scale.LinearColorScale([0, maxCount2], [Color.Black, Color.Category10[i]]);
+            derivedBuffer.colorScale = new Scale.LinearColorScale([0, maxCount2], [Color.White, Color.Category10[i]]);
             derivedBuffer.mask = randomMasks[i];
 
             return derivedBuffer;
@@ -174,7 +174,7 @@ export class TestMain {
         let derivedBuffers5 = this.dataBuffers.map((dataBuffer, i) => {
             let derivedBuffer = new DerivedBuffer(dataBuffer);
 
-            derivedBuffer.colorScale = new Scale.LinearColorScale([0, maxCount2], [Color.Black, Color.Category10[i]]);
+            derivedBuffer.colorScale = new Scale.LinearColorScale([0, maxCount2], [Color.White, Color.Category10[i]]);
             derivedBuffer.mask = squareMasks[i];
 
             return derivedBuffer;
@@ -291,7 +291,7 @@ export class TestMain {
         let derivedBuffers6 = this.dataBuffers.map((dataBuffer, i) => {
             let derivedBuffer = new DerivedBuffer(dataBuffer);
 
-            derivedBuffer.colorScale = new Scale.LinearColorScale([0, maxCount2], [Color.Black, Color.Category10[i]]);
+            derivedBuffer.colorScale = new Scale.LinearColorScale([0, maxCount2], [Color.White, Color.Category10[i]]);
             derivedBuffer.mask = hexaMasks[i];
 
             return derivedBuffer;
@@ -328,7 +328,7 @@ export class TestMain {
         let derivedBuffers9 = this.dataBuffers.map((dataBuffer, i) => {
             let derivedBuffer = new DerivedBuffer(dataBuffer);
 
-            derivedBuffer.colorScale = new Scale.LinearColorScale([0, maxCount2], [Color.Black, Color.Category10[i]]);
+            derivedBuffer.colorScale = new Scale.LinearColorScale([0, maxCount2], [Color.White, Color.Category10[i]]);
             derivedBuffer.mask = randomMasks[i];
 
             return derivedBuffer;
@@ -380,7 +380,7 @@ export class TestMain {
             let derivedBuffers = dataBuffers.map((dataBuffer, i) => {
                 let derivedBuffer = new DerivedBuffer(dataBuffer);
 
-                derivedBuffer.colorScale = new Scale.LogColorScale([1, maxCount], [Color.Black, Color.Category10[i]]);
+                derivedBuffer.colorScale = new Scale.LogColorScale([1, maxCount], [Color.White, Color.Category10[i]]);
 
                 return derivedBuffer;
             });
@@ -447,15 +447,15 @@ export class TestMain {
                 let derivedBuffer = new DerivedBuffer(dataBuffer);
 
                 if (jquery("#compo11b option:selected").text()=="Linear")
-                  derivedBuffer.colorScale = new Scale.LinearColorScale([1, maxCount], [Color.Black, Color.Category10[i]]);
+                  derivedBuffer.colorScale = new Scale.LinearColorScale([1, maxCount], [Color.White, Color.Category10[i]]);
                 else if (jquery("#compo11b option:selected").text()=="Log")
-                  derivedBuffer.colorScale = new Scale.LogColorScale([1, maxCount], [Color.Black, Color.Category10[i]]);
+                  derivedBuffer.colorScale = new Scale.LogColorScale([1, maxCount], [Color.White, Color.Category10[i]]);
                 else if (jquery("#compo11b option:selected").text()=="CubicRoot")
-                  derivedBuffer.colorScale = new Scale.CubicRootColorScale([1, maxCount], [Color.Black, Color.Category10[i]]);
+                  derivedBuffer.colorScale = new Scale.CubicRootColorScale([1, maxCount], [Color.White, Color.Category10[i]]);
                 else if (jquery("#compo11b option:selected").text()=="SquareRoot")
-                  derivedBuffer.colorScale = new Scale.SquareRootColorScale([1, maxCount], [Color.Black, Color.Category10[i]]);
+                  derivedBuffer.colorScale = new Scale.SquareRootColorScale([1, maxCount], [Color.White, Color.Category10[i]]);
                 else if (jquery("#compo11b option:selected").text()=="EquiDepth")
-                  derivedBuffer.colorScale = new Scale.EquiDepthColorScale([1, maxCount], [Color.Black, Color.Category10[i]]);
+                  derivedBuffer.colorScale = new Scale.EquiDepthColorScale([1, maxCount], [Color.White, Color.Category10[i]]);
                 derivedBuffer.mask       = randomMasks[i];
 
                 return derivedBuffer;
@@ -531,15 +531,15 @@ export class TestMain {
                 let derivedBuffer = new DerivedBuffer(dataBuffer);
 
                 if (jquery("#compo15b option:selected").text()=="Linear")
-                  derivedBuffer.colorScale = new Scale.LinearColorScale([1, maxCount], [Color.Black, Color.Category10[i]]);
+                  derivedBuffer.colorScale = new Scale.LinearColorScale([1, maxCount], [Color.White, Color.Category10[i]]);
                 else if (jquery("#compo15b option:selected").text()=="Log")
-                  derivedBuffer.colorScale = new Scale.LogColorScale([1, maxCount], [Color.Black, Color.Category10[i]]);
+                  derivedBuffer.colorScale = new Scale.LogColorScale([1, maxCount], [Color.White, Color.Category10[i]]);
                 else if (jquery("#compo15b option:selected").text()=="CubicRoot")
-                  derivedBuffer.colorScale = new Scale.CubicRootColorScale([1, maxCount], [Color.Black, Color.Category10[i]]);
+                  derivedBuffer.colorScale = new Scale.CubicRootColorScale([1, maxCount], [Color.White, Color.Category10[i]]);
                 else if (jquery("#compo15b option:selected").text()=="SquareRoot")
-                  derivedBuffer.colorScale = new Scale.SquareRootColorScale([1, maxCount], [Color.Black, Color.Category10[i]]);
+                  derivedBuffer.colorScale = new Scale.SquareRootColorScale([1, maxCount], [Color.White, Color.Category10[i]]);
                 else if (jquery("#compo15b option:selected").text()=="EquiDepth")
-                  derivedBuffer.colorScale = new Scale.EquiDepthColorScale([1, maxCount], [Color.Black, Color.Category10[i]]);
+                  derivedBuffer.colorScale = new Scale.EquiDepthColorScale([1, maxCount], [Color.White, Color.Category10[i]]);
 
                 return derivedBuffer;
             });
