@@ -117,6 +117,14 @@ export class TestMain {
             return derivedBuffer;
         });
 
+        let derivedBuffers8 = this.dataBuffers.map((dataBuffer, i) => {
+            let derivedBuffer = new DerivedBuffer(dataBuffer);
+
+            derivedBuffer.colorScale = new Scale.LinearColorScale([0, maxCount], [Color.Black, Color.Category10[i]]);
+
+            return derivedBuffer;
+        });
+
         let derivedBuffers2 = this.dataBuffers.map((dataBuffer, i) => {
             let derivedBuffer = new DerivedBuffer(dataBuffer);
 
@@ -210,7 +218,7 @@ export class TestMain {
             let color7 = Composer.mean(derivedBuffers1, tile.dataValues);
             outputImage7.render(color7, tile);
 
-            let color8 = Composer.additiveMix(derivedBuffers1, tile.dataValues);
+            let color8 = Composer.additiveMix(derivedBuffers8, tile.dataValues);
             outputImage8.render(color8, tile);
         }
 
@@ -350,7 +358,7 @@ export class TestMain {
 
         if(d3.select("#border9").property("checked"))
           for (let k in voronoiTiles)
-            CanvasRenderer.drawVectorMask(voronoiTiles[k].mask, 'canvas9');
+            CanvasRenderer.drawVectorMask(voronoiTiles[k].mask, 'canvas9', '#000');
     }
 
 
@@ -480,7 +488,7 @@ export class TestMain {
             // draw frontiers
             if(d3.select("#border11").property("checked"))
               for(let tile of ustiles)
-                CanvasRenderer.drawVectorMask(tile.mask, 'canvas11');
+                CanvasRenderer.drawVectorMask(tile.mask, 'canvas11', '#000');
 
           });
 
@@ -581,7 +589,7 @@ export class TestMain {
             // draw frontiers
             if(d3.select("#border15").property("checked"))
               for(let tile of ustiles)
-                CanvasRenderer.drawVectorMask(tile.mask, 'canvas15');
+                CanvasRenderer.drawVectorMask(tile.mask, 'canvas15', '#000');
 
           });
 
@@ -634,7 +642,7 @@ export class TestMain {
 
             Promise.all(promises).then(() => {
                 CanvasRenderer.render(outputImage, 'canvas13');
-                for(let tile of ustiles) CanvasRenderer.drawVectorMask(tile.mask, 'canvas13');
+                for(let tile of ustiles) CanvasRenderer.drawVectorMask(tile.mask, 'canvas13', '#888');
             });
           });
         })
