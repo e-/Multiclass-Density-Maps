@@ -37,6 +37,10 @@ export class TestMain {
         .then(callback);
     }
 
+    create_configuration(json:any) {
+        return new Parser.Configuration(json);
+    }
+
     create_interp(conf:Parser.Configuration) {
         return new Interpreter(conf);
     }
