@@ -167,14 +167,23 @@
                 <th>MeanComposing</th>
                 <th>AdditiveMixComposing</th>
                 <th>Voronoi Tiling
-                    <select id="compo9" onchange="testMain.testVoronoi()">
+                    <select id="compo9" onchange="testMain.testVoronoiWeaving()">
                         <option>16</option>
                         <option>32</option>
                         <option>64</option>
                         <option selected>128</option>
                     </select>
-                    <input type="checkbox" checked onchange="testMain.testVoronoi()" id="border9"/>border</th>
-                    <th>Voronoi Hatching</th>
+                    <input type="checkbox" checked onchange="testMain.testVoronoiWeaving()" id="border9"/>border
+                </th>
+                <th>Voronoi Hatching
+                    <select id="compo16" onchange="testMain.testVoronoiHatching()">
+                        <option>16</option>
+                        <option>32</option>
+                        <option>64</option>
+                        <option selected>128</option>
+                    </select>
+                    <input type="checkbox" checked onchange="testMain.testVoronoiHatching()" id="border16"/>border
+                  </th>
             </tr>
             <tr>
                 <td><canvas id="canvas7"></canvas></td>

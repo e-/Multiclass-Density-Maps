@@ -83,7 +83,7 @@ export class TestMain {
 
     main() {
         // general settings for the examples
-        let fineTileSize = 1;
+        let fineTileSize = 2;
         let bigTileSize = 8;
 
         let nClass = 4;
@@ -227,7 +227,8 @@ export class TestMain {
 
         this.testHexa(-1);
 
-        this.testVoronoi();
+        this.testVoronoiWeaving();
+        this.testVoronoiHatching();
 
         // Testing Spec
         this.testVisSpec(2);
@@ -325,7 +326,7 @@ export class TestMain {
         CanvasRenderer.render(outputImage6, 'canvas6');
     }
 
-    testVoronoi(){
+    testVoronoiWeaving(){
         // tiling now returns an 1D array of tiles
         let n            = parseInt(jquery("#compo9 option:selected").text());
         let randomMasks  = Mask.generateWeavingRandomMasks(this.dataBuffers.length, 4, this.width, this.height);
@@ -359,6 +360,42 @@ export class TestMain {
         if(d3.select("#border9").property("checked"))
           for (let k in voronoiTiles)
             CanvasRenderer.drawVectorMask(voronoiTiles[k].mask, 'canvas9', '#000');
+    }
+
+    testVoronoiHatching(){
+        // tiling now returns an 1D array of tiles
+        let n            = parseInt(jquery("#compo16 option:selected").text());
+        let randomMasks  = Mask.generateWeavingRandomMasks(this.dataBuffers.length, 4, this.width, this.height);
+        let voronoiTiles = Tiling.voronoiTiling(this.width, this.height, n);
+
+
+        for(let tile of voronoiTiles) {
+            tile.dataValues = tile.aggregate(this.dataBuffers, TileAggregation.Sum);
+        }
+        let maxCount2 = util.amax(voronoiTiles.map(tile => util.amax(tile.dataValues)));
+
+        let derivedBuffers16 = this.dataBuffers.map((dataBuffer, i) => {
+            let derivedBuffer = new DerivedBuffer(dataBuffer);
+
+            derivedBuffer.colorScale = new Scale.LinearColorScale([0, maxCount2], [Color.White, Color.Category10[i]]);
+            derivedBuffer.mask = randomMasks[i];
+
+            return derivedBuffer;
+        });
+        let outputImage16 = new Image(this.width, this.height);
+
+        for(let tile of voronoiTiles) {
+          derivedBuffers16.forEach((derivedBuffer, i) => {
+              let color = derivedBuffer.colorScale.map(tile.dataValues[i]);
+              outputImage16.render(color, tile, derivedBuffer.mask);
+          });
+        }
+
+        CanvasRenderer.render(outputImage16, 'canvas16');
+
+        if(d3.select("#border16").property("checked"))
+          for (let k in voronoiTiles)
+            CanvasRenderer.drawVectorMask(voronoiTiles[k].mask, 'canvas16', '#000');
     }
 
 
