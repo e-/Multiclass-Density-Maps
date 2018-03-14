@@ -83,7 +83,7 @@ export class TestMain {
 
     main() {
         // general settings for the examples
-        let fineTileSize = 2;
+        let fineTileSize = 1;
         let bigTileSize = 8;
 
         let nClass = 4;

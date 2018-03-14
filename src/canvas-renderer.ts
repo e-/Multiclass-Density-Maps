@@ -79,8 +79,8 @@ export default class CanvasRenderer {
             height = images[0].height;
 
         let canvas:any = document.getElementById(id);
-        canvas.width   = width * cols;
-        canvas.height  = height * rows;
+        canvas.width   = width ;
+        canvas.height  = height ;
 
         let ctx:CanvasRenderingContext2D = canvas.getContext('2d');
 
@@ -100,7 +100,8 @@ export default class CanvasRenderer {
 
             let col = Math.floor(i / rows);
             let row = i % rows;
-            ctx.drawImage(memoryCanvas, 0, 0, width, height, width * col, height * row, width, height);
+            ctx.drawImage(memoryCanvas, 0,           0,                         width,      height,
+                                        width * col / cols, height * row /rows, width/cols, height/rows);
         })
     }
 }
