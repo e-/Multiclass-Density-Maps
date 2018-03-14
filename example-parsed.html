@@ -25,26 +25,26 @@ var testMain = new MCS.TestMain(), prefix = "specs/";
 var configuration, interpreter;
 
 function render(id, desc, json, do_break) {
+  var body = document.getElementsByTagName('body')[0],
+      div = document.createElement("div"),
+      canvas = document.createElement("canvas");
+  div.classList.add("example");
+  canvas.id = id;
+  div.appendChild(document.createTextNode(desc));
+  div.appendChild(document.createElement("br"));
+  div.appendChild(canvas);
+  body.appendChild(div);
+  if (do_break) {
+      var br = document.createElement("br");
+      br.classList.add('clearBoth');
+      body.appendChild(br);
+  }
   var conf = testMain.create_configuration(json);
   conf.load('data/').then(function(conf) {
       interp = testMain.create_interp(conf);
       console.log('interp w='+conf.width+' h='+conf.height);
       interpreter = interp;
       interp.interpret();
-      var body = document.getElementsByTagName('body')[0],
-          div = document.createElement("div"),
-          canvas = document.createElement("canvas");
-      div.classList.add("example");
-      canvas.id = id;
-      div.appendChild(document.createTextNode(desc));
-      div.appendChild(document.createElement("br"));
-      div.appendChild(canvas);
-      body.appendChild(div);
-      if (do_break) {
-          var br = document.createElement("br");
-          br.classList.add('clearBoth');
-          body.appendChild(br);
-      }
       interp.render(id);
   });
 }
@@ -180,7 +180,7 @@ render('canvas7', 'Census Data',
     }
 });
 
-render('canvas8', 'Census Data',
+render('canvas8', 'Census Data Smoothed',
 {
     "description": "US Census Synthetic people",
     "background": "Black",
