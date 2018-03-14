@@ -28,12 +28,13 @@ function render(conf) {
   interp.render('canvas');
 }
 
-function load_configuration() {
-  console.log('Loading '+'census_data_color_max.mdm.json');
-  testMain.parse_url(prefix+"census_data_color_max.mdm.json", render);
+function load_configuration(dataset) {
+  console.log('Loading '+dataset);
+  testMain.parse_url(prefix+dataset, render);
 }
 
-window.onload = load_configuration();
+//window.onload = load_configuration("census_data_color_max.mdm.json");
+window.onload = load_configuration("mn_data_max.mdm.json");
 
 </script>
     </body>

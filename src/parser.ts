@@ -149,13 +149,22 @@ export class ComposeSpec {
     tilesize: number = 8;
 }
 
+export interface RebinSpec {
+    type?: "none"|"square"|"rect"|"topojson"|"voronoi";
+    width?: number;
+    height?: number;
+    size?: number;
+    feature?: string;
+    url?: string;
+    points?: [number, number][];
+}
 
 export class Configuration {
     description?: string;
     background?: string;
     data?: ConfigurationDataSpec;
     reencoding?: ConfigurationReencodingSpec;
-    rebin: any;
+    rebin?: RebinSpec;
     compose?: ComposeSpec;
     rescale: "none"|"linear"|"log"|"pow"|"sqrt"|"cbrt"|"equidepth" = "none";
     width: number = -1;

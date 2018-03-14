@@ -145,7 +145,7 @@ export default class Interpreter {
         var scale:Scale.ScaleTrait;
         let maxCount = util.amax(this.tiles.map(tile => util.amax(tile.dataValues)));
         // TODO test if scales are per-buffer or shared, for now, we'll make one per buffer
-        if (this.rescale === "linear")
+        if (this.rescale === "none" || this.rescale === "linear")
             scale = new Scale.LinearScale([0, maxCount], [0, 1]);
         else if (this.rescale === "sqrt") 
             scale = new Scale.SquareRootScale([0, maxCount], [0, 1]);
