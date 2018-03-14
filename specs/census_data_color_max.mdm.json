@@ -20,9 +20,10 @@
             }
         }
     },
-    "rebin": {},
+    "rebin": {
+    },
     "compose": {
-        "mix": "blend",
+        "mix": "mean",
         "mixing": "additive"
     },
     "rescale": {
