@@ -18,16 +18,14 @@
             "field": "z",
             "type": "nominal",
             "scale": {
-                "range": ["Blue", "Orange", "Red", "Green", "Brown"]
+                "range": ["Blue", "Orange", "Red", "Green", "Brown"],
+                "scale": "log"
             }
         }
     },
     "rebin": {},
-    "render": {
-        "color": {
-            "scale": "log",
-            "mix": "blend",
-            "mixing": "additive"
-        }
+    "compose": {
+        "mix": "blend",
+        "mixing": "additive"
     }
 }
