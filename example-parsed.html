@@ -146,6 +146,74 @@ render('canvas6', 'EquiDepth Color Scale',
            }
        }, true);
 
+render('canvas7', 'Census Data',
+{
+    "description": "US Census Synthetic people",
+    "background": "Black",
+    "data": {"url": "census.snappy_data.json"},
+    "smooth": {},
+    "reencoding": {
+        "label": {
+            "field": "z",
+            "type": "nominal",
+            "scale": {
+                "domain": ["w", "h", "a", "b", "o"],
+                "range": ["White", "Hispanic", "Asian", "Black", "Other"]
+            }
+        },
+        "color": {
+            "field": "z",
+            "type": "nominal",
+            "scale": {
+                "range": ["Blue", "Orange", "Red", "Green", "Brown"]
+            }
+        }
+    },
+    "rebin": {
+    },
+    "compose": {
+        "mix": "mean",
+        "mixing": "additive"
+    },
+    "rescale": {
+        "type": "log"
+    }
+});
+
+render('canvas8', 'Census Data',
+{
+    "description": "US Census Synthetic people",
+    "background": "Black",
+    "data": {"url": "census.snappy_data.json"},
+    "smooth": {"radius": 2},
+    "reencoding": {
+        "label": {
+            "field": "z",
+            "type": "nominal",
+            "scale": {
+                "domain": ["w", "h", "a", "b", "o"],
+                "range": ["White", "Hispanic", "Asian", "Black", "Other"]
+            }
+        },
+        "color": {
+            "field": "z",
+            "type": "nominal",
+            "scale": {
+                "range": ["Blue", "Orange", "Red", "Green", "Brown"]
+            }
+        }
+    },
+    "rebin": {
+    },
+    "compose": {
+        "mix": "mean",
+        "mixing": "additive"
+    },
+    "rescale": {
+        "type": "log"
+    }
+}, true);
+
 
 </script>
     </body>

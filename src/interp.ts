@@ -62,8 +62,8 @@ export default class Interpreter {
             this.compose = configuration.compose;
         if (configuration.rescale)
             this.rescale = configuration.rescale;
-        if (configuration.smooth && configuration.smooth.radius)
-            this.blur = configuration.smooth.radius;
+        if (configuration.blur)
+            this.blur = configuration.blur;
     }
 
     public interpret(context={}) {

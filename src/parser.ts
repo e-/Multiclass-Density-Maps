@@ -149,11 +149,6 @@ export class ComposeSpec {
     tilesize: number = 8;
 }
 
-export class SmoothSpec {
-    type: "gaussian-blur" = "gaussian-blur"; // for now
-    radius: number = 0;
-}
-
 export interface RebinSpec {
     type?: "none"|"square"|"rect"|"topojson"|"voronoi";
     width?: number;
@@ -168,7 +163,7 @@ export class Configuration {
     description?: string;
     background?: string;
     data?: ConfigurationDataSpec;
-    smooth?: SmoothSpec;
+    blur: number = 0;
     reencoding?: ConfigurationReencodingSpec;
     rebin?: RebinSpec;
     compose?: ComposeSpec;
@@ -185,6 +180,7 @@ export class Configuration {
         this.parseDescription();
         this.parseBackground();
         this.parseData();
+        this.parseSmooth();
         this.parseDerivedBuffers();
         this.parseReencoding();
         this.parseRebin();
@@ -202,6 +198,10 @@ export class Configuration {
     }
     parseData() {
         this.data = <ConfigurationDataSpec>this.specs.data;
+    }
+    parseSmooth() {
+        if ('smooth' in this.specs && this.specs.smooth.radius)
+            this.blur = <number>this.specs.smooth.radius;
     }
     parseDerivedBuffers() {
     }
