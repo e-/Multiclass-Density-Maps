@@ -369,7 +369,7 @@ export class TestMain {
 
         if(d3.select("#border9").property("checked"))
           for (let k in voronoiTiles)
-            CanvasRenderer.drawVectorMask(voronoiTiles[k].mask, 'canvas9', '#000');
+            CanvasRenderer.strokeVectorMask(voronoiTiles[k].mask, 'canvas9', '#000');
     }
 
     testVoronoiHatching(){
@@ -418,7 +418,7 @@ export class TestMain {
 
         if(d3.select("#border16").property("checked"))
           for (let k in voronoiTiles)
-            CanvasRenderer.drawVectorMask(voronoiTiles[k].mask, 'canvas16', '#000');
+            CanvasRenderer.strokeVectorMask(voronoiTiles[k].mask, 'canvas16', '#000');
     }
 
 
@@ -548,7 +548,7 @@ export class TestMain {
             // draw frontiers
             if(d3.select("#border11").property("checked"))
               for(let tile of ustiles)
-                CanvasRenderer.drawVectorMask(tile.mask, 'canvas11', '#000');
+                CanvasRenderer.strokeVectorMask(tile.mask, 'canvas11', '#000');
 
           });
 
@@ -649,7 +649,7 @@ export class TestMain {
             // draw frontiers
             if(d3.select("#border15").property("checked"))
               for(let tile of ustiles)
-                CanvasRenderer.drawVectorMask(tile.mask, 'canvas15', '#000');
+                CanvasRenderer.strokeVectorMask(tile.mask, 'canvas15', '#000');
 
           });
 
@@ -702,7 +702,7 @@ export class TestMain {
 
             Promise.all(promises).then(() => {
                 CanvasRenderer.render(outputImage, 'canvas13');
-                for(let tile of ustiles) CanvasRenderer.drawVectorMask(tile.mask, 'canvas13', '#888');
+                for(let tile of ustiles) CanvasRenderer.strokeVectorMask(tile.mask, 'canvas13', '#888');
             });
           });
         })

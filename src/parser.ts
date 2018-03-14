@@ -157,6 +157,7 @@ export interface RebinSpec {
     feature?: string;
     url?: string;
     points?: [number, number][];
+    stroke?: boolean;
 }
 
 export class Configuration {

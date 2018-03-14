@@ -83,16 +83,18 @@ export function topojsonTiling(width:number, height:number, us:any):Tile[] {
 }
 
 
-export function voronoiTiling(width:number, height:number, nbsites:number) {
+export function voronoiTiling(width:number, height:number,
+                              nbsites:number=10, sites:[number, number][]=[]) {
   let rand3 = rn.create('JaeminFredPierreJean-Daniel');
+  if (sites.length == 0) {
+      for (var i=0; i<nbsites; i++){
+          let x = rand3(width);
+          let y = rand3(height);
+          sites.push([x, y]);
+      }
+  }
   let tiles:Tile[] = [];
   let voronoi = d3.voronoi().extent([[0, 0], [width , height ]]);
-  let sites:[number, number][] = [];//   = d3.range(nbsites).map(function(d) { return [Math.random() * (width) , Math.random() * (height) ];});
-   for (var i=0; i<nbsites; i++){
-    let x = rand3(width);
-    let y = rand3(height);
-    sites.push([x, y]);
-  }
   let polys = voronoi.polygons(sites);
 
   for (let p in polys){
@@ -145,6 +147,7 @@ export function voronoiTiling(width:number, height:number, nbsites:number) {
 
   return tiles;
 }
+
 
 
 export function rectangularTiling (width:number, height:number, tileWidth:number, tileHeight:number) {

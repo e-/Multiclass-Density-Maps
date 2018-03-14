@@ -214,6 +214,24 @@ render('canvas8', 'Census Data Smoothed',
     }
 }, true);
 
+render('canvas9','Voronoi Tiling',
+       {
+           "description": "multivariate normal data",
+           "background": "Black",
+           "data": {"url": "mn_data.json"},
+           "smooth": {},
+           "rebin": {
+               "type": "voronoi",
+               "size": 32,
+               "stroke": true
+           },
+           "compose": {
+               "mix": "weavingrandom",
+               "tilesize": 4
+           }
+       });
+
+
 
 </script>
     </body>

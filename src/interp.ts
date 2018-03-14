@@ -35,6 +35,7 @@ export default class Interpreter {
     public compose:Parser.ComposeSpec;
     public composer:(buffers:DerivedBuffer[], values:number[])=>Color = Composer.none;
     public masks:Mask[] = [];
+    public strokeMasks = false;
     public blur:number=0;
 
     constructor(public configuration:Parser.Configuration) {
@@ -112,12 +113,22 @@ export default class Interpreter {
                                            feature);
         }
         else if (this.rebin.type == "voronoi") {
-            let points = this.rebin.sites || 4;
-            console.log('voronoi rebin sites='+points);
-            tiles = Tiling.voronoiTiling(this.width,
-                                          this.height,
-                                          points);
+            if (this.rebin.points) {
+                let points:[number, number][] = this.rebin.points;
+                console.log('voronoi rebin sites='+points);
+                tiles = Tiling.voronoiTiling(this.width,
+                                             this.height,
+                                             0, points);
+            }
+            else {
+                let sites = this.rebin.size || 10;
+                tiles = Tiling.voronoiTiling(this.width,
+                                             this.height,
+                                             sites);
+            }
         }
+        if (this.rebin && this.rebin.stroke)
+            this.strokeMasks = true;
         this.tiles = tiles;
     }
 
@@ -197,6 +208,9 @@ export default class Interpreter {
             console.log('No valid composition');
         //CanvasRenderer.render(image, id);
         let ctx = CanvasRenderer.render(this.image, id);
+        if (this.strokeMasks)
+            for(let tile of this.tiles)
+                CanvasRenderer.strokeVectorMask(tile.mask, id, '#888');
         // if (this.strokeCanvas) {
         //     ctx.setTransform(1, 0, 0, 1, 0, 0); // reset
         //     ctx.strokeStyle = this.backgroundStroke;
