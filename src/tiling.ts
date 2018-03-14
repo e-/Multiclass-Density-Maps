@@ -115,6 +115,16 @@ export function voronoiTiling(width:number, height:number, nbsites:number) {
 
 
     let mask:Mask = new Mask(Math.ceil(maxx-minx)+1, Math.ceil(maxy-miny)+1, 0);
+    let canvas1      = mask.maskCanvas;
+    let context1:any = canvas1.getContext("2d");
+    context1.clearRect(0, 0, canvas1.width, canvas1.height);
+    context1.fillStyle="rgba(0, 0, 0, 1.0)";
+    context1.moveTo(polys[p][0][0], polys[p][0][1]);
+    for (let k=0; k<polys[p].length; k++)
+      context1.lineTo(polys[p][k][0], polys[p][k][1]);
+
+    context1.fill();
+
     mask.pols.addPoly(ptsx, ptsy);
     for (let r = Math.floor(miny); r < Math.ceil(maxy); r++) {
       for (let c = Math.floor(minx); c < Math.ceil(maxx); c++) {

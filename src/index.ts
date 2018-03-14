@@ -225,11 +225,6 @@ export class TestMain {
         CanvasRenderer.render(outputImage7, 'canvas7');
         CanvasRenderer.render(outputImage8, 'canvas8');
 
-        this.testHexa(-1);
-
-        this.testVoronoiWeaving();
-        this.testVoronoiHatching();
-
         // Testing Spec
         this.testVisSpec(2);
         // with interactivity
@@ -263,6 +258,21 @@ export class TestMain {
             me.testHatching();
           }}
         );
+
+        this.testHatching();
+        jquery( "#slider16" ).css("background", "#ddd").slider({
+          min:   1,
+          value: 2,
+          max:   16,
+          slide:function( event:any, ui:any){
+            me.testVoronoiHatching();
+          }}
+        );
+
+        this.testHexa(-1);
+
+        this.testVoronoiWeaving();
+        this.testVoronoiHatching();
 
         // small multiples
 
@@ -378,16 +388,31 @@ export class TestMain {
             let derivedBuffer = new DerivedBuffer(dataBuffer);
 
             derivedBuffer.colorScale = new Scale.LinearColorScale([0, maxCount2], [Color.White, Color.Category10[i]]);
-            derivedBuffer.mask = randomMasks[i];
+            //derivedBuffer.mask = randomMasks[i];
 
             return derivedBuffer;
         });
         let outputImage16 = new Image(this.width, this.height);
 
+
+        let hatchingSize  = jquery("#slider16").slider("option", "value");
+
         for(let tile of voronoiTiles) {
+          let colors:Color[] = [];
+
+          for(let i in derivedBuffers16)
+              if (jquery("#compo16c option:selected").text()=='Color')
+                  derivedBuffers16[i].color = derivedBuffers16[i].colorScale.map(tile.dataValues[i]);
+              else
+                  derivedBuffers16[i].color = Color.Category10[i];
+
           derivedBuffers16.forEach((derivedBuffer, i) => {
               let color = derivedBuffer.colorScale.map(tile.dataValues[i]);
-              outputImage16.render(color, tile, derivedBuffer.mask);
+              //outputImage16.render(color, tile, derivedBuffer.mask);
+              outputImage16.render(
+                Composer.hatch(tile, derivedBuffers16, hatchingSize, false),
+                tile.center()
+              );
           });
         }
 
