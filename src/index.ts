@@ -575,44 +575,6 @@ export class TestMain {
         })
     }
 
-    testPunchcard() {
-        let size = 32;
-        let biggerRectTiles = Tiling.rectangularTiling(this.width, this.height, size, size);
-
-        for(let tile of biggerRectTiles) {
-            tile.dataValues = tile.aggregate(this.dataBuffers, TileAggregation.Sum);
-        }
-
-        let maxCount = util.amax(biggerRectTiles.map(tile => util.amax(tile.dataValues)));
-
-        let derivedBuffers = this.dataBuffers.map((dataBuffer, i) => {
-            let derivedBuffer = new DerivedBuffer(dataBuffer);
-
-            derivedBuffer.color = Color.Category10[i];
-
-            return derivedBuffer;
-        });
-
-        let outputImage = new Image(this.width, this.height);
-        let promises = [];
-
-        for(let tile of biggerRectTiles) {
-            let promise = Composer.punchcard(derivedBuffers, tile.dataValues, {
-                width: size,
-                height: size,
-                'z.scale.domain': [0, maxCount * 5],
-            }).then((vegaPixels) => {
-                outputImage.render(vegaPixels, tile);
-            })
-
-            promises.push(promise);
-        }
-
-        Promise.all(promises).then(() => {
-            CanvasRenderer.render(outputImage, 'canvas14');
-        });
-    }
-
     figures() {
         util.get('data/census_data.json').then(response => {
             let config = new Parser.Configuration(response);
@@ -625,9 +587,9 @@ export class TestMain {
                 this.figure1a(config, topous);
                 this.figure1b(config, topous);
                 this.figure1c1(config, topous);
+                this.figure1c2(config, topous);
             });
         });
-
     }
 
     figure1a(config:Parser.Configuration, topous:any) {
@@ -788,6 +750,54 @@ export class TestMain {
 
         for(let tile of ustiles)
             CanvasRenderer.strokeVectorMask(tile.mask, 'fig1c1', '#000');
+    }
+
+    figure1c2(config:Parser.Configuration, topous:any) {
+        let width  = config.data!.dataSpec!.encoding!.x!.bin!.maxbins!;
+        let height = config.data!.dataSpec!.encoding!.y!.bin!.maxbins!;
+
+        let dataBuffers = config.data!.dataSpec!.buffers!.map((bufferSpec, i) => new DataBuffer(bufferSpec.value, width, height, bufferSpec.data));
+        let size = 16;
+
+        let tiles = Tiling.rectangularTiling(width, height, size, size);
+
+        for(let tile of tiles) {
+            tile.dataValues = tile.aggregate(dataBuffers, TileAggregation.Sum);
+        }
+
+        let maxCount = util.amax(tiles.map(tile => util.amax(tile.dataValues)));
+
+        let derivedBuffers = this.dataBuffers.map((dataBuffer, i) => {
+            let derivedBuffer = new DerivedBuffer(dataBuffer);
+
+            derivedBuffer.color = Color.Category10[i];
+
+            return derivedBuffer;
+        });
+
+        let outputImage = new Image(width, height);
+        let promises = [];
+
+        for(let tile of tiles) {
+            let promise = Composer.punchcard(derivedBuffers, tile.dataValues, {
+                width: size,
+                height: size,
+                'z.scale.domain': [0, maxCount * 5],
+                'z.scale.type': 'linear'
+            }).then((vegaPixels) => {
+                outputImage.render(vegaPixels, tile);
+            })
+
+            promises.push(promise);
+        }
+
+        Promise.all(promises).then(() => {
+            let ustiles = Tiling.topojsonTiling(width, height, topous);
+            CanvasRenderer.render(outputImage, 'fig1c2');
+
+            for(let tile of ustiles)
+                CanvasRenderer.strokeVectorMask(tile.mask, 'fig1c2', '#000');
+        });
     }
 
     legendMain() {

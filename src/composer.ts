@@ -148,8 +148,9 @@ export default class Composer {
         options:{
             width?:number,
             height?:number,
-            'z.scale.domain': [number, number]
-        } = {'z.scale.domain': [0, 1]}
+            'z.scale.domain': [number, number],
+            'z.scale.type': string
+        } = {'z.scale.domain': [0, 1], 'z.scale.type': 'linear'}
     ) {
         let n = buffers.length;
         let cols = Math.ceil(Math.sqrt(n));
@@ -174,7 +175,8 @@ export default class Composer {
                     "field": "value",
                     "type": "quantitative",
                     scale: {
-                        domain: options["z.scale.domain"]
+                        domain: options["z.scale.domain"],
+                        type: options["z.scale.type"]
                     }
                 },
                 color: {
