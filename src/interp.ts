@@ -104,13 +104,14 @@ export default class Interpreter {
         }
         else if (this.rebin.type == "topojson") {
             let url = this.rebin.url,
-                feature = this.rebin.feature || null;
+                topojson = this.rebin.topojson,
+                feature = this.rebin.feature || null; //CHECK
             console.log('topojson rebin url='+url
                         +' feature='+feature);
             // TODO get the projection, transform, clip, etc.
             tiles = Tiling.topojsonTiling(this.width,
                                            this.height,
-                                           feature);
+                                          topojson, topojson.objects[feature]);
         }
         else if (this.rebin.type == "voronoi") {
             if (this.rebin.points) {

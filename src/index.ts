@@ -463,7 +463,8 @@ export class TestMain {
               }
             );
 
-            let ustiles = Tiling.topojsonTiling(width!, height!, topous);
+            let ustiles = Tiling.topojsonTiling(width!, height!,
+                                                topous, topous.objects.states);
 
             let weavingSize = jquery("#slider11").slider("option", "value");
             let randomMasks = Mask.generateWeavingRandomMasks(dataBuffers.length, weavingSize, width!, height!);
@@ -540,7 +541,7 @@ export class TestMain {
               return db;
             });
 
-            let ustiles = Tiling.topojsonTiling(width, height, topous);
+            let ustiles = Tiling.topojsonTiling(width, height, topous, topous.objects.states);
 
             for(let tile of ustiles) {
                 tile.dataValues = tile.aggregate(dataBuffers, TileAggregation.Sum);
@@ -626,7 +627,7 @@ export class TestMain {
 
         CanvasRenderer.render(outputImage, 'fig1a');
 
-        let ustiles = Tiling.topojsonTiling(width, height, topous);
+        let ustiles = Tiling.topojsonTiling(width, height, topous, topous.objects.states);
         for(let tile of ustiles)
             CanvasRenderer.strokeVectorMask(tile.mask, 'fig1a', '#000');
     }
@@ -640,7 +641,7 @@ export class TestMain {
             new DataBuffer('test', width, height, bufferSpec.data).blur(1)
         );
 
-        let ustiles = Tiling.topojsonTiling(width, height!, topous);
+        let ustiles = Tiling.topojsonTiling(width, height!, topous, topous.objects.states);
 
         for(let tile of ustiles) {
             tile.dataValues = tile.aggregate(dataBuffers, TileAggregation.Sum);
@@ -694,7 +695,7 @@ export class TestMain {
 
         let dataBuffers = config.data!.dataSpec!.buffers!.map((bufferSpec, i) => new DataBuffer(bufferSpec.value, width, height, bufferSpec.data));
 
-        let ustiles = Tiling.topojsonTiling(width, height, topous);
+        let ustiles = Tiling.topojsonTiling(width, height, topous, topous.objects.states);
 
         for(let tile of ustiles) {
              if (jquery("#compo1c1a option:selected").text()=='Min')
@@ -800,7 +801,7 @@ export class TestMain {
         }
 
         Promise.all(promises).then(() => {
-            let ustiles = Tiling.topojsonTiling(width, height, topous);
+            let ustiles = Tiling.topojsonTiling(width, height, topous, topous.objects.states);
             CanvasRenderer.render(outputImage, 'fig1c2');
 
             for(let tile of ustiles)
