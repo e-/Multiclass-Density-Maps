@@ -19,27 +19,28 @@ export function pixelTiling (width:number, height:number) {
 }
 
 
-export function topojsonTiling(width:number, height:number, us:any):Tile[] {
+export function topojsonTiling(width:number, height:number,
+                               us:any, feature:any):Tile[] {
   let tiles:Tile[] = [];
 
   // remove alaska, Hawai and puerto-rico
   us.objects.states.geometries.splice(49, 4);
 
-  let allstate:any    = topo.feature(us, us.objects.states);
+  let allstate:any    = topo.feature(us, feature);
+  let projection   = d3.geoMercator().fitSize([width, height], allstate);
 
   // mainland states
   for (let j=0; j<=48; j++){
-
     // just one shape
-    let onestate:any = topo.feature(us, us.objects.states.geometries[j]);
-    let projection   = d3.geoMercator().fitSize([width, height], allstate);
+    let onestate:any = topo.feature(us, feature.geometries[j]);
     let gp           = d3.geoPath(projection);
     let bb           = gp.bounds(onestate);
 
     // now let's create a mask for that shape
     let mask:Mask    = new Mask(Math.ceil(bb[1][0])-Math.floor(bb[0][0]), Math.ceil(bb[1][1])-Math.floor(bb[0][1]), 0);
     let canvas1      = mask.maskCanvas;
-    let context1:any = canvas1.getContext("2d");
+    let context1 = canvas1.getContext("2d"); // CanvasRenderingContext2D | null
+    if (context1 == null) return [];
 
     // a new projection for that shape. Normally just a translate from projection
     let projection2  = d3.geoMercator().fitSize([canvas1.width, canvas1.height], onestate);
