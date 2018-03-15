@@ -129,11 +129,14 @@
                 <th>RandomRectangularWeaving</th>
                 <th>SquareRectangularWeaving</th>
                 <th>HexagonalWeaving <button onclick="testMain.testHexa(-1)">Run </button><button onclick="testMain.testHexa(0)">0</button><button onclick="testMain.testHexa(1)">1</button><button onclick="testMain.testHexa(2)">2</button><button onclick="testMain.testHexa(3)">3</button></th>
+                <th>TriangularWeaving <button onclick="testMain.testTriang(-1)">Run </button><button onclick="testMain.testTriang(0)">0</button><button onclick="testMain.testTriang(1)">1</button><button onclick="testMain.testTriang(2)">2</button><button onclick="testMain.testTriang(3)">3</button></th>
             </tr>
+
             <tr>
                 <td><canvas id="canvas4"></canvas></td>
                 <td><canvas id="canvas5"></canvas></td>
                 <td><canvas id="canvas6"></canvas></td>
+                <td><canvas id="canvas17"></canvas></td>
             </tr>
         </table>
 
@@ -226,7 +229,6 @@
 
         <table>
             <tr>
-                <th>Census Data <div id="slider10" style="margin-left:15px;display:inline-block;width:200px;height:10px"></div></th>
                 <th>US shapes Weaving <div id="slider11" style="margin-left:15px;display:inline-block;width:200px;height:10px"></div>
                          <select id="compo11a" onchange="testMain.testUSShapes()"><option>Min</option><option>Max</option><option>Mean</option><option selected>Sum</option></select>
                          <select id="compo11b" onchange="testMain.testUSShapes()"><option>Linear</option><option>Log</option><option>EquiDepth</option><option>SquareRoot</option><option selected>CubicRoot</option>
@@ -234,12 +236,11 @@
                 </th>
             </tr>
             <tr>
-                <td><canvas id="canvas10"></canvas></td>
                 <td><canvas id="canvas11"></canvas></td>
             </tr>
         </table>
 
-        <table>
+        <!--<table>
             <tr>
                 <th>Hatching</th><td>Aggregation</td><td>Parameters <input type="checkbox" checked onchange="testMain.testHatching()" id="border15"/>border                     <select id="compo15f" onchange="testMain.testHatching()"><option selected>Align</option><option>Over</option></select></td>
                 <th>Bar chart using Vega.js</th>
@@ -257,20 +258,31 @@
                 <th>...</th>
             </tr>
             <tr>
-                <td colspan="3"><canvas id="canvas15"></canvas></td>
-                <td><canvas id="canvas13"></canvas></td>
+                <td colspan="3"><canvas id="canvas15"></canvas></td>                
             </tr>
-        </table>
+        </table>-->
 
-        <table>
-            <tr>
-                <th>Punchcard using Vega.js</th>
-            </tr>
-            <tr>
-                <td><canvas id="canvas14"></canvas></td>
-            </tr>
-        </table>
+        <h2>Figure 1a</h2>
+        <canvas id="fig1a"></canvas>
 
+        <h2>Figure 1b</h2>
+        <canvas id="fig1b"></canvas>
+
+        <h2>Figure 1c1</h2>
+        <canvas id="fig1c1"></canvas>
+
+        <h2>Figure 1c2</h2>
+        <canvas id="fig1c2"></canvas>
+
+        <h2>Figure 1d</h2>
+        <canvas id="fig1d"></canvas>
+
+        <h2>Figure 1e</h2>
+        <canvas id="fig1e"></canvas>
+
+        <h2>Figure 1f</h2>
+        <canvas id="fig1f"></canvas>
+        
         <script src="dist/bundle.js" type="text/javascript"></script>
         <script>
             var testMain = new MCS.TestMain();
@@ -279,3 +291,4 @@
         </script>
     </body>
 </html>
+
