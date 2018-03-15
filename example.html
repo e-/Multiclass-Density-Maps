@@ -226,7 +226,6 @@
 
         <table>
             <tr>
-                <th>Census Data <div id="slider10" style="margin-left:15px;display:inline-block;width:200px;height:10px"></div></th>
                 <th>US shapes Weaving <div id="slider11" style="margin-left:15px;display:inline-block;width:200px;height:10px"></div>
                          <select id="compo11a" onchange="testMain.testUSShapes()"><option>Min</option><option>Max</option><option>Mean</option><option selected>Sum</option></select>
                          <select id="compo11b" onchange="testMain.testUSShapes()"><option>Linear</option><option>Log</option><option>EquiDepth</option><option>SquareRoot</option><option selected>CubicRoot</option>
@@ -234,7 +233,6 @@
                 </th>
             </tr>
             <tr>
-                <td><canvas id="canvas10"></canvas></td>
                 <td><canvas id="canvas11"></canvas></td>
             </tr>
         </table>
@@ -257,19 +255,12 @@
                 <th>...</th>
             </tr>
             <tr>
-                <td colspan="3"><canvas id="canvas15"></canvas></td>
-                <td><canvas id="canvas13"></canvas></td>
+                <td colspan="3"><canvas id="canvas15"></canvas></td>                
             </tr>
         </table>
 
-        <table>
-            <tr>
-                <th>Punchcard using Vega.js</th>
-            </tr>
-            <tr>
-                <td><canvas id="canvas14"></canvas></td>
-            </tr>
-        </table>
+        <h2>Figure 1a</h2>
+        <canvas id="fig1a"></canvas>
 
         <script src="dist/bundle.js" type="text/javascript"></script>
         <script>

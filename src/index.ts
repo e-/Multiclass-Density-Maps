@@ -225,18 +225,7 @@ export class TestMain {
         CanvasRenderer.render(outputImage7, 'canvas7');
         CanvasRenderer.render(outputImage8, 'canvas8');
 
-        // Testing Spec
-        this.testVisSpec(2);
-        // with interactivity
         let me = this;
-        jquery( "#slider10" ).css("background", "#ddd").slider({
-          min:   1,
-          value: 2,
-          max:   32,
-          slide:function( event:any, ui:any){
-            me.testVisSpec(ui.value);
-          }}
-        );
 
         // Testing US per state weaving
         this.testUSShapes();
@@ -288,8 +277,9 @@ export class TestMain {
 
         CanvasRenderer.renderMultiples(outputImages, 'canvas12');
 
-        this.testUSVega();
-        this.testPunchcard();
+        this.figures();
+        // this.testUSVega();
+        // this.testPunchcard();
     }
 
     testHexa(id:number){
@@ -419,53 +409,6 @@ export class TestMain {
         if(d3.select("#border16").property("checked"))
           for (let k in voronoiTiles)
             CanvasRenderer.strokeVectorMask(voronoiTiles[k].mask, 'canvas16', '#000');
-    }
-
-
-    testVisSpec(size:number) {
-        //console.log("testVisSpec "+size);
-        util.get('data/census_data.json').then(response => {
-            let config = new Parser.Configuration(response);
-
-            // when we call load(), data spec and buffers are really loaded through AJAX
-            return config.load('data/');
-        }).then((config:Parser.Configuration) => {
-            //console.log(config);
-
-            let width = 512;
-            let height = 280;
-
-            let dataBuffers = config.data!.dataSpec!.buffers!.map((bufferSpec) =>
-              new DataBuffer('test', width, height, bufferSpec.data)
-            );
-
-            let tiles = Tiling.rectangularTiling(width, height, size, size);
-
-            for(let tile of tiles) {
-                // tile.dataValues are an array of numbers
-                tile.dataValues = tile.aggregate(dataBuffers, TileAggregation.Sum);
-            }
-
-            // get max count of bins for scale
-            let maxCount = util.amax(tiles.map(tile => util.amax(tile.dataValues)));
-
-            let derivedBuffers = dataBuffers.map((dataBuffer, i) => {
-                let derivedBuffer = new DerivedBuffer(dataBuffer);
-
-                derivedBuffer.colorScale = new Scale.LogColorScale([1, maxCount], [Color.White, Color.Category10[i]]);
-
-                return derivedBuffer;
-            });
-
-            let outputImage = new Image(width, height);
-
-            for(let tile of tiles) {
-                let color1 = Composer.max(derivedBuffers, tile.dataValues);
-                outputImage.render(color1, tile);
-            }
-
-            CanvasRenderer.render(outputImage, 'canvas10');
-        });
     }
 
     testUSShapes() {
@@ -743,6 +686,59 @@ export class TestMain {
 
         Promise.all(promises).then(() => {
             CanvasRenderer.render(outputImage, 'canvas14');
+        });
+    }
+
+    figures() {
+        this.figure1a();
+    }
+
+
+    figure1a() {
+        util.get('data/census_data.json').then(response => {
+            let config = new Parser.Configuration(response);
+
+            return config.load('data/');
+        }).then((config:Parser.Configuration) => {
+            let width = 512;
+            let height = 280;
+            let size = 1;
+
+            util.get("data/us.json").then(result => {
+                let topous = JSON.parse(result);
+
+                let dataBuffers = config.data!.dataSpec!.buffers!.slice(0, 2).map((bufferSpec) =>
+                    new DataBuffer('test', width, height, bufferSpec.data).blur(1)
+                );
+
+                let tiles = Tiling.rectangularTiling(width, height, size, size);
+
+                for(let tile of tiles) {
+                    // tile.dataValues are an array of numbers
+                    tile.dataValues = tile.aggregate(dataBuffers, TileAggregation.Sum);
+                }
+
+                // get max count of bins for scale
+                let maxCount = util.amax(tiles.map(tile => util.amax(tile.dataValues)));
+
+                let derivedBuffers = dataBuffers.map((dataBuffer, i) => new DerivedBuffer(dataBuffer));
+
+                derivedBuffers[0].colorScale = new Scale.LogColorScale([1, maxCount], [Color.White, Color.Red]);
+                derivedBuffers[1].colorScale = new Scale.LogColorScale([1, maxCount], [Color.White, Color.Blue]);
+
+                let outputImage = new Image(width, height);
+
+                for(let tile of tiles) {
+                    let color1 = Composer.mean(derivedBuffers, tile.dataValues);
+                    outputImage.render(color1, tile);
+                }
+
+                CanvasRenderer.render(outputImage, 'fig1a');
+
+                let ustiles = Tiling.topojsonTiling(width, height, topous);
+                for(let tile of ustiles)
+                    CanvasRenderer.strokeVectorMask(tile.mask, 'fig1a', '#000');
+            });
         });
     }
 

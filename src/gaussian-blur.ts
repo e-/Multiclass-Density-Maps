@@ -2,21 +2,21 @@
 
 function boxesForGauss(sigma:number, n:number)  // standard deviation, number of boxes
 {
-    let wIdeal = Math.sqrt((12*sigma*sigma/n)+1);  // Ideal averaging filter width 
+    let wIdeal = Math.sqrt((12*sigma*sigma/n)+1);  // Ideal averaging filter width
     var wl = Math.floor(wIdeal);
     if (wl%2==0) wl--;
     let wu = wl+2;
-				
+
     let mIdeal = (12*sigma*sigma - n*wl*wl - 4*n*wl - 3*n)/(-4*wl - 4);
     let m = Math.round(mIdeal);
     // var sigmaActual = Math.sqrt( (m*wl*wl + (n-m)*wu*wu - n)/12 );
-				
+
     let sizes = [];
     for(var i=0; i<n; i++) sizes.push(i<m?wl:wu);
     return sizes;
 }
 
-export function gaussian_blur(scl:number[], tcl:number[], w:number, h:number, r:number) {
+export default function gaussian_blur(scl:number[], tcl:number[], w:number, h:number, r:number) {
     var bxs = boxesForGauss(r, 3);
     boxBlur_4 (scl, tcl, w, h, (bxs[0]-1)/2);
     boxBlur_4 (tcl, scl, w, h, (bxs[1]-1)/2);
