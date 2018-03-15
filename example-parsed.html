@@ -248,6 +248,41 @@ render('canvas10','Voronoi Tiling + Hatching',
            }
        }, true);
 
+// render('canvas11', 'Census Data Smoothed',
+// {
+//     "description": "US Census Synthetic people",
+//     "background": "Black",
+//     "data": {"url": "census.snappy_data.json"},
+//     "smooth": {},
+//     "reencoding": {
+//         "label": {
+//             "field": "z",
+//             "type": "nominal",
+//             "scale": {
+//                 "domain": ["w", "h", "a", "b", "o"],
+//                 "range": ["White", "Hispanic", "Asian", "Black", "Other"]
+//             }
+//         },
+//         "color": {
+//             "field": "z",
+//             "type": "nominal",
+//             "scale": {
+//                 "range": ["Blue", "Orange", "Red", "Green", "Brown"]
+//             }
+//         }
+//     },
+//     "rebin": {
+//           "type": "voronoi",
+//           "url": "us.json"
+//     },
+//     "compose": {
+//           "mix": "weavingrandom",
+//           "size": 4
+//     },
+//     "rescale": {
+//         "type": "log"
+//     }
+// });
 
 </script>
     </body>
