@@ -82,7 +82,6 @@ export function topojsonTiling(width:number, height:number, us:any):Tile[] {
   return tiles;
 }
 
-
 export function voronoiTiling(width:number, height:number,
                               nbsites:number=10, sites:[number, number][]=[]) {
   let rand3 = rn.create('JaeminFredPierreJean-Daniel');
