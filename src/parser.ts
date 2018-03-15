@@ -159,6 +159,7 @@ export interface RebinSpec {
     size?: number;
     feature?: string;
     url?: string;
+    topojson?: any;
     points?: [number, number][];
     stroke?: boolean;
 }
@@ -291,19 +292,38 @@ export class Configuration {
     }
 
     // load data from the server if this.data contains url
-    load(base:string = '') {
+    load(base:string = ''): Promise<Configuration> {
+        var promise:Promise<Configuration> | null = null;
+        if (this.rebin &&
+            this.rebin.url != undefined && this.rebin.topojson != undefined) {
+            promise = util.get(base + this.rebin.url).then(response => {
+                this.rebin!.topojson = JSON.parse(response);
+                return this;
+            });
+        }
+        //TODO chain promise with next
+
         if(!this.data!.dataSpec && this.data!.url) {
-            //console.log('Loading '+this.data!.url!);
-            return util.get(base + this.data!.url!).then(response => {
+            let loadData = (response:any): Promise<Configuration> => {
+                return util.get(base + this.data!.url!).then(response => {
                 let dataSpec = new DataSpec(JSON.parse(response));
 
-                return dataSpec.load(base).then(() => {
-                    this.data!.dataSpec = dataSpec;
-                    return this;
-                });
-            })
+                return dataSpec
+                      .load(base)
+                      .then(() => {
+                          this.data!.dataSpec = dataSpec;
+                          return this;
+                      });
+            });
+            };
+            if (promise != null) {
+                promise.then(loadData);
+                return promise;
+            }
+            else
+                return loadData(null);
         }
-
+        
         return Promise.resolve(this);
     }
 
