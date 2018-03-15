@@ -129,7 +129,7 @@ render('canvas5', 'Square Rectangular Weaving',
            }
        });
 
-render('canvas6', 'EquiDepth Color Scale',
+render('canvas6', 'Linear Color Scale hex',
        {
            "description": "multivariate normal data",
            "background": "Black",
@@ -139,6 +139,23 @@ render('canvas6', 'EquiDepth Color Scale',
            },
            "compose": {
                "mix": "weavinghex",
+               "size": 8
+           },
+           "rescale": {
+               "type": "linear"
+           }
+       });
+
+render('canvas6bis', 'EquiDepth Color Scale triangles',
+       {
+           "description": "multivariate normal data",
+           "background": "Black",
+           "data": {"url": "mn_data.json"},
+           "smooth": {},
+           "rebin": { 
+           },
+           "compose": {
+               "mix": "weavingtri",
                "size": 8
            },
            "rescale": {

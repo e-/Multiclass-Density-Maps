@@ -98,6 +98,7 @@ export default class Mask {
 
     static generateWeavingTriangleMasks(m: number, size: number, width: number, height: number) : Mask[]
     {
+        //TODO (jdf) fix to work with any m or throw exception when m is odd??
         let masks:Mask[] = Array<Mask>(m);
         let i:number, j:number;
         size = Math.floor(size);

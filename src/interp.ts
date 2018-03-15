@@ -157,6 +157,10 @@ export default class Interpreter {
             this.masks = Mask.generateWeavingHexaMasks(this.n,
                                                        this.compose.size||8,
                                                        this.width, this.height);
+        else if (this.compose.mix === "weavingtri")
+            this.masks = Mask.generateWeavingTriangleMasks(this.n,
+                                                           this.compose.size||8,
+                                                           this.width, this.height);
     }
 
     render(id:string) {
