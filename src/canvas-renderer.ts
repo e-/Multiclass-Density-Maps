@@ -49,7 +49,7 @@ export default class CanvasRenderer {
         }
     }
 
-    static drawVectorMask(mask:Mask|undefined, id:string, color:string){
+    static strokeVectorMask(mask:Mask|undefined, id:string, color:string){
       if (!mask) return;
       //console.log("drawMask "+mask.pols.allpolys.length);
 

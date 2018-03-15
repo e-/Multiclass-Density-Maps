@@ -225,18 +225,7 @@ export class TestMain {
         CanvasRenderer.render(outputImage7, 'canvas7');
         CanvasRenderer.render(outputImage8, 'canvas8');
 
-        // Testing Spec
-        this.testVisSpec(2);
-        // with interactivity
         let me = this;
-        jquery( "#slider10" ).css("background", "#ddd").slider({
-          min:   1,
-          value: 2,
-          max:   32,
-          slide:function( event:any, ui:any){
-            me.testVisSpec(ui.value);
-          }}
-        );
 
         // Testing US per state weaving
         this.testUSShapes();
@@ -289,8 +278,9 @@ export class TestMain {
 
         CanvasRenderer.renderMultiples(outputImages, 'canvas12');
 
-        this.testUSVega();
-        this.testPunchcard();
+        this.figures();
+        // this.testUSVega();
+        // this.testPunchcard();
     }
 
     testHexa(id:number){
@@ -406,7 +396,7 @@ export class TestMain {
 
         if(d3.select("#border9").property("checked"))
           for (let k in voronoiTiles)
-            CanvasRenderer.drawVectorMask(voronoiTiles[k].mask, 'canvas9', '#000');
+            CanvasRenderer.strokeVectorMask(voronoiTiles[k].mask, 'canvas9', '#000');
     }
 
     testVoronoiHatching(){
@@ -455,54 +445,7 @@ export class TestMain {
 
         if(d3.select("#border16").property("checked"))
           for (let k in voronoiTiles)
-            CanvasRenderer.drawVectorMask(voronoiTiles[k].mask, 'canvas16', '#000');
-    }
-
-
-    testVisSpec(size:number) {
-        //console.log("testVisSpec "+size);
-        util.get('data/census_data.json').then(response => {
-            let config = new Parser.Configuration(response);
-
-            // when we call load(), data spec and buffers are really loaded through AJAX
-            return config.load('data/');
-        }).then((config:Parser.Configuration) => {
-            //console.log(config);
-
-            let width = 512;
-            let height = 280;
-
-            let dataBuffers = config.data!.dataSpec!.buffers!.map((bufferSpec) =>
-              new DataBuffer('test', width, height, bufferSpec.data)
-            );
-
-            let tiles = Tiling.rectangularTiling(width, height, size, size);
-
-            for(let tile of tiles) {
-                // tile.dataValues are an array of numbers
-                tile.dataValues = tile.aggregate(dataBuffers, TileAggregation.Sum);
-            }
-
-            // get max count of bins for scale
-            let maxCount = util.amax(tiles.map(tile => util.amax(tile.dataValues)));
-
-            let derivedBuffers = dataBuffers.map((dataBuffer, i) => {
-                let derivedBuffer = new DerivedBuffer(dataBuffer);
-
-                derivedBuffer.colorScale = new Scale.LogColorScale([1, maxCount], [Color.White, Color.Category10[i]]);
-
-                return derivedBuffer;
-            });
-
-            let outputImage = new Image(width, height);
-
-            for(let tile of tiles) {
-                let color1 = Composer.max(derivedBuffers, tile.dataValues);
-                outputImage.render(color1, tile);
-            }
-
-            CanvasRenderer.render(outputImage, 'canvas10');
-        });
+            CanvasRenderer.strokeVectorMask(voronoiTiles[k].mask, 'canvas16', '#000');
     }
 
     testUSShapes() {
@@ -576,7 +519,6 @@ export class TestMain {
               derivedBuffers11.forEach((derivedBuffer, i) => {
                   let color  = derivedBuffers11[i].colorScale.map(tile.dataValues[i]);
                   outputImage11.render(color, tile, derivedBuffers11[i].mask);
-
               });
             }
 
@@ -585,7 +527,7 @@ export class TestMain {
             // draw frontiers
             if(d3.select("#border11").property("checked"))
               for(let tile of ustiles)
-                CanvasRenderer.drawVectorMask(tile.mask, 'canvas11', '#000');
+                CanvasRenderer.strokeVectorMask(tile.mask, 'canvas11', '#000');
 
           });
 
@@ -686,7 +628,7 @@ export class TestMain {
             // draw frontiers
             if(d3.select("#border15").property("checked"))
               for(let tile of ustiles)
-                CanvasRenderer.drawVectorMask(tile.mask, 'canvas15', '#000');
+                CanvasRenderer.strokeVectorMask(tile.mask, 'canvas15', '#000');
 
           });
 
@@ -739,7 +681,7 @@ export class TestMain {
 
             Promise.all(promises).then(() => {
                 CanvasRenderer.render(outputImage, 'canvas13');
-                for(let tile of ustiles) CanvasRenderer.drawVectorMask(tile.mask, 'canvas13', '#888');
+                for(let tile of ustiles) CanvasRenderer.strokeVectorMask(tile.mask, 'canvas13', '#888');
             });
           });
         })
@@ -781,6 +723,98 @@ export class TestMain {
         Promise.all(promises).then(() => {
             CanvasRenderer.render(outputImage, 'canvas14');
         });
+    }
+
+    figures() {
+        util.get('data/census_data.json').then(response => {
+            let config = new Parser.Configuration(response);
+
+            return config.load('data/');
+        }).then((config:Parser.Configuration) => {
+            util.get("data/us.json").then(result => {
+                let topous = JSON.parse(result);
+
+                this.figure1a(config, topous);
+                this.figure1b(config, topous);
+            });
+        });
+
+    }
+
+    figure1a(config:Parser.Configuration, topous:any) {
+
+        let width = 512;
+        let height = 280;
+        let size = 1;
+
+        let dataBuffers = config.data!.dataSpec!.buffers!.slice(0, 2).map((bufferSpec) =>
+            new DataBuffer('test', width, height, bufferSpec.data).blur(1)
+        );
+
+        let tiles = Tiling.rectangularTiling(width, height, size, size);
+
+        for(let tile of tiles) {
+            // tile.dataValues are an array of numbers
+            tile.dataValues = tile.aggregate(dataBuffers, TileAggregation.Sum);
+        }
+
+        // get max count of bins for scale
+        let maxCount = util.amax(tiles.map(tile => util.amax(tile.dataValues)));
+
+        let derivedBuffers = dataBuffers.map((dataBuffer, i) => new DerivedBuffer(dataBuffer));
+
+        derivedBuffers[0].colorScale = new Scale.LogColorScale([1, maxCount], [Color.White, Color.Red]);
+        derivedBuffers[1].colorScale = new Scale.LogColorScale([1, maxCount], [Color.White, Color.Blue]);
+
+        let outputImage = new Image(width, height);
+
+        for(let tile of tiles) {
+            let color1 = Composer.mean(derivedBuffers, tile.dataValues);
+            outputImage.render(color1, tile);
+        }
+
+        CanvasRenderer.render(outputImage, 'fig1a');
+
+        let ustiles = Tiling.topojsonTiling(width, height, topous);
+        for(let tile of ustiles)
+            CanvasRenderer.strokeVectorMask(tile.mask, 'fig1a', '#000');
+    }
+
+    figure1b(config:Parser.Configuration, topous:any) {
+        let width = 512;
+        let height = 280;
+        let size = 1;
+
+        let dataBuffers = config.data!.dataSpec!.buffers!.slice(0, 3).map((bufferSpec) =>
+            new DataBuffer('test', width, height, bufferSpec.data).blur(1)
+        );
+
+        let ustiles = Tiling.topojsonTiling(width, height!, topous);
+
+        for(let tile of ustiles) {
+            tile.dataValues = tile.aggregate(dataBuffers, TileAggregation.Sum);
+        }
+
+        let maxCount = util.amax(ustiles.map(tile => util.amax(tile.dataValues)));
+
+        let derivedBuffers = dataBuffers.map((dataBuffer, i) => new DerivedBuffer(dataBuffer));
+
+        // NOTE: manipulated maxCount to balance colors
+        derivedBuffers[0].colorScale = new Scale.CubicRootColorScale([1, maxCount], [Color.White, Color.Red]);
+        derivedBuffers[1].colorScale = new Scale.CubicRootColorScale([1, maxCount], [Color.White, Color.Yellow]);
+        derivedBuffers[2].colorScale = new Scale.CubicRootColorScale([1, maxCount], [Color.White, Color.Blue]);
+
+        let outputImage = new Image(width, height);
+
+        for(let tile of ustiles) {
+            let color = Composer.multiplicativeMix(derivedBuffers, tile.dataValues);
+            outputImage.render(color, tile);
+        }
+
+        CanvasRenderer.render(outputImage, 'fig1b');
+
+        for(let tile of ustiles)
+            CanvasRenderer.strokeVectorMask(tile.mask, 'fig1b', '#000');
     }
 
     legendMain() {

@@ -25,26 +25,26 @@ var testMain = new MCS.TestMain(), prefix = "specs/";
 var configuration, interpreter;
 
 function render(id, desc, json, do_break) {
+  var body = document.getElementsByTagName('body')[0],
+      div = document.createElement("div"),
+      canvas = document.createElement("canvas");
+  div.classList.add("example");
+  canvas.id = id;
+  div.appendChild(document.createTextNode(desc));
+  div.appendChild(document.createElement("br"));
+  div.appendChild(canvas);
+  body.appendChild(div);
+  if (do_break) {
+      var br = document.createElement("br");
+      br.classList.add('clearBoth');
+      body.appendChild(br);
+  }
   var conf = testMain.create_configuration(json);
   conf.load('data/').then(function(conf) {
       interp = testMain.create_interp(conf);
       console.log('interp w='+conf.width+' h='+conf.height);
       interpreter = interp;
       interp.interpret();
-      var body = document.getElementsByTagName('body')[0],
-          div = document.createElement("div"),
-          canvas = document.createElement("canvas");
-      div.classList.add("example");
-      canvas.id = id;
-      div.appendChild(document.createTextNode(desc));
-      div.appendChild(document.createElement("br"));
-      div.appendChild(canvas);
-      body.appendChild(div);
-      if (do_break) {
-          var br = document.createElement("br");
-          br.classList.add('clearBoth');
-          body.appendChild(br);
-      }
       interp.render(id);
   });
 }
@@ -108,7 +108,7 @@ render('canvas4','Random Rectangular Weaving',
            },
            "compose": {
                "mix": "weavingrandom",
-               "tilesize": 8
+               "size": 8
            }
        });
 
@@ -122,7 +122,7 @@ render('canvas5', 'Square Rectangular Weaving',
            },
            "compose": {
                "mix": "weavingsquare",
-               "tilesize": 8
+               "size": 8
            },
            "rescale": {
                "type": "linear"
@@ -139,10 +139,112 @@ render('canvas6', 'EquiDepth Color Scale',
            },
            "compose": {
                "mix": "weavinghex",
-               "tilesize": 8
+               "size": 8
            },
            "rescale": {
                "type": "linear"
+           }
+       }, true);
+
+render('canvas7', 'Census Data',
+{
+    "description": "US Census Synthetic people",
+    "background": "Black",
+    "data": {"url": "census.snappy_data.json"},
+    "smooth": {},
+    "reencoding": {
+        "label": {
+            "field": "z",
+            "type": "nominal",
+            "scale": {
+                "domain": ["w", "h", "a", "b", "o"],
+                "range": ["White", "Hispanic", "Asian", "Black", "Other"]
+            }
+        },
+        "color": {
+            "field": "z",
+            "type": "nominal",
+            "scale": {
+                "range": ["Blue", "Orange", "Red", "Green", "Brown"]
+            }
+        }
+    },
+    "rebin": {
+    },
+    "compose": {
+        "mix": "mean",
+        "mixing": "additive"
+    },
+    "rescale": {
+        "type": "log"
+    }
+});
+
+render('canvas8', 'Census Data Smoothed',
+{
+    "description": "US Census Synthetic people",
+    "background": "Black",
+    "data": {"url": "census.snappy_data.json"},
+    "smooth": {"radius": 2},
+    "reencoding": {
+        "label": {
+            "field": "z",
+            "type": "nominal",
+            "scale": {
+                "domain": ["w", "h", "a", "b", "o"],
+                "range": ["White", "Hispanic", "Asian", "Black", "Other"]
+            }
+        },
+        "color": {
+            "field": "z",
+            "type": "nominal",
+            "scale": {
+                "range": ["Blue", "Orange", "Red", "Green", "Brown"]
+            }
+        }
+    },
+    "rebin": {
+    },
+    "compose": {
+        "mix": "mean",
+        "mixing": "additive"
+    },
+    "rescale": {
+        "type": "log"
+    }
+}, true);
+
+render('canvas9','Voronoi Tiling',
+       {
+           "description": "multivariate normal data",
+           "background": "Black",
+           "data": {"url": "mn_data.json"},
+           "smooth": {},
+           "rebin": {
+               "type": "voronoi",
+               "size": 32,
+               "stroke": true
+           },
+           "compose": {
+               "mix": "weavingrandom",
+               "size": 4
+           }
+       });
+
+render('canvas10','Voronoi Tiling + Hatching',
+       {
+           "description": "multivariate normal data",
+           "background": "Black",
+           "data": {"url": "mn_data.json"},
+           "smooth": {},
+           "rebin": {
+               "type": "voronoi",
+               "size": 32,
+               "stroke": true
+           },
+           "compose": {
+               "mix": "hatching",
+               "size": 8
            }
        }, true);
 

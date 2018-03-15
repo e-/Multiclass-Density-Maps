@@ -60,6 +60,23 @@ export default class Composer {
         return ret;
     }
 
+    static multiplicativeMix(buffers:DerivedBuffer[], values:number[]):Color {
+        let ret = new Color(1, 1, 1, 1);
+
+        values.forEach((value, i) => {
+            let color = buffers[i].colorScale.map(value);
+
+            ret = new Color(
+                ret.r * color.r,
+                ret.g * color.g,
+                ret.b * color.b,
+                ret.a * color.a
+            );
+        })
+
+        return ret;
+    }
+
     static none(buffers:DerivedBuffer[], values:number[]):Color {
         return Color.None;
     }

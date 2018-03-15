@@ -17,6 +17,7 @@ export default class Interpreter {
     public width: number;
     public height: number;
     public n:number = 0;
+    public sourceBuffers:DataBuffer[] = [];
     public dataBuffers:DataBuffer[] = [];
     public derivedBuffers: DerivedBuffer[] = [];
     public image:Image;
@@ -34,6 +35,8 @@ export default class Interpreter {
     public compose:Parser.ComposeSpec;
     public composer:(buffers:DerivedBuffer[], values:number[])=>Color = Composer.none;
     public masks:Mask[] = [];
+    public strokeMasks = false;
+    public blur:number=0;
 
     constructor(public configuration:Parser.Configuration) {
         if (! configuration.validate())
@@ -43,7 +46,8 @@ export default class Interpreter {
         this.image = new Image(this.width, this.height);
         this.bufferNames = configuration.bufferNames;
         this.n = this.bufferNames.length;
-        this.dataBuffers = configuration.getBuffers();
+        this.sourceBuffers = configuration.getBuffers();
+        this.dataBuffers = this.sourceBuffers;
         this.labels = configuration.getLabels();
         let colormap = configuration.getColors();
         if (colormap.length >= this.bufferNames.length)
@@ -58,6 +62,8 @@ export default class Interpreter {
             this.compose = configuration.compose;
         if (configuration.rescale)
             this.rescale = configuration.rescale;
+        if (configuration.blur)
+            this.blur = configuration.blur;
     }
 
     public interpret(context={}) {
@@ -68,6 +74,10 @@ export default class Interpreter {
     }
 
     computeDerivedBuffers(context={}) {
+        if (this.blur > 0) {
+            let newbuffers = this.dataBuffers.map(dataBuffer => dataBuffer.blur(this.blur));
+            this.dataBuffers = newbuffers;
+        }
     }
 
     computeRebin(context={}) {
@@ -103,12 +113,22 @@ export default class Interpreter {
                                            feature);
         }
         else if (this.rebin.type == "voronoi") {
-            let points = this.rebin.sites || 4;
-            console.log('voronoi rebin sites='+points);
-            tiles = Tiling.voronoiTiling(this.width,
-                                          this.height,
-                                          points);
+            if (this.rebin.points) {
+                let points:[number, number][] = this.rebin.points;
+                console.log('voronoi rebin sites='+points);
+                tiles = Tiling.voronoiTiling(this.width,
+                                             this.height,
+                                             0, points);
+            }
+            else {
+                let sites = this.rebin.size || 10;
+                tiles = Tiling.voronoiTiling(this.width,
+                                             this.height,
+                                             sites);
+            }
         }
+        if (this.rebin && this.rebin.stroke)
+            this.strokeMasks = true;
         this.tiles = tiles;
     }
 
@@ -126,19 +146,20 @@ export default class Interpreter {
             this.composer = Composer.additiveMix;
         else if (this.compose.mix === "weavingrandom")
             this.masks = Mask.generateWeavingRandomMasks(this.n,
-                                                         this.compose.tilesize||8,
+                                                         this.compose.size||8,
                                                          this.width, this.height);
         else if (this.compose.mix === "weavingsquare")
             this.masks = Mask.generateWeavingSquareMasks(this.n,
-                                                         this.compose.tilesize||8,
+                                                         this.compose.size||8,
                                                          this.width, this.height);
         else if (this.compose.mix === "weavinghex")
             this.masks = Mask.generateWeavingHexaMasks(this.n,
-                                                       this.compose.tilesize||8,
+                                                       this.compose.size||8,
                                                        this.width, this.height);
     }
 
     render(id:string) {
+        var useRender2 = false;
         for (let tile of this.tiles) {
             tile.dataValues = tile.aggregate(this.dataBuffers, this.tileAggregation);
         }
@@ -184,10 +205,27 @@ export default class Interpreter {
                 });
             }
         }
+        else if (this.compose.mix === "hatching") {
+            for(let tile of this.tiles) {
+                this.derivedBuffers.forEach((derivedBuffer:DerivedBuffer, i:number) => {
+                    derivedBuffer.color = derivedBuffer.colorScale.map(tile.dataValues[i]);
+                });
+
+                let hatch = Composer.hatch(tile, this.derivedBuffers,
+                                           this.compose.size, 
+                                           this.compose.proportional);
+                this.image.render(hatch, tile.center());
+                useRender2 = true;
+            }
+        }
         else 
             console.log('No valid composition');
         //CanvasRenderer.render(image, id);
-        let ctx = CanvasRenderer.render(this.image, id);
+        let ctx = useRender2 ? CanvasRenderer.render2(this.image, id)
+              : CanvasRenderer.render(this.image, id);
+        if (this.strokeMasks)
+            for(let tile of this.tiles)
+                CanvasRenderer.strokeVectorMask(tile.mask, id, '#888');
         // if (this.strokeCanvas) {
         //     ctx.setTransform(1, 0, 0, 1, 0, 0); // reset
         //     ctx.strokeStyle = this.backgroundStroke;

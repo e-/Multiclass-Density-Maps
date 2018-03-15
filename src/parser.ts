@@ -144,9 +144,12 @@ export interface ConfigurationReencodingSpec {
 }
 
 export class ComposeSpec {
-    mix: "none"|"min"|"mean"|"max"|"blend"|"weavingrandom"|"weavingsquare"|"weavinghex"="mean";
+    mix: "none"|"min"|"mean"|"max"|"blend"|
+          "weavingrandom"|"weavingsquare"|"weavinghex"|
+          "hatching"="mean";
     mixing: "additive"|"subtractive" = "additive";
-    tilesize: number = 8;
+    size:number = 8;
+    proportional:boolean = true;
 }
 
 export interface RebinSpec {
@@ -157,12 +160,14 @@ export interface RebinSpec {
     feature?: string;
     url?: string;
     points?: [number, number][];
+    stroke?: boolean;
 }
 
 export class Configuration {
     description?: string;
     background?: string;
     data?: ConfigurationDataSpec;
+    blur: number = 0;
     reencoding?: ConfigurationReencodingSpec;
     rebin?: RebinSpec;
     compose?: ComposeSpec;
@@ -179,6 +184,7 @@ export class Configuration {
         this.parseDescription();
         this.parseBackground();
         this.parseData();
+        this.parseSmooth();
         this.parseDerivedBuffers();
         this.parseReencoding();
         this.parseRebin();
@@ -196,6 +202,10 @@ export class Configuration {
     }
     parseData() {
         this.data = <ConfigurationDataSpec>this.specs.data;
+    }
+    parseSmooth() {
+        if ('smooth' in this.specs && this.specs.smooth.radius)
+            this.blur = <number>this.specs.smooth.radius;
     }
     parseDerivedBuffers() {
     }
