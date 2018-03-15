@@ -26,6 +26,15 @@
           canvas {
               border: 1px solid grey;
           }
+          h2{
+            margin-bottom:3px;
+          }
+          table.params{
+            display:NONE;
+          }
+          .example .isparam:cheched +table.params{
+            display:table;
+          }
         </style>
     </head>
 
@@ -258,7 +267,7 @@
                 <th>...</th>
             </tr>
             <tr>
-                <td colspan="3"><canvas id="canvas15"></canvas></td>                
+                <td colspan="3"><canvas id="canvas15"></canvas></td>
             </tr>
         </table>-->
 
@@ -268,8 +277,44 @@
         <h2>Figure 1b</h2>
         <canvas id="fig1b"></canvas>
 
+
+        <div class="example">
         <h2>Figure 1c1</h2>
-        <canvas id="fig1c1"></canvas>
+        <label><input type="checkbox" class="isparam" checked />Parameters</label>
+        <label><input type="checkbox" checked />Legend</label>
+        <label><input type="checkbox" checked />Background</label>
+        <table class="cartouche params">
+            <tr>
+                <th>Parameters: </th><td>Aggregation</td><td> <input type="checkbox" checked id="border1c1"/>border  <select id="compo1c1f" "><option selected>Align</option><option>Over</option></select></td>
+            </tr>
+            <tr>
+                <th><div id="slider1c1" style="margin-left:1px;display:inline-block;width:120px;height:10px"></div></th>
+                <td>
+                    <select id="compo1c1a"><option>Min</option><option>Max</option><option>Mean</option><option selected>Sum</option></select>
+                         <select id="compo1c1b"><option>Linear</option><option>Log</option><option>EquiDepth</option><option>SquareRoot</option><option selected>CubicRoot</option></select>
+                </td><td>
+                    <select id="compo1c1c"><option>Color</option><option selected>Constant</option></select>
+                    <select id="compo1c1d"><option selected>Width</option><option>Constant</option></select>
+                    <select id="compo1c1e"><option selected>0</option><option>33</option><option>45</option><option>66</option><option>90</option></select>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="3"><div style="position:relative">
+                    <canvas id="fig1c1"></canvas>
+                    <svg style="position:absolute; bottom:0; right:0" height="60" width="120">
+                        <text x="0" y="15" fill="grey">Legend may </text>
+                        <text x="0" y="30" fill="grey">go there</text>
+                      <circle cx="20" cy="50" r="10" stroke="black" stroke-width="3" fill="red" />
+                      <circle cx="40" cy="50" r="10" stroke="black" stroke-width="3" fill="orange" />
+                      <circle cx="60" cy="50" r="10" stroke="black" stroke-width="3" fill="green" />
+                      <circle cx="80" cy="50" r="10" stroke="black" stroke-width="3" fill="blue" />
+                      <circle cx="100" cy="50" r="10" stroke="black" stroke-width="3" fill="magenta" />
+                    </svg>
+                </div></td>
+            </tr>
+        </table>
+        </div>
+
 
         <h2>Figure 1c2</h2>
         <canvas id="fig1c2"></canvas>
@@ -282,7 +327,7 @@
 
         <h2>Figure 1f</h2>
         <canvas id="fig1f"></canvas>
-        
+
         <script src="dist/bundle.js" type="text/javascript"></script>
         <script>
             var testMain = new MCS.TestMain();
