@@ -65,6 +65,24 @@ export default class Color {
         );
     }
 
+    darker() {
+        return new Color(
+        this.r/2,
+        this.g/2,
+        this.b/2,
+        this.a
+        );
+    }
+
+    brighter() {
+        return new Color(
+        1-(1-this.r)/2,
+        1-(1-this.g)/2,
+        1-(1-this.b)/2,
+        this.a
+        );
+    }
+
     static compose(a:Color, fa:number, b:Color, fb:number) {
         return new Color(
         a.r * fa + b.r * fb,
