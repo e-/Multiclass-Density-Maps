@@ -11,7 +11,7 @@
           table.cartouche td, table.cartouche th{
             border:1px solid black;
             border-collapse: collapse;
-            background: linear-gradient(to bottom right, white , #bbb);
+            background: white;
             padding:3px;
             margin:0px;
             font-family:Lucida Console;
@@ -29,11 +29,32 @@
           h2{
             margin-bottom:3px;
           }
-          table.params{
-            display:table;
+          table tr.params{
+            display:none;
           }
-          .example .isparam:cheched +table.params{
-            display:table;
+
+          table svg.legends{
+            display:none;
+            position:absolute;
+            bottom:0;
+            right:0;
+          }
+          .isBg ~ table{
+            background:transparent;
+            padding:0px;
+          }
+
+          .isParam:checked ~ table tr.params{
+            display:table-row;
+          }
+          .isLegend:checked ~ table svg.legends{
+            display:block;
+          }
+          .isBg:checked ~ table td, .isBg:checked ~ table th{
+            background: linear-gradient(to bottom right, white , #bbb);
+          }
+          .isBg:checked ~ table{
+            background:orange;
           }
         </style>
     </head>
@@ -280,14 +301,14 @@
 
         <div class="example">
         <h2>Figure 1c1</h2>
-        <label><input type="checkbox" class="isparam" checked />Parameters</label>
-        <label><input type="checkbox" checked />Legend</label>
-        <label><input type="checkbox" checked />Background</label>
-        <table class="cartouche params">
-            <tr>
+        <input type="checkbox" class="isParam" />Parameters
+        <input type="checkbox" class="isLegend" />Legend
+        <input type="checkbox" class="isBg" />Background
+        <table class="cartouche">
+            <tr class="params">
                 <th>Parameters: </th><td>Aggregation</td><td> <input type="checkbox" checked id="border1c1"/>border  <select id="compo1c1f" "><option selected>Align</option><option>Over</option></select></td>
             </tr>
-            <tr>
+            <tr class="params">
                 <th><div id="slider1c1" style="margin-left:1px;display:inline-block;width:120px;height:10px"></div></th>
                 <td>
                     <select id="compo1c1a"><option>Min</option><option>Max</option><option>Mean</option><option selected>Sum</option></select>
@@ -301,7 +322,7 @@
             <tr>
                 <td colspan="3"><div style="position:relative">
                     <canvas id="fig1c1"></canvas>
-                    <svg style="position:absolute; bottom:0; right:0" height="60" width="120">
+                    <svg class="legends" height="60" width="120">
                         <text x="0" y="15" fill="grey">Legend may </text>
                         <text x="0" y="30" fill="grey">go there</text>
                       <circle cx="20" cy="50" r="10" stroke="black" stroke-width="3" fill="red" />

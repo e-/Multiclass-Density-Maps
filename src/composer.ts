@@ -236,13 +236,16 @@ export default class Composer {
         dataValues2.sort(function(a, b){return a.val<b.val?1:-1;})
 
         let acc = 0;
-        buffers.forEach((buffer, i) => {
+        //buffers.forEach((buffer, i) => {
+        for (let j=0; j<dataValues2.length; j++){
+            let obj:any = dataValues2[j];
+            let buffer = buffers[obj.index];
             ctx.save();
             ctx.translate(hatchCanvas.width/2, hatchCanvas.height/2);
             ctx.rotate(buffer.angle!);
             ctx.strokeStyle = "#"+buffer.color!.toHexa();
             if(proportinal){
-                ctx.lineWidth=thickness * tile.dataValues.length * tile.dataValues[i] / sum;
+                ctx.lineWidth=thickness * tile.dataValues.length * tile.dataValues[obj.index] / sum;
             } else{
                 ctx.lineWidth=thickness;
             }
@@ -258,7 +261,7 @@ export default class Composer {
             }
             acc += ctx.lineWidth/2;
             ctx.restore();
-        });
+        }
 
         let pixels = ctx.getImageData(0, 0, hatchCanvas.width, hatchCanvas.height)!;
 
