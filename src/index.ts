@@ -248,6 +248,7 @@ export class TestMain {
         });
 
         this.testHexa(-1);
+        this.testTriang(-1);
 
         this.testVoronoiWeaving();
         this.testVoronoiHatching();
@@ -273,9 +274,9 @@ export class TestMain {
 
     testHexa(id:number){
         // testing polys
-        let po:Polys2D = new Polys2D("test");
-        po.addPoly([1.5, 3.5, 2.0], [1.0, 1.5, 3.0]);
-        po.addPoly([2.0, 4.0, 3.0], [4.0, 2.0, 5.0]);
+        //let po:Polys2D = new Polys2D("test");
+        //po.addPoly([1.5, 3.5, 2.0], [1.0, 1.5, 3.0]);
+        //po.addPoly([2.0, 4.0, 3.0], [4.0, 2.0, 5.0]);
         //console.log("Run polygon tests ");
         //console.log("  should be true:"+ po.isPointInPolys(2.5, 2.0)+" "+po.isPointInPolys(2.0, 2.5)+" "+po.isPointInPolys(3.0, 4.0)+" "+po.isPointInPolys(2.5, 2.0)+" "+po.isPointInPolys(2.99, 2.0));
         //console.log("  should be false:"+po.isPointInPolys(2.5, 1.1)+" "+po.isPointInPolys(3.0, 2.5)+" "+po.isPointInPolys(2.5, 2.8)+" "+po.isPointInPolys(1.6, 2.0)+" "+po.isPointInPolys(3.01, 2.0));
@@ -309,10 +310,46 @@ export class TestMain {
             });
           }
         else{
-        //   outputImage6.fillMask(derivedBuffers6[id].mask);
+           outputImage6.fillMask(derivedBuffers6[id].mask);
         }
 
         CanvasRenderer.render(outputImage6, 'canvas6');
+    }
+
+    testTriang(id:number){
+
+        let triangMasks   = Mask.generateWeavingTriangleMasks(this.dataBuffers.length,   8, this.width, this.height);
+        let bigRectTiles = Tiling.rectangularTiling(this.width, this.height, this.width / 16, this.height / 16);
+
+
+        for(let tile of bigRectTiles) {
+            tile.dataValues = tile.aggregate(this.dataBuffers, TileAggregation.Sum);
+        }
+        let maxCount2 = util.amax(bigRectTiles.map(tile => util.amax(tile.dataValues)));
+
+        let derivedBuffers17 = this.dataBuffers.map((dataBuffer, i) => {
+            let derivedBuffer = new DerivedBuffer(dataBuffer);
+
+            derivedBuffer.colorScale = new Scale.LinearColorScale([0, maxCount2], [Color.White, Color.Category10[i]]);
+            derivedBuffer.mask = triangMasks[i];
+
+            return derivedBuffer;
+        });
+        let outputImage17 = new Image(this.width, this.height);
+
+        //outputImage6.fillByShapedTile(bigRectTiles, derivedBuffers6);
+        if (id<0)
+          for(let tile of bigRectTiles) {
+            derivedBuffers17.forEach((derivedBuffer, i) => {
+                let color = derivedBuffer.colorScale.map(tile.dataValues[i]);
+                outputImage17.render(color, tile, derivedBuffer.mask);
+            });
+          }
+        else{
+           outputImage17.fillMask(derivedBuffers17[id].mask);
+        }
+
+        CanvasRenderer.render(outputImage17, 'canvas17');
     }
 
     testVoronoiWeaving(){

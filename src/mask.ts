@@ -96,6 +96,59 @@ export default class Mask {
         return masks;
     }
 
+    static generateWeavingTriangleMasks(m: number, size: number, width: number, height: number, xincr: number = 1) : Mask[]
+    {
+        let masks:Mask[] = Array<Mask>(m);
+        let i:number, j:number;
+        size = Math.floor(size);
+
+        if (xincr < 0) {
+            xincr = m + (xincr % m)
+        }
+
+        for (let i = 0; i < m; i++) {
+            masks[i] = new Mask(width, height, 0);
+        }
+        for (let j = 0; j < (height/size); j++) {
+            for (let i = 0; i < (width/size); i++) {
+                let row = j * size;
+                let col = i * size+(j%2)*size;
+                //let selected = (((i-j%2) +(width/size)- j))%m;
+                let selected = (i+(j%2))%m;
+
+                let mask   = masks[selected];
+                let ctx    = mask.maskCanvas.getContext("2d");
+                let pixels = ctx!.getImageData(0, 0, mask.width, mask.height);
+
+                let y = 3*size/16;
+                // 3 pts to make an triangle
+                if (j%2==0)
+                    mask.pols.addPoly([col,      col+size, col+2*size],
+                                      [row+size, row,        row+size]);
+                else
+                    mask.pols.addPoly([col+2*size, col+3*size, col+4*size],
+                                      [row,      row+size,   row]);
+
+                let row_min = Math.max(row, 0);
+                let row_max = Math.min(row+4*size, height);
+                let col_max = Math.min(col+4*size,  width);
+                for (let r = row_min; r < row_max; r++) {
+                    for (let c = col; c < col_max; c++) {
+                        if (mask.pols.isPointInPoly(-1, c, r)){
+                          mask.mask[r][c] = 1;
+                          pixels.data[c*4+r*4*mask.width +0] = 255;
+                          pixels.data[c*4+r*4*mask.width +1] = 255;
+                          pixels.data[c*4+r*4*mask.width +2] = 255;
+                          pixels.data[c*4+r*4*mask.width +3] = 255;
+                        }
+                    }
+                }
+                ctx!.putImageData(pixels, 0, 0);
+            }
+        }
+        return masks;
+    }
+
     static generateWeavingRandomMasks(m: number, size: number, width: number, height: number) : Mask[]
     {
         let masks:Mask[] = Array<Mask>(m);

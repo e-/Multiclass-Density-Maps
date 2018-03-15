@@ -124,18 +124,18 @@ export default class Image {
     // }
 
     // To debug, let's print the mask
-    // fillMask(mask:Mask|undefined){
-    //   if (!mask) return;
-    //     for(let r = 0; r < this.height ; r++) {
-    //         for(let c = 0; c < this.width ; c++) {
-    //             //if (c==r) console.log(c+"=> "+mask.mask[r][c]);
-    //             if(!mask.mask[r] || !mask.mask[r][c] || mask.mask[r][c] == 0)
-    //                 this.pixels[r][c] = new Color(0, 0, 0, 1);
-    //             else
-    //                 this.pixels[r][c] = new Color(1, 1, 1, 1);
-    //         }
-    //     }
-    // }
+     fillMask(mask:Mask|undefined){
+       if (!mask) return;
+         for(let r = 0; r < this.height ; r++) {
+             for(let c = 0; c < this.width ; c++) {
+                 //if (c==r) console.log(c+"=> "+mask.mask[r][c]);
+                 if(!mask.mask[r] || !mask.mask[r][c] || mask.mask[r][c] == 0)
+                     this.pixels[r][c] = new Color(0, 0, 0, 1);
+                 else
+                     this.pixels[r][c] = new Color(1, 1, 1, 1);
+             }
+         }
+     }
 
     // VERY SLOW
     // fillByShapedTile(tiles:Tile[], derivedBuffers:DerivedBuffer[]) {
