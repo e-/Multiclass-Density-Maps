@@ -35,7 +35,7 @@ export default class Interpreter {
     public compose:Parser.ComposeSpec;
     public composer:(buffers:DerivedBuffer[], values:number[])=>Color = Composer.none;
     public masks:Mask[] = [];
-    public strokeMasks = false;
+    public maskStroke?:string;
     public blur:number=0;
 
     constructor(public configuration:Parser.Configuration) {
@@ -129,7 +129,7 @@ export default class Interpreter {
             }
         }
         if (this.rebin && this.rebin.stroke)
-            this.strokeMasks = true;
+            this.maskStroke = this.rebin.stroke;
         this.tiles = tiles;
     }
 
@@ -224,9 +224,9 @@ export default class Interpreter {
         //CanvasRenderer.render(image, id);
         let ctx = useRender2 ? CanvasRenderer.render2(this.image, id)
               : CanvasRenderer.render(this.image, id);
-        if (this.strokeMasks)
+        if (this.maskStroke)
             for(let tile of this.tiles)
-                CanvasRenderer.strokeVectorMask(tile.mask, id, '#888');
+                CanvasRenderer.strokeVectorMask(tile.mask, id, this.maskStroke);
         // if (this.strokeCanvas) {
         //     ctx.setTransform(1, 0, 0, 1, 0, 0); // reset
         //     ctx.strokeStyle = this.backgroundStroke;

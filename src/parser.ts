@@ -161,7 +161,7 @@ export interface RebinSpec {
     url?: string;
     topojson?: any;
     points?: [number, number][];
-    stroke?: boolean;
+    stroke?: string; // color
 }
 
 export class Configuration {
@@ -291,40 +291,47 @@ export class Configuration {
         return true;
     }
 
+    loadTopojson(base:string = '') : Promise<Configuration> {
+        if (this.rebin &&
+            this.rebin.url != undefined && this.rebin.topojson == undefined) {
+            return util
+                  .get(base + this.rebin.url)
+                  .then(response => {
+                      console.log('Loaded topojson at '+(base+this.rebin!.url!));
+                      this.rebin!.topojson = JSON.parse(response);
+                      return this;
+                  })
+                  .catch((reason)=> { 
+                      console.log('Cannot load topojson at '+(base+this.rebin!.url!)+': '+reason);
+                      return this;
+                  });
+        }
+        return Promise.resolve(this);
+    }
+
     // load data from the server if this.data contains url
     load(base:string = ''): Promise<Configuration> {
-        var promise:Promise<Configuration> | null = null;
-        if (this.rebin &&
-            this.rebin.url != undefined && this.rebin.topojson != undefined) {
-            promise = util.get(base + this.rebin.url).then(response => {
-                this.rebin!.topojson = JSON.parse(response);
-                return this;
-            });
-        }
-        //TODO chain promise with next
-
         if(!this.data!.dataSpec && this.data!.url) {
-            let loadData = (response:any): Promise<Configuration> => {
-                return util.get(base + this.data!.url!).then(response => {
-                let dataSpec = new DataSpec(JSON.parse(response));
+            return util
+                  .get(base + this.data!.url!)
+                  .then(response => {
+                      console.log('Loaded configuration data at '+(base+this.data!.url!));
+                      let dataSpec = new DataSpec(JSON.parse(response));
+                      this.data!.dataSpec = dataSpec;
 
-                return dataSpec
-                      .load(base)
-                      .then(() => {
-                          this.data!.dataSpec = dataSpec;
-                          return this;
-                      });
-            });
-            };
-            if (promise != null) {
-                promise.then(loadData);
-                return promise;
-            }
-            else
-                return loadData(null);
+                      return dataSpec
+                            .load(base)
+                            .then(() => {
+                                return this.loadTopojson(base);
+                            });
+                  })
+                  .catch((reason)=> {
+                      console.log('Cannot load topojson at '+(base+this.rebin!.url!)+': '+reason);
+                      return this;
+                  });
         }
         
-        return Promise.resolve(this);
+        return this.loadTopojson(base).then(() => {return this;});
     }
 
     public getBuffers() : DataBuffer[] {
