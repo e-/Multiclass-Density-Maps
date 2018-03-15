@@ -43,6 +43,8 @@ export default class Interpreter {
             throw "Invalid configuration";
         this.width = configuration.width!;
         this.height = configuration.height!;
+        if (configuration.background)
+            this.background = configuration.background;
         this.image = new Image(this.width, this.height);
         this.bufferNames = configuration.bufferNames;
         this.n = this.bufferNames.length;
@@ -161,6 +163,13 @@ export default class Interpreter {
             this.masks = Mask.generateWeavingTriangleMasks(this.n,
                                                            this.compose.size||8,
                                                            this.width, this.height);
+    }
+
+    setup(id:string) {
+        let canvas:any = document.getElementById(id);
+        canvas.width   = this.width;
+        canvas.height  = this.height;
+        canvas.style.backgroundColor = this.background;
     }
 
     render(id:string) {

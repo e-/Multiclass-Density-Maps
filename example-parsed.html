@@ -43,6 +43,7 @@ function render(id, desc, json, do_break) {
   conf.load('data/').then(function(conf) {
       interp = testMain.create_interp(conf);
       console.log('interp w='+conf.width+' h='+conf.height);
+      interp.setup(id);
       interpreter = interp;
       interp.interpret();
       interp.render(id);
@@ -52,7 +53,6 @@ function render(id, desc, json, do_break) {
 render('canvas1','Linear Color Scale',
        {
            "description": "multivariate normal data",
-           "background": "Black",
            "data": {"url": "mn_data.json"},
            "smooth": {},
            "rebin": {
@@ -66,7 +66,6 @@ render('canvas1','Linear Color Scale',
 render('canvas2', 'Log Color Scale',
        {
            "description": "multivariate normal data",
-           "background": "Black",
            "data": {"url": "mn_data.json"},
            "smooth": {},
            "rebin": {
@@ -83,7 +82,6 @@ render('canvas2', 'Log Color Scale',
 render('canvas3', 'EquiDepth Color Scale',
        {
            "description": "multivariate normal data",
-           "background": "Black",
            "data": {"url": "mn_data.json"},
            "smooth": {},
            "rebin": { 
@@ -101,7 +99,6 @@ render('canvas3', 'EquiDepth Color Scale',
 render('canvas4','Random Rectangular Weaving',
        {
            "description": "multivariate normal data",
-           "background": "Black",
            "data": {"url": "mn_data.json"},
            "smooth": {},
            "rebin": {
@@ -115,7 +112,6 @@ render('canvas4','Random Rectangular Weaving',
 render('canvas5', 'Square Rectangular Weaving',
        {
            "description": "multivariate normal data",
-           "background": "Black",
            "data": {"url": "mn_data.json"},
            "smooth": {},
            "rebin": {
@@ -132,7 +128,6 @@ render('canvas5', 'Square Rectangular Weaving',
 render('canvas6', 'Linear Color Scale hex',
        {
            "description": "multivariate normal data",
-           "background": "Black",
            "data": {"url": "mn_data.json"},
            "smooth": {},
            "rebin": { 
@@ -149,7 +144,6 @@ render('canvas6', 'Linear Color Scale hex',
 render('canvas6bis', 'EquiDepth Color Scale triangles',
        {
            "description": "multivariate normal data",
-           "background": "Black",
            "data": {"url": "mn_data.json"},
            "smooth": {},
            "rebin": { 
@@ -166,7 +160,6 @@ render('canvas6bis', 'EquiDepth Color Scale triangles',
 render('canvas7', 'Census Data',
 {
     "description": "US Census Synthetic people",
-    "background": "Black",
     "data": {"url": "census.snappy_data.json"},
     "smooth": {},
     "reencoding": {
@@ -200,7 +193,6 @@ render('canvas7', 'Census Data',
 render('canvas8', 'Census Data Smoothed',
 {
     "description": "US Census Synthetic people",
-    "background": "Black",
     "data": {"url": "census.snappy_data.json"},
     "smooth": {"radius": 2},
     "reencoding": {
@@ -234,7 +226,6 @@ render('canvas8', 'Census Data Smoothed',
 render('canvas9','Voronoi Tiling',
        {
            "description": "multivariate normal data",
-           "background": "Black",
            "data": {"url": "mn_data.json"},
            "smooth": {},
            "rebin": {
@@ -251,7 +242,6 @@ render('canvas9','Voronoi Tiling',
 render('canvas10','Voronoi Tiling + Hatching',
        {
            "description": "multivariate normal data",
-           "background": "Black",
            "data": {"url": "mn_data.json"},
            "smooth": {},
            "rebin": {
@@ -268,7 +258,6 @@ render('canvas10','Voronoi Tiling + Hatching',
 render('canvas11', 'Census Data Smoothed',
 {
     "description": "US Census Synthetic people",
-    "background": "Black",
     "data": {"url": "census.snappy_data.json"},
     "smooth": {},
     "reencoding": {
