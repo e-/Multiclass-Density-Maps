@@ -39,7 +39,7 @@ export default class Interpreter {
     public composer:(buffers:DerivedBuffer[], values:number[])=>Color = Composer.none;
     public masks:Mask[] = [];
     public maskStroke?:string;
-    public contour = 0;
+    public contour:Parser.ContourSpec;
     public blur:number=0;
 
     constructor(public configuration:Parser.Configuration) {
@@ -70,7 +70,9 @@ export default class Interpreter {
             this.rescale = configuration.rescale;
         if (configuration.blur)
             this.blur = configuration.blur;
-        if (configuration.contour)
+        if (configuration.contour === undefined)
+            this.contour = new Parser.ContourSpec();
+        else
             this.contour = configuration.contour;
     }
 
@@ -255,15 +257,15 @@ export default class Interpreter {
             console.log('No valid composition');
 
         let ctx = CanvasRenderer.renderAll(this.image, id, this.compose.select);
-        if (this.contour > 0) {
+        if (this.contour.stroke > 0) {
             // Assume all the scales are shared between derived buffers
             let path       = d3.geoPath(null, ctx),
-                thresholds = this.derivedBuffers[0].thresholds(this.contour);
+                thresholds = this.derivedBuffers[0].thresholds(this.contour.stroke);
 
             ctx.strokeStyle = 'black';
             
             this.derivedBuffers.forEach((derivedBuffer, i) => {
-                let geometries = derivedBuffer.contours(thresholds, 8),
+                let geometries = derivedBuffer.contours(thresholds, this.contour.blur),
                     colors = thresholds.map(v => derivedBuffer.colorScale.map(v));
                 geometries.forEach((geo,i) => {
                     ctx.beginPath();

@@ -160,6 +160,13 @@ export interface RebinSpec {
     stroke?: string; // color
 }
 
+export class ContourSpec {
+    stroke:number = 0;
+    fill:number = 0; // percentile over which we fill
+    values?:number[]; // percentiles to stroke
+    blur:number=2;
+}
+
 export class Configuration {
     description?: string;
     background?: string;
@@ -169,7 +176,7 @@ export class Configuration {
     rebin?: RebinSpec;
     compose?: ComposeSpec;
     rescale: "none"|"linear"|"log"|"pow"|"sqrt"|"cbrt"|"equidepth" = "none";
-    contour = 0;    
+    contour?:ContourSpec;    
     width: number = -1;
     height: number= -1;
     bufferNames:string[] = [];    
@@ -210,7 +217,7 @@ export class Configuration {
     }
     private parseContour() {
         if ('contour' in this.specs) {
-            this.contour = <number>this.specs.contour;
+            this.contour = this.specs.contour;
         }
     }
     private parseDerivedBuffers() {
