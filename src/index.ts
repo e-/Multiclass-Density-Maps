@@ -589,6 +589,7 @@ export class TestMain {
                 this.figure1b(config, topous);
                 this.figure1c1(config, topous);
                 this.figure1c2(config, topous);
+                this.figure1e(config, topous);
             });
         });
     }
@@ -814,6 +815,47 @@ export class TestMain {
                 noResetDims: true
             });
         });
+    }
+
+    figure1e(config:Parser.Configuration, topous:any) {
+        let width  = config.data!.dataSpec!.encoding!.x!.bin!.maxbins!;
+        let height = config.data!.dataSpec!.encoding!.y!.bin!.maxbins!;
+
+        let dataBuffers = config.data!.dataSpec!.buffers!.map((bufferSpec, i) => new DataBuffer(bufferSpec.value, width, height, bufferSpec.data));
+        let ustiles = Tiling.topojsonTiling(width, height, topous, topous.objects.states);
+
+        let weavingSize = 4;
+        let randomMasks = Mask.generateWeavingRandomMasks(dataBuffers.length, weavingSize, width!, height!);
+
+        for(let tile of ustiles) {
+            tile.dataValues = tile.aggregate(dataBuffers, TileAggregation.Sum);
+        }
+
+        let maxCount = util.amax(ustiles.map(tile => util.amax(tile.dataValues)));
+
+        let derivedBuffers = dataBuffers.map((dataBuffer, i) => {
+            let derivedBuffer = new DerivedBuffer(dataBuffer);
+
+            derivedBuffer.colorScale = new Scale.CubicRootColorScale([1, maxCount], [Color.White, Color.Category10[i]]);
+            derivedBuffer.mask       = randomMasks[i];
+
+            return derivedBuffer;
+        });
+
+        let outputImage = new Image(width, height);
+
+
+        for(let tile of ustiles) {
+        derivedBuffers.forEach((derivedBuffer, i) => {
+            let color  = derivedBuffers[i].colorScale.map(tile.dataValues[i]);
+            outputImage.render(color, tile, derivedBuffers[i].mask);
+        });
+        }
+
+        CanvasRenderer.render(outputImage, 'fig1e');
+
+        for(let tile of ustiles)
+            CanvasRenderer.strokeVectorMask(tile.mask, 'fig1e');
     }
 
     legendMain() {
