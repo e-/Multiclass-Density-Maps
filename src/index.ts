@@ -20,21 +20,11 @@ import "jquery-ui/ui/widgets/slider";
 
 /// <reference path="multivariate-normal.d.ts" />
 import MN from "multivariate-normal";
-
+import LegendBuilder from "./legend";
 
 export class TestMain {
     constructor() {
 
-    }
-
-    parse_url(url:string, callback:(conf:Parser.Configuration)=>void) {
-        util.get(url).then(response => {
-            let config = new Parser.Configuration(response);
-
-            // when we call load(), data spec and buffers are really loaded through AJAX
-            return config.load('data/');
-        })
-        .then(callback);
     }
 
     create_configuration(json:any) {
@@ -544,13 +534,12 @@ export class TestMain {
     }
 
     figure1a(config:Parser.Configuration, topous:any) {
-
         let width = 512;
         let height = 280;
         let size = 1;
 
         let dataBuffers = config.data!.dataSpec!.buffers!.slice(0, 2).map((bufferSpec) =>
-            new DataBuffer('test', width, height, bufferSpec.data).blur(1)
+            new DataBuffer(bufferSpec.value, width, height, bufferSpec.data).blur(1)
         );
 
         let tiles = Tiling.rectangularTiling(width, height, size, size);
@@ -580,6 +569,8 @@ export class TestMain {
         let ustiles = Tiling.topojsonTiling(width, height, topous, topous.objects.states);
         for(let tile of ustiles)
             CanvasRenderer.strokeVectorMask(tile.mask, 'fig1a');
+
+        LegendBuilder('fig1a-legend', config, derivedBuffers);
     }
 
     figure1b(config:Parser.Configuration, topous:any) {
