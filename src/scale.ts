@@ -3,26 +3,32 @@ import {Digest} from 'tdigest';
 import {positive} from './util';
 
 export interface ScaleTrait {
+    domain: [number, number] | number[];
+    range: [number, number] | number[];
     map(value:number):number;
 }
 
 export class LinearScale implements ScaleTrait {
-    constructor(public domain: [number, number], public range: [number, number], clamp:boolean = true) {
+    scale:number;
+    min:number;
+    max:number;
 
+    constructor(public domain: [number, number], public range: [number, number],
+                clamp:boolean = true) {
+        this.scale = (this.range[1] - this.range[0]) / (this.domain[1] - this.domain[0]);
+        this.min = Math.min.apply(Math, this.range);
+        this.max = Math.max.apply(Math, this.range);
     }
 
     clamp(value:number) {
-        let min = Math.min.apply(Math, this.range),
-            max = Math.max.apply(Math, this.range);
-
-        if(min > value) return min;
-        if(max < value) return max;
+        if(value < this.min) return this.min;
+        if(value > this.max) return this.max;
 
         return value;
     }
 
     map(value:number) {
-        let ret = this.range[0] + (this.range[1] - this.range[0]) / (this.domain[1] - this.domain[0]) * (value - this.domain[0]);
+        let ret = (value - this.domain[0]) * this.scale + this.range[0];
         if(this.clamp) return this.clamp(ret);
         return ret;
     }
@@ -74,13 +80,15 @@ export class EquiDepthScale implements ScaleTrait {
     digest:Digest;
     bounds:number[] = [];
 
-    constructor(public domain: number[], public level:number = 32) {
+    constructor(public domain: number[], public range: [number, number], public level:number = 32) {
         this.digest = new Digest();
-        this.addPoints(domain);
+        this.addPoints(domain); // initialize with something
     }
 
-    addPoints(domain: number[]) {
-        this.digest.push(domain.filter(positive));
+    addPoints(points: number[]) { this.digest.push(points.filter(positive)); }
+    addPoint(point: number) {
+        if (positive(point))
+            this.digest.push(point);
     }
 
     computeBounds() {
@@ -90,16 +98,21 @@ export class EquiDepthScale implements ScaleTrait {
     }
 
     map(value:number) { // TODO: use binary search? no [slower according to Manegold]
-        if (value == 0) return 0; // shortcut
+        let min = this.range[0];
+
+        if (value == 0) return min; // shortcut
+
+        let n   = this.level-1,
+            w   = this.range[1] - min,
+            max = this.bounds[n];
+
         if (this.bounds.length==0) {
             this.computeBounds();
         }
-        let n   = this.level-1,
-            max = this.bounds[n];
-        for(let i = 0; i < n; i++) {
-            if(value < this.bounds[i]) return i/n;
-        }
-        return 1;
+
+        for(let i = 0; i < n; i++)
+            if (value < this.bounds[i]) return min+w*i/n;
+        return min+w;
     }
 }
 
@@ -110,7 +123,6 @@ export interface ColorScaleTrait {
 export class ColorScale implements ColorScaleTrait {
     // An interpolator maps a domain value to [0, 1]
     constructor(public colorRange:[Color, Color], public interpolator:ScaleTrait) {
-
     }
 
     map(value:number) {
@@ -143,11 +155,8 @@ export class CubicRootColorScale extends ColorScale {
 }
 
 export class EquiDepthColorScale extends ColorScale {
-    constructor(public domain:number[], public colorRange:[Color, Color], public level:number = 10) {
-        super(colorRange, new EquiDepthScale(domain, level));
+    constructor(public domain:number[], public colorRange:[Color, Color], public level:number = 32) {
+        super(colorRange, new EquiDepthScale(domain, [0, 1], level));
     }
-
-    map(value:number) {
-        return Color.interpolate(this.colorRange[0], this.colorRange[1], this.interpolator.map(value) / (this.level - 1));
-    }
+    scale():EquiDepthScale { return <EquiDepthScale>this.interpolator; }
 }

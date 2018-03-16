@@ -36,7 +36,7 @@ export default class Color {
         return ""+this.r+" "+this.g+" "+this.b+" "+this.a;
     }
 
-    toHexa(){
+    hex(){
         let hex = ""
         if (Math.floor(255*this.r)<16)
           hex = hex +"0"+Math.floor(255*this.r).toString(16);
@@ -62,6 +62,24 @@ export default class Color {
         this.g + c.g,
         this.b + c.b,
         this.a + c.a
+        );
+    }
+
+    darker() {
+        return new Color(
+        this.r/2,
+        this.g/2,
+        this.b/2,
+        this.a
+        );
+    }
+
+    brighter() {
+        return new Color(
+        1-(1-this.r)/2,
+        1-(1-this.g)/2,
+        1-(1-this.b)/2,
+        this.a
         );
     }
 

@@ -193,36 +193,36 @@ export class Configuration {
         this.parseRescale();
     }
 
-    parseDescription() {
+    private parseDescription() {
         if ('description' in this.specs)
             this.description = this.specs.description;
     }
-    parseBackground() {
+    private parseBackground() {
         if ('background' in this.specs)
             this.background = this.specs.background;
     }
-    parseData() {
+    private parseData() {
         this.data = <ConfigurationDataSpec>this.specs.data;
     }
-    parseSmooth() {
+    private parseSmooth() {
         if ('smooth' in this.specs && this.specs.smooth.radius)
             this.blur = <number>this.specs.smooth.radius;
     }
-    parseDerivedBuffers() {
+    private parseDerivedBuffers() {
     }
-    parseReencoding() {
+    private parseReencoding() {
         this.reencoding = <ConfigurationReencodingSpec>this.specs.reencoding;
     }
-    parseRebin() {
+    private parseRebin() {
         if (this.specs.rebin)
             this.rebin = this.specs.rebin;
     }
-    parseCompose() {
+    private parseCompose() {
         if (this.specs.compose)
             this.compose = this.specs.compose
     }
 
-    parseRescale() {
+    private parseRescale() {
         if (this.specs.rescale)
             this.rescale = this.specs.rescale.type;
     }
@@ -301,7 +301,7 @@ export class Configuration {
                       this.rebin!.topojson = JSON.parse(response);
                       return this;
                   })
-                  .catch((reason)=> { 
+                  .catch((reason)=> {
                       console.log('Cannot load topojson at '+(base+this.rebin!.url!)+': '+reason);
                       return this;
                   });
@@ -330,7 +330,7 @@ export class Configuration {
                       return this;
                   });
         }
-        
+
         return this.loadTopojson(base).then(() => {return this;});
     }
 
@@ -351,7 +351,7 @@ export class Configuration {
 
     public getLabels(): Map<string,string>  {
         let dict = new Map<string,string>();
-        if (! this.reencoding 
+        if (! this.reencoding
             || ! this.reencoding.label
             || ! this.reencoding.label.scale
             || ! this.reencoding.label.scale.range)
@@ -364,7 +364,7 @@ export class Configuration {
     }
 
     public getColors(): string[]  {
-        if (! this.reencoding 
+        if (! this.reencoding
             || ! this.reencoding.color
             || ! this.reencoding.color.scale
             || ! this.reencoding.color.scale.range)
