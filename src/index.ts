@@ -802,10 +802,17 @@ export class TestMain {
 
         Promise.all(promises).then(() => {
             let ustiles = Tiling.topojsonTiling(width, height, topous, topous.objects.states);
-            CanvasRenderer.render(outputImage, 'fig1c2');
+            let canvas = document.getElementById('fig1c2')! as HTMLCanvasElement;
+            canvas.width = width;
+            canvas.height = height;
 
             for(let tile of ustiles)
                 CanvasRenderer.strokeVectorMask(tile.mask, 'fig1c2', '#000');
+
+            CanvasRenderer.render(outputImage, 'fig1c2', {
+                blendingMode: CanvasRenderer.BlendingMode.Alpha,
+                noResetDims: true
+            });
         });
     }
 

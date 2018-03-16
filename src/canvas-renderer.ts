@@ -2,25 +2,43 @@ import Image from './image';
 import Mask from './mask';
 import * as Polys2D from './polys2D';
 
-export default class CanvasRenderer {
+enum BlendingMode {
+    Normal = 0,
+    Alpha
+}
 
-    static render(image:Image, id:string, options:{blur?:number} = {}) : CanvasRenderingContext2D { // return the context
+export default class CanvasRenderer {
+    static BlendingMode = BlendingMode;
+
+    static render(image:Image, id:string, options:{
+            blur?:number,
+            blendingMode?:BlendingMode,
+            noResetDims?:boolean
+        } = {}
+    ) : CanvasRenderingContext2D {
         let canvas:any = document.getElementById(id);
-        canvas.width   = image.width;
-        canvas.height  = image.height;
+
+        // After somthing drawn, changing the dimension of a canvas seems to reset all pixels.
+        // For blending, set options.noResetDims to true.
+        if(!options.noResetDims) {
+            canvas.width   = image.width;
+            canvas.height  = image.height;
+        }
 
         let ctx:CanvasRenderingContext2D = canvas.getContext('2d');
         let imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
 
-        this.renderToImageData(image, imageData);
+        if(!options.blendingMode || options.blendingMode as BlendingMode === BlendingMode.Normal) {
+            this.renderToImageData(image, imageData);
 
-        // does not work when used with image data
-        if(options.blur) {
-            let hack:any = ctx;
-            hack.filter = `blur(${options.blur}px)`;
+        }
+        else if(options.blendingMode as BlendingMode === BlendingMode.Alpha) {
+            this.renderAlphaBlending(image, imageData);
+            console.log(image);
         }
 
         ctx.putImageData(imageData, 0, 0);
+
         return ctx;
     }
 
@@ -46,6 +64,21 @@ export default class CanvasRenderer {
           data[i + 1] = image.pixels[r][c].g * 255;
           data[i + 2] = image.pixels[r][c].b * 255;
           data[i + 3] = image.pixels[r][c].a * 255;
+        }
+    }
+
+    static renderAlphaBlending(image:Image, imageData:ImageData) {
+        let data = imageData.data;
+
+        for (let i = 0; i < data.length; i += 4) {
+            let r = Math.floor(i / 4 / image.width);
+            let c = i / 4 % image.width;
+            let a = image.pixels[r][c].a;
+
+            data[i + 0] = image.pixels[r][c].r * 255 * a + data[i + 0] * (1 - a);
+            data[i + 1] = image.pixels[r][c].g * 255 * a + data[i + 1] * (1 - a);
+            data[i + 2] = image.pixels[r][c].b * 255 * a + data[i + 2] * (1 - a);
+            data[i + 3] = image.pixels[r][c].a * 255 * a + data[i + 3] * (1 - a);
         }
     }
 
