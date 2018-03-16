@@ -46,6 +46,28 @@ export function amin(values:number[]) {
     return min;
 }
 
+export function arange(start:number, end?:number, step?:number): number[] {
+    var n = start;
+    if (end == undefined) {
+        end = start;
+        start = 0;
+    }
+    else 
+        n = end-start;
+    if (step == undefined)
+        step = 1;
+    else 
+        n = n / step;
+
+    n = Math.floor(n);
+    let array = new Array(n);
+    for (let i = 0; i < n; i++) {
+        array[i] = start;
+        start += step;
+    }
+    return array;
+}
+
 let cache:any = {};
 
 export function get(url: string): Promise<any> {

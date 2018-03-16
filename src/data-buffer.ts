@@ -2,6 +2,7 @@ import Color from './color';
 import Mask from './mask';
 import * as util from './util';
 import GaussianBlur from './gaussian-blur';
+import * as d3 from 'd3-contour';
 
 export default class DataBuffer {
     // construct a data buffer from a specification object
@@ -12,17 +13,35 @@ export default class DataBuffer {
     constructor(public name:string, public width:number, public height:number, public values:number[][] = util.create2D<number>(width, height, 0)) {
     }
 
+    linearize():number[] {
+        return Array.prototype.concat.apply(this.values[0],
+                                            this.values.slice(1));
+    }
+
     blur(radius:number = 3): DataBuffer {
         if (radius==0) return this;
         // Linearize the array
-        let source = Array.prototype.concat.apply(this.values[0],
-                                                  this.values.slice(1)),
-        target = new Array(this.width*this.height);
+        let source = this.linearize(),
+            target = new Array(this.width*this.height);
         GaussianBlur(source, target, this.width, this.height, radius);
         var new_array = Array(this.height);
         for (var i = 0; i < this.height; i++)
           new_array[i] = target.slice(i*this.width, (i+1)*this.width);
         return new DataBuffer(this.name, this.width, this.height, new_array);
+    }
+
+    contours(thresholds?:number[], blur:number = 1) {
+        let contours = d3.contours().size([this.width, this.height]);
+        var values = this.linearize();
+        if (blur != 0) {
+            let target = new Array(this.width*this.height);
+            GaussianBlur(values, target, this.width, this.height, blur);
+            values = target;
+        }
+            
+        if (thresholds != undefined)
+            contours.thresholds(thresholds);
+        return contours(values);
     }
 
     makeContour(contourNumber:number = 12): DataBuffer {

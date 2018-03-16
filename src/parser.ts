@@ -119,10 +119,6 @@ export interface ConfigurationReencodingColorScaleSpec {
     type?: string;
 }
 
-export interface ConfigurationReencodingFacetSpec {
-    value?: boolean;
-}
-
 export interface ConfigurationReencodingColorSpec {
     field: string;
     type?: string; // specify nominal
@@ -139,7 +135,6 @@ export interface ConfigurationReencodingHatchingSpec {
 export interface ConfigurationReencodingSpec {
     label?: ConfigurationReencodingLabelSpec;
     color?: ConfigurationReencodingColorSpec;
-    facet?: ConfigurationReencodingFacetSpec;
     hatching?: ConfigurationReencodingHatchingSpec;
 }
 
@@ -150,6 +145,7 @@ export class ComposeSpec {
     mixing: "additive"|"subtractive" = "additive";
     size:number = 8;
     proportional:boolean = true;
+    select?:number;
 }
 
 export interface RebinSpec {
@@ -173,9 +169,10 @@ export class Configuration {
     rebin?: RebinSpec;
     compose?: ComposeSpec;
     rescale: "none"|"linear"|"log"|"pow"|"sqrt"|"cbrt"|"equidepth" = "none";
+    contour = 0;    
     width: number = -1;
     height: number= -1;
-    bufferNames:string[] = [];
+    bufferNames:string[] = [];    
 
     constructor(public specs:any) {
         if(typeof this.specs === 'string') {
@@ -191,6 +188,7 @@ export class Configuration {
         this.parseRebin();
         this.parseCompose();
         this.parseRescale();
+        this.parseContour();
     }
 
     private parseDescription() {
@@ -205,8 +203,15 @@ export class Configuration {
         this.data = <ConfigurationDataSpec>this.specs.data;
     }
     private parseSmooth() {
-        if ('smooth' in this.specs && this.specs.smooth.radius)
-            this.blur = <number>this.specs.smooth.radius;
+        if ('smooth' in this.specs) {
+            if (this.specs.smooth.radius)
+                this.blur = <number>this.specs.smooth.radius;
+        }
+    }
+    private parseContour() {
+        if ('contour' in this.specs) {
+            this.contour = <number>this.specs.contour;
+        }
     }
     private parseDerivedBuffers() {
     }
@@ -349,18 +354,14 @@ export class Configuration {
         return dataBuffers;
     }
 
-    public getLabels(): Map<string,string>  {
+    public getLabels(): string[] | undefined  {
         let dict = new Map<string,string>();
         if (! this.reencoding
             || ! this.reencoding.label
             || ! this.reencoding.label.scale
             || ! this.reencoding.label.scale.range)
-            return dict;
-        let ranges = this.reencoding.label.scale.range,
-            domains = this.reencoding.label.scale.domain;
-        domains.forEach((d:string, i:number) =>
-                        dict.set(d, ranges[i]));
-        return dict;
+            return undefined;
+        return this.reencoding.label.scale.range;
     }
 
     public getColors(): string[]  {

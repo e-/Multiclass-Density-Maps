@@ -11,6 +11,7 @@ export default class CanvasRenderer {
     static BlendingMode = BlendingMode;
 
     static renderAll(images:Image[], id:string,
+                     select?: number,
                      options: {
                          blur?:number,
                          blendingMode?:BlendingMode,
@@ -19,6 +20,8 @@ export default class CanvasRenderer {
                      } = {}): CanvasRenderingContext2D {
         if (images.length == 1)
             return CanvasRenderer.render(images[0], id, options);
+        else if (select && select < images.length) 
+            return CanvasRenderer.render(images[select], id, options);
         else
             return CanvasRenderer.renderMultiples(images, id, options);
     }

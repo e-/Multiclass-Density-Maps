@@ -36,8 +36,8 @@ export default class Color {
         return ""+this.r+" "+this.g+" "+this.b+" "+this.a;
     }
 
-    hex(){
-        let hex = ""
+    hex(prefix='#'){
+        let hex = prefix;
         if (Math.floor(255*this.r)<16)
           hex = hex +"0"+Math.floor(255*this.r).toString(16);
         else

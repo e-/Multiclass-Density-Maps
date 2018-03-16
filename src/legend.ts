@@ -21,17 +21,16 @@ function linearGradient(defs:any, color1:Color, color2:Color):string {
 
     lg.append('stop')
         .attr('offset', 0)
-        .style('stop-color', '#' + color1.hex());
+        .style('stop-color', color1.hex());
 
     lg.append('stop')
         .attr('offset', 1)
-        .style('stop-color', '#' + color2.hex());
+        .style('stop-color', color2.hex());
 
     return id;
 }
 
 export default function LegendBuilder(id:string, interp:Interpreter) {
-    let config:Parser.Configuration = interp.configuration;
     let derivedBuffers:DerivedBuffer[] = interp.derivedBuffers;
 
     let svg = d3.select('#' + id)
@@ -58,8 +57,9 @@ export default function LegendBuilder(id:string, interp:Interpreter) {
         .append('g')
         .attr('transform', (d, i) => translate(0, (rowHeight + gutter) * i))
 
+    var labels = interp.labels==undefined ? interp.bufferNames : interp.labels;
     enter.append('text')
-        .text((d, i) => config.data!.dataSpec!.buffers![i].value)
+        .text((d, i) => labels[i])
         .attr('transform', translate(labelWidth, 0))
         .attr('dy', '1em')
         .attr('text-anchor', 'end')

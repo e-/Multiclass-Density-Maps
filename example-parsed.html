@@ -101,6 +101,21 @@ render('canvas3', 'EquiDepth Color Scale',
            "rescale": {
                "type": "equidepth"
            }
+       });
+
+render('canvas3bis', 'EquiDepth Color Scale Small Multiples',
+       {
+           "description": "multivariate normal data",
+           "data": {"url": "mn_data.json"},
+           "smooth": {},
+           "rebin": { 
+           },
+           "compose": {
+               "mix": "separate" //, select: 1
+           },
+           "rescale": {
+               "type": "equidepth"
+           }
        }, true);
 
 
@@ -263,7 +278,7 @@ render('canvas10','Voronoi Tiling + Hatching',
            }
        }, true);
 
-render('canvas11', 'Census Data Smoothed',
+render('canvas11', 'Census Data Random Weaving',
 {
     "description": "US Census Synthetic people",
     "data": {"url": "census.snappy_data.json"},
@@ -298,6 +313,43 @@ render('canvas11', 'Census Data Smoothed',
     "rescale": {
         "type": "log"
     }
+});
+
+render('canvas12', 'Census Data Contour',
+{
+    "description": "US Census Synthetic people",
+    "data": {"url": "census.snappy_data.json"},
+    "smooth": {},
+    "reencoding": {
+        "label": {
+            "field": "z",
+            "type": "nominal",
+            "scale": {
+                "domain": ["w", "h", "a", "b", "o"],
+                "range": ["White", "Hispanic", "Asian", "Black", "Other"]
+            }
+        },
+        "color": {
+            "field": "z",
+            "type": "nominal",
+            "scale": {
+                "range": ["Blue", "Orange", "Red", "Green", "Brown"]
+            }
+        }
+    },
+    "rebin": {
+          "type": "topojson",
+          "url": "us.json",
+          "feature": "states",
+//          "stroke": "black"
+    },
+    "compose": {
+          "mix": "none"
+    },
+    "rescale": {
+        "type": "log"
+    },
+    "contour": 4
 });
 
 </script>

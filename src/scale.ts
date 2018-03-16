@@ -1,11 +1,12 @@
 import Color from './color';
 import {Digest} from 'tdigest';
-import {positive} from './util';
+import {positive,amin,amax,arange} from './util';
 
 export interface ScaleTrait {
     domain: [number, number] | number[];
     range: [number, number] | number[];
     map(value:number):number;
+    invmap(value:number):number;
 }
 
 export class LinearScale implements ScaleTrait {
@@ -16,8 +17,8 @@ export class LinearScale implements ScaleTrait {
     constructor(public domain: [number, number], public range: [number, number],
                 clamp:boolean = true) {
         this.scale = (this.range[1] - this.range[0]) / (this.domain[1] - this.domain[0]);
-        this.min = Math.min.apply(Math, this.range);
-        this.max = Math.max.apply(Math, this.range);
+        this.min = amin(this.range);
+        this.max = amax(this.range);
     }
 
     clamp(value:number) {
@@ -31,6 +32,14 @@ export class LinearScale implements ScaleTrait {
         let ret = (value - this.domain[0]) * this.scale + this.range[0];
         if(this.clamp) return this.clamp(ret);
         return ret;
+    }
+
+    invmap(value:number) {
+        let dmin = amin(this.domain),
+            dmax = amax(this.domain);
+        if (value <= dmin) return this.scale > 0 ? this.min : this.max;
+        if (value >= dmax) return this.scale > 0 ? this.max : this.min;
+        return (value - this.range[0]) / this.scale + this.domain[0];
     }
 }
 
@@ -46,6 +55,10 @@ export class LogScale implements ScaleTrait {
     map(value:number) {
         return this.internalScale.map(Math.log(value) / this.logBase);
     }
+
+    invmap(value:number) {
+        return this.internalScale.invmap(Math.exp(value*this.logBase));
+    }
 }
 
 export class RootScale implements ScaleTrait {
@@ -57,6 +70,10 @@ export class RootScale implements ScaleTrait {
 
     map(value:number) {
         return this.internalScale.map(Math.pow(value, 1 / this.degree));
+    }
+
+    invmap(value:number) {
+        return this.internalScale.invmap(Math.pow(value, this.degree));
     }
 }
 
@@ -70,10 +87,6 @@ export class CubicRootScale extends RootScale {
     constructor(public domain: [number, number], public range: [number, number]) {
         super(domain, range, 3);
     }
-}
-
-function arange(n:number): number[] {
-    return new Array(n).fill(0).map((d, i) => i);
 }
 
 export class EquiDepthScale implements ScaleTrait {
@@ -115,6 +128,20 @@ export class EquiDepthScale implements ScaleTrait {
         for(let i = 0; i < n; i++)
             if (value < this.bounds[i]) return min+w*i/n;
         return min+w;
+    }
+
+    invmap(value:number) {
+        if (value <= this.domain[0]) return this.range[0];
+        if (value >= this.domain[1]) return this.range[1];
+
+        if (this.bounds.length==0) {
+            this.computeBounds();
+        }
+
+        let v = (value - this.domain[0]) * (this.level=1) / (this.domain[1] - this.domain[0]),
+            i = Math.floor(v),
+            r = v-i;
+        return this.bounds[i]*(1-r) + this.bounds[i+1]*r;
     }
 }
 

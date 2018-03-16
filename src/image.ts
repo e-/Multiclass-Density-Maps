@@ -84,7 +84,8 @@ export default class Image {
         let width = imageData.width;
         let height = imageData.height;
 
-        let topLeft = new Point(tile.x + tile.mask.width / 2 - width / 2 , tile.y + tile.mask.height / 2 - height / 2).round();
+        let topLeft = new Point(tile.x + tile.mask.width / 2 - width / 2 ,
+                                tile.y + tile.mask.height / 2 - height / 2).round();
 
         let data = imageData.data;
 

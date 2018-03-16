@@ -14,4 +14,18 @@ export default class DerivedBuffer {
 
     constructor(public originalDataBuffer:DataBuffer) {
     }
+
+    thresholds(n:number) {
+        if (n <= 0) return [];
+        let scaleTrait = this.colorScale.interpolator;
+        return util.arange(scaleTrait.range[0],
+                           scaleTrait.range[1],
+                           (scaleTrait.range[1]-scaleTrait.range[0])/(n+2))
+                   .slice(1, n+1)
+                   .map(v => scaleTrait.invmap(v));
+    }
+
+    contours(thresholds:number[], blur:number = 3) {
+        return this.originalDataBuffer.contours(thresholds, blur);
+    }
 }
