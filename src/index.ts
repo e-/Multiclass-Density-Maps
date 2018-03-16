@@ -925,45 +925,6 @@ export class TestMain {
             });
         });
     }
-
-    legendMain() {
-        // all spec ids are from Pierre's google document:
-        // https://docs.google.com/document/d/19KlyXYyg_mazRxiwpB3NjwdSZ8gngIspqVd2sQD76Ls/edit#
-
-        let spec4 = {
-            "type": "ramp",
-            "domain": [1, 10000],
-            "scale": "log",
-            "orientation": "vertical",
-            "data_buffers": [
-                {"name": "buffer1",  "range": ["White", "Red"] },
-                {"name": "buffer2",  "range": ["White", "Green"] },
-                {"name": "buffer3",  "range": ["White", "Blue"] },
-                {"name": "buffer4",  "range": ["White", "Purple"] },
-            ]
-        };
-
-        let spec6 = {
-            "type": "matrix",
-            "data_buffers": [
-                {"name": "Value in Dollars", "type": "discrete", "domain": ["40,000 and Over", "..."], "range": ["Green", "..."]},
-                {"name": "Size in Acres", "type": "discrete", "domain": ["Under 50", "..."], "range": ["Blue", "..."]},
-            ],
-            "blend": "additive"
-        };
-
-        /*
-            each: true or false (for small multiples")
-            placement: where to put legends?
-            outer-top-center
-            inner-top-center
-            outer-right-center
-            outer-right-top
-            outer-right-stretch
-        */
-
-        console.log(123);
-    }
 }
 
 function createEquiDepthColormap(derivedBuffer:DerivedBuffer,
