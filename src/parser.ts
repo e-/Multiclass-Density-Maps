@@ -146,7 +146,7 @@ export interface ConfigurationReencodingSpec {
 export class ComposeSpec {
     mix: "none"|"min"|"mean"|"max"|"blend"|
           "weavingrandom"|"weavingsquare"|"weavinghex"|"weavingtri"|
-          "hatching"="mean";
+          "hatching"|"separate"="mean";
     mixing: "additive"|"subtractive" = "additive";
     size:number = 8;
     proportional:boolean = true;

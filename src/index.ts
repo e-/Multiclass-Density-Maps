@@ -218,16 +218,7 @@ export class TestMain {
 
         let me = this;
 
-        // Testing US per state weaving
-        this.testUSShapes();
-        jquery( "#slider11" ).css("background", "#ddd").slider({
-          min:   1,
-          value: 2,
-          max:   32,
-          slide:function( event:any, ui:any){
-            me.testUSShapes();
-          }}
-        );
+
 
         jquery( "#slider16" ).css("background", "#ddd").slider({
             min:   1,
@@ -267,11 +258,11 @@ export class TestMain {
         // testing polys
         //let po:Polys2D = new Polys2D("test");
         //po.addPoly([1.5, 3.5, 2.0], [1.0, 1.5, 3.0]);
-        //po.addPoly([2.0, 4.0, 3.0], [4.0, 2.0, 5.0]);
+        //po.addPoly([2.0, 4.0, 6.0], [4.0, 2.0, 6.0]);
         //console.log("Run polygon tests ");
         //console.log("  should be true:"+ po.isPointInPolys(2.5, 2.0)+" "+po.isPointInPolys(2.0, 2.5)+" "+po.isPointInPolys(3.0, 4.0)+" "+po.isPointInPolys(2.5, 2.0)+" "+po.isPointInPolys(2.99, 2.0));
         //console.log("  should be false:"+po.isPointInPolys(2.5, 1.1)+" "+po.isPointInPolys(3.0, 2.5)+" "+po.isPointInPolys(2.5, 2.8)+" "+po.isPointInPolys(1.6, 2.0)+" "+po.isPointInPolys(3.01, 2.0));
-        //console.log("  borderline:"+     po.isPointInPolys(3.0, 2.0)+" "+po.isPointInPolys(3.0, 3.0));
+        //console.log("  borderline:"+    po.isPointInPolys(1.75, 2.0)+" "+po.isPointInPolys(3.0, 3.0)+" "+po.isPointInPolys(3.0, 3.0)+" "+po.isPointInPolys(3.0, 4.5)+" "+po.isPointInPolys(5.0, 4.0));
 
         let hexaMasks   = Mask.generateWeavingHexaMasks(this.dataBuffers.length,   8, this.width, this.height);
         let bigRectTiles = Tiling.rectangularTiling(this.width, this.height, this.width / 16, this.height / 16);
@@ -421,102 +412,11 @@ export class TestMain {
               );
         }
 
-        CanvasRenderer.render2(outputImage16, 'canvas16');
+        CanvasRenderer.render(outputImage16, 'canvas16');
 
         if(d3.select("#border16").property("checked"))
           for (let k in voronoiTiles)
             CanvasRenderer.strokeVectorMask(voronoiTiles[k].mask, 'canvas16');
-    }
-
-    testUSShapes() {
-        util.get('data/census_data.json').then(response => {
-            let config = new Parser.Configuration(response);
-
-            // when we call load(), data spec and buffers are really loaded through AJAX
-            return config.load('data/');
-        }).then((config:Parser.Configuration) => {
-
-          let width  = config.data!.dataSpec!.encoding!.x!.bin!.maxbins;
-          let height = config.data!.dataSpec!.encoding!.y!.bin!.maxbins;
-
-          if (!width || !height) {
-            width  = 256;
-            height = 256;
-          }
-
-
-          util.get("data/us.json").then(result => {
-            let topous = JSON.parse(result);
-
-            let dataBuffers = config.data!.dataSpec!.buffers!.map((bufferSpec, i) => {
-              let db:DataBuffer = new DataBuffer(bufferSpec.value, width?width:100, height?height:100, bufferSpec.data);
-              return db;
-              }
-            );
-
-            let ustiles = Tiling.topojsonTiling(width!, height!,
-                                                topous, topous.objects.states);
-
-            let weavingSize = jquery("#slider11").slider("option", "value");
-            let randomMasks = Mask.generateWeavingRandomMasks(dataBuffers.length, weavingSize, width!, height!);
-
-            for(let tile of ustiles) {
-                // tile.dataValues are an array of numbers
-                if (jquery("#compo11a option:selected").text()=='Min')
-                  tile.dataValues = tile.aggregate(dataBuffers, TileAggregation.Min);
-                else if (jquery("#compo11a option:selected").text()=='Sum')
-                  tile.dataValues = tile.aggregate(dataBuffers, TileAggregation.Sum);
-                else if (jquery("#compo11a option:selected").text()=='Mean')
-                  tile.dataValues = tile.aggregate(dataBuffers, TileAggregation.Mean);
-                else if (jquery("#compo11a option:selected").text()=='Max')
-                  tile.dataValues = tile.aggregate(dataBuffers, TileAggregation.Max);
-            }
-
-
-            // get max count of bins for scale
-            let maxCount = util.amax(ustiles.map(tile => util.amax(tile.dataValues)));
-
-            let derivedBuffers11 = dataBuffers.map((dataBuffer, i) => {
-                let derivedBuffer = new DerivedBuffer(dataBuffer);
-
-                if (jquery("#compo11b option:selected").text()=="Linear")
-                  derivedBuffer.colorScale = new Scale.LinearColorScale([1, maxCount], [Color.White, Color.Category10[i]]);
-                else if (jquery("#compo11b option:selected").text()=="Log")
-                  derivedBuffer.colorScale = new Scale.LogColorScale([1, maxCount], [Color.White, Color.Category10[i]]);
-                else if (jquery("#compo11b option:selected").text()=="CubicRoot")
-                  derivedBuffer.colorScale = new Scale.CubicRootColorScale([1, maxCount], [Color.White, Color.Category10[i]]);
-                else if (jquery("#compo11b option:selected").text()=="SquareRoot")
-                  derivedBuffer.colorScale = new Scale.SquareRootColorScale([1, maxCount], [Color.White, Color.Category10[i]]);
-                else if (jquery("#compo11b option:selected").text()=="EquiDepth") {
-                    createEquiDepthColormap(derivedBuffer,
-                                            [0, maxCount],
-                                            [Color.White, Color.Category10[i]],
-                                            ustiles, i);
-                }
-                derivedBuffer.mask       = randomMasks[i];
-
-                return derivedBuffer;
-            });
-
-            let outputImage11 = new Image(width!, height!);
-
-            for(let tile of ustiles) {
-              derivedBuffers11.forEach((derivedBuffer, i) => {
-                  let color  = derivedBuffers11[i].colorScale.map(tile.dataValues[i]);
-                  outputImage11.render(color, tile, derivedBuffers11[i].mask);
-              });
-            }
-
-            CanvasRenderer.render(outputImage11, 'canvas11');
-
-            // draw frontiers
-            if(d3.select("#border11").property("checked"))
-              for(let tile of ustiles)
-                CanvasRenderer.strokeVectorMask(tile.mask, 'canvas11');
-
-          });
-
-        })
     }
 
     figures() {
@@ -528,21 +428,22 @@ export class TestMain {
             util.get("data/us.json").then(result => {
                 let topous = JSON.parse(result);
 
-                this.figure1a(config, topous);
-                this.figure1b(config, topous);
+                this.figure1a (config, topous);
+                this.figure1b (config, topous);
                 this.figure1c1(config, topous);
                 this.figure1c2(config, topous);
-                this.figure1e(config, topous);
-                this.figure1f(config, topous);
+                this.figure1e (config, topous);
+                this.figure1f (config, topous);
+                this.figure1g (config, topous);
             });
         });
     }
 
     figure1a(config:Parser.Configuration, topous:any, update:boolean=false) {
-          let me = this;
-          let savedConfig = config;
-          let savedTopous = topous;
-          if (!update){
+       let me = this;
+        let savedConfig = config;
+        let savedTopous = topous;
+        if (!update){
             jquery( "#slider1a" ).css("background", "#ddd").slider({
                 min:   0,
                 value: 0,
@@ -572,43 +473,43 @@ export class TestMain {
 
         let tiles = Tiling.rectangularTiling(width, height, size, size);
 
-        for(let tile of tiles) {
-            // tile.dataValues are an array of numbers
-           if (jquery("#compo1aa option:selected").text()=='Min')
-               tile.dataValues = tile.aggregate(dataBuffers, TileAggregation.Min);
-           else if (jquery("#compo1aa option:selected").text()=='Sum')
-              tile.dataValues = tile.aggregate(dataBuffers, TileAggregation.Sum);
-           else if (jquery("#compo1aa option:selected").text()=='Mean')
-               tile.dataValues = tile.aggregate(dataBuffers, TileAggregation.Mean);
-           else if (jquery("#compo1aa option:selected").text()=='Max')
-               tile.dataValues = tile.aggregate(dataBuffers, TileAggregation.Max);
+        let aggreg =jquery("#compo1aa option:selected").text();
+        for(let i in tiles) {
+          let tile = tiles[i];
+          // tile.dataValues are an array of numbers
+          if (aggreg=='Min')
+              tile.dataValues = tile.aggregate(dataBuffers, TileAggregation.Min);
+          else if (aggreg=='Sum')
+             tile.dataValues = tile.aggregate(dataBuffers, TileAggregation.Sum);
+          else if (aggreg=='Mean')
+              tile.dataValues = tile.aggregate(dataBuffers, TileAggregation.Mean);
+          else if (aggreg=='Max')
+              tile.dataValues = tile.aggregate(dataBuffers, TileAggregation.Max);
         }
 
         // get max count of bins for scale
         let maxCount = util.amax(tiles.map(tile => util.amax(tile.dataValues)));
 
-        //derivedBuffers[0].colorScale = new Scale.LogColorScale([1, maxCount], [Color.White, Color.Green]);
-        //derivedBuffers[1].colorScale = new Scale.LogColorScale([1, maxCount], [Color.White, Color.Blue]);
-
         let svg = d3.select("#legend1a-legend");
         svg.selectAll("*").remove();
 
+        let colscale =jquery("#compo1ab option:selected").text();
         let derivedBuffers = dataBuffers.map((dataBuffer, i) => {
             let derivedBuffer = new DerivedBuffer(dataBuffer);
 
-            if (jquery("#compo1ab option:selected").text()=="Linear")
-                derivedBuffer.colorScale = new Scale.LinearColorScale([0, maxCount], [Color.Category10[i].brighter(), Color.Category10[i].darker()]);
-            else if (jquery("#compo1ab option:selected").text()=="Log")
-                derivedBuffer.colorScale = new Scale.LogColorScale([0, maxCount], [Color.Category10[i].brighter(), Color.Category10[i].darker()]);
-            else if (jquery("#compo1ab option:selected").text()=="CubicRoot")
-               derivedBuffer.colorScale = new Scale.CubicRootColorScale([0, maxCount], [Color.Category10[i].brighter(), Color.Category10[i].darker()]);
-            else if (jquery("#compo1ab option:selected").text()=="SquareRoot")
-                derivedBuffer.colorScale = new Scale.SquareRootColorScale([0, maxCount], [Color.Category10[i].brighter(), Color.Category10[i].darker()]);
-            else if (jquery("#compo1ab option:selected").text()=="EquiDepth") {
+            if (colscale=="Linear")
+                derivedBuffer.colorScale = new Scale.LinearColorScale    ([0, maxCount], [Color.Category10a[i].brighter(), Color.Category10a[i].darker()]);
+            else if (colscale=="Log")
+                derivedBuffer.colorScale = new Scale.LogColorScale       ([0, maxCount], [Color.Category10a[i].brighter(), Color.Category10a[i].darker()]);
+            else if (colscale=="CubicRoot")
+               derivedBuffer.colorScale = new Scale.CubicRootColorScale  ([0, maxCount], [Color.Category10a[i].brighter(), Color.Category10a[i].darker()]);
+            else if (colscale=="SquareRoot")
+                derivedBuffer.colorScale = new Scale.SquareRootColorScale([0, maxCount], [Color.Category10a[i].brighter(), Color.Category10a[i].darker()]);
+            else if (colscale=="EquiDepth"){
                 createEquiDepthColormap(derivedBuffer,
                                         [0, maxCount],
-                                        [Color.Category10[i].brighter(),
-                                         Color.Category10[i].darker()],
+                                        [Color.Category10a[i].brighter(),
+                                         Color.Category10a[i].darker()],
                                         tiles, i);
             }
 
@@ -647,29 +548,79 @@ export class TestMain {
             CanvasRenderer.strokeVectorMask(tile.mask, 'fig1a', {color:'#000'});
     }
 
-    figure1b(config:Parser.Configuration, topous:any) {
-        let width = 512;
-        let height = 280;
-        let size = 1;
+    figure1b(config:Parser.Configuration, topous:any, update:boolean=false) {
 
-        let dataBuffers = config.data!.dataSpec!.buffers!.slice(0, 3).map((bufferSpec) =>
-            new DataBuffer('test', width, height, bufferSpec.data).blur(1)
+        let me = this;
+        let savedConfig = config;
+        let savedTopous = topous;
+        if (!update){
+            jquery( "#slider1b" ).css("background", "#ddd").slider({
+                min:   0,
+                value: 0,
+                max:   16,
+                change:function( event:any, ui:any){me.figure1b(savedConfig, savedTopous, true);}
+              }
+            );
+            jquery("#compo1ba").change(function(){ me.figure1b(savedConfig, savedTopous, true);});
+            jquery("#compo1bb").change(function(){ me.figure1b(savedConfig, savedTopous, true);});
+            jquery("#compo1bc").change(function(){ me.figure1b(savedConfig, savedTopous, true);});
+            jquery("#compo1bd").change(function(){ me.figure1b(savedConfig, savedTopous, true);});
+            jquery("#compo1be").change(function(){ me.figure1b(savedConfig, savedTopous, true);});
+            jquery("#compo1bf").change(function(){ me.figure1b(savedConfig, savedTopous, true);});
+            jquery("#border1b").change(function(){ me.figure1b(savedConfig, savedTopous, true);});
+        }
+
+        let width  = config.data!.dataSpec!.encoding!.x!.bin!.maxbins!;
+        let height = config.data!.dataSpec!.encoding!.y!.bin!.maxbins!;
+        let blurSize = jquery("#slider1b").slider("option", "value");
+
+        let dataBuffers = config.data!.dataSpec!.buffers!.slice(0, parseInt(jquery("#compo1bc option:selected").text())).map((bufferSpec) =>
+            new DataBuffer('test', width, height, bufferSpec.data).blur(blurSize)
         );
 
         let ustiles = Tiling.topojsonTiling(width, height!, topous, topous.objects.states);
 
+        let aggreg =jquery("#compo1ba option:selected").text();
         for(let tile of ustiles) {
-            tile.dataValues = tile.aggregate(dataBuffers, TileAggregation.Sum);
+             // tile.dataValues are an array of numbers
+           if (aggreg=='Min')
+               tile.dataValues = tile.aggregate(dataBuffers, TileAggregation.Min);
+           else if (aggreg=='Sum')
+              tile.dataValues = tile.aggregate(dataBuffers, TileAggregation.Sum);
+           else if (aggreg=='Mean')
+               tile.dataValues = tile.aggregate(dataBuffers, TileAggregation.Mean);
+           else if (aggreg=='Max')
+               tile.dataValues = tile.aggregate(dataBuffers, TileAggregation.Max);
         }
 
         let maxCount = util.amax(ustiles.map(tile => util.amax(tile.dataValues)));
 
-        let derivedBuffers = dataBuffers.map((dataBuffer, i) => new DerivedBuffer(dataBuffer));
-
         // NOTE: manipulated maxCount to balance colors
-        derivedBuffers[0].colorScale = new Scale.CubicRootColorScale([1, maxCount], [Color.White, Color.Red]);
-        derivedBuffers[1].colorScale = new Scale.CubicRootColorScale([1, maxCount / 10], [Color.White, Color.Yellow]);
-        derivedBuffers[2].colorScale = new Scale.CubicRootColorScale([1, maxCount / 100], [Color.White, Color.Blue]);
+        // NOTE2: replaced by local max for the given buffer
+        let colscale =jquery("#compo1bb option:selected").text();
+        let derivedBuffers = dataBuffers.map((dataBuffer, i) => {
+            let derivedBuffer = new DerivedBuffer(dataBuffer);
+            let locMaxCount = util.amax(ustiles.map(tile => tile.dataValues[i]));
+
+            if (colscale=="Linear")
+                derivedBuffer.colorScale = new Scale.LinearColorScale([0, locMaxCount], [Color.White, Color.Category10b[i].darker()]);
+            else if (colscale=="Log")
+                derivedBuffer.colorScale = new Scale.LogColorScale([0, locMaxCount], [Color.White, Color.Category10b[i].darker()]);
+            else if (colscale=="CubicRoot")
+               derivedBuffer.colorScale = new Scale.CubicRootColorScale([0, locMaxCount], [Color.White, Color.Category10b[i].darker()]);
+            else if (colscale=="SquareRoot")
+                derivedBuffer.colorScale = new Scale.SquareRootColorScale([0, locMaxCount], [Color.White, Color.Category10b[i].darker()]);
+            else if (colscale=="EquiDepth"){
+                createEquiDepthColormap(derivedBuffer,
+                                        [0, locMaxCount],
+                                        [Color.White, Color.Category10b[i]],
+                                        ustiles, i);
+            }
+            return derivedBuffer;
+        });
+        //derivedBuffers[0].colorScale = new Scale.CubicRootColorScale([1, maxCount], [Color.White, Color.Red]);
+        //derivedBuffers[1].colorScale = new Scale.CubicRootColorScale([1, maxCount / 10], [Color.White, Color.Yellow]);
+        //derivedBuffers[2].colorScale = new Scale.CubicRootColorScale([1, maxCount / 100], [Color.White, Color.Blue]);
 
         let outputImage = new Image(width, height);
 
@@ -680,8 +631,9 @@ export class TestMain {
 
         CanvasRenderer.render(outputImage, 'fig1b');
 
-        for(let tile of ustiles)
-            CanvasRenderer.strokeVectorMask(tile.mask, 'fig1b');
+        if(d3.select("#border1b").property("checked"))
+          for(let tile of ustiles)
+              CanvasRenderer.strokeVectorMask(tile.mask, 'fig1b');
     }
 
     figure1c1(config:Parser.Configuration, topous:any, update:boolean=false) {
@@ -712,31 +664,33 @@ export class TestMain {
 
         let ustiles = Tiling.topojsonTiling(width, height, topous, topous.objects.states);
 
+        let aggreg =jquery("#compo1c1a option:selected").text();
         for(let tile of ustiles) {
-           if (jquery("#compo1c1a option:selected").text()=='Min')
+           if (aggreg=='Min')
                tile.dataValues = tile.aggregate(dataBuffers, TileAggregation.Min);
-           else if (jquery("#compo1c1a option:selected").text()=='Sum')
+           else if (aggreg=='Sum')
               tile.dataValues = tile.aggregate(dataBuffers, TileAggregation.Sum);
-           else if (jquery("#compo1c1a option:selected").text()=='Mean')
+           else if (aggreg=='Mean')
                tile.dataValues = tile.aggregate(dataBuffers, TileAggregation.Mean);
-           else if (jquery("#compo1c1a option:selected").text()=='Max')
+           else if (aggreg=='Max')
                tile.dataValues = tile.aggregate(dataBuffers, TileAggregation.Max);
         }
 
         let maxCount = util.amax(ustiles.map(tile => util.amax(tile.dataValues)));
 
+        let colscale =jquery("#compo1c1b option:selected").text();
         let derivedBuffers = dataBuffers.map((dataBuffer, i) => {
             let derivedBuffer = new DerivedBuffer(dataBuffer);
 
-             if (jquery("#compo1c1b option:selected").text()=="Linear")
+             if (colscale=="Linear")
                  derivedBuffer.colorScale = new Scale.LinearColorScale([1, maxCount], [Color.White, Color.Category10[i]]);
-             else if (jquery("#compo1c1b option:selected").text()=="Log")
+             else if (colscale=="Log")
                  derivedBuffer.colorScale = new Scale.LogColorScale([1, maxCount], [Color.White, Color.Category10[i]]);
-             else if (jquery("#compo1c1b option:selected").text()=="CubicRoot")
+             else if (colscale=="CubicRoot")
                 derivedBuffer.colorScale = new Scale.CubicRootColorScale([1, maxCount], [Color.White, Color.Category10[i]]);
-             else if (jquery("#compo1c1b option:selected").text()=="SquareRoot")
+             else if (colscale=="SquareRoot")
                  derivedBuffer.colorScale = new Scale.SquareRootColorScale([1, maxCount], [Color.White, Color.Category10[i]]);
-            else if (jquery("#compo1c1b option:selected").text()=="EquiDepth") {
+            else if (colscale=="EquiDepth") {
                 createEquiDepthColormap(derivedBuffer,
                                         [0, maxCount],
                                         [Color.White, Color.Category10[i]],
@@ -773,7 +727,7 @@ export class TestMain {
             );
         }
 
-        CanvasRenderer.render2(outputImage, 'fig1c1');
+        CanvasRenderer.render(outputImage, 'fig1c1');
         if(d3.select("#border1c1").property("checked"))
           for(let tile of ustiles)
             CanvasRenderer.strokeVectorMask(tile.mask, 'fig1c1');
@@ -834,33 +788,75 @@ export class TestMain {
         });
     }
 
-    figure1e(config:Parser.Configuration, topous:any) {
+    figure1e(config:Parser.Configuration, topous:any, update:boolean=false) {
+          let me = this;
+          let savedConfig = config;
+          let savedTopous = topous;
+          if (!update){
+            jquery( "#slider1e" ).css("background", "#ddd").slider({
+                min:   1,
+                value: 4,
+                max:   16,
+                change:function( event:any, ui:any){me.figure1e(savedConfig, savedTopous, true);}
+              }
+            );
+            jquery("#compo1ea").change(function(){ me.figure1e(savedConfig, savedTopous, true);});
+            jquery("#compo1eb").change(function(){ me.figure1e(savedConfig, savedTopous, true);});
+            jquery("#compo1ec").change(function(){ me.figure1e(savedConfig, savedTopous, true);});
+            jquery("#compo1ed").change(function(){ me.figure1e(savedConfig, savedTopous, true);});
+            jquery("#compo1ee").change(function(){ me.figure1e(savedConfig, savedTopous, true);});
+            jquery("#compo1ef").change(function(){ me.figure1e(savedConfig, savedTopous, true);});
+            jquery("#border1e").change(function(){ me.figure1e(savedConfig, savedTopous, true);});
+        }
+
         let width  = config.data!.dataSpec!.encoding!.x!.bin!.maxbins!;
         let height = config.data!.dataSpec!.encoding!.y!.bin!.maxbins!;
 
         let dataBuffers = config.data!.dataSpec!.buffers!.map((bufferSpec, i) => new DataBuffer(bufferSpec.value, width, height, bufferSpec.data));
         let ustiles = Tiling.topojsonTiling(width, height, topous, topous.objects.states);
 
-        let weavingSize = 4;
+        let weavingSize = jquery("#slider1e").slider("option", "value");
         let randomMasks = Mask.generateWeavingRandomMasks(dataBuffers.length, weavingSize, width!, height!);
 
+        let aggreg =jquery("#compo1ea option:selected").text();
         for(let tile of ustiles) {
-            tile.dataValues = tile.aggregate(dataBuffers, TileAggregation.Sum);
+          if (aggreg=='Min')
+               tile.dataValues = tile.aggregate(dataBuffers, TileAggregation.Min);
+           else if (aggreg=='Sum')
+              tile.dataValues = tile.aggregate(dataBuffers, TileAggregation.Sum);
+           else if (aggreg=='Mean')
+               tile.dataValues = tile.aggregate(dataBuffers, TileAggregation.Mean);
+           else if (aggreg=='Max')
+               tile.dataValues = tile.aggregate(dataBuffers, TileAggregation.Max);
         }
 
         let maxCount = util.amax(ustiles.map(tile => util.amax(tile.dataValues)));
 
+        let colscale =jquery("#compo1eb option:selected").text();
         let derivedBuffers = dataBuffers.map((dataBuffer, i) => {
             let derivedBuffer = new DerivedBuffer(dataBuffer);
 
-            derivedBuffer.colorScale = new Scale.CubicRootColorScale([1, maxCount], [Color.White, Color.Category10[i]]);
+            if (colscale=="Linear")
+                 derivedBuffer.colorScale = new Scale.LinearColorScale([1, maxCount], [Color.White, Color.Category10[i]]);
+             else if (colscale=="Log")
+                 derivedBuffer.colorScale = new Scale.LogColorScale([1, maxCount], [Color.White, Color.Category10[i]]);
+             else if (colscale=="CubicRoot")
+                derivedBuffer.colorScale = new Scale.CubicRootColorScale([1, maxCount], [Color.White, Color.Category10[i]]);
+             else if (colscale=="SquareRoot")
+                 derivedBuffer.colorScale = new Scale.SquareRootColorScale([1, maxCount], [Color.White, Color.Category10[i]]);
+            else if (colscale=="EquiDepth") {
+                createEquiDepthColormap(derivedBuffer,
+                                        [0, maxCount],
+                                        [Color.White, Color.Category10[i]],
+                                        ustiles, i);
+            }
+
             derivedBuffer.mask       = randomMasks[i];
 
             return derivedBuffer;
         });
 
         let outputImage = new Image(width, height);
-
 
         for(let tile of ustiles) {
         derivedBuffers.forEach((derivedBuffer, i) => {
@@ -871,23 +867,54 @@ export class TestMain {
 
         CanvasRenderer.render(outputImage, 'fig1e');
 
-        for(let tile of ustiles)
+        if(d3.select("#border1e").property("checked"))
+          for(let tile of ustiles)
             CanvasRenderer.strokeVectorMask(tile.mask, 'fig1e');
     }
 
-    figure1f(config:Parser.Configuration, topous:any) {
+    figure1f(config:Parser.Configuration, topous:any, update:boolean=false) {
+          let me = this;
+          let savedConfig = config;
+          let savedTopous = topous;
+          if (!update){
+            jquery( "#slider1f" ).css("background", "#ddd").slider({
+                min:   10,
+                value: 20,
+                max:   100,
+                change:function( event:any, ui:any){me.figure1f(savedConfig, savedTopous, true);}
+              }
+            );
+            jquery("#compo1fa").change(function(){ me.figure1f(savedConfig, savedTopous, true);});
+            jquery("#compo1fb").change(function(){ me.figure1f(savedConfig, savedTopous, true);});
+            jquery("#compo1fc").change(function(){ me.figure1f(savedConfig, savedTopous, true);});
+            jquery("#compo1fd").change(function(){ me.figure1f(savedConfig, savedTopous, true);});
+            jquery("#compo1fe").change(function(){ me.figure1f(savedConfig, savedTopous, true);});
+            jquery("#compo1ff").change(function(){ me.figure1f(savedConfig, savedTopous, true);});
+            jquery("#border1f").change(function(){ me.figure1f(savedConfig, savedTopous, true);});
+        }
+
         let width  = config.data!.dataSpec!.encoding!.x!.bin!.maxbins!;
         let height = config.data!.dataSpec!.encoding!.y!.bin!.maxbins!;
+        let histoSize = jquery("#slider1f").slider("option", "value");
 
         let dataBuffers = config.data!.dataSpec!.buffers!.map((bufferSpec, i) => new DataBuffer(bufferSpec.value, width, height, bufferSpec.data));
 
         let ustiles = Tiling.topojsonTiling(width, height, topous, topous.objects.states);
 
+        let aggreg =jquery("#compo1fa option:selected").text();
         for(let tile of ustiles) {
-            tile.dataValues = tile.aggregate(dataBuffers, TileAggregation.Sum);
+            if (aggreg=='Min')
+               tile.dataValues = tile.aggregate(dataBuffers, TileAggregation.Min);
+           else if (aggreg=='Sum')
+              tile.dataValues = tile.aggregate(dataBuffers, TileAggregation.Sum);
+           else if (aggreg=='Mean')
+               tile.dataValues = tile.aggregate(dataBuffers, TileAggregation.Mean);
+           else if (aggreg=='Max')
+               tile.dataValues = tile.aggregate(dataBuffers, TileAggregation.Max);
         }
 
         let maxCount = util.amax(ustiles.map(tile => util.amax(tile.dataValues)));
+
 
         let derivedBuffers = dataBuffers.map((dataBuffer, i) => new DerivedBuffer(dataBuffer))
 
@@ -897,8 +924,8 @@ export class TestMain {
             if(tile.mask.width < 30 || tile.mask.height < 30) continue;
 
             let promise = Composer.bars(derivedBuffers, tile.dataValues, {
-                width: 16,
-                height: 20,
+                width: histoSize*0.8,
+                height: histoSize,
                 'y.scale.domain': [1, maxCount],
                 'y.scale.type': 'sqrt'
             }).then((vegaPixels) => {
@@ -913,7 +940,8 @@ export class TestMain {
             canvas.width = width;
             canvas.height = height;
 
-            for(let tile of ustiles)
+            if(d3.select("#border1f").property("checked"))
+              for(let tile of ustiles)
                 CanvasRenderer.strokeVectorMask(tile.mask, 'fig1f');
 
             CanvasRenderer.render(outputImage, 'fig1f', {
@@ -921,6 +949,116 @@ export class TestMain {
                 noResetDims: true
             });
         });
+    }
+
+
+    figure1g(config:Parser.Configuration, topous:any, update:boolean=false) {
+       let me = this;
+        let savedConfig = config;
+        let savedTopous = topous;
+        if (!update){
+            jquery( "#slider1g" ).css("background", "#ddd").slider({
+                min:   0,
+                value: 8,
+                max:   16,
+                change:function( event:any, ui:any){me.figure1g(savedConfig, savedTopous, true);}
+              }
+            );
+            jquery("#compo1ga").change(function(){ me.figure1g(savedConfig, savedTopous, true);});
+            jquery("#compo1gb").change(function(){ me.figure1g(savedConfig, savedTopous, true);});
+            jquery("#compo1gc").change(function(){ me.figure1g(savedConfig, savedTopous, true);});
+            jquery("#compo1gd").change(function(){ me.figure1g(savedConfig, savedTopous, true);});
+            jquery("#compo1ge").change(function(){ me.figure1g(savedConfig, savedTopous, true);});
+            jquery("#compo1gf").change(function(){ me.figure1g(savedConfig, savedTopous, true);});
+            jquery("#border1g").change(function(){ me.figure1g(savedConfig, savedTopous, true);});
+        }
+
+        let width  = config.data!.dataSpec!.encoding!.x!.bin!.maxbins!;
+        let height = config.data!.dataSpec!.encoding!.y!.bin!.maxbins!;
+
+        let size = 1;
+        let blurSize = jquery("#slider1g").slider("option", "value");
+
+        let dataBuffers = config.data!.dataSpec!.buffers!.slice(0, parseInt(jquery("#compo1gc option:selected").text())).map((bufferSpec) =>
+            new DataBuffer(bufferSpec.value, width, height, bufferSpec.data).blur(blurSize).makeContour(12)
+        );
+
+        let tiles = Tiling.rectangularTiling(width, height, size, size);
+
+        let aggreg =jquery("#compo1ga option:selected").text();
+        for(let i in tiles) {
+          let tile = tiles[i];
+          // tile.dataValues are an array of numbers
+          if (aggreg=='Min')
+              tile.dataValues = tile.aggregate(dataBuffers, TileAggregation.Min);
+          else if (aggreg=='Sum')
+             tile.dataValues = tile.aggregate(dataBuffers, TileAggregation.Sum);
+          else if (aggreg=='Mean')
+              tile.dataValues = tile.aggregate(dataBuffers, TileAggregation.Mean);
+          else if (aggreg=='Max')
+              tile.dataValues = tile.aggregate(dataBuffers, TileAggregation.Max);
+        }
+
+        // get max count of bins for scale
+        let maxCount = util.amax(tiles.map(tile => util.amax(tile.dataValues)));
+
+        let svg = d3.select("#legend1g-legend");
+        svg.selectAll("*").remove();
+
+        let colscale =jquery("#compo1gb option:selected").text();
+        let derivedBuffers = dataBuffers.map((dataBuffer, i) => {
+            let derivedBuffer = new DerivedBuffer(dataBuffer);
+
+            if (colscale=="Linear")
+                derivedBuffer.colorScale = new Scale.LinearColorScale    ([0, maxCount], [Color.Category10[i].brighter(), Color.Category10[i].darker()]);
+            else if (colscale=="Log")
+                derivedBuffer.colorScale = new Scale.LogColorScale       ([0, maxCount], [Color.Category10[i].brighter(), Color.Category10[i].darker()]);
+            else if (colscale=="CubicRoot")
+               derivedBuffer.colorScale = new Scale.CubicRootColorScale  ([0, maxCount], [Color.Category10[i].brighter(), Color.Category10[i].darker()]);
+            else if (colscale=="SquareRoot")
+                derivedBuffer.colorScale = new Scale.SquareRootColorScale([0, maxCount], [Color.Category10[i].brighter(), Color.Category10[i].darker()]);
+            else if (colscale=="EquiDepth"){
+                createEquiDepthColormap(derivedBuffer,
+                                        [0, maxCount],
+                                        [Color.Category10a[i].brighter(),
+                                         Color.Category10a[i].darker()],
+                                        tiles, i);
+            }
+
+            for (let k=0; k<8; k++){
+              let col = derivedBuffer.colorScale.map(k*maxCount/7);
+              svg.append("circle")
+                .attr("fill", "#"+col.hex())
+                .attr("r", 10)
+                .attr("cx", ""+(110-i*20))
+                .attr("cy", ""+(50-k*5));
+            }
+
+            svg.append("text")
+              .attr("fill", "black")
+              .attr("x", ""+(105-i*20))
+              .attr("y", "50")
+              .text(dataBuffer.name);
+
+
+            return derivedBuffer;
+        });
+
+        let outputImage = new Image(width, height);
+
+        for(let tile of tiles) {
+            let color1 = Composer.mean(derivedBuffers, tile.dataValues);
+            outputImage.render(color1, tile);
+        }
+
+        CanvasRenderer.render(outputImage, 'fig1g');
+
+        let ustiles = Tiling.topojsonTiling(width, height, topous, topous.objects.states);
+
+        if(d3.select("#border1g").property("checked"))
+          for(let tile of ustiles)
+            CanvasRenderer.strokeVectorMask(tile.mask, 'fig1g', {color:'#000'});
+
     }
 }
 
