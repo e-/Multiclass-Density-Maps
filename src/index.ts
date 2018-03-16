@@ -421,7 +421,7 @@ export class TestMain {
               );
         }
 
-        CanvasRenderer.render2(outputImage16, 'canvas16');
+        CanvasRenderer.render(outputImage16, 'canvas16');
 
         if(d3.select("#border16").property("checked"))
           for (let k in voronoiTiles)
@@ -776,7 +776,7 @@ export class TestMain {
             );
         }
 
-        CanvasRenderer.render2(outputImage, 'fig1c1');
+        CanvasRenderer.render(outputImage, 'fig1c1');
         if(d3.select("#border1c1").property("checked"))
           for(let tile of ustiles)
             CanvasRenderer.strokeVectorMask(tile.mask, 'fig1c1');

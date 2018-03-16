@@ -7,12 +7,9 @@ import * as util from './util';
 import DerivedBuffer from './derived-buffer';
 
 export default class Image {
-    imageCanvas:HTMLCanvasElement;
+    imageCanvas?:HTMLCanvasElement;
 
     constructor(public width:number, public height:number, public pixels:Color[][] = util.create2D<Color>(width, height, new Color())) {
-        this.imageCanvas = <HTMLCanvasElement>document.createElement('canvas');
-        this.imageCanvas.width  = width;
-        this.imageCanvas.height = height;
     }
 
     render(color: Color, rect: Rect):void;
@@ -55,6 +52,16 @@ export default class Image {
     }
 
     private drawTileAtPosition(canvas:HTMLCanvasElement, point:Point){
+        if (this.imageCanvas == undefined) {
+            this.imageCanvas = document.createElement('canvas');
+            if (this.imageCanvas == null) {
+                console.log('cannot create canvas');
+                throw 'cannot create canvas';
+            }
+            this.imageCanvas.width  = this.width;
+            this.imageCanvas.height = this.height;
+        }
+
         let ctx = this.imageCanvas.getContext("2d")!;
         ctx.save();
         ctx.translate(point.x, point.y);

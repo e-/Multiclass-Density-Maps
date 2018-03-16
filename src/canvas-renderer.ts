@@ -10,6 +10,19 @@ enum BlendingMode {
 export default class CanvasRenderer {
     static BlendingMode = BlendingMode;
 
+    static renderAll(images:Image[], id:string,
+                     options: {
+                         blur?:number,
+                         blendingMode?:BlendingMode,
+                         noResetDims?:boolean,
+                         rows?:number, cols?:number
+                     } = {}): CanvasRenderingContext2D {
+        if (images.length == 1)
+            return CanvasRenderer.render(images[0], id, options);
+        else
+            return CanvasRenderer.renderMultiples(images, id, options);
+    }
+
     static render(image:Image, id:string, options:{
             blur?:number,
             blendingMode?:BlendingMode,
@@ -26,18 +39,22 @@ export default class CanvasRenderer {
         }
 
         let ctx:CanvasRenderingContext2D = canvas.getContext('2d');
-        let imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+        if (image.imageCanvas)
+            ctx.drawImage(image.imageCanvas, 0, 0);
+        else {
+            let imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
 
-        if(!options.blendingMode || options.blendingMode as BlendingMode === BlendingMode.Normal) {
-            this.renderToImageData(image, imageData);
+            if(!options.blendingMode ||
+               options.blendingMode as BlendingMode === BlendingMode.Normal) {
+                this.renderToImageData(image, imageData);
+            }
+            else if(options.blendingMode as BlendingMode === BlendingMode.Alpha) {
+                this.renderAlphaBlending(image, imageData);
+                console.log(image);
+            }
 
+            ctx.putImageData(imageData, 0, 0);
         }
-        else if(options.blendingMode as BlendingMode === BlendingMode.Alpha) {
-            this.renderAlphaBlending(image, imageData);
-            console.log(image);
-        }
-
-        ctx.putImageData(imageData, 0, 0);
 
         return ctx;
     }
@@ -49,7 +66,7 @@ export default class CanvasRenderer {
         canvas.height  = image.height;
         let ctx:CanvasRenderingContext2D = canvas.getContext('2d');
 
-        ctx.drawImage(image.imageCanvas, 0, 0);
+        ctx.drawImage(image.imageCanvas!, 0, 0);
         return ctx;
     }
 
@@ -139,6 +156,7 @@ export default class CanvasRenderer {
             let row = i % rows;
             ctx.drawImage(memoryCanvas, 0,           0,                         width,      height,
                                         width * col / cols, height * row /rows, width/cols, height/rows);
-        })
+        });
+        return ctx;
     }
 }
