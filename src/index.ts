@@ -20,21 +20,11 @@ import "jquery-ui/ui/widgets/slider";
 
 /// <reference path="multivariate-normal.d.ts" />
 import MN from "multivariate-normal";
-
+import LegendBuilder from "./legend";
 
 export class TestMain {
     constructor() {
 
-    }
-
-    parse_url(url:string, callback:(conf:Parser.Configuration)=>void) {
-        util.get(url).then(response => {
-            let config = new Parser.Configuration(response);
-
-            // when we call load(), data spec and buffers are really loaded through AJAX
-            return config.load('data/');
-        })
-        .then(callback);
     }
 
     create_configuration(json:any) {
@@ -566,6 +556,7 @@ export class TestMain {
 
         let width  = config.data!.dataSpec!.encoding!.x!.bin!.maxbins!;
         let height = config.data!.dataSpec!.encoding!.y!.bin!.maxbins!;
+
         let size = 1;
         let blurSize = jquery("#slider1a").slider("option", "value");
         //console.log(blurSize);
@@ -595,7 +586,7 @@ export class TestMain {
         //derivedBuffers[0].colorScale = new Scale.LogColorScale([1, maxCount], [Color.White, Color.Green]);
         //derivedBuffers[1].colorScale = new Scale.LogColorScale([1, maxCount], [Color.White, Color.Blue]);
 
-        let svg = d3.select("#legend1a");
+        let svg = d3.select("#legend1a-legend");
         svg.selectAll("*").remove();
 
         let derivedBuffers = dataBuffers.map((dataBuffer, i) => {
@@ -615,7 +606,7 @@ export class TestMain {
             for (let k=0; k<8; k++){
               let col = derivedBuffer.colorScale.map(k*maxCount/7);
               svg.append("circle")
-                .attr("fill", "#"+col.toHexa())
+                .attr("fill", "#"+col.hex())
                 .attr("r", 10)
                 .attr("cx", ""+(110-i*20))
                 .attr("cy", ""+(50-k*5));
@@ -645,6 +636,8 @@ export class TestMain {
         if(d3.select("#border1a").property("checked"))
           for(let tile of ustiles)
             CanvasRenderer.strokeVectorMask(tile.mask, 'fig1a', {color:'#000'});
+
+        LegendBuilder('fig1a-legend', config, derivedBuffers);
     }
 
     figure1b(config:Parser.Configuration, topous:any) {

@@ -3,6 +3,8 @@ import {Digest} from 'tdigest';
 import {positive} from './util';
 
 export interface ScaleTrait {
+    domain: [number, number] | number[];
+    range: [number, number] | number[];
     map(value:number):number;
 }
 
@@ -73,10 +75,12 @@ function arange(n:number): number[] {
 export class EquiDepthScale implements ScaleTrait {
     digest:Digest;
     bounds:number[] = [];
+    range:number[];
 
     constructor(public domain: number[], public level:number = 10) {
         this.digest = new Digest();
         this.digest.push(domain.filter(positive));
+        this.range = new Array(level).fill(0).map((d, i) => i);
     }
 
     addPoints(domain: number[]) {
