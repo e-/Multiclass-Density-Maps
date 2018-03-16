@@ -12,19 +12,37 @@ export function create2D<T>(width:number, height:number, value:T) {
     return arr;
 }
 
-export function amax(arr:number[]) {
-    let max = arr[0];
-    for(let i = 0; i < arr.length; ++i)
-        if(max < arr[i]) max = arr[i];
+export function amax(values:number[]) {
+    let n = values.length;
+    var i = -1, value, max = NaN;
 
+    while (++i < n) { // Find the first comparable value.
+        if ((value = values[i]) != null && value >= value) {
+            max = value;
+            while (++i < n) { // Compare the remaining values.
+                if ((value = values[i]) != null && value > max) {
+                    max = value;
+                }
+            }
+        }
+    }
     return max;
 }
 
-export function amin(arr:number[]) {
-    let min = arr[0];
-    for(let i = 0; i < arr.length; ++i)
-        if(min > arr[i]) min = arr[i];
+export function amin(values:number[]) {
+    let n = values.length;
+    var i = -1, value, min = NaN;
 
+    while (++i < n) {
+        if ((value = values[i]) != null && value >= value) {
+            min = value;
+            while (++i < n) { // Compare the remaining values.
+                if ((value = values[i]) != null && min > value) {
+                    min = value;
+                }
+            }
+        }
+    }
     return min;
 }
 
