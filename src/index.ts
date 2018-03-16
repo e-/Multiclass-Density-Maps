@@ -110,7 +110,8 @@ export class TestMain {
         let derivedBuffers8 = this.dataBuffers.map((dataBuffer, i) => {
             let derivedBuffer = new DerivedBuffer(dataBuffer);
 
-            derivedBuffer.colorScale = new Scale.LinearColorScale([0, maxCount], [Color.Black, Color.Category10[i]]);
+            derivedBuffer.colorScale = new Scale.LinearColorScale(
+                [0, maxCount], [Color.Black, Color.Category10[i]]);
 
             return derivedBuffer;
         });
@@ -118,18 +119,18 @@ export class TestMain {
         let derivedBuffers2 = this.dataBuffers.map((dataBuffer, i) => {
             let derivedBuffer = new DerivedBuffer(dataBuffer);
 
-            derivedBuffer.colorScale = new Scale.LogColorScale([1, maxCount], [Color.White, Color.Category10[i]]);
+            derivedBuffer.colorScale = new Scale.LogColorScale(
+                [1, maxCount], [Color.White, Color.Category10[i]]);
 
             return derivedBuffer;
         });
 
         let derivedBuffers3 = this.dataBuffers.map((dataBuffer, i) => {
             let derivedBuffer = new DerivedBuffer(dataBuffer);
-
-            derivedBuffer.colorScale = new Scale.EquiDepthColorScale(
-                rectTiles.map(tile => tile.dataValues[i]).filter(c => c > 0),
-                [Color.White, Color.Category10[i]], 3);
-
+            createEquiDepthColormap(derivedBuffer,
+                                    [0, maxCount],
+                                    [Color.White, Color.Category10[i]],
+                                    rectTiles, i);
             return derivedBuffer;
         });
 
@@ -459,15 +460,16 @@ export class TestMain {
             let weavingSize = jquery("#slider11").slider("option", "value");
             let randomMasks = Mask.generateWeavingRandomMasks(dataBuffers.length, weavingSize, width!, height!);
 
+            let aggreg =jquery("#compo11a option:selected").text();
             for(let tile of ustiles) {
                 // tile.dataValues are an array of numbers
-                if (jquery("#compo11a option:selected").text()=='Min')
+                if (aggreg=='Min')
                   tile.dataValues = tile.aggregate(dataBuffers, TileAggregation.Min);
-                else if (jquery("#compo11a option:selected").text()=='Sum')
+                else if (aggreg=='Sum')
                   tile.dataValues = tile.aggregate(dataBuffers, TileAggregation.Sum);
-                else if (jquery("#compo11a option:selected").text()=='Mean')
+                else if (aggreg=='Mean')
                   tile.dataValues = tile.aggregate(dataBuffers, TileAggregation.Mean);
-                else if (jquery("#compo11a option:selected").text()=='Max')
+                else if (aggreg=='Max')
                   tile.dataValues = tile.aggregate(dataBuffers, TileAggregation.Max);
             }
 
@@ -475,19 +477,24 @@ export class TestMain {
             // get max count of bins for scale
             let maxCount = util.amax(ustiles.map(tile => util.amax(tile.dataValues)));
 
+            let colscale =jquery("#compo11b option:selected").text();
             let derivedBuffers11 = dataBuffers.map((dataBuffer, i) => {
                 let derivedBuffer = new DerivedBuffer(dataBuffer);
 
-                if (jquery("#compo11b option:selected").text()=="Linear")
+                if (colscale=="Linear")
                   derivedBuffer.colorScale = new Scale.LinearColorScale([1, maxCount], [Color.White, Color.Category10[i]]);
-                else if (jquery("#compo11b option:selected").text()=="Log")
+                else if (colscale=="Log")
                   derivedBuffer.colorScale = new Scale.LogColorScale([1, maxCount], [Color.White, Color.Category10[i]]);
-                else if (jquery("#compo11b option:selected").text()=="CubicRoot")
+                else if (colscale=="CubicRoot")
                   derivedBuffer.colorScale = new Scale.CubicRootColorScale([1, maxCount], [Color.White, Color.Category10[i]]);
-                else if (jquery("#compo11b option:selected").text()=="SquareRoot")
+                else if (colscale=="SquareRoot")
                   derivedBuffer.colorScale = new Scale.SquareRootColorScale([1, maxCount], [Color.White, Color.Category10[i]]);
-                else if (jquery("#compo11b option:selected").text()=="EquiDepth")
-                  derivedBuffer.colorScale = new Scale.EquiDepthColorScale([1, maxCount], [Color.White, Color.Category10[i]]);
+                else if (colscale=="EquiDepth") {
+                    createEquiDepthColormap(derivedBuffer,
+                                            [0, maxCount],
+                                            [Color.White, Color.Category10[i]],
+                                            ustiles, i);
+                }
                 derivedBuffer.mask       = randomMasks[i];
 
                 return derivedBuffer;
@@ -606,8 +613,13 @@ export class TestMain {
                derivedBuffer.colorScale = new Scale.CubicRootColorScale  ([0, maxCount], [Color.Category10a[i].brighter(), Color.Category10a[i].darker()]);
             else if (colscale=="SquareRoot")
                 derivedBuffer.colorScale = new Scale.SquareRootColorScale([0, maxCount], [Color.Category10a[i].brighter(), Color.Category10a[i].darker()]);
-            else if (colscale=="EquiDepth")
-                derivedBuffer.colorScale = new Scale.EquiDepthColorScale ([0, maxCount], [Color.Category10a[i].brighter(), Color.Category10a[i].darker()]);
+            else if (colscale=="EquiDepth"){
+                createEquiDepthColormap(derivedBuffer,
+                                        [0, maxCount],
+                                        [Color.Category10a[i].brighter(),
+                                         Color.Category10a[i].darker()],
+                                        tiles, i);
+            }
 
             for (let k=0; k<8; k++){
               let col = derivedBuffer.colorScale.map(k*maxCount/7);
@@ -708,8 +720,12 @@ export class TestMain {
                derivedBuffer.colorScale = new Scale.CubicRootColorScale([0, locMaxCount], [Color.White, Color.Category10b[i].darker()]);
             else if (colscale=="SquareRoot")
                 derivedBuffer.colorScale = new Scale.SquareRootColorScale([0, locMaxCount], [Color.White, Color.Category10b[i].darker()]);
-            else if (colscale=="EquiDepth")
-                derivedBuffer.colorScale = new Scale.EquiDepthColorScale([0, locMaxCount], [Color.White, Color.Category10b[i].darker()]);
+            else if (colscale=="EquiDepth"){
+                createEquiDepthColormap(derivedBuffer,
+                                        [0, locMaxCount],
+                                        [Color.White, Color.Category10b[i]],
+                                        ustiles, i);
+            }
             return derivedBuffer;
         });
         //derivedBuffers[0].colorScale = new Scale.CubicRootColorScale([1, maxCount], [Color.White, Color.Red]);
@@ -784,8 +800,12 @@ export class TestMain {
                 derivedBuffer.colorScale = new Scale.CubicRootColorScale([1, maxCount], [Color.White, Color.Category10[i]]);
              else if (colscale=="SquareRoot")
                  derivedBuffer.colorScale = new Scale.SquareRootColorScale([1, maxCount], [Color.White, Color.Category10[i]]);
-             else if (colscale=="EquiDepth")
-                 derivedBuffer.colorScale = new Scale.EquiDepthColorScale([1, maxCount], [Color.White, Color.Category10[i]]);
+            else if (colscale=="EquiDepth") {
+                createEquiDepthColormap(derivedBuffer,
+                                        [0, maxCount],
+                                        [Color.White, Color.Category10[i]],
+                                        ustiles, i);
+            }
 
             return derivedBuffer;
         });
@@ -966,44 +986,17 @@ export class TestMain {
             });
         });
     }
-
-    legendMain() {
-        // all spec ids are from Pierre's google document:
-        // https://docs.google.com/document/d/19KlyXYyg_mazRxiwpB3NjwdSZ8gngIspqVd2sQD76Ls/edit#
-
-        let spec4 = {
-            "type": "ramp",
-            "domain": [1, 10000],
-            "scale": "log",
-            "orientation": "vertical",
-            "data_buffers": [
-                {"name": "buffer1",  "range": ["White", "Red"] },
-                {"name": "buffer2",  "range": ["White", "Green"] },
-                {"name": "buffer3",  "range": ["White", "Blue"] },
-                {"name": "buffer4",  "range": ["White", "Purple"] },
-            ]
-        };
-
-        let spec6 = {
-            "type": "matrix",
-            "data_buffers": [
-                {"name": "Value in Dollars", "type": "discrete", "domain": ["40,000 and Over", "..."], "range": ["Green", "..."]},
-                {"name": "Size in Acres", "type": "discrete", "domain": ["Under 50", "..."], "range": ["Blue", "..."]},
-            ],
-            "blend": "additive"
-        };
-
-        /*
-            each: true or false (for small multiples")
-            placement: where to put legends?
-            outer-top-center
-            inner-top-center
-            outer-right-center
-            outer-right-top
-            outer-right-stretch
-        */
-
-        console.log(123);
-    }
 }
+
+function createEquiDepthColormap(derivedBuffer:DerivedBuffer,
+                                 domain:[number, number],
+                                 colorRange:[Color, Color],
+                                 tiles:Tile[], i:number) {
+    let colorScale = new Scale.EquiDepthColorScale(domain, colorRange);
+    let eds = colorScale.scale();
+    for (let tile of tiles)
+        eds.addPoint(tile.dataValues[i]);
+    derivedBuffer.colorScale = colorScale;
+}
+
 export { default as extract } from './vega-extractor';

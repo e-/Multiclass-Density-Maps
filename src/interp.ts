@@ -189,7 +189,7 @@ export default class Interpreter {
         else if (this.rescale === "log")
             scale = new Scale.LogScale([1, maxCount], [0, 1]);
         else if (this.rescale === "equidepth") {
-            let equidepth = new Scale.EquiDepthScale([]);
+            let equidepth = new Scale.EquiDepthScale([1, maxCount], [0, 1]);
             for (let tile of this.tiles)
                 equidepth.addPoints(tile.dataValues);
             equidepth.computeBounds();

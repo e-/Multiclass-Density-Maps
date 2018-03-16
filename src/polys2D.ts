@@ -1,11 +1,4 @@
-// compile/transpile with tsc src/fred-test.ts --outfile dist/fred-test.js
 
-// found pngjs here :
-// https://www.npmjs.com/package/pngjs
-// found types for this lib here :
-// https://www.npmjs.com/package/@types/pngjs
-
-import * as PNG from "pngjs";
 
 export class Poly {
   ptx:number[]=[];
@@ -65,14 +58,4 @@ export default class Polys2D {
       return res;
     }
 }
-
-
-interface Person {
-    firstName: string;
-    lastName: string;
-}
-
-
-
-
 
