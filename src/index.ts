@@ -524,58 +524,6 @@ export class TestMain {
         })
     }
 
-    testUSVega() {
-        util.get('data/census_data.json').then(response => {
-            let config = new Parser.Configuration(response);
-
-            return config.load('data/');
-        }).then((config:Parser.Configuration) => {
-          let width  = config.data!.dataSpec!.encoding!.x!.bin!.maxbins!;
-          let height = config.data!.dataSpec!.encoding!.y!.bin!.maxbins!;
-
-          util.get("data/us.json").then(result => {
-            let topous = JSON.parse(result);
-
-            let dataBuffers = config.data!.dataSpec!.buffers!.map((bufferSpec, i) => {
-              let db:DataBuffer = new DataBuffer(bufferSpec.value, width, height, bufferSpec.data);
-              return db;
-            });
-
-            let ustiles = Tiling.topojsonTiling(width, height, topous, topous.objects.states);
-
-            for(let tile of ustiles) {
-                tile.dataValues = tile.aggregate(dataBuffers, TileAggregation.Sum);
-            }
-
-            let maxCount = util.amax(ustiles.map(tile => util.amax(tile.dataValues)));
-
-            let derivedBuffers = dataBuffers.map((dataBuffer, i) => new DerivedBuffer(dataBuffer))
-
-            let outputImage = new Image(width!, height!);
-            let promises = [];
-            for(let tile of ustiles) {
-                if(tile.mask.width < 30 || tile.mask.height < 30) continue;
-
-                let promise = Composer.bars(derivedBuffers, tile.dataValues, {
-                    width: 16,
-                    height: 20,
-                    'y.scale.domain': [1, maxCount],
-                    'y.scale.type': 'sqrt'
-                }).then((vegaPixels) => {
-                    outputImage.render(vegaPixels, tile);
-                })
-
-                promises.push(promise);
-            }
-
-            Promise.all(promises).then(() => {
-                CanvasRenderer.render(outputImage, 'canvas13');
-                for(let tile of ustiles) CanvasRenderer.strokeVectorMask(tile.mask, 'canvas13');
-            });
-          });
-        })
-    }
-
     figures() {
         util.get('data/census_data.json').then(response => {
             let config = new Parser.Configuration(response);
@@ -590,6 +538,7 @@ export class TestMain {
                 this.figure1c1(config, topous);
                 this.figure1c2(config, topous);
                 this.figure1e(config, topous);
+                this.figure1f(config, topous);
             });
         });
     }
@@ -856,6 +805,54 @@ export class TestMain {
 
         for(let tile of ustiles)
             CanvasRenderer.strokeVectorMask(tile.mask, 'fig1e');
+    }
+
+    figure1f(config:Parser.Configuration, topous:any) {
+        let width  = config.data!.dataSpec!.encoding!.x!.bin!.maxbins!;
+        let height = config.data!.dataSpec!.encoding!.y!.bin!.maxbins!;
+
+        let dataBuffers = config.data!.dataSpec!.buffers!.map((bufferSpec, i) => new DataBuffer(bufferSpec.value, width, height, bufferSpec.data));
+
+        let ustiles = Tiling.topojsonTiling(width, height, topous, topous.objects.states);
+
+        for(let tile of ustiles) {
+            tile.dataValues = tile.aggregate(dataBuffers, TileAggregation.Sum);
+        }
+
+        let maxCount = util.amax(ustiles.map(tile => util.amax(tile.dataValues)));
+
+        let derivedBuffers = dataBuffers.map((dataBuffer, i) => new DerivedBuffer(dataBuffer))
+
+        let outputImage = new Image(width, height);
+        let promises = [];
+        for(let tile of ustiles) {
+            if(tile.mask.width < 30 || tile.mask.height < 30) continue;
+
+            let promise = Composer.bars(derivedBuffers, tile.dataValues, {
+                width: 16,
+                height: 20,
+                'y.scale.domain': [1, maxCount],
+                'y.scale.type': 'sqrt'
+            }).then((vegaPixels) => {
+                outputImage.render(vegaPixels, tile);
+            })
+
+            promises.push(promise);
+        }
+
+        Promise.all(promises).then(() => {
+            let canvas = document.getElementById('fig1f')! as HTMLCanvasElement;
+            canvas.width = width;
+            canvas.height = height;
+
+            for(let tile of ustiles)
+                CanvasRenderer.strokeVectorMask(tile.mask, 'fig1f');
+
+            CanvasRenderer.render(outputImage, 'fig1f', {
+                blendingMode: CanvasRenderer.BlendingMode.Alpha,
+                noResetDims: true
+            });
+        });
     }
 
     legendMain() {
