@@ -34,7 +34,7 @@ export default class CanvasRenderer {
         }
         else if(options.blendingMode as BlendingMode === BlendingMode.Alpha) {
             this.renderAlphaBlending(image, imageData);
-            console.log(image);
+            //console.log(image);
         }
 
         ctx.putImageData(imageData, 0, 0);
