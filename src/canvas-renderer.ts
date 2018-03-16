@@ -159,6 +159,18 @@ export default class CanvasRenderer {
             ctx.drawImage(memoryCanvas, 0,           0,                         width,      height,
                                         width * col / cols, height * row /rows, width/cols, height/rows);
         });
+        for (let r = 0; r < rows; r++) {
+            let y = height*r/rows;
+            ctx.moveTo(0, y);
+            ctx.lineTo(width, y);
+        }
+        for (let c = 0; c < cols; c++) {
+            let x = width*c/cols;
+            ctx.moveTo(x, 0);
+            ctx.lineTo(x, height);
+        }
+        ctx.strokeStyle = "black";
+        ctx.stroke();
         return ctx;
     }
 }

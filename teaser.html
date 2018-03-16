@@ -1,0 +1,230 @@
+<!doctype html>
+<html>
+    <head>
+        <title>A Declarative Rendering Model for Multiclass Density Maps</title>
+<style>
+canvas {
+  border: 1px solid grey;
+}
+.example {
+  font-weight: bold;
+  float:left;
+  margin:5px;
+}
+.clearBoth { clear:both; }
+
+</style>        
+    </head>
+    <body>
+        <script src="https://d3js.org/d3-dsv.v1.min.js"></script>
+        <script src="https://d3js.org/d3-fetch.v1.min.js"></script>
+        <script src="dist/bundle.js" type="text/javascript"></script>
+<script>
+var testMain = new MCS.TestMain(), prefix = "specs/";
+var configuration, interpreter;
+
+function render(id, desc, json, do_break) {
+    var body = document.getElementsByTagName('body')[0],
+        div = document.createElement("div"),
+        canvas = document.createElement("canvas"),
+        svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+
+    div.classList.add("example");
+    canvas.id = id;
+    //svg.id = id + '-legend';
+    //div.appendChild(document.createTextNode(desc));
+    //div.appendChild(document.createElement("br"));
+    div.appendChild(canvas);
+    //div.appendChild(svg);
+
+
+  body.appendChild(div);
+  if (do_break) {
+      var br = document.createElement("br");
+      br.classList.add('clearBoth');
+      body.appendChild(br);
+  }
+  var conf = testMain.create_configuration(json);
+  conf.load('data/').then(function(conf) {
+      interp = testMain.create_interp(conf);
+      console.log('interp w='+conf.width+' h='+conf.height);
+      interp.setup(id);
+      interpreter = interp;
+      interp.interpret();
+      interp.render(id);
+      //interp.renderLegend(id+'-legend');
+  });
+}
+
+render('canvas1', 'Linear Color Scale Small Multiples',
+       {
+           "description": "multivariate normal data",
+           "data": {"url": "mn_data.json"},
+           "smooth": {},
+           "rebin": {},
+           "compose": {
+               "mix": "separate" //, select: 1
+           },
+           "rescale": {
+               "type": "linear"
+           }
+       });
+
+
+render('canvas2','Linear Color Scale blended',
+       {
+           "description": "multivariate normal data",
+           "data": {"url": "mn_data.json"},
+           "smooth": {},
+           "rebin": {},
+           "compose": {
+               "mix": "mean",
+               "mixing": "additive"
+           }
+       });
+
+render('canvas3', 'Linear Color Scale Max',
+       {
+           "description": "multivariate normal data",
+           "data": {"url": "mn_data.json"},
+           "smooth": {},
+           "rebin": {},
+           "compose": {
+               "mix": "max",
+               "mixing": "additive"
+           },
+           "rescale": {
+               "type": "linear"
+           }
+       });
+
+render('canvas3bis', 'Linear Color Scale mean equalized',
+       {
+           "description": "multivariate normal data",
+           "data": {"url": "mn_data.json"},
+           "smooth": {},
+           "rebin": {},
+           "compose": {
+               "mix": "mean",
+               "mixing": "additive"
+           },
+           "rescale": {
+               "type": "equidepth"
+           }
+       }, true);
+
+
+render('canvas4', 'Square Weaving',
+       {
+           "description": "multivariate normal data",
+           "data": {"url": "mn_data.json"},
+           "smooth": {},
+           "rebin": {},
+           "compose": {
+               "mix": "weavingsquare",
+               "size": 8
+           },
+           "rescale": {
+               "type": "linear"
+           }
+       });
+
+render('canvas5', 'Linear Color Scale hex',
+       {
+           "description": "multivariate normal data",
+           "data": {"url": "mn_data.json"},
+           "smooth": {},
+           "rebin": {},
+           "compose": {
+               "mix": "weavinghex",
+               "size": 8
+           },
+           "rescale": {
+               "type": "linear"
+           }
+       });
+
+render('canvas6', 'Linear Color Scale triangles',
+       {
+           "description": "multivariate normal data",
+           "data": {"url": "mn_data.json"},
+           "smooth": {},
+           "rebin": {},
+           "compose": {
+               "mix": "weavingtri",
+               "size": 8
+           },
+           "rescale": {
+               "type": "linear"
+           }
+       });
+
+
+render('canvas7', 'Random Weaving',
+       {
+           "description": "multivariate normal data",
+           "data": {"url": "mn_data.json"},
+           "smooth": {},
+           "rebin": {},
+           "compose": {
+               "mix": "weavingrandom",
+               "size": 8
+           },
+           "rescale": {
+               "type": "linear"
+           }
+       }, true);
+
+render('canvas8','Voronoi Tiling Mean',
+       {
+           "description": "multivariate normal data",
+           "data": {"url": "mn_data.json"},
+           "smooth": {},
+           "rebin": {
+               "type": "voronoi",
+               "size": 32,
+               "stroke": "black"
+           },
+           "compose": {
+               "mix": "mean"
+           }
+       });
+
+
+
+render('canvas9','Voronoi Tiling',
+       {
+           "description": "multivariate normal data",
+           "data": {"url": "mn_data.json"},
+           "smooth": {},
+           "rebin": {
+               "type": "voronoi",
+               "size": 32,
+               "stroke": "black"
+           },
+           "compose": {
+               "mix": "weavingsquare",
+               "size": 4
+           }
+       });
+
+render('canvas10','Voronoi Tiling + Hatching',
+       {
+           "description": "multivariate normal data",
+           "data": {"url": "mn_data.json"},
+           "smooth": {},
+           "rebin": {
+               "type": "voronoi",
+               "size": 32,
+               "stroke": "black"
+           },
+           "compose": {
+               "mix": "hatching",
+               "size": 8
+           }
+       }, true);
+
+
+</script>
+    </body>
+</html>
