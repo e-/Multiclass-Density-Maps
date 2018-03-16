@@ -28,12 +28,16 @@ export function amin(arr:number[]) {
     return min;
 }
 
+let cache:any = {};
+
 export function get(url: string): Promise<any> {
+    if(cache[url]) return Promise.resolve(cache[url]);
     return new Promise<any>(
         function (resolve, reject) {
             const request = new XMLHttpRequest();
             request.onload = function () {
             if (this.status === 200) {
+                cache[url] = this.response;
                 resolve(this.response);
             } else {
                 reject(new Error(this.statusText));
