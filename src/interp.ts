@@ -138,7 +138,7 @@ export default class Interpreter {
     computeReencoding(context={}) {
     }
 
-    computeCompose(context={}) {        
+    computeCompose(context={}) {
         if (this.compose.mix === "max")
             this.composer = Composer.max;
         else if (this.compose.mix === "mean")
@@ -182,11 +182,11 @@ export default class Interpreter {
         // TODO test if scales are per-buffer or shared, for now, we'll make one per buffer
         if (this.rescale === "none" || this.rescale === "linear")
             scale = new Scale.LinearScale([0, maxCount], [0, 1]);
-        else if (this.rescale === "sqrt") 
+        else if (this.rescale === "sqrt")
             scale = new Scale.SquareRootScale([0, maxCount], [0, 1]);
-        else if (this.rescale === "cbrt") 
+        else if (this.rescale === "cbrt")
             scale = new Scale.CubicRootScale([0, maxCount], [0, 1]);
-        else if (this.rescale === "log") 
+        else if (this.rescale === "log")
             scale = new Scale.LogScale([1, maxCount], [0, 1]);
         else if (this.rescale === "equidepth") {
             let equidepth = new Scale.EquiDepthScale([]);
@@ -195,8 +195,8 @@ export default class Interpreter {
             equidepth.computeBounds();
             scale = equidepth;
         }
-        
-        
+
+
         this.derivedBuffers = this.dataBuffers.map((dataBuffer, i) => {
             let derivedBuffer = new DerivedBuffer(dataBuffer);
             derivedBuffer.colorScale = new Scale.ColorScale([Color.White, this.colors[i]], scale);
@@ -226,20 +226,20 @@ export default class Interpreter {
                 });
 
                 let hatch = Composer.hatch(tile, this.derivedBuffers,
-                                           this.compose.size, 
+                                           this.compose.size,
                                            this.compose.proportional);
                 this.image.render(hatch, tile.center());
                 useRender2 = true;
             }
         }
-        else 
+        else
             console.log('No valid composition');
         //CanvasRenderer.render(image, id);
         let ctx = useRender2 ? CanvasRenderer.render2(this.image, id)
               : CanvasRenderer.render(this.image, id);
         if (this.maskStroke)
             for(let tile of this.tiles)
-                CanvasRenderer.strokeVectorMask(tile.mask, id, this.maskStroke);
+                CanvasRenderer.strokeVectorMask(tile.mask, id, {color: this.maskStroke});
         // if (this.strokeCanvas) {
         //     ctx.setTransform(1, 0, 0, 1, 0, 0); // reset
         //     ctx.strokeStyle = this.backgroundStroke;

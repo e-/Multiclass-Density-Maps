@@ -385,7 +385,7 @@ export class TestMain {
 
         if(d3.select("#border9").property("checked"))
           for (let k in voronoiTiles)
-            CanvasRenderer.strokeVectorMask(voronoiTiles[k].mask, 'canvas9', '#000');
+            CanvasRenderer.strokeVectorMask(voronoiTiles[k].mask, 'canvas9');
     }
 
     testVoronoiHatching(){
@@ -434,7 +434,7 @@ export class TestMain {
 
         if(d3.select("#border16").property("checked"))
           for (let k in voronoiTiles)
-            CanvasRenderer.strokeVectorMask(voronoiTiles[k].mask, 'canvas16', '#000');
+            CanvasRenderer.strokeVectorMask(voronoiTiles[k].mask, 'canvas16');
     }
 
     testUSShapes() {
@@ -517,7 +517,7 @@ export class TestMain {
             // draw frontiers
             if(d3.select("#border11").property("checked"))
               for(let tile of ustiles)
-                CanvasRenderer.strokeVectorMask(tile.mask, 'canvas11', '#000');
+                CanvasRenderer.strokeVectorMask(tile.mask, 'canvas11');
 
           });
 
@@ -570,7 +570,7 @@ export class TestMain {
 
             Promise.all(promises).then(() => {
                 CanvasRenderer.render(outputImage, 'canvas13');
-                for(let tile of ustiles) CanvasRenderer.strokeVectorMask(tile.mask, 'canvas13', '#888');
+                for(let tile of ustiles) CanvasRenderer.strokeVectorMask(tile.mask, 'canvas13');
             });
           });
         })
@@ -629,7 +629,7 @@ export class TestMain {
 
         let ustiles = Tiling.topojsonTiling(width, height, topous, topous.objects.states);
         for(let tile of ustiles)
-            CanvasRenderer.strokeVectorMask(tile.mask, 'fig1a', '#000');
+            CanvasRenderer.strokeVectorMask(tile.mask, 'fig1a');
     }
 
     figure1b(config:Parser.Configuration, topous:any) {
@@ -666,7 +666,7 @@ export class TestMain {
         CanvasRenderer.render(outputImage, 'fig1b');
 
         for(let tile of ustiles)
-            CanvasRenderer.strokeVectorMask(tile.mask, 'fig1b', '#000');
+            CanvasRenderer.strokeVectorMask(tile.mask, 'fig1b');
     }
 
     figure1c1(config:Parser.Configuration, topous:any, update:boolean=false) {
@@ -758,7 +758,7 @@ export class TestMain {
         CanvasRenderer.render2(outputImage, 'fig1c1');
         if(d3.select("#border1c1").property("checked"))
           for(let tile of ustiles)
-            CanvasRenderer.strokeVectorMask(tile.mask, 'fig1c1', '#000');
+            CanvasRenderer.strokeVectorMask(tile.mask, 'fig1c1');
     }
 
     figure1c2(config:Parser.Configuration, topous:any) {
@@ -807,7 +807,7 @@ export class TestMain {
             canvas.height = height;
 
             for(let tile of ustiles)
-                CanvasRenderer.strokeVectorMask(tile.mask, 'fig1c2', '#000');
+                CanvasRenderer.strokeVectorMask(tile.mask, 'fig1c2');
 
             CanvasRenderer.render(outputImage, 'fig1c2', {
                 blendingMode: CanvasRenderer.BlendingMode.Alpha,

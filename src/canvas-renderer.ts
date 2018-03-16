@@ -82,7 +82,10 @@ export default class CanvasRenderer {
         }
     }
 
-    static strokeVectorMask(mask:Mask|undefined, id:string, color:string){
+    static strokeVectorMask(mask:Mask|undefined, id:string, options:{
+        color?:string,
+        lineWidth?:number
+    } = {}){
       if (!mask) return;
       //console.log("drawMask "+mask.pols.allpolys.length);
 
@@ -90,7 +93,8 @@ export default class CanvasRenderer {
       let ctx = canvas.getContext('2d');
 
       ctx.beginPath();
-      ctx.strokeStyle = color;
+      ctx.strokeStyle = options.color || '#000';
+      ctx.lineWidth = options.lineWidth || 1;
       for (let j=0; j<mask.pols.allpolys.length; j++){
         let pol:any = mask.pols.allpolys[j];
         ctx.moveTo(pol.ptx[0], pol.pty[0]);
