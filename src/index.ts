@@ -587,7 +587,6 @@ export class TestMain {
         // get max count of bins for scale
         let maxCount = util.amax(tiles.map(tile => util.amax(tile.dataValues)));
 
-
         //derivedBuffers[0].colorScale = new Scale.LogColorScale([1, maxCount], [Color.White, Color.Green]);
         //derivedBuffers[1].colorScale = new Scale.LogColorScale([1, maxCount], [Color.White, Color.Blue]);
 
@@ -646,8 +645,6 @@ export class TestMain {
         if(d3.select("#border1a").property("checked"))
           for(let tile of ustiles)
             CanvasRenderer.strokeVectorMask(tile.mask, 'fig1a', {color:'#000'});
-
-        LegendBuilder('fig1a-legend', config, derivedBuffers);
     }
 
     figure1b(config:Parser.Configuration, topous:any) {

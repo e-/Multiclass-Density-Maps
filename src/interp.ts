@@ -12,6 +12,7 @@ import Composer from './composer';
 import * as Scale from './scale';
 import * as util from './util';
 import Mask from './mask';
+import LegendBuilder from './legend';
 
 export default class Interpreter {
     public width: number;
@@ -75,14 +76,14 @@ export default class Interpreter {
         this.computeCompose(context);
     }
 
-    computeDerivedBuffers(context={}) {
+    private computeDerivedBuffers(context={}) {
         if (this.blur > 0) {
             let newbuffers = this.dataBuffers.map(dataBuffer => dataBuffer.blur(this.blur));
             this.dataBuffers = newbuffers;
         }
     }
 
-    computeRebin(context={}) {
+    private computeRebin(context={}) {
         var tiles = this.tiles;
         if (this.rebin.type===undefined || this.rebin.type=="none") {
             console.log('No rebin');
@@ -135,10 +136,10 @@ export default class Interpreter {
         this.tiles = tiles;
     }
 
-    computeReencoding(context={}) {
+    private computeReencoding(context={}) {
     }
 
-    computeCompose(context={}) {
+    private computeCompose(context={}) {
         if (this.compose.mix === "max")
             this.composer = Composer.max;
         else if (this.compose.mix === "mean")
@@ -246,6 +247,10 @@ export default class Interpreter {
         //     ctx.lineWidth = 2;
         //     ctx.strokeRect(0, 0, this.width, this.height);
         // }
+    }
+
+    renderLegend(id:string) {
+        LegendBuilder(id, this);
     }
 
 }

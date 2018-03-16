@@ -9,6 +9,7 @@ canvas {
 .example {
   font-weight: bold;
   float:left;
+  margin:5px;
 }
 .clearBoth { clear:both; }
 
@@ -25,14 +26,20 @@ var testMain = new MCS.TestMain(), prefix = "specs/";
 var configuration, interpreter;
 
 function render(id, desc, json, do_break) {
-  var body = document.getElementsByTagName('body')[0],
-      div = document.createElement("div"),
-      canvas = document.createElement("canvas");
-  div.classList.add("example");
-  canvas.id = id;
-  div.appendChild(document.createTextNode(desc));
-  div.appendChild(document.createElement("br"));
-  div.appendChild(canvas);
+    var body = document.getElementsByTagName('body')[0],
+        div = document.createElement("div"),
+        canvas = document.createElement("canvas"),
+        svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+
+    div.classList.add("example");
+    canvas.id = id;
+    svg.id = id + '-legend';
+    div.appendChild(document.createTextNode(desc));
+    div.appendChild(document.createElement("br"));
+    div.appendChild(canvas);
+    div.appendChild(svg);
+
+
   body.appendChild(div);
   if (do_break) {
       var br = document.createElement("br");
@@ -47,6 +54,7 @@ function render(id, desc, json, do_break) {
       interpreter = interp;
       interp.interpret();
       interp.render(id);
+      interp.renderLegend(id+'-legend');
   });
 }
 

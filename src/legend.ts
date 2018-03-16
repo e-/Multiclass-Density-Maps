@@ -2,6 +2,7 @@ import * as d3 from 'd3';
 import DerivedBuffer from './derived-buffer';
 import * as Parser from './parser';
 import Color from './color';
+import Interpreter from './interp';
 
 function translate(x:number, y:number) {
     return `translate(${x},${y})`;
@@ -29,18 +30,25 @@ function linearGradient(defs:any, color1:Color, color2:Color):string {
     return id;
 }
 
-export default function LegendBuilder(id:string, config:Parser.Configuration, derivedBuffers:DerivedBuffer[]) {
+export default function LegendBuilder(id:string, interp:Interpreter) {
+    let config:Parser.Configuration = interp.configuration;
+    let derivedBuffers:DerivedBuffer[] = interp.derivedBuffers;
+
     let svg = d3.select('#' + id)
         .style('font-family', 'sans-serif')
         .style('font-size', '12px')
 
     let defs = svg.append('defs');
-    let g = svg.append('g').attr('transform', translate(10, 20));
+    let g = svg.append('g').attr('transform', translate(0, 0));
 
     let rowHeight = 15;
     let gutter = 5;
     let labelWidth = 40;
     let colorMapWidth = 120;
+
+    svg
+        .attr('width', labelWidth + colorMapWidth + gutter)
+        .attr('height', (rowHeight + gutter) * derivedBuffers.length + rowHeight)
 
     let update = g.selectAll('g')
         .data(derivedBuffers)
@@ -69,22 +77,56 @@ export default function LegendBuilder(id:string, config:Parser.Configuration, de
         .attr('stroke', '#ddd')
         .style('fill', (d, i) => `url(#${ids[i]})`)
 
-    let tickData = [derivedBuffers[0].colorScale.interpolator.range[0], derivedBuffers[0].colorScale.interpolator.range[1]];
+    let tickDomain = [derivedBuffers[0].colorScale.interpolator.domain[0],
+                    derivedBuffers[0].colorScale.interpolator.domain[1]];
 
-    let tickG = g.select('g.ticks')
-        .datum(tickData)
-        .enter()
+    let tickG = g
         .append('g')
         .attr('class', 'ticks')
         .attr('transform', translate(labelWidth + gutter, (rowHeight + gutter) * derivedBuffers.length))
 
     let ticks = tickG
         .selectAll('text.tick')
-        .data(tickData)
+        .data(tickDomain)
+
+    let scale:any;
+
+    switch(interp.rescale) {
+        case('log'): scale = d3.scaleLog().base(Math.E); break;
+        case('pow'): scale = d3.scalePow().exponent(Math.E); break;
+        case('sqrt'): scale = d3.scaleSqrt(); break;
+        case('cbrt'): scale = d3.scalePow().exponent(1/3); break;
+        case('equidepth'): scale = d3.scaleLog().base(Math.E); break;
+        default: scale = d3.scaleLinear();
+    }
+    scale
+        .domain(derivedBuffers[0].colorScale.interpolator.domain)
+        .range([0, colorMapWidth]);
 
     ticks.enter()
         .append('text')
         .attr('class', 'tick')
         .attr('text-anchor', (d, i) => ['start', 'end'][i])
-        .text(d => d)
+        .attr('transform', (d, i) => translate(scale(d), 0))
+        .attr('dy', '.5em')
+        .text(d => d3.format(',.1f')(d))
+
+
+    let n = 8;
+    let tickData = d3.range(n).map(i => tickDomain[0] + (tickDomain[1] - tickDomain[0]) * (i + 1) / n);
+
+    enter
+        .selectAll('line')
+        .data(tickData)
+        .enter()
+        .append('line')
+        .attr('x1', 0)
+        .attr('x2', 0)
+        .attr('y1', 0)
+        .attr('y2', rowHeight)
+        .style('stroke', '#ddd')
+        .style('stroke-width', 1)
+        .style('shape-rendering', 'crispEdges')
+        .attr('transform', (d, i) => translate(labelWidth + gutter + scale(d), 0))
+
 }
