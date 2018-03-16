@@ -13,6 +13,7 @@ export default class DataBuffer {
     }
 
     blur(radius:number = 3): DataBuffer {
+        if (radius==0) return this;
         // Linearize the array
         let source = Array.prototype.concat.apply(this.values[0],
                                                   this.values.slice(1)),
@@ -20,7 +21,7 @@ export default class DataBuffer {
         GaussianBlur(source, target, this.width, this.height, radius);
         var new_array = Array(this.height);
         for (var i = 0; i < this.height; i++)
-            new_array[i] = target.slice(i*this.width, (i+1)*this.width);
+          new_array[i] = target.slice(i*this.width, (i+1)*this.width);
         return new DataBuffer(this.name, this.width, this.height, new_array);
     }
 }
