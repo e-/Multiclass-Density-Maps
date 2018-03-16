@@ -341,13 +341,13 @@ render('canvas12', 'Census Data Contour',
           "type": "topojson",
           "url": "us.json",
           "feature": "states",
-//          "stroke": "black"
+          "stroke": "black"
     },
     "compose": {
           "mix": "none"
     },
     "rescale": {
-        "type": "log"
+        "type": "linear"
     },
     "contour": 4
 });
