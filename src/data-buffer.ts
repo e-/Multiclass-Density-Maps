@@ -28,28 +28,30 @@ export default class DataBuffer {
     makeContour(contourNumber:number = 12): DataBuffer {
         if (contourNumber==0) return this;
 
-        let mini = this.values[0][0];
-        let maxi = this.values[0][0];
-        for (let y=0; y<this.height; y++)
-          for (let x=0; x<this.width; x++){
-            mini = Math.min(mini, this.values[y][x]);
-            maxi = Math.max(maxi, this.values[y][x]);
-          }
-
-        let bandsize = (maxi-mini)/contourNumber;
-        //console.log(mini+"-"+maxi);
-
-        let ndb = new DataBuffer(this.name, this.width, this.height)
-
-        for (let y=0; y<this.height-1; y++)
-          for (let x=0; x<this.width-1; x++){
-            let bandid  = Math.round(this.values[y][x]/bandsize);
-            let bandidx = Math.round(this.values[y+1][x]/bandsize);
-            let bandidy = Math.round(this.values[y][x+1]/bandsize);
-            if (bandid!=bandidx || bandid!=bandidy )
-              ndb.values[y][x] = this.values[y][x];
+        let mini = util.amin(this.values.map(util.amin)),
+            maxi = util.amax(this.values.map(util.amax)),
+            bandsize = (maxi-mini)/contourNumber,
+            ids = new DataBuffer(this.name, this.width, this.height);
+        
+        // compute ids first
+        for (let y=0; y < this.height; y++) {
+            let src = this.values[y],
+                dst = ids.values[y];
+            for (let x = 0; x < this.width; x++)
+                dst[x] = Math.floor((src[x]-mini)/bandsize);
         }
 
+        let ndb = new DataBuffer(this.name, this.width, this.height);
+        for (let y=0; y < this.height-1; y++) {
+            let dst = ndb.values[y],
+                src = this.values[y],
+                ids0 = ids.values[y],
+                ids1 = ids.values[y+1];
+            for (let x=0; x<this.width-1; x++) {
+                if (ids0[x] != ids1[x] || ids0[x] != ids0[x+1])
+                    dst[x] = src[x];
+            }
+        }
 
         return ndb;
     }

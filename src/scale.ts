@@ -97,7 +97,9 @@ export class EquiDepthScale implements ScaleTrait {
         this.bounds = this.digest.percentile(arange(n).map(i => ((i+1)/ n)));
     }
 
-    map(value:number) { // TODO: use binary search? no [slower according to Manegold]
+    map(value:number) { 
+        // linear search is faster than binary search for that simple case
+        // https://hannes.muehleisen.org/damon2017-simd-imprints.pdf
         let min = this.range[0];
 
         if (value == 0) return min; // shortcut
