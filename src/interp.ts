@@ -20,7 +20,7 @@ export default class Interpreter {
     public sourceBuffers:DataBuffer[] = [];
     public dataBuffers:DataBuffer[] = [];
     public derivedBuffers: DerivedBuffer[] = [];
-    public image:Image;
+    public image:Image[] = [];
     public tiles:Tile[] = [];
     public tileAggregation=TileAggregation.Mean;
     public strokeCanvas:boolean = false;
@@ -45,7 +45,6 @@ export default class Interpreter {
         this.height = configuration.height!;
         if (configuration.background)
             this.background = configuration.background;
-        this.image = new Image(this.width, this.height);
         this.bufferNames = configuration.bufferNames;
         this.n = this.bufferNames.length;
         this.sourceBuffers = configuration.getBuffers();
@@ -205,17 +204,30 @@ export default class Interpreter {
             return derivedBuffer;
         });
 
+        if (this.compose.mix === "separate") { // small multiples
+            this.image = this.derivedBuffers.map((b) => new Image(this.width, this.height));
+            for(let tile of this.tiles) {
+                let color = this.composer(this.derivedBuffers, tile.dataValues);
+                this.derivedBuffers.forEach((derivedBuffer, i) => {
+                    let color = Composer.one(derivedBuffer, tile.dataValues[i]);
+                    this.image[i].render(color, tile);
+                });
+            }
+        }
+        else {
+            this.image = [new Image(this.width, this.height)];
+        }
         if (this.composer != Composer.none) {
             for(let tile of this.tiles) {
                 let color = this.composer(this.derivedBuffers, tile.dataValues);
-                this.image.render(color, tile);
+                this.image[0].render(color, tile);
             }
         }
         else if (this.masks.length > 0) { // no composer
             for (let tile of this.tiles) {
                 this.derivedBuffers.forEach((derivedBuffer, i) => {
                     let color = derivedBuffer.colorScale.map(tile.dataValues[i]);
-                    this.image.render(color, tile, derivedBuffer.mask);
+                    this.image[0].render(color, tile, derivedBuffer.mask);
                 });
             }
         }
@@ -228,15 +240,14 @@ export default class Interpreter {
                 let hatch = Composer.hatch(tile, this.derivedBuffers,
                                            this.compose.size,
                                            this.compose.proportional);
-                this.image.render(hatch, tile.center());
+                this.image[0].render(hatch, tile.center());
                 useRender2 = true;
             }
         }
         else
             console.log('No valid composition');
         //CanvasRenderer.render(image, id);
-        let ctx = useRender2 ? CanvasRenderer.render2(this.image, id)
-              : CanvasRenderer.render(this.image, id);
+        let ctx = CanvasRenderer.renderAll(this.image, id);
         if (this.maskStroke)
             for(let tile of this.tiles)
                 CanvasRenderer.strokeVectorMask(tile.mask, id, {color: this.maskStroke});
