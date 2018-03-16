@@ -74,9 +74,9 @@ export class EquiDepthScale implements ScaleTrait {
     digest:Digest;
     bounds:number[] = [];
 
-    constructor(public domain: number[], public level:number = 10) {
+    constructor(public domain: number[], public level:number = 32) {
         this.digest = new Digest();
-        this.digest.push(domain.filter(positive));
+        this.addPoints(domain);
     }
 
     addPoints(domain: number[]) {
@@ -85,17 +85,21 @@ export class EquiDepthScale implements ScaleTrait {
 
     computeBounds() {
         this.digest.compress();
-        this.bounds = this.digest.percentile(arange(this.level - 1).map(i => ((i+1)/ this.level)));
+        let n = this.level-1;
+        this.bounds = this.digest.percentile(arange(n).map(i => ((i+1)/ n)));
     }
 
-    map(value:number) { // TODO: use binary search?
+    map(value:number) { // TODO: use binary search? no [slower according to Manegold]
+        if (value == 0) return 0; // shortcut
         if (this.bounds.length==0) {
             this.computeBounds();
         }
-        for(let i = 0; i < this.level - 1; i++) {
-            if(value < this.bounds[i]) return i;
+        let n   = this.level-1,
+            max = this.bounds[n];
+        for(let i = 0; i < n; i++) {
+            if(value < this.bounds[i]) return i/n;
         }
-        return this.level - 1;
+        return 1;
     }
 }
 
