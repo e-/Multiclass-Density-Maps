@@ -21,11 +21,11 @@ function linearGradient(defs:any, color1:Color, color2:Color):string {
 
     lg.append('stop')
         .attr('offset', 0)
-        .style('stop-color', color1.hex());
+        .style('stop-color', color1.css());
 
     lg.append('stop')
         .attr('offset', 1)
-        .style('stop-color', color2.hex());
+        .style('stop-color', color2.css());
 
     return id;
 }

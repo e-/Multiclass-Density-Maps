@@ -29,7 +29,7 @@ export default class Interpreter {
     public strokeCanvas:boolean = false;
     public backgroundStroke = "grey";
     public fillCanvas:boolean = true;
-    public background = "white";
+    public background?:string;
     public bufferNames:string[];
     public colors:Color[] = Color.Category10;
     public labels?:string[];
@@ -106,7 +106,7 @@ export default class Interpreter {
 
         this.derivedBuffers = this.dataBuffers.map((dataBuffer, i) => {
             let derivedBuffer = new DerivedBuffer(dataBuffer);
-            derivedBuffer.colorScale = new Scale.ColorScale([Color.White, this.colors[i]], scale);
+            derivedBuffer.colorScale = new Scale.ColorScale([Color.None, this.colors[i]], scale);
             if (this.masks.length > i)
                 derivedBuffer.mask = this.masks[i];
             return derivedBuffer;
@@ -210,7 +210,8 @@ export default class Interpreter {
         let canvas:any = document.getElementById(id);
         canvas.width   = this.width;
         canvas.height  = this.height;
-        canvas.style.backgroundColor = this.background;
+        if (this.background != undefined)
+            canvas.style.backgroundColor = this.background;
         if (this.description != undefined)
             canvas.setAttribute("title", this.description);
     }
@@ -272,7 +273,7 @@ export default class Interpreter {
                 geometries.forEach((geo,i) => {
                     ctx.beginPath();
                     path(geo);
-                    ctx.strokeStyle = colors[i].hex();
+                    ctx.strokeStyle = colors[i].css();
                     ctx.stroke();
                 });
             });
