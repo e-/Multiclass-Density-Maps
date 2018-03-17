@@ -61,8 +61,6 @@ render('Linear Color Scale Small Multiples',
        {
            "description": "multivariate normal data",
            "data": {"url": "mn_data.json"},
-           "smooth": {},
-           "rebin": {},
            "compose": {
                "mix": "separate" //, select: 1
            },
@@ -76,8 +74,6 @@ render('Linear Color Scale blended',
        {
            "description": "multivariate normal data",
            "data": {"url": "mn_data.json"},
-           "smooth": {},
-           "rebin": {},
            "compose": {
                "mix": "mean",
                "mixing": "additive"
@@ -88,8 +84,6 @@ render('Linear Color Scale Max',
        {
            "description": "multivariate normal data",
            "data": {"url": "mn_data.json"},
-           "smooth": {},
-           "rebin": {},
            "compose": {
                "mix": "max",
                "mixing": "additive"
@@ -103,8 +97,6 @@ render('Linear Color Scale mean equalized',
        {
            "description": "multivariate normal data",
            "data": {"url": "mn_data.json"},
-           "smooth": {},
-           "rebin": {},
            "compose": {
                "mix": "mean",
                "mixing": "additive"
@@ -119,8 +111,6 @@ render('Square Weaving',
        {
            "description": "multivariate normal data",
            "data": {"url": "mn_data.json"},
-           "smooth": {},
-           "rebin": {},
            "compose": {
                "mix": "weavingsquare",
                "size": 8
@@ -134,8 +124,6 @@ render('Linear Color Scale hex',
        {
            "description": "multivariate normal data",
            "data": {"url": "mn_data.json"},
-           "smooth": {},
-           "rebin": {},
            "compose": {
                "mix": "weavinghex",
                "size": 8
@@ -149,8 +137,6 @@ render('Linear Color Scale triangles',
        {
            "description": "multivariate normal data",
            "data": {"url": "mn_data.json"},
-           "smooth": {},
-           "rebin": {},
            "compose": {
                "mix": "weavingtri",
                "size": 8
@@ -165,8 +151,6 @@ render('Random Weaving',
        {
            "description": "multivariate normal data",
            "data": {"url": "mn_data.json"},
-           "smooth": {},
-           "rebin": {},
            "compose": {
                "mix": "weavingrandom",
                "size": 8
@@ -180,7 +164,6 @@ render('Voronoi Tiling Mean',
        {
            "description": "multivariate normal data",
            "data": {"url": "mn_data.json"},
-           "smooth": {},
            "rebin": {
                "type": "voronoi",
                "size": 32,
@@ -195,7 +178,6 @@ render('Voronoi Tiling',
        {
            "description": "multivariate normal data",
            "data": {"url": "mn_data.json"},
-           "smooth": {},
            "rebin": {
                "type": "voronoi",
                "size": 32,
@@ -211,7 +193,6 @@ render('Voronoi Tiling + Hatching',
        {
            "description": "multivariate normal data",
            "data": {"url": "mn_data.json"},
-           "smooth": {},
            "rebin": {
                "type": "voronoi",
                "size": 32,

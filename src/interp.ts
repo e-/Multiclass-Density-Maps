@@ -123,7 +123,9 @@ export default class Interpreter {
 
     private computeRebin(context={}) {
         var tiles = this.tiles;
-        if (this.rebin.type===undefined || this.rebin.type=="none") {
+        if (this.rebin===undefined ||
+            this.rebin.type===undefined
+            || this.rebin.type=="none") {
             console.log('No rebin');
             tiles = Tiling.pixelTiling(this.width,
                                         this.height);
@@ -169,7 +171,7 @@ export default class Interpreter {
                                              sites);
             }
         }
-        if (this.rebin && this.rebin.stroke)
+        if (this.rebin != undefined && this.rebin.stroke)
             this.maskStroke = this.rebin.stroke;
         this.tiles = tiles;
     }
