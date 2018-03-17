@@ -176,10 +176,10 @@ export class Configuration {
     rebin?: RebinSpec;
     compose?: ComposeSpec;
     rescale: "none"|"linear"|"log"|"pow"|"sqrt"|"cbrt"|"equidepth" = "none";
-    contour?:ContourSpec;    
+    contour?:ContourSpec;
     width: number = -1;
     height: number= -1;
-    bufferNames:string[] = [];    
+    bufferNames:string[] = [];
 
     constructor(public specs:any) {
         if(typeof this.specs === 'string') {
