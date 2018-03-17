@@ -19,22 +19,23 @@ export function pixelTiling (width:number, height:number) {
 }
 
 
-export function topojsonTiling(width:number, height:number,
-                               us:any, feature:any):Tile[] {
+export function topojsonTiling(width:number,      height:number,
+                               wholetopojson:any, feature:any, debug:boolean=false):Tile[] {
   let tiles:Tile[] = [];
 
-  // remove alaska, Hawai and puerto-rico
-  us.objects.states.geometries.splice(49, 4);
+  let allfeatures:any = topo.feature(wholetopojson, feature);
+  let projection      = d3.geoMercator().fitSize([width, height], allfeatures);
+  let gp              = d3.geoPath(projection);
 
-  let allstate:any    = topo.feature(us, feature);
-  let projection   = d3.geoMercator().fitSize([width, height], allstate);
+  if (debug) console.log("debug");
 
+  if (debug) console.log("  "+topo.bbox(wholetopojson));
   // mainland states
-  for (let j=0; j<=48; j++){
+  for (let j=0; j<feature.geometries.length; j++){
     // just one shape
-    let onestate:any = topo.feature(us, feature.geometries[j]);
-    let gp           = d3.geoPath(projection);
-    let bb           = gp.bounds(onestate);
+
+    let onefeature:any = topo.feature(wholetopojson, feature.geometries[j]);
+    let bb             = gp.bounds(onefeature);
 
     // now let's create a mask for that shape
     let mask:Mask    = new Mask(Math.ceil(bb[1][0])-Math.floor(bb[0][0]), Math.ceil(bb[1][1])-Math.floor(bb[0][1]), 0);
@@ -43,14 +44,14 @@ export function topojsonTiling(width:number, height:number,
     if (context1 == null) return [];
 
     // a new projection for that shape. Normally just a translate from projection
-    let projection2  = d3.geoMercator().fitSize([canvas1.width, canvas1.height], onestate);
+    let projection2  = d3.geoMercator().fitSize([canvas1.width, canvas1.height], onefeature);
     let gp2          = d3.geoPath(projection2);
     let path         = gp2.context(context1);
 
     // now render the shape (black opaque over black transparent)
     context1.clearRect(0, 0, canvas1.width, canvas1.height);
     context1.fillStyle="rgba(0, 0, 0, 1.0)";
-    path(onestate);
+    path(onefeature);
     context1.fill();
 
     // let's get an array of pixels from the result drawing
@@ -66,8 +67,10 @@ export function topojsonTiling(width:number, height:number,
     }
 
     // use it to update the vector mask as well
-    for (let i in onestate.geometry.coordinates) {
-      let main =onestate.geometry.coordinates[i][0]; // no holes ?
+    for (let i in onefeature.geometry.coordinates) {
+      let main = onefeature.geometry.coordinates[i][0]; // no holes ?
+      if (!Array.isArray(onefeature.geometry.coordinates[i][0][0]))
+        main = onefeature.geometry.coordinates[i];
       // project the points
       var ptsx = main.map(function(value:any,index:any) { return projection(value)![0]; });
       var ptsy = main.map(function(value:any,index:any) { return projection(value)![1]; });

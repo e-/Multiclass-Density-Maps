@@ -59,7 +59,7 @@ export default class Interpreter {
         if (colormap.length >= this.bufferNames.length)
             this.colors = colormap.map((name)=>Color.byName(name));
         else if (colormap.length != 0) {
-            console.log('Not enough colors in colormap, ignored');
+            console.log('  WARNING:Not enough colors in colormap, ignored');
         }
         this.rebin = configuration.rebin;
         if (configuration.compose === undefined)
@@ -123,16 +123,21 @@ export default class Interpreter {
 
     private computeRebin(context={}) {
         var tiles = this.tiles;
+<<<<<<< HEAD
+        if (this.rebin.type===undefined || this.rebin.type=="none") {
+            console.log('  No rebin');
+=======
         if (this.rebin===undefined ||
             this.rebin.type===undefined
             || this.rebin.type=="none") {
             console.log('No rebin');
+>>>>>>> 3428b83a94b98e83d89ea926efe09a97e01a5346
             tiles = Tiling.pixelTiling(this.width,
                                         this.height);
         }
         else if (this.rebin.type == "square") {
             let size = this.rebin.size || 10;
-            console.log('Square rebin size='+size);
+            console.log('  Square rebin size='+size);
             tiles = Tiling.rectangularTiling(this.width,
                                               this.height,
                                               size, size);
@@ -140,26 +145,38 @@ export default class Interpreter {
         else if (this.rebin.type == "rect") {
             let width = this.rebin.width || 10,
                 height = this.rebin.height || 10;
-            console.log('Square rebin w='+width+' h='+height);
+            console.log('  Square rebin w='+width+' h='+height);
             tiles = Tiling.rectangularTiling(this.width,
                                               this.height,
                                               width, height);
         }
         else if (this.rebin.type == "topojson") {
-            let url = this.rebin.url,
+            let url      = this.rebin.url,
                 topojson = this.rebin.topojson,
-                feature = this.rebin.feature || null; //CHECK
-            console.log('topojson rebin url='+url
+                feature  = this.rebin.feature || null; //CHECK
+            console.log('  topojson rebin url='+url
                         +' feature='+feature);
             // TODO get the projection, transform, clip, etc.
-            tiles = Tiling.topojsonTiling(this.width,
-                                           this.height,
-                                          topojson, topojson.objects[feature]);
+
+            if (!topojson.objects[feature] || !topojson.objects[feature].geometries ||!Array.isArray(topojson.objects[feature].geometries) || topojson.objects[feature].geometries.length==0){
+              console.log("  ERROR: no correct array named 'geometries' in the specified feature("+feature+"). Is it really topojson or did you specify wrong feature name ?");
+            }
+            // remove unnecessary features like far islands ...
+            if (this.rebin.maxfeature && this.rebin.maxfeature>0)
+              topojson.objects[feature].geometries.splice(this.rebin.maxfeature, topojson.objects[feature].geometries.length-this.rebin.maxfeature);
+            else
+              console.log(topojson);
+
+            if (this.rebin.minfeature && this.rebin.minfeature>0)
+              topojson.objects[feature].geometries.splice(0, this.rebin.minfeature);
+
+            tiles = Tiling.topojsonTiling(this.width, this.height,
+                                          topojson,   topojson.objects[feature], this.rebin.minfeature==-1);
         }
         else if (this.rebin.type == "voronoi") {
             if (this.rebin.points) {
                 let points:[number, number][] = this.rebin.points;
-                console.log('voronoi rebin sites='+points);
+                console.log('  voronoi rebin sites='+points);
                 tiles = Tiling.voronoiTiling(this.width,
                                              this.height,
                                              0, points);
@@ -257,7 +274,7 @@ export default class Interpreter {
             }
         }
         else
-            console.log('No valid composition');
+            console.log('ERROR:No valid composition');
 
         let ctx = CanvasRenderer.renderAll(this.image, id, this.compose.select);
         if (this.contour.stroke > 0) {
@@ -266,7 +283,7 @@ export default class Interpreter {
                 thresholds = this.derivedBuffers[0].thresholds(this.contour.stroke);
 
             ctx.strokeStyle = 'black';
-            
+
             this.derivedBuffers.forEach((derivedBuffer, i) => {
                 let geometries = derivedBuffer.contours(thresholds, this.contour.blur),
                     colors = thresholds.map(v => derivedBuffer.colorScale.map(v));
