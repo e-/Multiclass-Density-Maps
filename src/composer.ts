@@ -106,11 +106,11 @@ export default class Composer {
                     type: "ordinal",
                     "scale": {
                       "domain": ["w","h","a","o","b"],
-                      "range": [Color.Category10[0].hex(),
-                                Color.Category10[1].hex(),
-                                Color.Category10[2].hex(),
-                                Color.Category10[3].hex(),
-                                Color.Category10[4].hex()]
+                      "range": [Color.Category10[0].css(),
+                                Color.Category10[1].css(),
+                                Color.Category10[2].css(),
+                                Color.Category10[3].css(),
+                                Color.Category10[4].css()]
                     },
                 },
                 y: {
@@ -184,7 +184,7 @@ export default class Composer {
                     "type": "ordinal",
                     scale: {
                         domain: buffers.map(b => b.originalDataBuffer.name),
-                        range: buffers.map(b => (b.color || Color.Blue).hex())
+                        range: buffers.map(b => (b.color || Color.Blue).css())
                     }
                 }
             },
@@ -243,7 +243,7 @@ export default class Composer {
             ctx.save();
             ctx.translate(hatchCanvas.width/2, hatchCanvas.height/2);
             ctx.rotate(buffer.angle!);
-            ctx.strokeStyle = buffer.color!.hex();
+            ctx.strokeStyle = buffer.color!.css();
             if(proportinal){
                 ctx.lineWidth=thickness * tile.dataValues.length * tile.dataValues[obj.index] / sum;
             } else{

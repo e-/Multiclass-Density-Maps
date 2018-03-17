@@ -6,6 +6,9 @@ import Rect from './rect';
 import * as util from './util';
 import DerivedBuffer from './derived-buffer';
 
+//[jdf] Change internal structure from array of Colors to 4 arrays of numbers.
+// Probably as an ImageData https://developer.mozilla.org/en-US/docs/Web/API/ImageData
+
 export default class Image {
     imageCanvas?:HTMLCanvasElement;
 

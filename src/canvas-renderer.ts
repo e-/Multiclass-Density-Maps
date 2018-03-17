@@ -40,8 +40,10 @@ export default class CanvasRenderer {
             canvas.width   = image.width;
             canvas.height  = image.height;
         }
-
         let ctx:CanvasRenderingContext2D = canvas.getContext('2d');
+        if(!options.noResetDims) {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+        }
         if (image.imageCanvas)
             ctx.drawImage(image.imageCanvas, 0, 0);
         else {
@@ -74,30 +76,56 @@ export default class CanvasRenderer {
 
     static renderToImageData(image:Image, imageData:ImageData) {
         let data = imageData.data;
+        var i = 0;
 
-        for (let i = 0; i < data.length; i += 4) {
-          let r = Math.floor(i / 4 / image.width);
-          let c = i / 4 % image.width;
-
-          data[i + 0] = image.pixels[r][c].r * 255;
-          data[i + 1] = image.pixels[r][c].g * 255;
-          data[i + 2] = image.pixels[r][c].b * 255;
-          data[i + 3] = image.pixels[r][c].a * 255;
+        for (let r = 0; r < image.height; r++) {
+            for (let c = 0; c < image.width; c++) {
+                let p = image.pixels[r][c],
+                    a = p.a;
+                if (a == 0) {
+                    data[i++] = 0;
+                    data[i++] = 0;
+                    data[i++] = 0;
+                    data[i++] = 0;
+                }
+                else if (a == 1) {
+                    data[i++] = p.r * 255;
+                    data[i++] = p.g * 255;
+                    data[i++] = p.b * 255;
+                    data[i++] = p.a * 255;
+                }
+                else {
+                    data[i++] = p.r / a * 255;
+                    data[i++] = p.g / a * 255;
+                    data[i++] = p.b / a * 255;
+                    data[i++] = p.a * 255;
+                }
+            }
         }
     }
 
     static renderAlphaBlending(image:Image, imageData:ImageData) {
         let data = imageData.data;
+        var i = 0;
 
-        for (let i = 0; i < data.length; i += 4) {
-            let r = Math.floor(i / 4 / image.width);
-            let c = i / 4 % image.width;
-            let a = image.pixels[r][c].a;
-
-            data[i + 0] = image.pixels[r][c].r * 255 * a + data[i + 0] * (1 - a);
-            data[i + 1] = image.pixels[r][c].g * 255 * a + data[i + 1] * (1 - a);
-            data[i + 2] = image.pixels[r][c].b * 255 * a + data[i + 2] * (1 - a);
-            data[i + 3] = image.pixels[r][c].a * 255 * a + data[i + 3] * (1 - a);
+        for (let r = 0; r < image.height; r++) {
+            for (let c = 0; c < image.width; c++) {
+              let p = image.pixels[r][c],
+                  a = p.a;
+                if (a == 1) {
+                    data[i + 0] = p.r;
+                    data[i + 1] = p.g;
+                    data[i + 2] = p.b;
+                    data[i + 3] = 255;
+                }
+                else if (a != 0) {
+                    data[i + 0] = p.r / a * 255 + data[i + 0] * (1 - a);
+                    data[i + 1] = p.g / a * 255 + data[i + 1] * (1 - a);
+                    data[i + 2] = p.b / a * 255 + data[i + 2] * (1 - a);
+                    data[i + 3] = a * 255 + data[i + 3] * (1 - a);
+                }
+                i += 4;
+            }
         }
     }
 

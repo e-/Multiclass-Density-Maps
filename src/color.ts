@@ -62,6 +62,18 @@ export default class Color {
 
         return hex;
     }
+    
+    css() {
+        let a = this.a;
+        if (a == 0)
+            return "rgba(0,0,0,0)";
+        let r = this.r / a, g = this.g / a, b = this.b / a;
+        return "rgba("+
+              Math.floor(255*r)+","+
+              Math.floor(255*g)+","+
+              Math.floor(255*b)+","+
+              Math.round(100*a)/100+")";
+    }
 
     add(c:Color) {
         return new Color(

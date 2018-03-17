@@ -141,11 +141,13 @@ export interface ConfigurationReencodingSpec {
 export class ComposeSpec {
     mix: "none"|"min"|"mean"|"max"|"blend"|
           "weavingrandom"|"weavingsquare"|"weavinghex"|"weavingtri"|
-          "hatching"|"separate"="mean";
+          "hatching"|"separate"|"glyph"="mean";
     mixing: "additive"|"subtractive" = "additive";
     size:number = 8;
     proportional:boolean = true;
     select?:number;
+    url?:string;
+    glyphspec?: any;
 }
 
 export class RebinSpec {

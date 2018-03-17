@@ -516,7 +516,7 @@ export class TestMain {
             for (let k=0; k<8; k++){
               let col = derivedBuffer.colorScale.map(k*maxCount/7);
               svg.append("circle")
-                .attr("fill", col.hex())
+                .attr("fill", col.css())
                 .attr("r", 10)
                 .attr("cx", ""+(110-i*20))
                 .attr("cy", ""+(50-k*5));
@@ -1028,7 +1028,7 @@ export class TestMain {
             for (let k=0; k<8; k++){
               let col = derivedBuffer.colorScale.map(k*maxCount/7);
               svg.append("circle")
-                .attr("fill", col.hex())
+                .attr("fill", col.css())
                 .attr("r", 10)
                 .attr("cx", ""+(110-i*20))
                 .attr("cy", ""+(50-k*5));

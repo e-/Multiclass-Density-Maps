@@ -6,6 +6,10 @@
 canvas {
   border: 1px solid grey;
 }
+bodyno {
+  background-image:url('Baboon.png');
+  background-repeat:repeat;
+}
 .example {
   font-weight: bold;
   float:left;
@@ -176,7 +180,6 @@ render('canvas7', 'Census Data',
 {
     "description": "US Census Synthetic people",
     "data": {"url": "census.snappy_data.json"},
-    "smooth": {},
     "reencoding": {
         "label": {
             "field": "z",
@@ -207,7 +210,7 @@ render('canvas8', 'Census Data Smoothed',
 {
     "description": "US Census Synthetic people",
     "data": {"url": "census.snappy_data.json"},
-    "smooth": {"radius": 2},
+    "smooth": {"radius": 1},
     "reencoding": {
         "label": {
             "field": "z",
@@ -344,7 +347,10 @@ render('canvas12', 'Census Data Contour',
     "rescale": {
         "type": "linear"
     },
-    "contour": { "stroke": 12 }
+    "contour": {
+          "stroke": 12,
+          "blur": 1
+    }
 });
 
 render('canvas13', 'French Presidential Election',
