@@ -1,13 +1,9 @@
 export function positive(x:number) { return x > 0; }
 
 export function create2D<T>(width:number, height:number, value:T) {
-    let arr:T[][] = [];
-    for(let i = 0; i < height; ++i) {
-      arr.push(new Array(width));
-      for(let j = 0; j < width; ++j) {
-        arr[i][j] = value;
-      }
-    }
+    let arr = new Array<T[]>(height);
+    for(let i = 0; i < height; ++i) 
+        arr[i] = new Array<T>(width).fill(value);
 
     return arr;
 }

@@ -5,36 +5,49 @@ import GaussianBlur from './gaussian-blur';
 import * as d3 from 'd3-contour';
 
 export default class DataBuffer {
+    values:Float32Array[];
     // construct a data buffer from a specification object
     static fromSpec(spec:any) {
         return new DataBuffer('example', 5, 5);
     }
 
-    constructor(public name:string, public width:number, public height:number, public values:number[][] = util.create2D<number>(width, height, 0)) {
+    constructor(public name:string, public width:number, public height:number,
+                values?:number[][]) {
+        // = util.create2D<number>(width, height, 0)) {
+        let buffer = new ArrayBuffer(width*height*4); // sizeof float32
+        this.values = Array<Float32Array>(height);
+        for (let i = 0; i < height; i++) {
+            this.values[i] = new Float32Array(buffer, i*width*4, width);
+            if (values)
+                this.values[i].set(values[i]);
+        }
     }
 
+    buffer() { return this.values[0].buffer; }
+
     linearize():number[] {
-        return Array.prototype.concat.apply(this.values[0],
-                                            this.values.slice(1));
+        // return Array.prototype.concat.apply(this.values[0],
+        //                                     this.values.slice(1));
+        //return Array.prototype.slice.call(new Float32Array(this.values[0].buffer));
+        // hackFool the type system of TS prevents me from returning the Float32Array directly
+        return <number[]><any>new Float32Array(this.buffer());
     }
 
     blur(radius:number = 3): DataBuffer {
         if (radius==0) return this;
         // Linearize the array
         let source = this.linearize(),
-            target = new Array(this.width*this.height);
+            dest = new DataBuffer(this.name, this.width, this.height),
+            target = <number[]><any>new Float32Array(dest.buffer());
         GaussianBlur(source, target, this.width, this.height, radius);
-        var new_array = Array(this.height);
-        for (var i = 0; i < this.height; i++)
-          new_array[i] = target.slice(i*this.width, (i+1)*this.width);
-        return new DataBuffer(this.name, this.width, this.height, new_array);
+        return dest;
     }
 
     contours(thresholds?:number[], blur:number = 1) {
         let contours = d3.contours().size([this.width, this.height]);
         var values = this.linearize();
         if (blur != 0) {
-            let target = new Array(this.width*this.height);
+            let target = <number[]><any>new Float32Array(this.width*this.height);
             GaussianBlur(values, target, this.width, this.height, blur);
             values = target;
         }
@@ -46,9 +59,11 @@ export default class DataBuffer {
 
     makeContour(contourNumber:number = 12): DataBuffer {
         if (contourNumber==0) return this;
+        let mymin:any = util.amin, // Fool the type system
+            mymax:any = util.amax;
 
-        let mini = util.amin(this.values.map(util.amin)),
-            maxi = util.amax(this.values.map(util.amax)),
+        let mini = util.amin(this.values.map(mymin)),
+            maxi = util.amax(this.values.map(mymax)),
             bandsize = (maxi-mini)/contourNumber,
             ids = new DataBuffer(this.name, this.width, this.height);
         

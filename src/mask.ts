@@ -4,14 +4,25 @@ import Polys2D from './polys2D'
 export default class Mask {
     path:Path2D = new Path2D();
     pols:Polys2D = new Polys2D("shape");
-    maskCanvas:HTMLCanvasElement;
+    maskCanvas?:HTMLCanvasElement;
+    mask:Uint8Array[];
 
     constructor(public width:number, public height:number,
-                default_value:number = 1,
-                public mask:number[][] = util.create2D<number>(width, height, default_value)) {
-        this.maskCanvas = <HTMLCanvasElement>document.createElement('canvas');
-        this.maskCanvas.width  = width;
-        this.maskCanvas.height = height;
+                default_value:number = 1) {
+        // public mask = util.create2D<number>(width, height, default_value)
+        let buffer = new ArrayBuffer(width*height);
+        this.mask = Array<Uint8Array>(height);
+        for (let i = 0; i < height; i++) 
+            this.mask[i] = new Uint8Array(buffer, i*width, width).fill(default_value);
+    }
+
+    getCanvas() {
+        if (this.maskCanvas == undefined) {
+            this.maskCanvas = <HTMLCanvasElement>document.createElement('canvas');
+            this.maskCanvas.width  = this.width;
+            this.maskCanvas.height = this.height;
+        }
+        return this.maskCanvas;
     }
 
     static generateWeavingSquareMasks(m: number, size: number, width: number, height: number, xincr: number = 1) : Mask[]
@@ -62,13 +73,12 @@ export default class Mask {
             for (let i = 0; i < (width/size); i++) {
                 let col = i * size;
                 let row = j * size;
-                //let selected = (((i-j%2) +(width/size)- j))%m;
                 let selected = (i+(j*2)%8)%m;
                 if (j%2==1) { // brick effect
                     col += size/2;
                 }
                 let mask   = masks[selected];
-                let ctx    = mask.maskCanvas.getContext("2d");
+                let ctx    = mask.getCanvas().getContext("2d");
                 let pixels = ctx!.getImageData(0, 0, mask.width, mask.height);
 
                 let y = 3*size/16;
@@ -119,7 +129,7 @@ export default class Mask {
                 let col = (i-1) * size*1.5-(j%2)*(size*0.75);
 
                 let mask   = masks[selected];
-                let ctx    = mask.maskCanvas.getContext("2d");
+                let ctx    = mask.getCanvas().getContext("2d");
                 let pixels = ctx!.getImageData(0, 0, mask.width, mask.height);
 
                 let y = 3*size/16;

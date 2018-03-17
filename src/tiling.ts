@@ -38,7 +38,7 @@ export function topojsonTiling(width:number, height:number,
 
     // now let's create a mask for that shape
     let mask:Mask    = new Mask(Math.ceil(bb[1][0])-Math.floor(bb[0][0]), Math.ceil(bb[1][1])-Math.floor(bb[0][1]), 0);
-    let canvas1      = mask.maskCanvas;
+    let canvas1      = mask.getCanvas();
     let context1 = canvas1.getContext("2d"); // CanvasRenderingContext2D | null
     if (context1 == null) return [];
 
@@ -118,7 +118,7 @@ export function voronoiTiling(width:number, height:number,
     }
 
     let mask:Mask = new Mask(Math.ceil(maxx-minx)+1, Math.ceil(maxy-miny)+1, 0);
-    let canvas1      = mask.maskCanvas;
+    let canvas1      = mask.getCanvas();
     let context1:any = canvas1.getContext("2d");
 
     context1.clearRect(0, 0, canvas1.width, canvas1.height);
