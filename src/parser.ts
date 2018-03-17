@@ -148,8 +148,8 @@ export class ComposeSpec {
     select?:number;
 }
 
-export interface RebinSpec {
-    type?: "none"|"square"|"rect"|"topojson"|"voronoi";
+export class RebinSpec {
+    type: "none"|"square"|"rect"|"topojson"|"voronoi" = "none";
     width?: number;
     height?: number;
     size?: number;

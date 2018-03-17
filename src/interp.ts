@@ -123,8 +123,15 @@ export default class Interpreter {
 
     private computeRebin(context={}) {
         var tiles = this.tiles;
+<<<<<<< HEAD
         if (this.rebin.type===undefined || this.rebin.type=="none") {
             console.log('  No rebin');
+=======
+        if (this.rebin===undefined ||
+            this.rebin.type===undefined
+            || this.rebin.type=="none") {
+            console.log('No rebin');
+>>>>>>> 3428b83a94b98e83d89ea926efe09a97e01a5346
             tiles = Tiling.pixelTiling(this.width,
                                         this.height);
         }
@@ -181,7 +188,7 @@ export default class Interpreter {
                                              sites);
             }
         }
-        if (this.rebin && this.rebin.stroke)
+        if (this.rebin != undefined && this.rebin.stroke)
             this.maskStroke = this.rebin.stroke;
         this.tiles = tiles;
     }

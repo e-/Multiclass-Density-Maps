@@ -9,7 +9,9 @@ import DerivedBuffer from './derived-buffer';
 export default class Image {
     imageCanvas?:HTMLCanvasElement;
 
-    constructor(public width:number, public height:number, public pixels:Color[][] = util.create2D<Color>(width, height, new Color())) {
+    constructor(public width:number, public height:number,
+                public pixels:Color[][]
+                = util.create2D<Color>(width, height, Color.None)) {
     }
 
     render(color: Color, rect: Rect):void;
@@ -17,36 +19,54 @@ export default class Image {
     render(imageData: ImageData, tile:Tile):void;
     render(color: Color, tile: Tile, mask?: Mask):void;
 
-    render(source: Color | ImageData | HTMLCanvasElement, shapeOrPoint:Rect | Tile | Point, mask?: Mask) {
+    render(source: Color | ImageData | HTMLCanvasElement,
+           shapeOrPoint:Rect | Tile | Point, mask?: Mask) {
         if(source instanceof Color) {
             if(shapeOrPoint instanceof Tile) {
-                this.fillColorByTile(source as Color, shapeOrPoint as Tile, mask as Mask | undefined);
+                this.fillColorByTile(source as Color,
+                                     shapeOrPoint as Tile,
+                                     mask as Mask | undefined);
             }
             else {
-                this.fillColorByRect(source as Color, shapeOrPoint as Rect);
+                this.fillColorByRect(source as Color,
+                                     shapeOrPoint as Rect);
             }
         }
         else if(source instanceof ImageData) {
-            this.putImageByTile(source as ImageData, shapeOrPoint as Tile);
+            this.putImageByTile(source as ImageData,
+                                shapeOrPoint as Tile);
         }
         else if(source instanceof HTMLCanvasElement) {
-            this.drawTileAtPosition(source as HTMLCanvasElement, shapeOrPoint as Point);
+            this.drawTileAtPosition(source as HTMLCanvasElement,
+                                    shapeOrPoint as Point);
         }
     }
 
     private fillColorByTile(color:Color, tile:Tile, mask?:Mask) {
-        for(let r = Math.ceil(tile.y); r < tile.y + tile.mask.height; r++) {
-            if(r >= this.height) break;
-            for(let c = Math.ceil(tile.x); c < tile.x + tile.mask.width; c++) {
-                if(c >= this.width) break;
+        let tmask = tile.mask,
+            y     = Math.ceil(tile.y),
+            maxy  = Math.min(tile.y + tmask.height, this.height),
+            x     = Math.ceil(tile.x),
+            maxx  = Math.min(tile.x + tmask.width, this.width);
 
-                if(tile.mask && tile.mask.mask[r-Math.ceil(tile.y)][c-Math.ceil(tile.x)] == 0)
-                  continue;
-
-                if(mask && r < mask.height && c < mask.width && mask.mask[r][c] == 0)
-                  continue;
-
-                this.pixels[r][c] = color;
+        if (mask) {
+            for(let r = y; r < maxy; r++) {
+                for(let c = Math.ceil(tile.x); c < tile.x + tile.mask.width; c++) {
+                    if(tmask.mask[r-y][c-x] == 0)
+                        continue;
+                    if(r < mask.height && c < mask.width && mask.mask[r][c] == 0)
+                        continue;
+                    this.pixels[r][c] = color;
+                }
+            }
+        }
+        else {
+            for(let r = y; r < maxy; r++) {
+                for(let c = Math.ceil(tile.x); c < tile.x + tile.mask.width; c++) {
+                    if(tmask.mask[r-y][c-x] == 0)
+                        continue;
+                    this.pixels[r][c] = color;
+                }
             }
         }
     }
@@ -136,11 +156,10 @@ export default class Image {
        if (!mask) return;
          for(let r = 0; r < this.height ; r++) {
              for(let c = 0; c < this.width ; c++) {
-                 //if (c==r) console.log(c+"=> "+mask.mask[r][c]);
-                 if(!mask.mask[r] || !mask.mask[r][c] || mask.mask[r][c] == 0)
-                     this.pixels[r][c] = new Color(0, 0, 0, 1);
+                 if (mask.mask[r][c] == 0)
+                     this.pixels[r][c] = Color.Black;
                  else
-                     this.pixels[r][c] = new Color(1, 1, 1, 1);
+                     this.pixels[r][c] = Color.White;
              }
          }
      }

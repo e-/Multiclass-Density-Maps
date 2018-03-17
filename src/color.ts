@@ -3,6 +3,13 @@ export default class Color {
 
     }
 
+    set(r:number, g:number, b:number, a:number) {
+        this.r = r;
+        this.g = g;
+        this.b = b;
+        this.a = a;
+    }
+
     clamp() {
         return new Color(
             Math.min(Math.max(this.r, 0), 1),

@@ -62,9 +62,6 @@ render('canvas1','Linear Color Scale',
        {
            "description": "multivariate normal data",
            "data": {"url": "mn_data.json"},
-           "smooth": {},
-           "rebin": {
-           },
            "compose": {
                "mix": "max",
                "mixing": "additive"
@@ -75,9 +72,6 @@ render('canvas2', 'Log Color Scale',
        {
            "description": "multivariate normal data",
            "data": {"url": "mn_data.json"},
-           "smooth": {},
-           "rebin": {
-           },
            "compose": {
                "mix": "max",
                "mixing": "additive"
@@ -94,6 +88,7 @@ render('canvas3', 'EquiDepth Color Scale',
            "smooth": {},
            "rebin": {
            },
+
            "compose": {
                "mix": "max",
                "mixing": "additive"
@@ -110,6 +105,7 @@ render('canvas3bis', 'EquiDepth Color Scale Small Multiples',
            "smooth": {},
            "rebin": {
            },
+
            "compose": {
                "mix": "separate" //, select: 1
            },
@@ -123,9 +119,6 @@ render('canvas4','Random Rectangular Weaving',
        {
            "description": "multivariate normal data",
            "data": {"url": "mn_data.json"},
-           "smooth": {},
-           "rebin": {
-           },
            "compose": {
                "mix": "weavingrandom",
                "size": 8
@@ -136,9 +129,6 @@ render('canvas5', 'Square Rectangular Weaving',
        {
            "description": "multivariate normal data",
            "data": {"url": "mn_data.json"},
-           "smooth": {},
-           "rebin": {
-           },
            "compose": {
                "mix": "weavingsquare",
                "size": 8
@@ -155,6 +145,7 @@ render('canvas6', 'Linear Color Scale hex',
            "smooth": {},
            "rebin": {
            },
+
            "compose": {
                "mix": "weavinghex",
                "size": 8
@@ -171,6 +162,7 @@ render('canvas6bis', 'EquiDepth Color Scale triangles',
            "smooth": {},
            "rebin": {
            },
+
            "compose": {
                "mix": "weavingtri",
                "size": 8
@@ -201,8 +193,6 @@ render('canvas7', 'Census Data',
                 "range": ["Blue", "Orange", "Red", "Green", "Brown"]
             }
         }
-    },
-    "rebin": {
     },
     "compose": {
         "mix": "mean",
@@ -235,8 +225,6 @@ render('canvas8', 'Census Data Smoothed',
             }
         }
     },
-    "rebin": {
-    },
     "compose": {
         "mix": "mean",
         "mixing": "additive"
@@ -250,7 +238,6 @@ render('canvas9','Voronoi Tiling',
        {
            "description": "multivariate normal data",
            "data": {"url": "mn_data.json"},
-           "smooth": {},
            "rebin": {
                "type": "voronoi",
                "size": 32,
@@ -266,7 +253,6 @@ render('canvas10','Voronoi Tiling + Hatching',
        {
            "description": "multivariate normal data",
            "data": {"url": "mn_data.json"},
-           "smooth": {},
            "rebin": {
                "type": "voronoi",
                "size": 32,
@@ -282,7 +268,6 @@ render('canvas11', 'Census Data Random Weaving',
 {
     "description": "US Census Synthetic people",
     "data": {"url": "census.snappy_data.json"},
-    "smooth": {},
     "reencoding": {
         "label": {
             "field": "z",
@@ -324,7 +309,6 @@ render('canvas12', 'Census Data Contour',
 {
     "description": "US Census Synthetic people",
     "data": {"url": "census.snappy_data.json"},
-    "smooth": {},
     "reencoding": {
         "label": {
             "field": "z",

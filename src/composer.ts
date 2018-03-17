@@ -220,7 +220,7 @@ export default class Composer {
 
         let ctx = hatchCanvas.getContext("2d")!;
 
-        ctx.drawImage(tile.mask.maskCanvas, 0, 0);
+        ctx.drawImage(tile.mask.getCanvas(), 0, 0);
         ctx.globalCompositeOperation="source-atop";
         ctx.fillStyle='white';
         ctx.fillRect(0,0,ctx.canvas.width, ctx.canvas.height);
