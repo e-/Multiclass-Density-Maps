@@ -123,15 +123,11 @@ export default class Interpreter {
 
     private computeRebin(context={}) {
         var tiles = this.tiles;
-<<<<<<< HEAD
-        if (this.rebin.type===undefined || this.rebin.type=="none") {
-            console.log('  No rebin');
-=======
+
         if (this.rebin===undefined ||
             this.rebin.type===undefined
             || this.rebin.type=="none") {
-            console.log('No rebin');
->>>>>>> 3428b83a94b98e83d89ea926efe09a97e01a5346
+            console.log('  No rebin');
             tiles = Tiling.pixelTiling(this.width,
                                         this.height);
         }
