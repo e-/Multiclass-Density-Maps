@@ -29,7 +29,7 @@ export default class DataBuffer {
         // return Array.prototype.concat.apply(this.values[0],
         //                                     this.values.slice(1));
         //return Array.prototype.slice.call(new Float32Array(this.values[0].buffer));
-        // hackFool the type system of TS prevents me from returning the Float32Array directly
+        // Fool the type system of TS that prevents returning the Float32Array directly
         return <number[]><any>new Float32Array(this.buffer());
     }
 
