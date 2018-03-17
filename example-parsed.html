@@ -13,7 +13,7 @@ canvas {
 }
 .clearBoth { clear:both; }
 
-</style>        
+</style>
     </head>
     <body>
         <h1>Rendition</h1>
@@ -92,7 +92,7 @@ render('canvas3', 'EquiDepth Color Scale',
            "description": "multivariate normal data",
            "data": {"url": "mn_data.json"},
            "smooth": {},
-           "rebin": { 
+           "rebin": {
            },
            "compose": {
                "mix": "max",
@@ -108,7 +108,7 @@ render('canvas3bis', 'EquiDepth Color Scale Small Multiples',
            "description": "multivariate normal data",
            "data": {"url": "mn_data.json"},
            "smooth": {},
-           "rebin": { 
+           "rebin": {
            },
            "compose": {
                "mix": "separate" //, select: 1
@@ -153,7 +153,7 @@ render('canvas6', 'Linear Color Scale hex',
            "description": "multivariate normal data",
            "data": {"url": "mn_data.json"},
            "smooth": {},
-           "rebin": { 
+           "rebin": {
            },
            "compose": {
                "mix": "weavinghex",
@@ -169,7 +169,7 @@ render('canvas6bis', 'EquiDepth Color Scale triangles',
            "description": "multivariate normal data",
            "data": {"url": "mn_data.json"},
            "smooth": {},
-           "rebin": { 
+           "rebin": {
            },
            "compose": {
                "mix": "weavingtri",
@@ -303,12 +303,17 @@ render('canvas11', 'Census Data Random Weaving',
     "rebin": {
           "type": "topojson",
           "url": "us.json",
-          "feature": "states",
-          "stroke": "grey"
+          /*"feature": "states",
+          "minfeature": 0,
+          "maxfeature": 49,*/
+           "feature": "counties",
+            "minfeature": 0,
+          "maxfeature": 3109,
+          "stroke": "rgba(0,0,0,0.25)"
     },
     "compose": {
           "mix": "weavingrandom",
-          "size": 4
+          "size": 2
     },
     "rescale": {
         "type": "log"
@@ -340,14 +345,59 @@ render('canvas12', 'Census Data Contour',
     "rebin": {
           "type": "topojson",
           "url": "us.json",
+          /*"feature": "counties",
+            "minfeature": 0,
+          "maxfeature": 3100,*/
           "feature": "states",
+          "minfeature": 0,
+          "maxfeature": 49,
           "stroke": "grey"
+
     },
     "compose": {
           "mix": "none"
     },
     "rescale": {
         "type": "linear"
+    },
+    "contour": { "stroke": 12 }
+});
+
+render('canvas13', 'French Presidential Election',
+{
+    "description": "5 main candidate at Round #1",
+    "data": {"url": "francePresElec_data.json"},
+    "smooth": {},
+    "reencoding": {
+        "label": {
+            "field": "z",
+            "type": "nominal",
+            "scale": {
+                "domain": ["melenchon", "hamon", "macron", "fillon", "lepen"],
+                "range": ["melenchon", "hamon", "macron", "fillon", "lepen"]
+            }
+        },
+        "color": {
+            "field": "z",
+            "type": "nominal",
+            "scale": {
+                "range": ["Red", "Pink", "Orange", "Blue", "Black"]
+            }
+        }
+    },
+    "rebin": {
+          "type": "topojson",
+          "url": "franceD.json",
+          "feature": "poly",
+          "minfeature": -1,
+          "maxfeature": -1,
+          "stroke": "grey"
+    },
+    "compose": {
+          "mix": "none"
+    },
+    "rescale": {
+        "type": "log"
     },
     "contour": { "stroke": 12 }
 });
