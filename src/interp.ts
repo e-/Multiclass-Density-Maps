@@ -41,6 +41,7 @@ export default class Interpreter {
     public maskStroke?:string;
     public contour:Parser.ContourSpec;
     public blur:number=0;
+    public geo:Parser.GeoSpec;
 
     constructor(public configuration:Parser.Configuration) {
         if (! configuration.validate())
@@ -74,6 +75,7 @@ export default class Interpreter {
             this.contour = new Parser.ContourSpec();
         else
             this.contour = configuration.contour;
+        this.geo = configuration.getGeo();
     }
 
     public interpret(context={}) {
@@ -153,12 +155,16 @@ export default class Interpreter {
                         +' feature='+feature);
             // TODO get the projection, transform, clip, etc.
 
-            if (!topojson.objects[feature] || !topojson.objects[feature].geometries ||!Array.isArray(topojson.objects[feature].geometries) || topojson.objects[feature].geometries.length==0){
-              console.log("  ERROR: no correct array named 'geometries' in the specified feature("+feature+"). Is it really topojson or did you specify wrong feature name ?");
+            if (!topojson.objects[feature] ||
+                !topojson.objects[feature].geometries ||
+                !Array.isArray(topojson.objects[feature].geometries) ||
+                topojson.objects[feature].geometries.length==0 ){
+              console.log("  ERROR: no correct array named 'geometries' in the specified feature("+feature+"). Is it really topojson or did you specify wrong feature name?");
             }
             // remove unnecessary features like far islands ...
             if (this.rebin.maxfeature && this.rebin.maxfeature>0)
-              topojson.objects[feature].geometries.splice(this.rebin.maxfeature, topojson.objects[feature].geometries.length-this.rebin.maxfeature);
+              topojson.objects[feature].geometries.splice(this.rebin.maxfeature,
+                                                          topojson.objects[feature].geometries.length-this.rebin.maxfeature);
             else
               console.log(topojson);
 
@@ -166,7 +172,11 @@ export default class Interpreter {
               topojson.objects[feature].geometries.splice(0, this.rebin.minfeature);
 
             tiles = Tiling.topojsonTiling(this.width, this.height,
-                                          topojson,   topojson.objects[feature], this.rebin.minfeature==-1);
+                                          topojson,
+                                          topojson.objects[feature],
+                                          this.geo.projection,
+                                          this.geo.latitudes, this.geo.longitudes,
+                                          this.rebin.minfeature==-1);
         }
         else if (this.rebin.type == "voronoi") {
             if (this.rebin.points) {
