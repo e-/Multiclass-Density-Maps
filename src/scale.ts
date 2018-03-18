@@ -150,6 +150,7 @@ export class EquiDepthScale implements ScaleTrait {
         let v = (value - this.domain[0]) * (this.level=1) / (this.domain[1] - this.domain[0]),
             i = Math.floor(v),
             r = v-i;
+
         return this.bounds[i]*(1-r) + this.bounds[i+1]*r;
     }
 }

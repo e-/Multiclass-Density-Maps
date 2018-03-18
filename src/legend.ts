@@ -3,13 +3,14 @@ import DerivedBuffer from './derived-buffer';
 import * as Parser from './parser';
 import Color from './color';
 import Interpreter from './interp';
+import * as Scale from './scale';
 
 function translate(x:number, y:number) {
     return `translate(${x},${y})`;
 }
 
 let counter = 0;
-function linearGradient(defs:any, color1:Color, color2:Color):string {
+function linearGradient(defs:any, interpolator:Scale.ScaleTrait, db:DerivedBuffer):string {
     let id = `gradient_${counter++}`;
 
     let lg = defs.append('linearGradient')
@@ -21,11 +22,44 @@ function linearGradient(defs:any, color1:Color, color2:Color):string {
 
     lg.append('stop')
         .attr('offset', 0)
-        .style('stop-color', color1.css());
+        .style('stop-color', db.colorScale.map(interpolator.domain[0]).css());
 
     lg.append('stop')
         .attr('offset', 1)
-        .style('stop-color', color2.css());
+        .style('stop-color', db.colorScale.map(interpolator.domain[1]).css());
+
+    return id;
+}
+
+function equiDepthColorMap(defs:any, interpolator:Scale.ScaleTrait, db:DerivedBuffer):string {
+    let id = `gradient_${counter++}`;
+    let scale = interpolator as Scale.EquiDepthScale;
+
+    let lg = defs.append('linearGradient')
+        .attr('id', id)
+        .attr('x1', 0)
+        .attr('x2', 1)
+        .attr('y1', 0)
+        .attr('y2', 0)
+
+    let n = scale.level;
+    let range = scale.range;
+    let min = range[0];
+    let w = (range[1] - range[0]) / n;
+
+    d3.range(n).forEach(i => {
+        let value:number;
+        if(i === n - 1) value = scale.bounds[n - 2];
+        else value = scale.bounds[i] - 1;
+
+        lg.append('stop')
+            .attr('offset', i / n)
+            .style('stop-color', db.colorScale.map(value).css());
+
+        lg.append('stop')
+            .attr('offset', (i + 1) / n)
+            .style('stop-color', db.colorScale.map(value).css());
+    });
 
     return id;
 }
@@ -68,8 +102,19 @@ export default function LegendBuilder(id:string, interp:Interpreter) {
         .attr('text-anchor', 'end')
 
 
+    let gradientFunc:(defs:any, interpolator:Scale.ScaleTrait, db:DerivedBuffer) => string;
+
+    // scales that show continuous color maps
+    if(!interp.rescale || ["linear", "pow", "sqrt", "cbrt", "log"].indexOf(interp.rescale!.type) >= 0)
+    {
+        gradientFunc = linearGradient;
+    }
+    else if(interp.rescale!.type === "equidepth") { // discrete such as equidepth
+        gradientFunc = equiDepthColorMap;
+    }
+
     let ids = derivedBuffers.map(db => {
-        return linearGradient(defs, db.colorScale.colorRange[0], db.colorScale.colorRange[1]);
+        return gradientFunc(defs, interp.scale, db);
     })
 
     enter
@@ -92,45 +137,34 @@ export default function LegendBuilder(id:string, interp:Interpreter) {
         .selectAll('text.tick')
         .data(tickDomain)
 
-    let scale = d3.scaleLinear();;
+    // scale
+    //     .domain(derivedBuffers[0].colorScale.interpolator.domain)
+    //     .range([0, colorMapWidth]);
 
-    if(interp.rescale)
-        switch(interp.rescale!.type) {
-            case('log'): scale = d3.scaleLog().base(Math.E); break;
-            case('pow'): scale = d3.scalePow().exponent(Math.E); break;
-            case('sqrt'): scale = d3.scaleSqrt(); break;
-            case('cbrt'): scale = d3.scalePow().exponent(1/3); break;
-            case('equidepth'): scale = d3.scaleLog().base(Math.E); break;
-        }
-
-    scale
-        .domain(derivedBuffers[0].colorScale.interpolator.domain)
-        .range([0, colorMapWidth]);
-
-    ticks.enter()
-        .append('text')
-        .attr('class', 'tick')
-        .attr('text-anchor', (d, i) => ['start', 'end'][i])
-        .attr('transform', (d, i) => translate(scale(d), 0))
-        .attr('dy', '.5em')
-        .text(d => d3.format(spec.format)(d))
+    // ticks.enter()
+    //     .append('text')
+    //     .attr('class', 'tick')
+    //     .attr('text-anchor', (d, i) => ['start', 'end'][i])
+    //     .attr('transform', (d, i) => translate(scale(d), 0))
+    //     .attr('dy', '.5em')
+    //     .text(d => d3.format(spec.format)(d))
 
 
-    let n = 8;
-    let tickData = d3.range(n).map(i => tickDomain[0] + (tickDomain[1] - tickDomain[0]) * (i + 1) / n);
+    // let n = 8;
+    // let tickData = d3.range(n).map(i => tickDomain[0] + (tickDomain[1] - tickDomain[0]) * (i + 1) / n);
 
-    enter
-        .selectAll('line')
-        .data(tickData)
-        .enter()
-        .append('line')
-        .attr('x1', 0)
-        .attr('x2', 0)
-        .attr('y1', 0)
-        .attr('y2', rowHeight)
-        .style('stroke', '#ddd')
-        .style('stroke-width', 1)
-        .style('shape-rendering', 'crispEdges')
-        .attr('transform', (d, i) => translate(labelWidth + gutter + scale(d), 0))
+    // enter
+    //     .selectAll('line')
+    //     .data(tickData)
+    //     .enter()
+    //     .append('line')
+    //     .attr('x1', 0)
+    //     .attr('x2', 0)
+    //     .attr('y1', 0)
+    //     .attr('y2', rowHeight)
+    //     .style('stroke', '#ddd')
+    //     .style('stroke-width', 1)
+    //     .style('shape-rendering', 'crispEdges')
+    //     .attr('transform', (d, i) => translate(labelWidth + gutter + scale(d), 0))
 
 }
