@@ -47,12 +47,17 @@ export class LogScale implements ScaleTrait {
     logBase: number;
     internalScale: LinearScale;
 
-    constructor(public domain: [number, number], public range: [number, number], public base:number = Math.E) {
+    constructor(public domain: [number, number], public range: [number, number], public base:number = Math.E,
+        public outOfRangeValue?:number
+    ) {
         this.logBase = Math.log(base);
         this.internalScale = new LinearScale([Math.log(domain[0]) / this.logBase, Math.log(domain[1]) / this.logBase], range);
     }
 
     map(value:number) {
+        if(this.outOfRangeValue !== undefined &&
+            (value < this.domain[0] || value > this.domain[1]))
+                return this.outOfRangeValue;
         return this.internalScale.map(Math.log(value) / this.logBase);
     }
 
@@ -93,7 +98,7 @@ export class EquiDepthScale implements ScaleTrait {
     digest:Digest;
     bounds:number[] = [];
 
-    constructor(public domain: number[], public range: [number, number], public level:number = 32) {
+    constructor(public domain: number[], public range: [number, number], public level:number = 32, public outOfRangeValue?:number) {
         this.digest = new Digest();
         this.addPoints(domain); // initialize with something
     }
@@ -106,11 +111,15 @@ export class EquiDepthScale implements ScaleTrait {
 
     computeBounds() {
         this.digest.compress();
-        let n = this.level-1;
+        let n = this.level; //-1;
         this.bounds = this.digest.percentile(arange(n).map(i => ((i+1)/ n)));
     }
 
-    map(value:number) { 
+    map(value:number) {
+        if(this.outOfRangeValue !== undefined &&
+            (value < this.domain[0] || value > this.domain[1]))
+                return this.outOfRangeValue;
+
         // linear search is faster than binary search for that simple case
         // https://hannes.muehleisen.org/damon2017-simd-imprints.pdf
         let min = this.range[0];
@@ -118,16 +127,16 @@ export class EquiDepthScale implements ScaleTrait {
         if (value == 0) return min; // shortcut
 
         let n   = this.level-1,
-            w   = this.range[1] - min,
-            max = this.bounds[n];
+            w   = this.range[1] - min;
 
         if (this.bounds.length==0) {
             this.computeBounds();
         }
 
         for(let i = 0; i < n; i++)
-            if (value < this.bounds[i]) return min+w*i/n;
-        return min+w;
+            if (value < this.bounds[i]) return min + w / n * i;
+
+        return min + w;
     }
 
     invmap(value:number) {

@@ -170,6 +170,15 @@ export class RebinSpec {
     }
 }
 
+export class RescaleSpec {
+    type:"linear"|"log"|"pow"|"sqrt"|"cbrt"|"equidepth" = "linear";
+    level:number = 3; // for equidepth
+
+    constructor(options?: RescaleSpec) {
+        if(options) Object.assign(this, options);
+    }
+}
+
 export class ContourSpec {
     stroke:number = 0;
     fill:number = 0; // percentile over which we fill
@@ -204,7 +213,7 @@ export class Configuration {
     reencoding?: ConfigurationReencodingSpec;
     rebin?: RebinSpec;
     compose?: ComposeSpec;
-    rescale: "none"|"linear"|"log"|"pow"|"sqrt"|"cbrt"|"equidepth" = "none";
+    rescale?: RescaleSpec;
     contour?:ContourSpec;
     width: number = -1;
     height: number= -1;
@@ -267,7 +276,7 @@ export class Configuration {
 
     private parseRescale() {
         if (this.specs.rescale)
-            this.rescale = this.specs.rescale.type;
+            this.rescale = new RescaleSpec(this.specs.rescale);
     }
 
     public validate():boolean {

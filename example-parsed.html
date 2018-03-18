@@ -103,7 +103,7 @@ render('EquiDepth Color Scale',
            }
        });
 
-render('EquiDepth Color Scale Small Multiples',
+render('EquiDepth Color Scale Small Multiples (level=3)',
        {
            "description": "multivariate normal data",
            "data": {"url": "mn_data.json"},
@@ -114,7 +114,8 @@ render('EquiDepth Color Scale Small Multiples',
                "mix": "separate" //, select: 1
            },
            "rescale": {
-               "type": "equidepth"
+               "type": "equidepth",
+               "level": 3
            }
        }, true);
 

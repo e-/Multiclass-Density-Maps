@@ -92,16 +92,17 @@ export default function LegendBuilder(id:string, interp:Interpreter) {
         .selectAll('text.tick')
         .data(tickDomain)
 
-    let scale:any;
+    let scale = d3.scaleLinear();;
 
-    switch(interp.rescale) {
-        case('log'): scale = d3.scaleLog().base(Math.E); break;
-        case('pow'): scale = d3.scalePow().exponent(Math.E); break;
-        case('sqrt'): scale = d3.scaleSqrt(); break;
-        case('cbrt'): scale = d3.scalePow().exponent(1/3); break;
-        case('equidepth'): scale = d3.scaleLog().base(Math.E); break;
-        default: scale = d3.scaleLinear();
-    }
+    if(interp.rescale)
+        switch(interp.rescale!.type) {
+            case('log'): scale = d3.scaleLog().base(Math.E); break;
+            case('pow'): scale = d3.scalePow().exponent(Math.E); break;
+            case('sqrt'): scale = d3.scaleSqrt(); break;
+            case('cbrt'): scale = d3.scalePow().exponent(1/3); break;
+            case('equidepth'): scale = d3.scaleLog().base(Math.E); break;
+        }
+
     scale
         .domain(derivedBuffers[0].colorScale.interpolator.domain)
         .range([0, colorMapWidth]);

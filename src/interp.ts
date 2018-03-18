@@ -32,13 +32,14 @@ export default class Interpreter {
     public colors:Color[] = Color.Category10;
     public labels:string[] | undefined;
     public rebin: any;
-    public rescale:"none"|"linear"|"log"|"pow"|"sqrt"|"cbrt"|"equidepth" = "none";
+    public rescale?:Parser.RescaleSpec;
     public compose:Parser.ComposeSpec;
     public composer:(buffers:DerivedBuffer[], values:number[])=>Color = Composer.none;
     public masks:Mask[] = [];
     public maskStroke?:string;
     public blur:number=0;
     public legend:Parser.LegendSpec | false;
+    public scale:Scale.ScaleTrait = new Scale.LinearScale([0, 1], [0, 1]);
 
     constructor(public configuration:Parser.Configuration) {
         if (! configuration.validate())
@@ -64,8 +65,9 @@ export default class Interpreter {
             this.compose = new Parser.ComposeSpec();
         else
             this.compose = configuration.compose;
-        if (configuration.rescale)
-            this.rescale = configuration.rescale;
+
+        this.rescale = configuration.rescale;
+
         if (configuration.blur)
             this.blur = configuration.blur;
 
@@ -186,30 +188,32 @@ export default class Interpreter {
         for (let tile of this.tiles) {
             tile.dataValues = tile.aggregate(this.dataBuffers, this.tileAggregation);
         }
-        let scale:Scale.ScaleTrait;
+        ;
         let maxCount = util.amax(this.tiles.map(tile => util.amax(tile.dataValues)));
         let images:Image[] = []; // only used when mix=separate, i.e., small multiples
 
         // TODO test if scales are per-buffer or shared, for now, we'll make one per buffer
-        if (this.rescale === "none" || this.rescale === "linear")
-            scale = new Scale.LinearScale([0, maxCount], [0, 1]);
-        else if (this.rescale === "sqrt")
-            scale = new Scale.SquareRootScale([0, maxCount], [0, 1]);
-        else if (this.rescale === "cbrt")
-            scale = new Scale.CubicRootScale([0, maxCount], [0, 1]);
-        else if (this.rescale === "log")
-            scale = new Scale.LogScale([1, maxCount], [0, 1]);
-        else if (this.rescale === "equidepth") {
-            let equidepth = new Scale.EquiDepthScale([1, maxCount], [0, 1]);
+        if (!this.rescale || this.rescale!.type === "linear")
+            this.scale = new Scale.LinearScale([0, maxCount], [0, 1]);
+        else if (this.rescale!.type === "sqrt")
+            this.scale = new Scale.SquareRootScale([0, maxCount], [0, 1]);
+        else if (this.rescale!.type === "cbrt")
+            this.scale = new Scale.CubicRootScale([0, maxCount], [0, 1]);
+        else if (this.rescale!.type === "log")
+            this.scale = new Scale.LogScale([1, maxCount], [0.2, 1], 10, 0);
+        else if (this.rescale!.type === "equidepth") {
+            // set the min range to 0.1, allowing users to distinguish low values from the background
+            let equidepth = new Scale.EquiDepthScale([1, maxCount], [0.2, 1], this.rescale!.level, 0);
+
             for (let tile of this.tiles)
                 equidepth.addPoints(tile.dataValues);
             equidepth.computeBounds();
-            scale = equidepth;
+            this.scale = equidepth;
         }
 
         this.derivedBuffers = this.dataBuffers.map((dataBuffer, i) => {
             let derivedBuffer = new DerivedBuffer(dataBuffer);
-            derivedBuffer.colorScale = new Scale.ColorScale([Color.White, this.colors[i]], scale);
+            derivedBuffer.colorScale = new Scale.ColorScale([Color.White, this.colors[i]], this.scale);
             if (this.masks.length > i)
                 derivedBuffer.mask = this.masks[i];
             return derivedBuffer;
