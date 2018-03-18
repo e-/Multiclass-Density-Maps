@@ -29,11 +29,7 @@ export function topojsonTiling(width:number, height:number,
   let tiles:Tile[] = [];
 
   let proj = d3.geoEquirectangular();
-  if (projection0=="epsg:3857" || projection0=="Mercator") proj = d3.geoMercator();
-
-
-  let proj = d3.geoEquirectangular();
-  if (projectionName=="epsg:3857") proj = d3.geoMercator();
+  if (projectionName=="epsg:3857" || projectionName=="Mercator") proj = d3.geoMercator();
 
   let allfeatures:any = topo.feature(wholetopojson, feature);
   let projection      = Object.create(proj).fitSize([width, height], allfeatures);
@@ -93,7 +89,7 @@ export function topojsonTiling(width:number, height:number,
 
     // a new projection for that shape. Normally just a translate from projection
     let proji = d3.geoEquirectangular();
-    if (projection0=="epsg:3857"|| projection0=="Mercator") proji = d3.geoMercator();
+    if (projectionName=="epsg:3857"|| projectionName=="Mercator") proji = d3.geoMercator();
     let projection2  = proji.fitSize([canvas1.width, canvas1.height], onefeature);
     let gp2          = d3.geoPath(projection2);
     let path         = gp2.context(context1);
