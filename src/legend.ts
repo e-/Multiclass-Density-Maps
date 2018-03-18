@@ -42,7 +42,7 @@ export default function LegendBuilder(id:string, interp:Interpreter) {
 
     let rowHeight = 15;
     let gutter = 5;
-    let labelWidth = 40;
+    let labelWidth = 60;
     let colorMapWidth = 120;
 
     svg

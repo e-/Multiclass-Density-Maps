@@ -29,7 +29,7 @@ bodyno {
 var testMain = new MCS.TestMain(), prefix = "specs/";
 var configuration, interpreter, canvasCount=0;
 
-function render(desc, json, do_break) {
+function render(desc, json, do_break, forcedWidth, forcedHeight) {
     var body = document.getElementsByTagName('body')[0],
         div = document.createElement("div"),
         canvas = document.createElement("canvas"),
@@ -39,6 +39,7 @@ function render(desc, json, do_break) {
     div.classList.add("example");
     canvas.id = id;
     svg.id = id + '-legend';
+
     div.appendChild(document.createTextNode(desc));
     div.appendChild(document.createElement("br"));
     div.appendChild(canvas);
@@ -46,6 +47,12 @@ function render(desc, json, do_break) {
 
 
   body.appendChild(div);
+  if (forcedWidth) {
+    canvas.style.width = forcedWidth;
+  }
+  if (forcedHeight) {
+    canvas.style.height = forcedHeight;
+  }
   if (do_break) {
       var br = document.createElement("br");
       br.classList.add('clearBoth');
@@ -352,7 +359,7 @@ render('Census Data Contour',
           "stroke": 12,
           "blur": 1
     }
-});
+}, true);
 
 render('French Presidential Election',
 {
@@ -388,10 +395,13 @@ render('French Presidential Election',
           "mix": "none"
     },
     "rescale": {
-        "type": "log"
+        "type": "sqrt"
     },
-    "contour": { "stroke": 12 }
-});
+    "contour": {
+      "blur": 16,
+      "stroke": 24
+    }
+}, true, "600px", "500px");
 
 </script>
     </body>

@@ -22,10 +22,10 @@ export function pixelTiling (width:number, height:number) {
 export function topojsonTiling(width:number,      height:number, projection0:string,
                                wholetopojson:any, feature:any):Tile[] {
   let tiles:Tile[] = [];
-  console.log("topojsonTiling "+projection0);
+  //console.log("topojsonTiling "+projection0);
 
   let proj = d3.geoEquirectangular();
-  if (projection0=="epsg:3857") proj = d3.geoMercator();
+  if (projection0=="epsg:3857" || projection0=="Mercator") proj = d3.geoMercator();
 
   let allfeatures:any = topo.feature(wholetopojson, feature);
   let projection      = Object.create(proj).fitSize([width, height], allfeatures);
@@ -46,7 +46,7 @@ export function topojsonTiling(width:number,      height:number, projection0:str
 
     // a new projection for that shape. Normally just a translate from projection
     let proji = d3.geoEquirectangular();
-    if (projection0=="epsg:3857") proj = d3.geoMercator();
+    if (projection0=="epsg:3857"|| projection0=="Mercator") proji = d3.geoMercator();
     let projection2  = proji.fitSize([canvas1.width, canvas1.height], onefeature);
     let gp2          = d3.geoPath(projection2);
     let path         = gp2.context(context1);
