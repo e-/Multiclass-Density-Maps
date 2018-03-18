@@ -427,6 +427,7 @@ export class TestMain {
         }).then((config:Parser.Configuration) => {
             util.get("data/us.json").then(result => {
                 let topous = JSON.parse(result);
+                topous.objects['states'].geometries.splice(47, 4);
 
                 this.figure1a (config, topous);
                 this.figure1b (config, topous);

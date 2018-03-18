@@ -86,7 +86,7 @@ render('Log Color Scale',
            }
        });
 
-render('EquiDepth Color Scale',
+render('EquiDepth Color Scale (level=3, three colors should be shown)',
        {
            "description": "multivariate normal data",
            "data": {"url": "mn_data.json"},
@@ -95,11 +95,12 @@ render('EquiDepth Color Scale',
                "mixing": "additive"
            },
            "rescale": {
-               "type": "equidepth"
+               "type": "equidepth",
+               "level": 3
            }
        });
 
-render('EquiDepth Color Scale Small Multiples',
+render('EquiDepth Color Scale Small Multiples (level=4)',
        {
            "description": "multivariate normal data",
            "data": {"url": "mn_data.json"},
@@ -107,7 +108,8 @@ render('EquiDepth Color Scale Small Multiples',
                "mix": "separate" //, select: 1
            },
            "rescale": {
-               "type": "equidepth"
+               "type": "equidepth",
+               "level": 4
            }
        }, true);
 
@@ -157,7 +159,7 @@ render('EquiDepth Color Scale triangles',
                "size": 8
            },
            "rescale": {
-               "type": "linear"
+               "type": "equidepth"
            }
        }, true);
 
@@ -188,6 +190,9 @@ render('Census Data',
     },
     "rescale": {
         "type": "log"
+    },
+    "legend": {
+        "labelWidth": 60
     }
 });
 
@@ -219,6 +224,9 @@ render('Census Data Smoothed',
     },
     "rescale": {
         "type": "log"
+    },
+    "legend": {
+        "labelWidth": 60
     }
 }, true);
 
@@ -236,6 +244,22 @@ render('Voronoi Tiling',
                "size": 4
            }
        });
+
+
+render('Voronoi Tiling (Multicative)',{
+    "description": "multivariate normal data",
+    "data": {"url": "mn_data.json"},
+    "smooth": {},
+    "rebin": {
+        "type": "voronoi",
+        "size": 32,
+        "stroke": "black"
+    },
+    "compose": {
+        "mix": "blend",
+        "mixing": "multicative"
+    }
+});
 
 render('Voronoi Tiling + Hatching',
        {
@@ -276,12 +300,14 @@ render('Census Data Random Weaving',
     "rebin": {
           "type": "topojson",
           "url": "us.json",
-          /*"feature": "states",
-          "minfeature": 0,
-          "maxfeature": 49,*/
+          "feature": "states",
            "feature": "counties",
           /*"minfeature": 0,
           "maxfeature": 3109,*/
+        //  "maxfeature": 49,
+        //    "feature": "counties",
+        //     "minfeature": 0,
+        //   "maxfeature": 3109,
           "stroke": "rgba(0,0,0,0.25)"
     },
     "compose": {

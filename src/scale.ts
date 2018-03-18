@@ -53,6 +53,7 @@ export class LogScale implements ScaleTrait {
     }
 
     map(value:number) {
+        if(value === 0) return NaN;
         return this.internalScale.map(Math.log(value) / this.logBase);
     }
 
@@ -106,11 +107,21 @@ export class EquiDepthScale implements ScaleTrait {
 
     computeBounds() {
         this.digest.compress();
-        let n = this.level-1;
+        let n = this.level; //-1;
         this.bounds = this.digest.percentile(arange(n).map(i => ((i+1)/ n)));
     }
 
-    map(value:number) { 
+    getBounds() {
+        if (this.bounds.length==0) {
+            this.computeBounds();
+        }
+        return this.bounds;
+    }
+
+    map(value:number) {
+        if(value < this.domain[0] || value > this.domain[1])
+            return NaN;
+
         // linear search is faster than binary search for that simple case
         // https://hannes.muehleisen.org/damon2017-simd-imprints.pdf
         let min = this.range[0];
@@ -118,29 +129,25 @@ export class EquiDepthScale implements ScaleTrait {
         if (value == 0) return min; // shortcut
 
         let n   = this.level-1,
-            w   = this.range[1] - min,
-            max = this.bounds[n];
+            w   = this.range[1] - min;
 
-        if (this.bounds.length==0) {
-            this.computeBounds();
-        }
-
+        this.getBounds();
         for(let i = 0; i < n; i++)
-            if (value < this.bounds[i]) return min+w*i/n;
-        return min+w;
+            if (value < this.bounds[i]) return min + w / n * i;
+
+        return min + w;
     }
 
     invmap(value:number) {
         if (value <= this.domain[0]) return this.range[0];
         if (value >= this.domain[1]) return this.range[1];
 
-        if (this.bounds.length==0) {
-            this.computeBounds();
-        }
+        this.getBounds();
 
         let v = (value - this.domain[0]) * (this.level=1) / (this.domain[1] - this.domain[0]),
             i = Math.floor(v),
             r = v-i;
+
         return this.bounds[i]*(1-r) + this.bounds[i+1]*r;
     }
 }
@@ -151,10 +158,11 @@ export interface ColorScaleTrait {
 
 export class ColorScale implements ColorScaleTrait {
     // An interpolator maps a domain value to [0, 1]
-    constructor(public colorRange:[Color, Color], public interpolator:ScaleTrait) {
+    constructor(public colorRange:[Color, Color], public interpolator:ScaleTrait, public outOfRangeColor?:Color) {
     }
 
     map(value:number) {
+        if(isNaN(value) && !this.outOfRangeColor) return this.outOfRangeColor!;
         return Color.interpolate(this.colorRange[0], this.colorRange[1], this.interpolator.map(value));
     }
 }

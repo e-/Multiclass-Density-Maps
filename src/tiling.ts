@@ -27,9 +27,13 @@ export function topojsonTiling(width:number, height:number,
                                longitudes?:[number,number],
                                debug:boolean=false):Tile[] {  
   let tiles:Tile[] = [];
+  console.log("topojsonTiling "+projectionName);
 
+  let proj = d3.geoEquirectangular();
+  if (projectionName=="epsg:3857") proj = d3.geoMercator();
   let allfeatures:any = topo.feature(wholetopojson, feature);
-  let projection      = d3.geoMercator();
+  let projection      = Object.create(proj).fitSize([width, height], allfeatures);
+
   var clipped = 0;
   if (debug) console.log("debug");
 

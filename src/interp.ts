@@ -34,7 +34,7 @@ export default class Interpreter {
     public colors:Color[] = Color.Category10;
     public labels?:string[];
     public rebin: any;
-    public rescale:"none"|"linear"|"log"|"pow"|"sqrt"|"cbrt"|"equidepth" = "none";
+    public rescale:Parser.RescaleSpec;
     public compose:Parser.ComposeSpec;
     public composer:(buffers:DerivedBuffer[], values:number[])=>Color = Composer.none;
     public masks:Mask[] = [];
@@ -42,6 +42,8 @@ export default class Interpreter {
     public contour:Parser.ContourSpec;
     public blur:number=0;
     public geo:Parser.GeoSpec;
+    public legend:Parser.LegendSpec | false;
+    public scale:Scale.ScaleTrait = new Scale.LinearScale([0, 1], [0, 1]);
 
     constructor(public configuration:Parser.Configuration) {
         if (! configuration.validate())
@@ -69,6 +71,8 @@ export default class Interpreter {
             this.compose = configuration.compose;
         if (configuration.rescale)
             this.rescale = configuration.rescale;
+        else
+            this.rescale = new Parser.RescaleSpec();
         if (configuration.blur)
             this.blur = configuration.blur;
         if (configuration.contour === undefined)
@@ -76,6 +80,7 @@ export default class Interpreter {
         else
             this.contour = configuration.contour;
         this.geo = configuration.getGeo();
+        this.legend = configuration.legend;
     }
 
     public interpret(context={}) {
@@ -87,28 +92,27 @@ export default class Interpreter {
         for (let tile of this.tiles) {
             tile.dataValues = tile.aggregate(this.dataBuffers, this.tileAggregation);
         }
-        var scale:Scale.ScaleTrait;
         let maxCount = util.amax(this.tiles.map(tile => util.amax(tile.dataValues)));
         // TODO test if scales are per-buffer or shared, for now, we'll make one per buffer
-        if (this.rescale === "none" || this.rescale === "linear")
-            scale = new Scale.LinearScale([0, maxCount], [0, 1]);
-        else if (this.rescale === "sqrt")
-            scale = new Scale.SquareRootScale([0, maxCount], [0, 1]);
-        else if (this.rescale === "cbrt")
-            scale = new Scale.CubicRootScale([0, maxCount], [0, 1]);
-        else if (this.rescale === "log")
-            scale = new Scale.LogScale([1, maxCount], [0, 1]);
-        else if (this.rescale === "equidepth") {
-            let equidepth = new Scale.EquiDepthScale([1, maxCount], [0, 1]);
+        if (this.rescale.type === "linear")
+            this.scale = new Scale.LinearScale([0, maxCount], [0, 1]);
+        else if (this.rescale.type === "sqrt")
+            this.scale = new Scale.SquareRootScale([0, maxCount], [0, 1]);
+        else if (this.rescale.type === "cbrt")
+            this.scale = new Scale.CubicRootScale([0, maxCount], [0, 1]);
+        else if (this.rescale.type === "log")
+            this.scale = new Scale.LogScale([1, maxCount], [0, 1]);
+        else if (this.rescale.type === "equidepth") {
+            let equidepth = new Scale.EquiDepthScale([1, maxCount], [0, 1], this.rescale.level);
             for (let tile of this.tiles)
                 equidepth.addPoints(tile.dataValues);
             equidepth.computeBounds();
-            scale = equidepth;
+            this.scale = equidepth;
         }
 
         this.derivedBuffers = this.dataBuffers.map((dataBuffer, i) => {
             let derivedBuffer = new DerivedBuffer(dataBuffer);
-            derivedBuffer.colorScale = new Scale.ColorScale([Color.None, this.colors[i]], scale);
+            derivedBuffer.colorScale = new Scale.ColorScale([Color.None, this.colors[i]], this.scale);
             if (this.masks.length > i)
                 derivedBuffer.mask = this.masks[i];
             return derivedBuffer;
@@ -126,8 +130,8 @@ export default class Interpreter {
     private computeRebin(context={}) {
         var tiles = this.tiles;
         if (this.rebin===undefined ||
-            this.rebin.type===undefined
-            || this.rebin.type=="none") {
+            this.rebin.type===undefined ||
+            this.rebin.type=="none") {
             console.log('  Pixel rebin');
             tiles = Tiling.pixelTiling(this.width,
                                         this.height);
@@ -208,8 +212,12 @@ export default class Interpreter {
             this.composer = Composer.mean;
         else if (this.compose.mix === "min")
             this.composer = Composer.min;
-        else if (this.compose.mix === "blend")
-            this.composer = Composer.additiveMix;
+        else if (this.compose.mix === "blend") {
+            if(this.compose.mixing === "multicative")
+                this.composer = Composer.multiplicativeMix;
+            else
+                this.composer = Composer.additiveMix;
+        }
         else if (this.compose.mix === "weavingrandom")
             this.masks = Mask.generateWeavingRandomMasks(this.n,
                                                          this.compose.size||8,

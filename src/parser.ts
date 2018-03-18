@@ -161,12 +161,16 @@ export class ComposeSpec {
     mix: "none"|"min"|"mean"|"max"|"blend"|
           "weavingrandom"|"weavingsquare"|"weavinghex"|"weavingtri"|
           "hatching"|"separate"|"glyph"="mean";
-    mixing: "additive"|"subtractive" = "additive";
+    mixing: "additive"|"subtractive"|"multicative" = "additive";
     size:number = 8;
     proportional:boolean = true;
     select?:number;
     url?:string;
     glyphspec?: any;
+
+    constructor(options?: ComposeSpec) {
+        if(options) Object.assign(this, options);
+    }
 }
 
 export class RebinSpec {
@@ -179,6 +183,19 @@ export class RebinSpec {
     topojson?: any;
     points?: [number, number][];
     stroke?: string; // color
+
+    constructor(options?: RebinSpec) {
+        if(options) Object.assign(this, options);
+    }
+}
+
+export class RescaleSpec {
+    type:"linear"|"log"|"pow"|"sqrt"|"cbrt"|"equidepth" = "linear";
+    level:number = 32; // for equidepth
+
+    constructor(options?: RescaleSpec) {
+        if(options) Object.assign(this, options);
+    }
 }
 
 export class ContourSpec {
@@ -186,6 +203,29 @@ export class ContourSpec {
     fill:number = 0; // percentile over which we fill
     values?:number[]; // percentiles to stroke
     blur:number=2;
+
+    constructor(options?: ContourSpec) {
+        if(options) Object.assign(this, options);
+    }
+}
+
+export class LegendSpec {
+    format:string = ".2s";
+    fontSize:string = "12px";
+    fontFamily:string = "sans-serif";
+
+    rowHeight:number = 15;
+    gutter:number = 5;
+    labelWidth:number = 40;
+    colorMapWidth:number = 120;
+
+    tickFontSize:string = "10px";
+
+    markers:number = 3;
+
+    constructor(options?: LegendSpec) {
+        if(options) Object.assign(this, options);
+    }
 }
 
 export class Configuration {
@@ -196,11 +236,12 @@ export class Configuration {
     reencoding?: ConfigurationReencodingSpec;
     rebin?: RebinSpec;
     compose?: ComposeSpec;
-    rescale: "none"|"linear"|"log"|"pow"|"sqrt"|"cbrt"|"equidepth" = "none";
+    rescale?: RescaleSpec;
     contour?:ContourSpec;
     width: number = -1;
     height: number= -1;
     bufferNames:string[] = [];
+    legend: LegendSpec | false = new LegendSpec();
 
     constructor(public specs:any) {
         if(typeof this.specs === 'string') {
@@ -217,6 +258,7 @@ export class Configuration {
         this.parseCompose();
         this.parseRescale();
         this.parseContour();
+        this.parseLegend();
     }
 
     private parseDescription() {
@@ -238,7 +280,7 @@ export class Configuration {
     }
     private parseContour() {
         if ('contour' in this.specs) {
-            this.contour = this.specs.contour;
+            this.contour = new ContourSpec(this.specs.contour);
         }
     }
     private parseDerivedBuffers() {
@@ -248,16 +290,16 @@ export class Configuration {
     }
     private parseRebin() {
         if (this.specs.rebin)
-            this.rebin = this.specs.rebin;
+            this.rebin = new RebinSpec(this.specs.rebin);
     }
     private parseCompose() {
         if (this.specs.compose)
-            this.compose = this.specs.compose
+            this.compose = new ComposeSpec(this.specs.compose)
     }
 
     private parseRescale() {
         if (this.specs.rescale)
-            this.rescale = this.specs.rescale.type;
+            this.rescale = new RescaleSpec(this.specs.rescale);
     }
 
     public validate():boolean {
@@ -273,7 +315,7 @@ export class Configuration {
             return false;
         let x_enc = data.encoding.x,
             y_enc = data.encoding.y;
-        var x = undefined, y = undefined;
+        let x = undefined, y = undefined;
         if (x_enc) {
             if (x_enc.bin && 'maxbins' in x_enc.bin && x_enc.bin.maxbins)
                 widths.set('maxbins', x_enc.bin.maxbins);
@@ -288,7 +330,7 @@ export class Configuration {
                 y_enc.scale.range instanceof Array && y_enc.scale.range.length > 1)
                 heights.set('range', y_enc.scale.range[1]);
         }
-        var error = '';
+        let error = '';
         this.bufferNames = [];
         data.buffers.forEach((buffer, i) => {
             if (buffer.value)
@@ -383,7 +425,6 @@ export class Configuration {
     }
 
     public getLabels(): string[] | undefined  {
-        let dict = new Map<string,string>();
         if (! this.reencoding
             || ! this.reencoding.label
             || ! this.reencoding.label.scale
@@ -403,6 +444,13 @@ export class Configuration {
 
     public getGeo():GeoSpec {
         return this.data!.dataSpec!.geo;
+    }
+
+    private parseLegend() {
+        if(this.specs.legend === false)
+            this.legend = false;
+        else if(this.specs.legend)
+            this.legend = new LegendSpec(this.specs.legend);
     }
 }
 
