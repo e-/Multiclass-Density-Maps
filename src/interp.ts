@@ -247,6 +247,7 @@ export default class Interpreter {
     }
 
     render(id:string) {
+        let promises = [];
         if (this.compose.mix === "separate") { // small multiples
             this.image = this.derivedBuffers.map((b) => new Image(this.width, this.height));
             for(let tile of this.tiles) {
@@ -286,37 +287,57 @@ export default class Interpreter {
                 this.image[0].render(hatch, tile.center());
             }
         }
+        else if (this.compose.mix === "glyph") {
+            let maxCount = util.amax(this.tiles.map(tile => util.amax(tile.dataValues)));
+            let glyphSpec = this.compose.glyphSpec!;
+
+            if(glyphSpec.template === "bars") {
+                for(let tile of this.tiles) {
+                    if(tile.mask.width < glyphSpec.width
+                        || tile.mask.height < glyphSpec.height) continue;
+
+                    let promise = Composer.bars(this.derivedBuffers, tile.dataValues, {
+                        width: glyphSpec.width,
+                        height: glyphSpec.height,
+                        'y.scale.domain': [1, maxCount],
+                        'y.scale.type': 'sqrt'
+                    }).then((vegaPixels) => {
+                        this.image[0].render(vegaPixels, tile);
+                    })
+
+                    promises.push(promise);
+                }
+            }
+        }
         else
             console.log('No composition');
 
-        let ctx = CanvasRenderer.renderAll(this.image, id, this.compose.select);
-        if (this.contour.stroke > 0) {
-            // Assume all the scales are shared between derived buffers
-            let path       = d3.geoPath(null, ctx),
+        let render = () => {
+            let ctx = CanvasRenderer.renderAll(this.image, id, this.compose.select);
+            if (this.contour.stroke > 0) {
+                // Assume all the scales are shared between derived buffers
+                let path       = d3.geoPath(null, ctx),
                 thresholds = this.derivedBuffers[0].thresholds(this.contour.stroke);
 
-            ctx.strokeStyle = 'black';
+                ctx.strokeStyle = 'black';
 
-            this.derivedBuffers.forEach((derivedBuffer, i) => {
-                let geometries = derivedBuffer.contours(thresholds, this.contour.blur),
+                this.derivedBuffers.forEach((derivedBuffer, i) => {
+                    let geometries = derivedBuffer.contours(thresholds, this.contour.blur),
                     colors = thresholds.map(v => derivedBuffer.colorScale.map(v));
-                geometries.forEach((geo,i) => {
-                    ctx.beginPath();
-                    path(geo);
-                    ctx.strokeStyle = colors[i].css();
-                    ctx.stroke();
+                    geometries.forEach((geo,i) => {
+                        ctx.beginPath();
+                        path(geo);
+                        ctx.strokeStyle = colors[i].css();
+                        ctx.stroke();
+                    });
                 });
-            });
-        }
-        if (this.maskStroke)
-            for(let tile of this.tiles)
-                CanvasRenderer.strokeVectorMask(tile.mask, id, {color: this.maskStroke});
-        // if (this.strokeCanvas) {
-        //     ctx.setTransform(1, 0, 0, 1, 0, 0); // reset
-        //     ctx.strokeStyle = this.backgroundStroke;
-        //     ctx.lineWidth = 2;
-        //     ctx.strokeRect(0, 0, this.width, this.height);
-        // }
+            }
+            if (this.maskStroke)
+                for(let tile of this.tiles)
+                    CanvasRenderer.strokeVectorMask(tile.mask, id, {color: this.maskStroke});
+        };
+       if (promises.length > 0) Promise.all(promises).then(render);
+       else render();
     }
 
     renderLegend(id:string) {

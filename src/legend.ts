@@ -4,21 +4,30 @@ import * as Parser from './parser';
 import Color from './color';
 import Interpreter from './interp';
 import * as Scale from './scale';
+import Composer from './composer';
 
 function translate(x:number, y:number) {
     return `translate(${x},${y})`;
 }
 
 let counter = 0;
-function linearGradient(defs:any, interpolator:Scale.ScaleTrait, db:DerivedBuffer):string {
+// see degree at http://angrytools.com/gradient/
+function linearGradient(defs:any, interpolator:Scale.ScaleTrait,
+    db:DerivedBuffer, degree:number = 0):string {
+
+    let x1 = 0.5 - Math.cos(degree) / 2;
+    let x2 = 0.5 + Math.cos(degree) / 2;
+    let y1 = 0.5 + Math.sin(degree) / 2;
+    let y2 = 0.5 - Math.sin(degree) / 2;
+
     let id = `gradient_${counter++}`;
 
     let lg = defs.append('linearGradient')
         .attr('id', id)
-        .attr('x1', 0)
-        .attr('x2', 1)
-        .attr('y1', 0)
-        .attr('y2', 0)
+        .attr('x1', x1)
+        .attr('x2', x2)
+        .attr('y1', y1)
+        .attr('y2', y2)
 
     lg.append('stop')
         .attr('offset', 0)
@@ -59,10 +68,8 @@ function equiDepthColorMap(defs:any, interpolator:Scale.ScaleTrait, db:DerivedBu
     return id;
 }
 
-export default function LegendBuilder(id:string, interp:Interpreter) {
+function horizontalColormaps(id:string, interp:Interpreter) {
     let derivedBuffers:DerivedBuffer[] = interp.derivedBuffers;
-
-    if(interp.legend === false) return;
     let spec = interp.legend as Parser.LegendSpec;
 
     let svg = d3.select('#' + id)
@@ -177,5 +184,67 @@ export default function LegendBuilder(id:string, interp:Interpreter) {
         .style('stroke-width', 1)
         .style('shape-rendering', 'crispEdges')
         .attr('transform', (d, i) => translate(labelWidth + gutter + colormapScale(d, i), 0))
+}
 
+function multiplicativeCircles(id:string, interp:Interpreter) {
+    let derivedBuffers:DerivedBuffer[] = interp.derivedBuffers;
+    let spec = interp.legend as Parser.LegendSpec;
+
+    let size = spec.size;
+    let svg = d3.select('#' + id)
+        .style('font-family', spec.fontFamily)
+        .style('font-size', spec.fontSize)
+        .attr('width', size)
+        .attr('height', size)
+
+    let defs = svg.append('defs');
+    let g = svg.append('g').attr('transform', translate(0, 0));
+
+    let center = size / 2;
+    let r = size / 6;
+    let theta = Math.PI * 2 / derivedBuffers.length;
+    let ids = derivedBuffers.map((d, i) => {
+        return linearGradient(defs, interp.scale, d, -theta * i - Math.PI / 2);
+    })
+
+    g.selectAll('circle')
+        .data(derivedBuffers)
+        .enter()
+        .append('circle')
+        .attr('r', r)
+        .attr('fill', d => d.color!.css())
+        .attr('cx', (d, i) => center + r * Math.sin(theta * i) / 2)
+        .attr('cy', (d, i) => center - r * Math.cos(theta * i) / 2)
+        .style('fill', (d, i) => `url(#${ids[i]})`)
+        .style('mix-blend-mode', 'multiply');
+
+    g.selectAll('text')
+        .data(derivedBuffers)
+        .enter()
+        .append('text')
+        .text(d => d.originalDataBuffer.name)
+        .attr('text-anchor', 'middle')
+        .attr('dy', '0.5em')
+        .attr('transform', (d, i) => translate(
+            center + r * Math.sin(theta * i) * 2,
+            center - r * Math.cos(theta * i) * 2
+        ));
+
+
+        // .attr('cx', (d, i) => )
+        // .attr('cy', (d, i) => )
+        // .style('opacity', 0.9)
+        // .style('mix-blend-mode', 'multiply');
+
+}
+
+export default function LegendBuilder(id:string, interp:Interpreter) {
+    if(interp.legend === false) return;
+
+    if(interp.composer === Composer.multiplicativeMix) {
+        multiplicativeCircles(id, interp);
+    }
+    else {
+        horizontalColormaps(id, interp);
+    }
 }

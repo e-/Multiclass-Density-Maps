@@ -3,7 +3,7 @@
     <head>
         <title>Scalable Rendering of Multiclass Density Maps with Parser</title>
 <style>
-canvas {
+.example canvas {
   border: 1px solid grey;
 }
 bodyno {
@@ -54,7 +54,6 @@ function render(desc, json, do_break) {
   var conf = testMain.create_configuration(json);
   conf.load('data/').then(function(conf) {
       interp = testMain.create_interp(conf);
-      console.log('interp w='+conf.width+' h='+conf.height);
       interp.setup(id);
       interpreter = interp;
       interp.interpret();
@@ -245,7 +244,6 @@ render('Voronoi Tiling',
            }
        });
 
-
 render('Voronoi Tiling (Multicative)',{
     "description": "multivariate normal data",
     "data": {"url": "mn_data.json"},
@@ -275,6 +273,25 @@ render('Voronoi Tiling + Hatching',
                "size": 8
            }
        }, true);
+
+render('Voronoi Tiling (glyph - bars)',{
+    "description": "multivariate normal data",
+    "data": {"url": "mn_data.json"},
+    "smooth": {},
+    "rebin": {
+        "type": "voronoi",
+        "size": 32,
+        "stroke": "black"
+    },
+    "compose": {
+        "mix": "glyph",
+        "glyphSpec": {
+            "template": "bars",
+            "width": 20,
+            "height": 20
+        }
+    }
+});
 
 render('Census Data Random Weaving',
 {
@@ -316,6 +333,9 @@ render('Census Data Random Weaving',
     },
     "rescale": {
         "type": "log"
+    },
+    "legend": {
+        "labelWidth": 60
     }
 });
 
@@ -361,6 +381,9 @@ render('Census Data Contour',
     "contour": {
           "stroke": 12,
           "blur": 1
+    },
+    "legend": {
+        "labelWidth": 60
     }
 });
 

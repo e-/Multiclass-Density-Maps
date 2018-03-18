@@ -93,10 +93,13 @@ export default class Composer {
             'y.scale.type'?: string
         } = {'y.scale.domain': [0, 1], 'y.scale.type': 'linear'}
     ) {
+        let data = buffers.map((buffer, i) => {
+            return {name: buffer.originalDataBuffer.name, value: values[i]}}
+        );
         let spec = {
             "$schema": "https://vega.github.io/schema/vega-lite/v2.0.json",
             data: {
-                values: buffers.map((buffer, i) => {return {name: buffer.originalDataBuffer.name, value: values[i]}})
+                values: data
             },
             mark: "bar",
             encoding: {
@@ -105,13 +108,9 @@ export default class Composer {
                     field: "name",
                     type: "ordinal",
                     "scale": {
-                      "domain": ["w","h","a","o","b"],
-                      "range": [Color.Category10[0].css(),
-                                Color.Category10[1].css(),
-                                Color.Category10[2].css(),
-                                Color.Category10[3].css(),
-                                Color.Category10[4].css()]
-                    },
+                      "domain": data.map(d => d.name),
+                      "range": data.map((d, i) => buffers[i].color!.css())
+                    }
                 },
                 y: {
                     field: "value",
@@ -130,14 +129,14 @@ export default class Composer {
                 axis: {
                     ticks: false,
                     labels: false,
-                    //domain: false,
+                    domain: false,
                     grid: false,
                     tickExtra: false,
                     gridColor: null
                 }
             },
             width: options.width || 30,
-            height: options.height || 30,
+            height: options.height ? options.height : 30,
             padding: 0
         };
 
