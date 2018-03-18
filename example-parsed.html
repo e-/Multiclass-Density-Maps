@@ -90,10 +90,6 @@ render('EquiDepth Color Scale',
        {
            "description": "multivariate normal data",
            "data": {"url": "mn_data.json"},
-           "smooth": {},
-           "rebin": {
-           },
-
            "compose": {
                "mix": "max",
                "mixing": "additive"
@@ -107,10 +103,6 @@ render('EquiDepth Color Scale Small Multiples',
        {
            "description": "multivariate normal data",
            "data": {"url": "mn_data.json"},
-           "smooth": {},
-           "rebin": {
-           },
-
            "compose": {
                "mix": "separate" //, select: 1
            },
@@ -147,10 +139,6 @@ render('Linear Color Scale hex',
        {
            "description": "multivariate normal data",
            "data": {"url": "mn_data.json"},
-           "smooth": {},
-           "rebin": {
-           },
-
            "compose": {
                "mix": "weavinghex",
                "size": 8
@@ -164,10 +152,6 @@ render('EquiDepth Color Scale triangles',
        {
            "description": "multivariate normal data",
            "data": {"url": "mn_data.json"},
-           "smooth": {},
-           "rebin": {
-           },
-
            "compose": {
                "mix": "weavingtri",
                "size": 8
@@ -296,8 +280,8 @@ render('Census Data Random Weaving',
           "minfeature": 0,
           "maxfeature": 49,*/
            "feature": "counties",
-            "minfeature": 0,
-          "maxfeature": 3109,
+          /*"minfeature": 0,
+          "maxfeature": 3109,*/
           "stroke": "rgba(0,0,0,0.25)"
     },
     "compose": {
@@ -337,8 +321,8 @@ render('Census Data Contour',
             "minfeature": 0,
           "maxfeature": 3100,*/
           "feature": "states",
-          "minfeature": 0,
-          "maxfeature": 49,
+          /*"minfeature": 0,
+          "maxfeature": 49,*/
           "stroke": "grey"
 
     },
@@ -380,8 +364,6 @@ render('French Presidential Election',
           "type": "topojson",
           "url": "franceD.json",
           "feature": "poly",
-          "minfeature": -1,
-          "maxfeature": -1,
           "stroke": "grey"
     },
     "compose": {

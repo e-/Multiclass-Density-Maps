@@ -46,20 +46,26 @@ export interface BufferSpec {
     range?: [number, number]
 }
 
-export interface ProjectionSpec {
+interface ProjectionSpec {
     type: string;
+}
+
+export class GeoSpec {
+    constructor(public projection:string="mercator",
+                public latitudes?:[number,number],
+                public longitudes?:[number,number]) { }
 }
 
 export class DataSpec {
     public source?: SourceSpec;
-    public projection?: ProjectionSpec;
+    public geo = new GeoSpec();
     public encoding?: EncodingSpec;
     public buffers?: BufferSpec[];
 
     constructor(public specs:any) {
         this.parseSource();
-        this.parseProjection();
         this.parseEncoding();
+        this.parseProjection();
         this.parseBuffers();
     }
 
@@ -68,8 +74,21 @@ export class DataSpec {
             this.source = <SourceSpec>this.specs.source;
     }
     parseProjection() {
-        if ('projection' in this.specs)
-            this.projection = <ProjectionSpec>this.specs.projection;
+        let geo = this.geo;
+        if ('projection' in this.specs) {
+            let projection = <ProjectionSpec>this.specs.projection;
+            if (projection.type)
+                geo.projection = projection.type;
+            let encoding = this.encoding!;
+            if (encoding.x != undefined&&
+                encoding.x.scale  != undefined &&
+                encoding.x.scale.domain != undefined)
+                geo.latitudes = encoding.x.scale.domain;
+            if (encoding.y != undefined &&
+                encoding.y.scale  != undefined &&
+                encoding.y.scale.domain != undefined)
+                geo.longitudes = encoding.y.scale.domain;
+        }
     }
     parseEncoding() {
         this.encoding = <EncodingSpec>this.specs.encoding;
@@ -382,6 +401,9 @@ export class Configuration {
         return this.reencoding.color.scale.range;
     }
 
+    public getGeo():GeoSpec {
+        return this.data!.dataSpec!.geo;
+    }
 }
 
 export function parse(json: any): Configuration {
