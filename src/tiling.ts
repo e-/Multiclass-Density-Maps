@@ -6,6 +6,7 @@ import * as D3Geo from 'd3-geo';
 import * as util from './util';
 import * as topo from 'topojson';
 import * as rn from 'random-seed';
+import proj4 from 'proj4';
 
 export function pixelTiling (width:number, height:number) {
   let tiles:Tile[] = [];
@@ -18,6 +19,8 @@ export function pixelTiling (width:number, height:number) {
   return tiles;
 }
 
+function degreesToRadians(degrees:number) { return degrees * Math.PI / 180; }
+function radiansToDegrees(radians:number) { return radians * 180 / Math.PI; }
 
 export function topojsonTiling(width:number, height:number,
                                wholetopojson:any,
@@ -29,7 +32,21 @@ export function topojsonTiling(width:number, height:number,
   let tiles:Tile[] = [];
 
   let proj = d3.geoEquirectangular();
-  if (projectionName=="epsg:3857" || projectionName=="Mercator") proj = d3.geoMercator();
+  if (projectionName == "Equirectangular"){} // pass
+  else if (projectionName=="epsg:3857" || projectionName=="Mercator")
+    proj = d3.geoMercator();
+  else {
+    console.log('Searching for projection '+projectionName);
+    let p4 = proj4(projectionName);
+    function project(lambda:number, phi:number) {
+      return p4.forward([lambda, phi].map(radiansToDegrees));
+    }
+
+    // project.invert = (x:number, y:number) =>
+    //      p4.inverse([x, y]).map(degreesToRadians);
+
+    proj = d3.geoProjection(<any>project);
+  }
 
   let allfeatures:any = topo.feature(wholetopojson, feature);
   let projection      = Object.create(proj).fitSize([width, height], allfeatures);

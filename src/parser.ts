@@ -53,7 +53,8 @@ interface ProjectionSpec {
 export class GeoSpec {
     constructor(public projection:string="mercator",
                 public latitudes?:[number,number],
-                public longitudes?:[number,number]) { }
+                public longitudes?:[number,number],
+                public proj4?:string) { }
 }
 
 export class DataSpec {
@@ -461,7 +462,12 @@ export class Configuration {
     }
 
     public getGeo():GeoSpec {
-        return this.data!.dataSpec!.geo;
+        let geo = this.data!.dataSpec!.geo;
+
+        if (this.specs.rebin != undefined &&
+            this.specs.rebin.proj4 != undefined)
+            geo.proj4 = this.specs.rebin.proj4;
+        return geo;
     }
 
     private parseLegend() {

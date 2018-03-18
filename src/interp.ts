@@ -175,10 +175,11 @@ export default class Interpreter {
             // if (this.rebin.minfeature != undefined && this.rebin.minfeature>0)
             //   topojson.objects[feature].geometries.splice(0, this.rebin.minfeature);
 
+            let projection = this.geo.proj4 || this.geo.projection;
             tiles = Tiling.topojsonTiling(this.width, this.height,
                                           topojson,
                                           topojson.objects[feature],
-                                          this.geo.projection,
+                                          projection,
                                           this.geo.latitudes, this.geo.longitudes,
                                           this.rebin.minfeature==-1);
         }
