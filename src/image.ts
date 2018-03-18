@@ -112,7 +112,6 @@ export default class Image {
 
         let data = imageData.data;
 
-        console.log(imageData);
         for(let r = 0; r < height; r++) {
             for(let c = 0; c < width; c++) {
                 let tr = r + topLeft.y; // target row

@@ -215,6 +215,9 @@ export class LegendSpec {
 
     markers:number = 3;
 
+    // multiplicative circles
+    size:number = 150;
+
     constructor(options?: LegendSpec) {
         if(options) Object.assign(this, options);
     }

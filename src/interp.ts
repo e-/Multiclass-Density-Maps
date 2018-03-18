@@ -273,7 +273,6 @@ export default class Interpreter {
                         'y.scale.domain': [1, maxCount],
                         'y.scale.type': 'sqrt'
                     }).then((vegaPixels) => {
-                        console.log(vegaPixels);
                         this.image.render(vegaPixels, tile);
                     })
 
