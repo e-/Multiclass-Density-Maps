@@ -129,7 +129,7 @@ export default class Interpreter {
         if (this.rebin===undefined ||
             this.rebin.type===undefined
             || this.rebin.type=="none") {
-            console.log('No rebin');
+            console.log('  Pixel rebin');
             tiles = Tiling.pixelTiling(this.width,
                                         this.height);
         }
@@ -270,7 +270,7 @@ export default class Interpreter {
             }
         }
         else
-            console.log('ERROR:No valid composition');
+            console.log('No composition');
 
         let ctx = CanvasRenderer.renderAll(this.image, id, this.compose.select);
         if (this.contour.stroke > 0) {
