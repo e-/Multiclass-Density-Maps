@@ -204,6 +204,9 @@ render('Census Data',
     },
     "rescale": {
         "type": "log"
+    },
+    "legend": {
+        "labelWidth": 60
     }
 });
 
@@ -235,6 +238,9 @@ render('Census Data Smoothed',
     },
     "rescale": {
         "type": "log"
+    },
+    "legend": {
+        "labelWidth": 60
     }
 }, true);
 
@@ -252,6 +258,22 @@ render('Voronoi Tiling',
                "size": 4
            }
        });
+
+
+render('Voronoi Tiling (Multicative)',{
+    "description": "multivariate normal data",
+    "data": {"url": "mn_data.json"},
+    "smooth": {},
+    "rebin": {
+        "type": "voronoi",
+        "size": 32,
+        "stroke": "black"
+    },
+    "compose": {
+        "mix": "blend",
+        "mixing": "multicative"
+    }
+});
 
 render('Voronoi Tiling + Hatching',
        {

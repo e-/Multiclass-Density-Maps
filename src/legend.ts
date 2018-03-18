@@ -33,17 +33,20 @@ function linearGradient(defs:any, color1:Color, color2:Color):string {
 export default function LegendBuilder(id:string, interp:Interpreter) {
     let derivedBuffers:DerivedBuffer[] = interp.derivedBuffers;
 
+    if(interp.legend === false) return;
+    let spec = interp.legend as Parser.LegendSpec;
+
     let svg = d3.select('#' + id)
-        .style('font-family', 'sans-serif')
-        .style('font-size', '12px')
+        .style('font-family', spec.fontFamily)
+        .style('font-size', spec.fontSize)
 
     let defs = svg.append('defs');
     let g = svg.append('g').attr('transform', translate(0, 0));
 
-    let rowHeight = 15;
-    let gutter = 5;
-    let labelWidth = 40;
-    let colorMapWidth = 120;
+    let rowHeight = spec.rowHeight;
+    let gutter = spec.gutter;
+    let labelWidth = spec.labelWidth;
+    let colorMapWidth = spec.colorMapWidth;
 
     svg
         .attr('width', labelWidth + colorMapWidth + gutter)
@@ -57,7 +60,7 @@ export default function LegendBuilder(id:string, interp:Interpreter) {
         .append('g')
         .attr('transform', (d, i) => translate(0, (rowHeight + gutter) * i))
 
-    var labels = interp.labels==undefined ? interp.bufferNames : interp.labels;
+    let labels = interp.labels == undefined ? interp.bufferNames : interp.labels;
     enter.append('text')
         .text((d, i) => labels[i])
         .attr('transform', translate(labelWidth, 0))
@@ -109,7 +112,7 @@ export default function LegendBuilder(id:string, interp:Interpreter) {
         .attr('text-anchor', (d, i) => ['start', 'end'][i])
         .attr('transform', (d, i) => translate(scale(d), 0))
         .attr('dy', '.5em')
-        .text(d => d3.format(',.1f')(d))
+        .text(d => d3.format(spec.format)(d))
 
 
     let n = 8;
