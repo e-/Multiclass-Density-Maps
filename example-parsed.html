@@ -54,7 +54,6 @@ function render(desc, json, do_break) {
   var conf = testMain.create_configuration(json);
   conf.load('data/').then(function(conf) {
       interp = testMain.create_interp(conf);
-      console.log('interp w='+conf.width+' h='+conf.height);
       interp.setup(id);
       interpreter = interp;
       interp.interpret();

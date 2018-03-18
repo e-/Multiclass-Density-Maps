@@ -67,7 +67,10 @@ export function arange(start:number, end?:number, step?:number): number[] {
 let cache:any = {};
 
 export function get(url: string): Promise<any> {
-    if(cache[url]) return Promise.resolve(cache[url]);
+    if(cache[url]) {
+        return Promise.resolve(cache[url]);
+    }
+
     return new Promise<any>(
         function (resolve, reject) {
             const request = new XMLHttpRequest();
