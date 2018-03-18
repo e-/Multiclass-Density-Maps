@@ -200,6 +200,10 @@ export class LegendSpec {
     labelWidth:number = 40;
     colorMapWidth:number = 120;
 
+    tickFontSize:string = "10px";
+
+    markers:number = 3;
+
     constructor(options?: LegendSpec) {
         if(options) Object.assign(this, options);
     }
@@ -292,7 +296,7 @@ export class Configuration {
             return false;
         let x_enc = data.encoding.x,
             y_enc = data.encoding.y;
-        var x = undefined, y = undefined;
+        let x = undefined, y = undefined;
         if (x_enc) {
             if (x_enc.bin && 'maxbins' in x_enc.bin && x_enc.bin.maxbins)
                 widths.set('maxbins', x_enc.bin.maxbins);
@@ -307,7 +311,7 @@ export class Configuration {
                 y_enc.scale.range instanceof Array && y_enc.scale.range.length > 1)
                 heights.set('range', y_enc.scale.range[1]);
         }
-        var error = '';
+        let error = '';
         this.bufferNames = [];
         data.buffers.forEach((buffer, i) => {
             if (buffer.value)

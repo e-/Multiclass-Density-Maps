@@ -200,10 +200,10 @@ export default class Interpreter {
         else if (this.rescale!.type === "cbrt")
             this.scale = new Scale.CubicRootScale([0, maxCount], [0, 1]);
         else if (this.rescale!.type === "log")
-            this.scale = new Scale.LogScale([1, maxCount], [0.2, 1], 10, 0);
+            this.scale = new Scale.LogScale([1, maxCount], [0, 1], 10);
         else if (this.rescale!.type === "equidepth") {
             // set the min range to 0.1, allowing users to distinguish low values from the background
-            let equidepth = new Scale.EquiDepthScale([1, maxCount], [0.2, 1], this.rescale!.level, 0);
+            let equidepth = new Scale.EquiDepthScale([1, maxCount], [0, 1], this.rescale!.level);
 
             for (let tile of this.tiles)
                 equidepth.addPoints(tile.dataValues);
@@ -213,7 +213,7 @@ export default class Interpreter {
 
         this.derivedBuffers = this.dataBuffers.map((dataBuffer, i) => {
             let derivedBuffer = new DerivedBuffer(dataBuffer);
-            derivedBuffer.colorScale = new Scale.ColorScale([Color.White, this.colors[i]], this.scale);
+            derivedBuffer.colorScale = new Scale.ColorScale([Color.White, this.colors[i]], this.scale, Color.Transparent);
             if (this.masks.length > i)
                 derivedBuffer.mask = this.masks[i];
             return derivedBuffer;

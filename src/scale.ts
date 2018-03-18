@@ -47,17 +47,13 @@ export class LogScale implements ScaleTrait {
     logBase: number;
     internalScale: LinearScale;
 
-    constructor(public domain: [number, number], public range: [number, number], public base:number = Math.E,
-        public outOfRangeValue?:number
-    ) {
+    constructor(public domain: [number, number], public range: [number, number], public base:number = Math.E) {
         this.logBase = Math.log(base);
         this.internalScale = new LinearScale([Math.log(domain[0]) / this.logBase, Math.log(domain[1]) / this.logBase], range);
     }
 
     map(value:number) {
-        if(this.outOfRangeValue !== undefined &&
-            (value < this.domain[0] || value > this.domain[1]))
-                return this.outOfRangeValue;
+        if(value === 0) return NaN;
         return this.internalScale.map(Math.log(value) / this.logBase);
     }
 
@@ -98,7 +94,7 @@ export class EquiDepthScale implements ScaleTrait {
     digest:Digest;
     bounds:number[] = [];
 
-    constructor(public domain: number[], public range: [number, number], public level:number = 32, public outOfRangeValue?:number) {
+    constructor(public domain: number[], public range: [number, number], public level:number = 32) {
         this.digest = new Digest();
         this.addPoints(domain); // initialize with something
     }
@@ -116,9 +112,8 @@ export class EquiDepthScale implements ScaleTrait {
     }
 
     map(value:number) {
-        if(this.outOfRangeValue !== undefined &&
-            (value < this.domain[0] || value > this.domain[1]))
-                return this.outOfRangeValue;
+        if(value < this.domain[0] || value > this.domain[1])
+            return NaN;
 
         // linear search is faster than binary search for that simple case
         // https://hannes.muehleisen.org/damon2017-simd-imprints.pdf
@@ -161,10 +156,11 @@ export interface ColorScaleTrait {
 
 export class ColorScale implements ColorScaleTrait {
     // An interpolator maps a domain value to [0, 1]
-    constructor(public colorRange:[Color, Color], public interpolator:ScaleTrait) {
+    constructor(public colorRange:[Color, Color], public interpolator:ScaleTrait, public outOfRangeColor?:Color) {
     }
 
     map(value:number) {
+        if(isNaN(value) && !this.outOfRangeColor) return this.outOfRangeColor!;
         return Color.interpolate(this.colorRange[0], this.colorRange[1], this.interpolator.map(value));
     }
 }

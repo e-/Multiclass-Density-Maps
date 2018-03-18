@@ -43,22 +43,16 @@ function equiDepthColorMap(defs:any, interpolator:Scale.ScaleTrait, db:DerivedBu
         .attr('y2', 0)
 
     let n = scale.level;
-    let range = scale.range;
-    let min = range[0];
-    let w = (range[1] - range[0]) / n;
 
-    d3.range(n).forEach(i => {
-        let value:number;
-        if(i === n - 1) value = scale.bounds[n - 2];
-        else value = scale.bounds[i] - 1;
-
+    // bounds do not include the last value
+    scale.bounds.concat([scale.bounds[n - 2] + 1]).forEach((value, i) => {
         lg.append('stop')
             .attr('offset', i / n)
-            .style('stop-color', db.colorScale.map(value).css());
+            .style('stop-color', db.colorScale.map(value - 1).css());
 
         lg.append('stop')
             .attr('offset', (i + 1) / n)
-            .style('stop-color', db.colorScale.map(value).css());
+            .style('stop-color', db.colorScale.map(value - 1).css());
     });
 
     return id;
@@ -104,18 +98,40 @@ export default function LegendBuilder(id:string, interp:Interpreter) {
 
     let gradientFunc:(defs:any, interpolator:Scale.ScaleTrait, db:DerivedBuffer) => string;
 
+    // domain numbers will be shown
+    let tickValues:number[] = [];
+
+    // markers (vertical bars) will be shown
+    let markerValues:number[] = [];
+
+    let colormapScale = (v:number, i:number) => interp.scale.map(v) * colorMapWidth;
+
     // scales that show continuous color maps
     if(!interp.rescale || ["linear", "pow", "sqrt", "cbrt", "log"].indexOf(interp.rescale!.type) >= 0)
     {
         gradientFunc = linearGradient;
+        let n = spec.markers;
+
+        tickValues = [derivedBuffers[0].colorScale.interpolator.domain[0],
+                    derivedBuffers[0].colorScale.interpolator.domain[1]];
+
+        markerValues = d3.range(n).map(i => tickValues[0] + (tickValues[1] - tickValues[0]) * (i + 1) / (n + 1));
     }
     else if(interp.rescale!.type === "equidepth") { // discrete such as equidepth
         gradientFunc = equiDepthColorMap;
+
+        tickValues = [derivedBuffers[0].colorScale.interpolator.domain[0]]
+            .concat((interp.scale as Scale.EquiDepthScale).bounds);
+
+        colormapScale = (v, i) => colorMapWidth / (tickValues.length - 1) * i;
+        markerValues = [];
     }
 
     let ids = derivedBuffers.map(db => {
         return gradientFunc(defs, interp.scale, db);
     })
+
+    // domain value to width
 
     enter
         .append('rect')
@@ -125,9 +141,6 @@ export default function LegendBuilder(id:string, interp:Interpreter) {
         .attr('stroke', '#ddd')
         .style('fill', (d, i) => `url(#${ids[i]})`)
 
-    let tickDomain = [derivedBuffers[0].colorScale.interpolator.domain[0],
-                    derivedBuffers[0].colorScale.interpolator.domain[1]];
-
     let tickG = g
         .append('g')
         .attr('class', 'ticks')
@@ -135,36 +148,33 @@ export default function LegendBuilder(id:string, interp:Interpreter) {
 
     let ticks = tickG
         .selectAll('text.tick')
-        .data(tickDomain)
+        .data(tickValues)
 
-    // scale
-    //     .domain(derivedBuffers[0].colorScale.interpolator.domain)
-    //     .range([0, colorMapWidth]);
+    ticks.enter()
+        .append('text')
+        .attr('class', 'tick')
+        .attr('text-anchor', (d, i) => {
+            if(i === 0) return 'start';
+            else if(i === tickValues.length - 1) return 'end';
+            return 'middle';
+        })
+        .attr('transform', (d, i) => translate(colormapScale(d, i), 0))
+        .style('font-size', spec.tickFontSize)
+        .attr('dy', '.5em')
+        .text(d => d3.format(spec.format)(d))
 
-    // ticks.enter()
-    //     .append('text')
-    //     .attr('class', 'tick')
-    //     .attr('text-anchor', (d, i) => ['start', 'end'][i])
-    //     .attr('transform', (d, i) => translate(scale(d), 0))
-    //     .attr('dy', '.5em')
-    //     .text(d => d3.format(spec.format)(d))
-
-
-    // let n = 8;
-    // let tickData = d3.range(n).map(i => tickDomain[0] + (tickDomain[1] - tickDomain[0]) * (i + 1) / n);
-
-    // enter
-    //     .selectAll('line')
-    //     .data(tickData)
-    //     .enter()
-    //     .append('line')
-    //     .attr('x1', 0)
-    //     .attr('x2', 0)
-    //     .attr('y1', 0)
-    //     .attr('y2', rowHeight)
-    //     .style('stroke', '#ddd')
-    //     .style('stroke-width', 1)
-    //     .style('shape-rendering', 'crispEdges')
-    //     .attr('transform', (d, i) => translate(labelWidth + gutter + scale(d), 0))
+    enter
+        .selectAll('line')
+        .data(markerValues)
+        .enter()
+        .append('line')
+        .attr('x1', 0)
+        .attr('x2', 0)
+        .attr('y1', 0)
+        .attr('y2', rowHeight)
+        .style('stroke', '#ddd')
+        .style('stroke-width', 1)
+        .style('shape-rendering', 'crispEdges')
+        .attr('transform', (d, i) => translate(labelWidth + gutter + colormapScale(d, i), 0))
 
 }

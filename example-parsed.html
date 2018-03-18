@@ -103,7 +103,7 @@ render('EquiDepth Color Scale (level=3, three colors should be shown)',
            }
        });
 
-render('EquiDepth Color Scale Small Multiples (level=3)',
+render('EquiDepth Color Scale Small Multiples (level=4)',
        {
            "description": "multivariate normal data",
            "data": {"url": "mn_data.json"},
@@ -115,7 +115,7 @@ render('EquiDepth Color Scale Small Multiples (level=3)',
            },
            "rescale": {
                "type": "equidepth",
-               "level": 3
+               "level": 4
            }
        }, true);
 
@@ -173,7 +173,7 @@ render('EquiDepth Color Scale triangles',
                "size": 8
            },
            "rescale": {
-               "type": "linear"
+               "type": "equidepth"
            }
        }, true);
 

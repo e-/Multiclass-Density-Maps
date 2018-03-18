@@ -62,7 +62,7 @@ export default class Color {
 
         return hex;
     }
-    
+
     css() {
         let a = this.a;
         if (a == 0)
@@ -128,6 +128,8 @@ export default class Color {
     static Gray = new Color(127 / 255, 127 / 255, 127 / 255, 1);
     static Yellow = new Color(188 / 255, 189 / 255, 34 / 255, 1);
     static Skyblue = new Color(23 / 255, 190 / 255, 207 / 255, 1);
+    static Transparent = new Color(0, 0, 0, 0);
+
     static ColorByName:any = {
         "None": Color.None,
         "white": Color.White,
