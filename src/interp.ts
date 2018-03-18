@@ -87,7 +87,7 @@ export default class Interpreter {
     }
 
     private computeRebin(context={}) {
-        var tiles = this.tiles;
+        let tiles = this.tiles;
         if (!this.rebin || this.rebin.type===undefined || this.rebin.type=="none") {
             console.log('No rebin');
             tiles = Tiling.pixelTiling(this.width,
@@ -182,12 +182,14 @@ export default class Interpreter {
     }
 
     render(id:string) {
-        var useRender2 = false;
+        let useRender2 = false;
         for (let tile of this.tiles) {
             tile.dataValues = tile.aggregate(this.dataBuffers, this.tileAggregation);
         }
-        var scale:Scale.ScaleTrait;
+        let scale:Scale.ScaleTrait;
         let maxCount = util.amax(this.tiles.map(tile => util.amax(tile.dataValues)));
+        let images:Image[] = []; // only used when mix=separate, i.e., small multiples
+
         // TODO test if scales are per-buffer or shared, for now, we'll make one per buffer
         if (this.rescale === "none" || this.rescale === "linear")
             scale = new Scale.LinearScale([0, maxCount], [0, 1]);
@@ -204,7 +206,6 @@ export default class Interpreter {
             equidepth.computeBounds();
             scale = equidepth;
         }
-
 
         this.derivedBuffers = this.dataBuffers.map((dataBuffer, i) => {
             let derivedBuffer = new DerivedBuffer(dataBuffer);
@@ -241,11 +242,32 @@ export default class Interpreter {
                 useRender2 = true;
             }
         }
+        else if (this.compose.mix === "separate") {
+            images = new Array(this.derivedBuffers.length)
+                .fill(0).map(() => new Image(this.width, this.height));
+
+            this.derivedBuffers.forEach((derivedBuffer, i) => {
+                for(let tile of this.tiles) {
+                    let color = Composer.one(derivedBuffer, tile.dataValues[i]);
+                    images[i].render(color, tile);
+                }
+            })
+        }
         else
-            console.log('No valid composition');
-        //CanvasRenderer.render(image, id);
-        let ctx = useRender2 ? CanvasRenderer.render2(this.image, id)
-              : CanvasRenderer.render(this.image, id);
+            console.log('No valid composition for ', this.compose);
+
+        let ctx;
+
+        if(this.compose.mix === "separate") {
+            ctx = CanvasRenderer.renderMultiples(images, id);
+        }
+        else if(useRender2) {
+            ctx = CanvasRenderer.render2(this.image, id)
+        }
+        else {
+            ctx = CanvasRenderer.render(this.image, id)
+        }
+
         if (this.maskStroke)
             for(let tile of this.tiles)
                 CanvasRenderer.strokeVectorMask(tile.mask, id, {color: this.maskStroke});
