@@ -142,7 +142,7 @@ export class ComposeSpec {
     mix: "none"|"min"|"mean"|"max"|"blend"|
           "weavingrandom"|"weavingsquare"|"weavinghex"|"weavingtri"|
           "hatching"|"separate"|"glyph"="mean";
-    mixing: "additive"|"subtractive" = "additive";
+    mixing: "additive"|"subtractive"|"multicative" = "additive";
     size:number = 8;
     proportional:boolean = true;
     select?:number;
@@ -169,6 +169,21 @@ export class ContourSpec {
     blur:number=2;
 }
 
+export class LegendSpec {
+    format:string = ".2s";
+    fontSize:string = "12px";
+    fontFamily:string = "sans-serif";
+
+    rowHeight:number = 15;
+    gutter:number = 5;
+    labelWidth:number = 40;
+    colorMapWidth:number = 120;
+
+    constructor(options?: LegendSpec) {
+        if(options) Object.assign(this, options);
+    }
+}
+
 export class Configuration {
     description?: string;
     background?: string;
@@ -182,6 +197,7 @@ export class Configuration {
     width: number = -1;
     height: number= -1;
     bufferNames:string[] = [];
+    legend: LegendSpec | false = new LegendSpec();
 
     constructor(public specs:any) {
         if(typeof this.specs === 'string') {
@@ -198,6 +214,7 @@ export class Configuration {
         this.parseCompose();
         this.parseRescale();
         this.parseContour();
+        this.parseLegend();
     }
 
     private parseDescription() {
@@ -364,7 +381,6 @@ export class Configuration {
     }
 
     public getLabels(): string[] | undefined  {
-        let dict = new Map<string,string>();
         if (! this.reencoding
             || ! this.reencoding.label
             || ! this.reencoding.label.scale
@@ -382,6 +398,12 @@ export class Configuration {
         return this.reencoding.color.scale.range;
     }
 
+    private parseLegend() {
+        if(this.specs.legend === false)
+            this.legend = false;
+        else if(this.specs.legend)
+            this.legend = new LegendSpec(this.specs.legend);
+    }
 }
 
 export function parse(json: any): Configuration {

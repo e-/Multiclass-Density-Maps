@@ -13,45 +13,41 @@ import * as Scale from './scale';
 import * as util from './util';
 import Mask from './mask';
 import LegendBuilder from './legend';
-import * as d3 from 'd3';
 
 export default class Interpreter {
-    public description?: string;
     public width: number;
     public height: number;
     public n:number = 0;
     public sourceBuffers:DataBuffer[] = [];
     public dataBuffers:DataBuffer[] = [];
     public derivedBuffers: DerivedBuffer[] = [];
-    public image:Image[] = [];
+    public image:Image;
     public tiles:Tile[] = [];
     public tileAggregation=TileAggregation.Mean;
     public strokeCanvas:boolean = false;
     public backgroundStroke = "grey";
     public fillCanvas:boolean = true;
-    public background?:string;
+    public background = "white";
     public bufferNames:string[];
     public colors:Color[] = Color.Category10;
-    public labels?:string[];
+    public labels:string[] | undefined;
     public rebin: any;
     public rescale:"none"|"linear"|"log"|"pow"|"sqrt"|"cbrt"|"equidepth" = "none";
     public compose:Parser.ComposeSpec;
     public composer:(buffers:DerivedBuffer[], values:number[])=>Color = Composer.none;
     public masks:Mask[] = [];
     public maskStroke?:string;
-    public contour:Parser.ContourSpec;
     public blur:number=0;
-    public projection:any = "unknown";
+    public legend:Parser.LegendSpec | false;
 
     constructor(public configuration:Parser.Configuration) {
-
         if (! configuration.validate())
             throw "Invalid configuration";
-        this.description = configuration.description;
         this.width = configuration.width!;
         this.height = configuration.height!;
         if (configuration.background)
             this.background = configuration.background;
+        this.image = new Image(this.width, this.height);
         this.bufferNames = configuration.bufferNames;
         this.n = this.bufferNames.length;
         this.sourceBuffers = configuration.getBuffers();
@@ -61,9 +57,8 @@ export default class Interpreter {
         if (colormap.length >= this.bufferNames.length)
             this.colors = colormap.map((name)=>Color.byName(name));
         else if (colormap.length != 0) {
-            console.log('  WARNING:Not enough colors in colormap, ignored');
+            console.log('Not enough colors in colormap, ignored');
         }
-        if (this.projection) this.projection = configuration.data!.dataSpec!.projection;
         this.rebin = configuration.rebin;
         if (configuration.compose === undefined)
             this.compose = new Parser.ComposeSpec();
@@ -73,10 +68,9 @@ export default class Interpreter {
             this.rescale = configuration.rescale;
         if (configuration.blur)
             this.blur = configuration.blur;
-        if (configuration.contour === undefined)
-            this.contour = new Parser.ContourSpec();
-        else
-            this.contour = configuration.contour;
+
+        console.log(configuration.legend)
+        this.legend = configuration.legend;
     }
 
     public interpret(context={}) {
@@ -84,37 +78,6 @@ export default class Interpreter {
         this.computeReencoding(context);
         this.computeRebin(context);
         this.computeCompose(context);
-
-        for (let tile of this.tiles) {
-            tile.dataValues = tile.aggregate(this.dataBuffers, this.tileAggregation);
-        }
-        var scale:Scale.ScaleTrait;
-        let maxCount = util.amax(this.tiles.map(tile => util.amax(tile.dataValues)));
-        // TODO test if scales are per-buffer or shared, for now, we'll make one per buffer
-        if (this.rescale === "none" || this.rescale === "linear")
-            scale = new Scale.LinearScale([0, maxCount], [0, 1]);
-        else if (this.rescale === "sqrt")
-            scale = new Scale.SquareRootScale([0, maxCount], [0, 1]);
-        else if (this.rescale === "cbrt")
-            scale = new Scale.CubicRootScale([0, maxCount], [0, 1]);
-        else if (this.rescale === "log")
-            scale = new Scale.LogScale([1, maxCount], [0, 1]);
-        else if (this.rescale === "equidepth") {
-            let equidepth = new Scale.EquiDepthScale([1, maxCount], [0, 1]);
-            for (let tile of this.tiles)
-                equidepth.addPoints(tile.dataValues);
-            equidepth.computeBounds();
-            scale = equidepth;
-        }
-
-        this.derivedBuffers = this.dataBuffers.map((dataBuffer, i) => {
-            let derivedBuffer = new DerivedBuffer(dataBuffer);
-            derivedBuffer.colorScale = new Scale.ColorScale([Color.None, this.colors[i]], scale);
-            if (this.masks.length > i)
-                derivedBuffer.mask = this.masks[i];
-            return derivedBuffer;
-        });
-
     }
 
     private computeDerivedBuffers(context={}) {
@@ -126,16 +89,14 @@ export default class Interpreter {
 
     private computeRebin(context={}) {
         var tiles = this.tiles;
-        if (this.rebin===undefined ||
-            this.rebin.type===undefined
-            || this.rebin.type=="none") {
-            console.log('  Pixel rebin');
+        if (!this.rebin || this.rebin.type===undefined || this.rebin.type=="none") {
+            console.log('No rebin');
             tiles = Tiling.pixelTiling(this.width,
                                         this.height);
         }
         else if (this.rebin.type == "square") {
             let size = this.rebin.size || 10;
-            console.log('  Square rebin size='+size);
+            console.log('Square rebin size='+size);
             tiles = Tiling.rectangularTiling(this.width,
                                               this.height,
                                               size, size);
@@ -143,36 +104,27 @@ export default class Interpreter {
         else if (this.rebin.type == "rect") {
             let width = this.rebin.width || 10,
                 height = this.rebin.height || 10;
-            console.log('  Square rebin w='+width+' h='+height);
+            console.log('Square rebin w='+width+' h='+height);
             tiles = Tiling.rectangularTiling(this.width,
                                               this.height,
                                               width, height);
         }
         else if (this.rebin.type == "topojson") {
-            let url      = this.rebin.url,
+            let url = this.rebin.url,
                 topojson = this.rebin.topojson,
-                feature  = this.rebin.feature || null; //CHECK
-            console.log('  topojson rebin url='+url
+                feature = this.rebin.feature || null; //CHECK
+            console.log('topojson rebin url='+url
                         +' feature='+feature);
             // TODO get the projection, transform, clip, etc.
-
-            if (!topojson.objects[feature] || !topojson.objects[feature].geometries ||!Array.isArray(topojson.objects[feature].geometries) || topojson.objects[feature].geometries.length==0){
-              console.log("  ERROR: no correct array named 'geometries' in the specified feature("+feature+"). Is it really topojson or did you specify wrong feature name ?");
-            }
-            // remove unnecessary features like far islands ...
-            if (this.rebin.maxfeature && this.rebin.maxfeature>0)
-              topojson.objects[feature].geometries.splice(this.rebin.maxfeature, topojson.objects[feature].geometries.length-this.rebin.maxfeature);
-
-            if (this.rebin.minfeature && this.rebin.minfeature>0)
-              topojson.objects[feature].geometries.splice(0, this.rebin.minfeature);
-
-            tiles = Tiling.topojsonTiling(this.width, this.height, this.projection.type,
-                                          topojson,   topojson.objects[feature]);
+            tiles = Tiling.topojsonTiling(this.width,
+                                           this.height,
+                                           "",
+                                          topojson, topojson.objects[feature]);
         }
         else if (this.rebin.type == "voronoi") {
             if (this.rebin.points) {
                 let points:[number, number][] = this.rebin.points;
-                console.log('  voronoi rebin sites='+points);
+                console.log('voronoi rebin sites='+points);
                 tiles = Tiling.voronoiTiling(this.width,
                                              this.height,
                                              0, points);
@@ -184,7 +136,7 @@ export default class Interpreter {
                                              sites);
             }
         }
-        if (this.rebin != undefined && this.rebin.stroke)
+        if (this.rebin && this.rebin.stroke)
             this.maskStroke = this.rebin.stroke;
         this.tiles = tiles;
     }
@@ -199,8 +151,12 @@ export default class Interpreter {
             this.composer = Composer.mean;
         else if (this.compose.mix === "min")
             this.composer = Composer.min;
-        else if (this.compose.mix === "blend")
-            this.composer = Composer.additiveMix;
+        else if (this.compose.mix === "blend") {
+            if(this.compose.mixing === "multicative")
+                this.composer = Composer.multiplicativeMix;
+            else
+                this.composer = Composer.additiveMix;
+        }
         else if (this.compose.mix === "weavingrandom")
             this.masks = Mask.generateWeavingRandomMasks(this.n,
                                                          this.compose.size||8,
@@ -223,37 +179,53 @@ export default class Interpreter {
         let canvas:any = document.getElementById(id);
         canvas.width   = this.width;
         canvas.height  = this.height;
-        if (this.background != undefined)
-            canvas.style.backgroundColor = this.background;
-        if (this.description != undefined)
-            canvas.setAttribute("title", this.description);
+        canvas.style.backgroundColor = this.background;
     }
 
     render(id:string) {
-        if (this.compose.mix === "separate") { // small multiples
-            this.image = this.derivedBuffers.map((b) => new Image(this.width, this.height));
-            for(let tile of this.tiles) {
-                let color = this.composer(this.derivedBuffers, tile.dataValues);
-                this.derivedBuffers.forEach((derivedBuffer, i) => {
-                    let color = Composer.one(derivedBuffer, tile.dataValues[i]);
-                    this.image[i].render(color, tile);
-                });
-            }
+        var useRender2 = false;
+        for (let tile of this.tiles) {
+            tile.dataValues = tile.aggregate(this.dataBuffers, this.tileAggregation);
         }
-        else {
-            this.image = [new Image(this.width, this.height)];
+        var scale:Scale.ScaleTrait;
+        let maxCount = util.amax(this.tiles.map(tile => util.amax(tile.dataValues)));
+        // TODO test if scales are per-buffer or shared, for now, we'll make one per buffer
+        if (this.rescale === "none" || this.rescale === "linear")
+            scale = new Scale.LinearScale([0, maxCount], [0, 1]);
+        else if (this.rescale === "sqrt")
+            scale = new Scale.SquareRootScale([0, maxCount], [0, 1]);
+        else if (this.rescale === "cbrt")
+            scale = new Scale.CubicRootScale([0, maxCount], [0, 1]);
+        else if (this.rescale === "log")
+            scale = new Scale.LogScale([1, maxCount], [0, 1]);
+        else if (this.rescale === "equidepth") {
+            let equidepth = new Scale.EquiDepthScale([1, maxCount], [0, 1]);
+            for (let tile of this.tiles)
+                equidepth.addPoints(tile.dataValues);
+            equidepth.computeBounds();
+            scale = equidepth;
         }
+
+
+        this.derivedBuffers = this.dataBuffers.map((dataBuffer, i) => {
+            let derivedBuffer = new DerivedBuffer(dataBuffer);
+            derivedBuffer.colorScale = new Scale.ColorScale([Color.White, this.colors[i]], scale);
+            if (this.masks.length > i)
+                derivedBuffer.mask = this.masks[i];
+            return derivedBuffer;
+        });
+
         if (this.composer != Composer.none) {
             for(let tile of this.tiles) {
                 let color = this.composer(this.derivedBuffers, tile.dataValues);
-                this.image[0].render(color, tile);
+                this.image.render(color, tile);
             }
         }
         else if (this.masks.length > 0) { // no composer
             for (let tile of this.tiles) {
                 this.derivedBuffers.forEach((derivedBuffer, i) => {
                     let color = derivedBuffer.colorScale.map(tile.dataValues[i]);
-                    this.image[0].render(color, tile, derivedBuffer.mask);
+                    this.image.render(color, tile, derivedBuffer.mask);
                 });
             }
         }
@@ -266,31 +238,15 @@ export default class Interpreter {
                 let hatch = Composer.hatch(tile, this.derivedBuffers,
                                            this.compose.size,
                                            this.compose.proportional);
-                this.image[0].render(hatch, tile.center());
+                this.image.render(hatch, tile.center());
+                useRender2 = true;
             }
         }
         else
-            console.log('No composition');
-
-        let ctx = CanvasRenderer.renderAll(this.image, id, this.compose.select);
-        if (this.contour.stroke > 0) {
-            // Assume all the scales are shared between derived buffers
-            let path       = d3.geoPath(null, ctx),
-                thresholds = this.derivedBuffers[0].thresholds(this.contour.stroke);
-
-            ctx.strokeStyle = 'black';
-
-            this.derivedBuffers.forEach((derivedBuffer, i) => {
-                let geometries = derivedBuffer.contours(thresholds, this.contour.blur),
-                    colors = thresholds.map(v => derivedBuffer.colorScale.map(v));
-                geometries.forEach((geo,i) => {
-                    ctx.beginPath();
-                    path(geo);
-                    ctx.strokeStyle = colors[i].css();
-                    ctx.stroke();
-                });
-            });
-        }
+            console.log('No valid composition');
+        //CanvasRenderer.render(image, id);
+        let ctx = useRender2 ? CanvasRenderer.render2(this.image, id)
+              : CanvasRenderer.render(this.image, id);
         if (this.maskStroke)
             for(let tile of this.tiles)
                 CanvasRenderer.strokeVectorMask(tile.mask, id, {color: this.maskStroke});
