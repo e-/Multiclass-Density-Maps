@@ -148,6 +148,10 @@ export class ComposeSpec {
     select?:number;
     url?:string;
     glyphspec?: any;
+
+    constructor(options?: ComposeSpec) {
+        if(options) Object.assign(this, options);
+    }
 }
 
 export class RebinSpec {
@@ -160,6 +164,10 @@ export class RebinSpec {
     topojson?: any;
     points?: [number, number][];
     stroke?: string; // color
+
+    constructor(options?: RebinSpec) {
+        if(options) Object.assign(this, options);
+    }
 }
 
 export class ContourSpec {
@@ -167,6 +175,10 @@ export class ContourSpec {
     fill:number = 0; // percentile over which we fill
     values?:number[]; // percentiles to stroke
     blur:number=2;
+
+    constructor(options?: ContourSpec) {
+        if(options) Object.assign(this, options);
+    }
 }
 
 export class LegendSpec {
@@ -236,7 +248,7 @@ export class Configuration {
     }
     private parseContour() {
         if ('contour' in this.specs) {
-            this.contour = this.specs.contour;
+            this.contour = new ContourSpec(this.specs.contour);
         }
     }
     private parseDerivedBuffers() {
@@ -246,11 +258,11 @@ export class Configuration {
     }
     private parseRebin() {
         if (this.specs.rebin)
-            this.rebin = this.specs.rebin;
+            this.rebin = new RebinSpec(this.specs.rebin);
     }
     private parseCompose() {
         if (this.specs.compose)
-            this.compose = this.specs.compose
+            this.compose = new ComposeSpec(this.specs.compose)
     }
 
     private parseRescale() {

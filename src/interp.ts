@@ -69,7 +69,6 @@ export default class Interpreter {
         if (configuration.blur)
             this.blur = configuration.blur;
 
-        console.log(configuration.legend)
         this.legend = configuration.legend;
     }
 
