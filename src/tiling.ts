@@ -22,15 +22,15 @@ export function pixelTiling (width:number, height:number) {
 export function topojsonTiling(width:number, height:number,
                                wholetopojson:any,
                                feature:any,
-                               projectionName:string="mercator",
+                               projectionName:string="Mercator",
                                latitudes?:[number,number],
                                longitudes?:[number,number],
-                               debug:boolean=false):Tile[] {  
+                               debug:boolean=false):Tile[] {
   let tiles:Tile[] = [];
-  console.log("topojsonTiling "+projectionName);
 
   let proj = d3.geoEquirectangular();
-  if (projectionName=="epsg:3857") proj = d3.geoMercator();
+  if (projectionName=="epsg:3857" || projectionName=="Mercator") proj = d3.geoMercator();
+
   let allfeatures:any = topo.feature(wholetopojson, feature);
   let projection      = Object.create(proj).fitSize([width, height], allfeatures);
 
@@ -52,10 +52,10 @@ export function topojsonTiling(width:number, height:number,
     };
     projection.fitSize([width, height], simple_feature);
   }
-  else 
+  else
     projection.fitSize([width, height], allfeatures);
   let gp              = d3.geoPath(projection);
-                                   
+
   // mainland states
   for (let j=0; j<feature.geometries.length; j++){
     // just one shape
@@ -87,9 +87,6 @@ export function topojsonTiling(width:number, height:number,
       continue;
     }
 
-    // a new projection for that shape. Normally just a translate from projection
-    //let projection2  = d3.geoMercator().fitSize([canvas1.width, canvas1.height], onefeature);
-    //let gp2          = d3.geoPath(projection2);
     let path         = gp.context(context1);
 
     // now render the shape (black opaque over black transparent)

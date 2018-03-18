@@ -79,6 +79,7 @@ function horizontalColormaps(id:string, interp:Interpreter) {
     let defs = svg.append('defs');
     let g = svg.append('g').attr('transform', translate(0, 0));
 
+
     let rowHeight = spec.rowHeight;
     let gutter = spec.gutter;
     let labelWidth = spec.labelWidth;
