@@ -427,6 +427,7 @@ export class TestMain {
         }).then((config:Parser.Configuration) => {
             util.get("data/us.json").then(result => {
                 let topous = JSON.parse(result);
+                topous.objects['states'].geometries.splice(47, 4);
 
                 this.figure1a (config, topous);
                 this.figure1b (config, topous);
@@ -541,7 +542,7 @@ export class TestMain {
 
         CanvasRenderer.render(outputImage, 'fig1a');
 
-        let ustiles = Tiling.topojsonTiling(width, height, topous, topous.objects.states);
+        let ustiles = Tiling.topojsonTiling(width, height, "Mercator", topous, topous.objects.states);
 
         if(d3.select("#border1a").property("checked"))
           for(let tile of ustiles)
@@ -578,7 +579,7 @@ export class TestMain {
             new DataBuffer('test', width, height, bufferSpec.data).blur(blurSize)
         );
 
-        let ustiles = Tiling.topojsonTiling(width, height!, topous, topous.objects.states);
+        let ustiles = Tiling.topojsonTiling(width, height!, "Mercator", topous, topous.objects.states);
 
         let aggreg =jquery("#compo1ba option:selected").text();
         for(let tile of ustiles) {
@@ -662,7 +663,7 @@ export class TestMain {
 
         let dataBuffers = config.data!.dataSpec!.buffers!.map((bufferSpec, i) => new DataBuffer(bufferSpec.value, width, height, bufferSpec.data));
 
-        let ustiles = Tiling.topojsonTiling(width, height, topous, topous.objects.states);
+        let ustiles = Tiling.topojsonTiling(width, height, "Mercator", topous, topous.objects.states);
 
         let aggreg =jquery("#compo1c1a option:selected").text();
         for(let tile of ustiles) {
@@ -773,7 +774,7 @@ export class TestMain {
         }
 
         Promise.all(promises).then(() => {
-            let ustiles = Tiling.topojsonTiling(width, height, topous, topous.objects.states);
+            let ustiles = Tiling.topojsonTiling(width, height, "Mercator", topous, topous.objects.states);
             let canvas = document.getElementById('fig1c2')! as HTMLCanvasElement;
             canvas.width = width;
             canvas.height = height;
@@ -813,7 +814,7 @@ export class TestMain {
         let height = config.data!.dataSpec!.encoding!.y!.bin!.maxbins!;
 
         let dataBuffers = config.data!.dataSpec!.buffers!.map((bufferSpec, i) => new DataBuffer(bufferSpec.value, width, height, bufferSpec.data));
-        let ustiles = Tiling.topojsonTiling(width, height, topous, topous.objects.states);
+        let ustiles = Tiling.topojsonTiling(width, height, "Mercator", topous, topous.objects.states);
 
         let weavingSize = jquery("#slider1e").slider("option", "value");
         let randomMasks = Mask.generateWeavingRandomMasks(dataBuffers.length, weavingSize, width!, height!);
@@ -899,7 +900,7 @@ export class TestMain {
 
         let dataBuffers = config.data!.dataSpec!.buffers!.map((bufferSpec, i) => new DataBuffer(bufferSpec.value, width, height, bufferSpec.data));
 
-        let ustiles = Tiling.topojsonTiling(width, height, topous, topous.objects.states);
+        let ustiles = Tiling.topojsonTiling(width, height, "Mercator", topous, topous.objects.states);
 
         let aggreg =jquery("#compo1fa option:selected").text();
         for(let tile of ustiles) {
@@ -1053,7 +1054,7 @@ export class TestMain {
 
         CanvasRenderer.render(outputImage, 'fig1g');
 
-        let ustiles = Tiling.topojsonTiling(width, height, topous, topous.objects.states);
+        let ustiles = Tiling.topojsonTiling(width, height, "Mercator", topous, topous.objects.states);
 
         if(d3.select("#border1g").property("checked"))
           for(let tile of ustiles)

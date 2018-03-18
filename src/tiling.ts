@@ -19,17 +19,18 @@ export function pixelTiling (width:number, height:number) {
 }
 
 
-export function topojsonTiling(width:number,      height:number,
-                               wholetopojson:any, feature:any, debug:boolean=false):Tile[] {
+export function topojsonTiling(width:number,      height:number, projection0:string,
+                               wholetopojson:any, feature:any):Tile[] {
   let tiles:Tile[] = [];
+  console.log("topojsonTiling "+projection0);
+
+  let proj = d3.geoEquirectangular();
+  if (projection0=="epsg:3857") proj = d3.geoMercator();
 
   let allfeatures:any = topo.feature(wholetopojson, feature);
-  let projection      = d3.geoMercator().fitSize([width, height], allfeatures);
+  let projection      = Object.create(proj).fitSize([width, height], allfeatures);
   let gp              = d3.geoPath(projection);
 
-  if (debug) console.log("debug");
-
-  if (debug) console.log("  "+topo.bbox(wholetopojson));
   // mainland states
   for (let j=0; j<feature.geometries.length; j++){
     // just one shape
@@ -40,11 +41,13 @@ export function topojsonTiling(width:number,      height:number,
     // now let's create a mask for that shape
     let mask:Mask    = new Mask(Math.ceil(bb[1][0])-Math.floor(bb[0][0]), Math.ceil(bb[1][1])-Math.floor(bb[0][1]), 0);
     let canvas1      = mask.getCanvas();
-    let context1 = canvas1.getContext("2d"); // CanvasRenderingContext2D | null
+    let context1     = canvas1.getContext("2d"); // CanvasRenderingContext2D | null
     if (context1 == null) return [];
 
     // a new projection for that shape. Normally just a translate from projection
-    let projection2  = d3.geoMercator().fitSize([canvas1.width, canvas1.height], onefeature);
+    let proji = d3.geoEquirectangular();
+    if (projection0=="epsg:3857") proj = d3.geoMercator();
+    let projection2  = proji.fitSize([canvas1.width, canvas1.height], onefeature);
     let gp2          = d3.geoPath(projection2);
     let path         = gp2.context(context1);
 

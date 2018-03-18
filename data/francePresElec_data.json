@@ -5,14 +5,14 @@
     "rows": 35282
   },
   "projection": {
-    "type": "epsg:3857???"
+    "type": "Equirectangular"
   },
   "encoding": {
     "x": {
       "field": "easting",
       "type": "latitude",
       "bin": {
-        "maxbins": 1000
+        "maxbins": 1507
       },
       "aggregate": "sum",
       "scale": {
@@ -22,7 +22,7 @@
         ],
         "range": [
           0,
-          1000
+          1507
         ]
       }
     },
@@ -30,7 +30,7 @@
       "field": "northing",
       "type": "longitude",
       "bin": {
-        "maxbins": 960
+        "maxbins": 1000
       },
       "aggregate": "sum",
       "scale": {
@@ -40,7 +40,7 @@
         ],
         "range": [
           0,
-          960
+          1000
         ]
       }
     },
@@ -60,7 +60,7 @@
   },
   "buffers": [
     {
-      "url": "melenchon_a.json",
+      "url": "melenchon_elec2017_a.json",
       "count": 35282,
       "value": "melenchon",
       "range": [
@@ -69,7 +69,7 @@
       ]
     },
     {
-      "url": "hamon_a.json",
+      "url": "hamon_elec2017_a.json",
       "count": 35282,
       "value": "hamon",
       "range": [
@@ -78,7 +78,7 @@
       ]
     },
     {
-      "url": "macron_a.json",
+      "url": "macron_elec2017_a.json",
       "count": 35282,
       "value": "macron",
       "range": [
@@ -87,7 +87,7 @@
       ]
     },
     {
-      "url": "fillon_a.json",
+      "url": "fillon_elec2017_a.json",
       "count": 35282,
       "value": "fillon",
       "range": [
@@ -96,7 +96,7 @@
       ]
     },
     {
-      "url": "lepen_a.json",
+      "url": "lepen_elec2017_a.json",
       "count": 35282,
       "value": "lepen",
       "range": [

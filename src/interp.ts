@@ -41,8 +41,10 @@ export default class Interpreter {
     public maskStroke?:string;
     public contour:Parser.ContourSpec;
     public blur:number=0;
+    public projection:any = "unknown";
 
     constructor(public configuration:Parser.Configuration) {
+
         if (! configuration.validate())
             throw "Invalid configuration";
         this.description = configuration.description;
@@ -61,6 +63,7 @@ export default class Interpreter {
         else if (colormap.length != 0) {
             console.log('  WARNING:Not enough colors in colormap, ignored');
         }
+        if (this.projection) this.projection = configuration.data!.dataSpec!.projection;
         this.rebin = configuration.rebin;
         if (configuration.compose === undefined)
             this.compose = new Parser.ComposeSpec();
@@ -159,14 +162,12 @@ export default class Interpreter {
             // remove unnecessary features like far islands ...
             if (this.rebin.maxfeature && this.rebin.maxfeature>0)
               topojson.objects[feature].geometries.splice(this.rebin.maxfeature, topojson.objects[feature].geometries.length-this.rebin.maxfeature);
-            else
-              console.log(topojson);
 
             if (this.rebin.minfeature && this.rebin.minfeature>0)
               topojson.objects[feature].geometries.splice(0, this.rebin.minfeature);
 
-            tiles = Tiling.topojsonTiling(this.width, this.height,
-                                          topojson,   topojson.objects[feature], this.rebin.minfeature==-1);
+            tiles = Tiling.topojsonTiling(this.width, this.height, this.projection.type,
+                                          topojson,   topojson.objects[feature]);
         }
         else if (this.rebin.type == "voronoi") {
             if (this.rebin.points) {
