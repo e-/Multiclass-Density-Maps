@@ -67,7 +67,7 @@ export function topojsonTiling(width:number, height:number,
     // clip invisible features
     if (xmin >= width || ymin >= height || xmax <= 0 || ymax <= 0) {
       clipped++;
-      if (debug) console.log('  cliping feature '+j+' bbox:'+bb);
+      if (debug) console.log('  cliping feature '+onefeature.id+' bbox:'+bb);
       continue;
     }
     // clipped area

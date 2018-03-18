@@ -113,6 +113,7 @@ export default class Interpreter {
         this.derivedBuffers = this.dataBuffers.map((dataBuffer, i) => {
             let derivedBuffer = new DerivedBuffer(dataBuffer);
             derivedBuffer.colorScale = new Scale.ColorScale([Color.None, this.colors[i]], this.scale);
+            derivedBuffer.color = this.colors[i];
             if (this.masks.length > i)
                 derivedBuffer.mask = this.masks[i];
             return derivedBuffer;
@@ -165,15 +166,14 @@ export default class Interpreter {
                 topojson.objects[feature].geometries.length==0 ){
               console.log("  ERROR: no correct array named 'geometries' in the specified feature("+feature+"). Is it really topojson or did you specify wrong feature name?");
             }
+            //[jdf] for now, ignore min/maxfeature
             // remove unnecessary features like far islands ...
-            if (this.rebin.maxfeature && this.rebin.maxfeature>0)
-              topojson.objects[feature].geometries.splice(this.rebin.maxfeature,
-                                                          topojson.objects[feature].geometries.length-this.rebin.maxfeature);
-            else
-              console.log(topojson);
+            // if (this.rebin.maxfeature != undefined && this.rebin.maxfeature > 0)
+            //   topojson.objects[feature].geometries.splice(this.rebin.maxfeature,
+            //                                               topojson.objects[feature].geometries.length-this.rebin.maxfeature);
 
-            if (this.rebin.minfeature && this.rebin.minfeature>0)
-              topojson.objects[feature].geometries.splice(0, this.rebin.minfeature);
+            // if (this.rebin.minfeature != undefined && this.rebin.minfeature>0)
+            //   topojson.objects[feature].geometries.splice(0, this.rebin.minfeature);
 
             tiles = Tiling.topojsonTiling(this.width, this.height,
                                           topojson,
@@ -278,6 +278,7 @@ export default class Interpreter {
         else if (this.compose.mix === "hatching") {
             for(let tile of this.tiles) {
                 this.derivedBuffers.forEach((derivedBuffer:DerivedBuffer, i:number) => {
+                    // Ugly side effect, should pass dataValues to Composer.hatch instead
                     derivedBuffer.color = derivedBuffer.colorScale.map(tile.dataValues[i]);
                 });
 

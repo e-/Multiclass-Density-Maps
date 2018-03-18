@@ -109,7 +109,7 @@ export default class Composer {
                     type: "ordinal",
                     "scale": {
                       "domain": data.map(d => d.name),
-                      "range": data.map((d, i) => buffers[i].color!.css())
+                      "range": data.map((d, i) => buffers[i].colorScale.map(values[i]).css())
                     }
                 },
                 y: {
