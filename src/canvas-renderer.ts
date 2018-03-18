@@ -20,7 +20,7 @@ export default class CanvasRenderer {
                      } = {}): CanvasRenderingContext2D {
         if (images.length == 1)
             return CanvasRenderer.render(images[0], id, options);
-        else if (select && select < images.length) 
+        else if (select && select < images.length)
             return CanvasRenderer.render(images[select], id, options);
         else
             return CanvasRenderer.renderMultiples(images, id, options);
@@ -176,7 +176,6 @@ export default class CanvasRenderer {
         let mWidth = width / cols;
         let mHeight = height / rows;
 
-        //console.log(mWidth, mHeight);
         images.forEach((image, i) => {
             this.renderToImageData(image, imageData);
 
@@ -187,16 +186,19 @@ export default class CanvasRenderer {
             ctx.drawImage(memoryCanvas, 0,           0,                         width,      height,
                                         width * col / cols, height * row /rows, width/cols, height/rows);
         });
-        for (let r = 0; r < rows; r++) {
+
+        for (let r = 1; r < rows; r++) {
             let y = height*r/rows;
             ctx.moveTo(0, y);
             ctx.lineTo(width, y);
         }
-        for (let c = 0; c < cols; c++) {
+        for (let c = 1; c < cols; c++) {
             let x = width*c/cols;
             ctx.moveTo(x, 0);
             ctx.lineTo(x, height);
         }
+
+        ctx.lineWidth = 1;
         ctx.strokeStyle = "black";
         ctx.stroke();
         return ctx;

@@ -2,7 +2,7 @@ export function positive(x:number) { return x > 0; }
 
 export function create2D<T>(width:number, height:number, value:T) {
     let arr = new Array<T[]>(height);
-    for(let i = 0; i < height; ++i) 
+    for(let i = 0; i < height; ++i)
         arr[i] = new Array<T>(width).fill(value);
 
     return arr;
@@ -48,11 +48,11 @@ export function arange(start:number, end?:number, step?:number): number[] {
         end = start;
         start = 0;
     }
-    else 
+    else
         n = end-start;
     if (step == undefined)
         step = 1;
-    else 
+    else
         n = n / step;
 
     n = Math.floor(n);
@@ -67,7 +67,10 @@ export function arange(start:number, end?:number, step?:number): number[] {
 let cache:any = {};
 
 export function get(url: string): Promise<any> {
-    if(cache[url]) return Promise.resolve(cache[url]);
+    if(cache[url]) {
+        return Promise.resolve(cache[url]);
+    }
+
     return new Promise<any>(
         function (resolve, reject) {
             const request = new XMLHttpRequest();

@@ -542,7 +542,13 @@ export class TestMain {
 
         CanvasRenderer.render(outputImage, 'fig1a');
 
-        let ustiles = Tiling.topojsonTiling(width, height, "Mercator", topous, topous.objects.states);
+        let geo  = config.getGeo();
+
+        let ustiles = Tiling.topojsonTiling(width, height,
+                                            topous, topous.objects.states,
+                                            geo.projection, geo.latitudes, geo.longitudes,
+                                            true
+                                           );
 
         if(d3.select("#border1a").property("checked"))
           for(let tile of ustiles)
@@ -579,7 +585,11 @@ export class TestMain {
             new DataBuffer('test', width, height, bufferSpec.data).blur(blurSize)
         );
 
-        let ustiles = Tiling.topojsonTiling(width, height!, "Mercator", topous, topous.objects.states);
+        let geo = config.getGeo();
+
+        let ustiles = Tiling.topojsonTiling(width, height!,
+                                            topous, topous.objects.states,
+                                            geo.projection, geo.latitudes, geo.longitudes);
 
         let aggreg =jquery("#compo1ba option:selected").text();
         for(let tile of ustiles) {
@@ -663,7 +673,9 @@ export class TestMain {
 
         let dataBuffers = config.data!.dataSpec!.buffers!.map((bufferSpec, i) => new DataBuffer(bufferSpec.value, width, height, bufferSpec.data));
 
-        let ustiles = Tiling.topojsonTiling(width, height, "Mercator", topous, topous.objects.states);
+        let geo = config.getGeo();
+        let ustiles = Tiling.topojsonTiling(width, height, topous, topous.objects.states,
+                                            geo.projection, geo.latitudes, geo.longitudes);
 
         let aggreg =jquery("#compo1c1a option:selected").text();
         for(let tile of ustiles) {
@@ -773,20 +785,22 @@ export class TestMain {
             promises.push(promise);
         }
 
-        Promise.all(promises).then(() => {
-            let ustiles = Tiling.topojsonTiling(width, height, "Mercator", topous, topous.objects.states);
-            let canvas = document.getElementById('fig1c2')! as HTMLCanvasElement;
-            canvas.width = width;
-            canvas.height = height;
+      Promise.all(promises).then(() => {
+        let geo = config.getGeo();
+        let ustiles = Tiling.topojsonTiling(width, height, topous, topous.objects.states,
+                                            geo.projection, geo.latitudes, geo.longitudes);
+        let canvas = document.getElementById('fig1c2')! as HTMLCanvasElement;
+        canvas.width = width;
+        canvas.height = height;
 
-            for(let tile of ustiles)
-                CanvasRenderer.strokeVectorMask(tile.mask, 'fig1c2');
+        for(let tile of ustiles)
+          CanvasRenderer.strokeVectorMask(tile.mask, 'fig1c2');
 
-            CanvasRenderer.render(outputImage, 'fig1c2', {
-                blendingMode: CanvasRenderer.BlendingMode.Alpha,
-                noResetDims: true
-            });
+        CanvasRenderer.render(outputImage, 'fig1c2', {
+          blendingMode: CanvasRenderer.BlendingMode.Alpha,
+          noResetDims: true
         });
+      });
     }
 
     figure1e(config:Parser.Configuration, topous:any, update:boolean=false) {
@@ -814,7 +828,9 @@ export class TestMain {
         let height = config.data!.dataSpec!.encoding!.y!.bin!.maxbins!;
 
         let dataBuffers = config.data!.dataSpec!.buffers!.map((bufferSpec, i) => new DataBuffer(bufferSpec.value, width, height, bufferSpec.data));
-        let ustiles = Tiling.topojsonTiling(width, height, "Mercator", topous, topous.objects.states);
+        let geo = config.getGeo();
+      let ustiles = Tiling.topojsonTiling(width, height, topous, topous.objects.states,
+                                          geo.projection, geo.latitudes, geo.longitudes);
 
         let weavingSize = jquery("#slider1e").slider("option", "value");
         let randomMasks = Mask.generateWeavingRandomMasks(dataBuffers.length, weavingSize, width!, height!);
@@ -900,7 +916,9 @@ export class TestMain {
 
         let dataBuffers = config.data!.dataSpec!.buffers!.map((bufferSpec, i) => new DataBuffer(bufferSpec.value, width, height, bufferSpec.data));
 
-        let ustiles = Tiling.topojsonTiling(width, height, "Mercator", topous, topous.objects.states);
+        let geo = config.getGeo();
+        let ustiles = Tiling.topojsonTiling(width, height, topous, topous.objects.states,
+                                            geo.projection, geo.latitudes, geo.longitudes);
 
         let aggreg =jquery("#compo1fa option:selected").text();
         for(let tile of ustiles) {
@@ -1054,7 +1072,9 @@ export class TestMain {
 
         CanvasRenderer.render(outputImage, 'fig1g');
 
-        let ustiles = Tiling.topojsonTiling(width, height, "Mercator", topous, topous.objects.states);
+        let geo = config.getGeo();
+        let ustiles = Tiling.topojsonTiling(width, height, topous, topous.objects.states,
+                                            geo.projection, geo.latitudes, geo.longitudes);
 
         if(d3.select("#border1g").property("checked"))
           for(let tile of ustiles)

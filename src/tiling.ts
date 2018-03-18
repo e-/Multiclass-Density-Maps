@@ -19,16 +19,45 @@ export function pixelTiling (width:number, height:number) {
 }
 
 
-export function topojsonTiling(width:number,      height:number, projection0:string,
-                               wholetopojson:any, feature:any):Tile[] {
+export function topojsonTiling(width:number, height:number,
+                               wholetopojson:any,
+                               feature:any,
+                               projectionName:string="Mercator",
+                               latitudes?:[number,number],
+                               longitudes?:[number,number],
+                               debug:boolean=false):Tile[] {
   let tiles:Tile[] = [];
-  //console.log("topojsonTiling "+projection0);
 
   let proj = d3.geoEquirectangular();
   if (projection0=="epsg:3857" || projection0=="Mercator") proj = d3.geoMercator();
 
+
+  let proj = d3.geoEquirectangular();
+  if (projectionName=="epsg:3857") proj = d3.geoMercator();
+
   let allfeatures:any = topo.feature(wholetopojson, feature);
   let projection      = Object.create(proj).fitSize([width, height], allfeatures);
+
+  var clipped = 0;
+  if (debug) console.log("debug");
+
+  let bbox = topo.bbox(wholetopojson);
+  if (debug) console.log("  "+bbox);
+  // The fitSize has to happen after the fitExtent
+  if (latitudes != undefined && longitudes != undefined) {
+    let bounds = [latitudes[0], longitudes[0], latitudes[1], longitudes[1]];
+    if (debug) console.log("  bounds:"+bounds);
+    let simple_feature:any = {
+      "type":"GeometryCollection",
+      "geometries": [{"type": "Point", "coordinates": [latitudes[0], longitudes[0]]},
+                     {"type": "Point", "coordinates": [latitudes[0], longitudes[1]]},
+                     {"type": "Point", "coordinates": [latitudes[1], longitudes[1]]},
+                     {"type": "Point", "coordinates": [latitudes[1], longitudes[0]]}]
+    };
+    projection.fitSize([width, height], simple_feature);
+  }
+  else
+    projection.fitSize([width, height], allfeatures);
   let gp              = d3.geoPath(projection);
 
   // mainland states
@@ -37,12 +66,30 @@ export function topojsonTiling(width:number,      height:number, projection0:str
 
     let onefeature:any = topo.feature(wholetopojson, feature.geometries[j]);
     let bb             = gp.bounds(onefeature);
+    var xmin = bb[0][0], ymin = bb[0][1], xmax = bb[1][0], ymax = bb[1][1];
+
+    // clip invisible features
+    if (xmin >= width || ymin >= height || xmax <= 0 || ymax <= 0) {
+      clipped++;
+      if (debug) console.log('  cliping feature '+j+' bbox:'+bb);
+      continue;
+    }
+    // clipped area
+    xmin = Math.max(0, xmin);
+    xmax = Math.min(width, xmax);
+    ymin = Math.max(0, ymin);
+    ymax = Math.min(height, ymax);
 
     // now let's create a mask for that shape
-    let mask:Mask    = new Mask(Math.ceil(bb[1][0])-Math.floor(bb[0][0]), Math.ceil(bb[1][1])-Math.floor(bb[0][1]), 0);
+    let mask:Mask    = new Mask(Math.ceil(xmax)-Math.floor(xmin),
+                                Math.ceil(ymax)-Math.floor(ymin),
+                                0);
     let canvas1      = mask.getCanvas();
-    let context1     = canvas1.getContext("2d"); // CanvasRenderingContext2D | null
-    if (context1 == null) return [];
+    let context1 = canvas1.getContext("2d"); // CanvasRenderingContext2D | null
+    if (context1 == null) {
+      console.log('Cannot create context for new mask');
+      continue;
+    }
 
     // a new projection for that shape. Normally just a translate from projection
     let proji = d3.geoEquirectangular();
@@ -54,6 +101,7 @@ export function topojsonTiling(width:number,      height:number, projection0:str
     // now render the shape (black opaque over black transparent)
     context1.clearRect(0, 0, canvas1.width, canvas1.height);
     context1.fillStyle="rgba(0, 0, 0, 1.0)";
+    context1.translate(-xmin, -ymin);
     path(onefeature);
     context1.fill();
 
@@ -81,11 +129,13 @@ export function topojsonTiling(width:number,      height:number, projection0:str
     }
 
     // now with a correct mask we can create the tile
-    let tile:Tile = new Tile(Math.floor(bb[0][0]), Math.floor(bb[0][1]), mask);
+    let tile:Tile = new Tile(Math.floor(xmin), Math.floor(ymin), mask);
     tile.id = j;
     tiles.push(tile);
   }
 
+  if (clipped)
+    console.log('clipped '+clipped+' features');
   return tiles;
 }
 
