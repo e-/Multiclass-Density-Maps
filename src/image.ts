@@ -112,6 +112,7 @@ export default class Image {
 
         let data = imageData.data;
 
+        console.log(imageData);
         for(let r = 0; r < height; r++) {
             for(let c = 0; c < width; c++) {
                 let tr = r + topLeft.y; // target row
@@ -119,12 +120,13 @@ export default class Image {
 
                 if(tr < 0 || tc < 0 || tr >= this.height || tc >= this.width) continue;
 
-                this.pixels[tr][tc] = new Color(
+                let color = new Color(
                     data[(r * width + c) * 4    ] / 255,
                     data[(r * width + c) * 4 + 1] / 255,
                     data[(r * width + c) * 4 + 2] / 255,
                     data[(r * width + c) * 4 + 3] / 255,
                 );
+                this.pixels[tr][tc] = color;
             }
         }
     }

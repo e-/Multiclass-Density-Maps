@@ -3,7 +3,7 @@
     <head>
         <title>Scalable Rendering of Multiclass Density Maps with Parser</title>
 <style>
-canvas {
+.example canvas {
   border: 1px solid grey;
 }
 bodyno {
@@ -259,7 +259,6 @@ render('Voronoi Tiling',
            }
        });
 
-
 render('Voronoi Tiling (Multicative)',{
     "description": "multivariate normal data",
     "data": {"url": "mn_data.json"},
@@ -289,6 +288,25 @@ render('Voronoi Tiling + Hatching',
                "size": 8
            }
        }, true);
+
+render('Voronoi Tiling (glyph - bars)',{
+    "description": "multivariate normal data",
+    "data": {"url": "mn_data.json"},
+    "smooth": {},
+    "rebin": {
+        "type": "voronoi",
+        "size": 32,
+        "stroke": "black"
+    },
+    "compose": {
+        "mix": "glyph",
+        "glyphSpec": {
+            "template": "bars",
+            "width": 20,
+            "height": 20
+        }
+    }
+});
 
 render('Census Data Random Weaving',
 {

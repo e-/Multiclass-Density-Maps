@@ -191,6 +191,7 @@ export default class Interpreter {
         ;
         let maxCount = util.amax(this.tiles.map(tile => util.amax(tile.dataValues)));
         let images:Image[] = []; // only used when mix=separate, i.e., small multiples
+        let promises = []; // if rendering requries promises
 
         // TODO test if scales are per-buffer or shared, for now, we'll make one per buffer
         if (!this.rescale || this.rescale!.type === "linear")
@@ -214,6 +215,7 @@ export default class Interpreter {
         this.derivedBuffers = this.dataBuffers.map((dataBuffer, i) => {
             let derivedBuffer = new DerivedBuffer(dataBuffer);
             derivedBuffer.colorScale = new Scale.ColorScale([Color.White, this.colors[i]], this.scale, Color.Transparent);
+            derivedBuffer.color = this.colors[i];
             if (this.masks.length > i)
                 derivedBuffer.mask = this.masks[i];
             return derivedBuffer;
@@ -257,24 +259,52 @@ export default class Interpreter {
                 }
             })
         }
+        else if (this.compose.mix === "glyph") {
+            let glyphSpec = this.compose.glyphSpec!;
+
+            if(glyphSpec.template === "bars") {
+                for(let tile of this.tiles) {
+                    if(tile.mask.width < glyphSpec.width
+                        || tile.mask.height < glyphSpec.height) continue;
+
+                    let promise = Composer.bars(this.derivedBuffers, tile.dataValues, {
+                        width: glyphSpec.width,
+                        height: glyphSpec.height,
+                        'y.scale.domain': [1, maxCount],
+                        'y.scale.type': 'sqrt'
+                    }).then((vegaPixels) => {
+                        console.log(vegaPixels);
+                        this.image.render(vegaPixels, tile);
+                    })
+
+                    promises.push(promise);
+                }
+            }
+        }
         else
             console.log('No valid composition for ', this.compose);
 
         let ctx;
 
-        if(this.compose.mix === "separate") {
-            ctx = CanvasRenderer.renderMultiples(images, id);
-        }
-        else if(useRender2) {
-            ctx = CanvasRenderer.render2(this.image, id)
-        }
-        else {
-            ctx = CanvasRenderer.render(this.image, id)
-        }
+        let render = () => {
+            if(this.compose.mix === "separate") {
+                ctx = CanvasRenderer.renderMultiples(images, id);
+            }
+            else if(useRender2) {
+                ctx = CanvasRenderer.render2(this.image, id)
+            }
+            else {
+                ctx = CanvasRenderer.render(this.image, id)
+            }
 
-        if (this.maskStroke)
-            for(let tile of this.tiles)
-                CanvasRenderer.strokeVectorMask(tile.mask, id, {color: this.maskStroke});
+            if (this.maskStroke)
+                for(let tile of this.tiles)
+                    CanvasRenderer.strokeVectorMask(tile.mask, id, {color: this.maskStroke});
+        };
+
+        if(promises.length > 0) Promise.all(promises).then(render);
+        else render();
+
         // if (this.strokeCanvas) {
         //     ctx.setTransform(1, 0, 0, 1, 0, 0); // reset
         //     ctx.strokeStyle = this.backgroundStroke;

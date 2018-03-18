@@ -147,12 +147,23 @@ export class ComposeSpec {
     proportional:boolean = true;
     select?:number;
     url?:string;
-    glyphspec?: any;
+    glyphSpec?: GlyphSpec;
 
     constructor(options?: ComposeSpec) {
         if(options) Object.assign(this, options);
     }
 }
+
+export class GlyphSpec {
+    template?: "bars"|"punchcard4";
+    width:number = 32;
+    height:number = 32;
+
+    constructor(options?: GlyphSpec) {
+        if(options) Object.assign(this, options);
+    }
+}
+
 
 export class RebinSpec {
     type: "none"|"square"|"rect"|"topojson"|"voronoi" = "none";
@@ -274,8 +285,12 @@ export class Configuration {
             this.rebin = new RebinSpec(this.specs.rebin);
     }
     private parseCompose() {
-        if (this.specs.compose)
+        if (this.specs.compose) {
             this.compose = new ComposeSpec(this.specs.compose)
+            if(this.specs.compose.glyphSpec) {
+                this.compose.glyphSpec = new GlyphSpec(this.specs.compose.glyphSpec);
+            }
+        }
     }
 
     private parseRescale() {
