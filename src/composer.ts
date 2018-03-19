@@ -90,14 +90,15 @@ export default class Composer {
             width?:number,
             height?:number,
             'y.scale.domain': [number, number],
-            'y.scale.type'?: string
-        } = {'y.scale.domain': [0, 1], 'y.scale.type': 'linear'}
+            'y.scale.type'?: string,
+            'y.scale.base'?: number
+        } = {'y.scale.domain': [0, 1], 'y.scale.type': 'linear', 'y.scale.base': 10}
     ) {
         let data = buffers.map((buffer, i) => {
             return {name: buffer.originalDataBuffer.name, value: values[i]}}
         );
         let spec = {
-            "$schema": "https://vega.github.io/schema/vega-lite/v2.0.json",
+            $schema: "https://vega.github.io/schema/vega-lite/v2.0.json",
             data: {
                 values: data
             },
@@ -107,17 +108,18 @@ export default class Composer {
                 color: {
                     field: "name",
                     type: "ordinal",
-                    "scale": {
-                      "domain": data.map(d => d.name),
-                      "range": data.map((d, i) => buffers[i].colorScale.map(values[i]).css())
+                    scale: {
+                      domain: data.map(d => d.name),
+                      range: data.map((d, i) => buffers[i].colorScale.map(values[i]).css())
                     }
                 },
                 y: {
                     field: "value",
-                    "type": "quantitative",
+                    type: "quantitative",
                     scale: {
                         domain: options['y.scale.domain'],
-                        type: options['y.scale.type']
+                        type: options['y.scale.type'],
+                        base: options['y.scale.base']
                     }
                 }
             },

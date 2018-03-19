@@ -294,6 +294,18 @@ export default class Interpreter {
             let glyphSpec = this.compose.glyphSpec!;
 
             if(glyphSpec.template === "bars") {
+                let d3scale, d3base = 1;
+                if(this.scale instanceof Scale.LinearScale) {
+                    d3scale = 'linear';
+                }
+                else if(this.scale instanceof Scale.LogScale) {
+                    d3scale = 'log';
+                    d3base = (<Scale.LogScale>this.scale).base;
+                }
+                else {
+                    throw 'failed to convert a scale to a d3 scale. Please add a specification';
+                }
+
                 for(let tile of this.tiles) {
                     if(tile.mask.width < glyphSpec.width
                         || tile.mask.height < glyphSpec.height) continue;
@@ -301,8 +313,9 @@ export default class Interpreter {
                     let promise = Composer.bars(this.derivedBuffers, tile.dataValues, {
                         width: glyphSpec.width,
                         height: glyphSpec.height,
-                        'y.scale.domain': [1, maxCount],
-                        'y.scale.type': 'sqrt'
+                        'y.scale.domain': this.scale.domain as [number, number],
+                        'y.scale.type': d3scale,
+                        'y.scale.base': d3base
                     }).then((vegaPixels) => {
                         this.image[0].render(vegaPixels, tile);
                     })
