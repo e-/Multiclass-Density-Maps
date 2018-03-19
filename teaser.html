@@ -97,19 +97,28 @@ render('Linear Color Scale Max',
            }
        });
 
-render('Linear Color Scale mean equalized',
+// render('Linear Color Scale mean equalized',
+//        {
+//            "description": "multivariate normal data",
+//            "data": {"url": "mn_data.json"},
+//            "compose": {
+//                "mix": "mean",
+//                "mixing": "additive"
+//            },
+//            "rescale": {
+//                "type": "equidepth"
+//            }
+//        }, true);
+
+render('Contour lines',
        {
            "description": "multivariate normal data",
            "data": {"url": "mn_data.json"},
            "compose": {
-               "mix": "mean",
-               "mixing": "additive"
+               "mix": "none"
            },
-           "rescale": {
-               "type": "equidepth"
-           }
-       }, true);
-
+           "contour": { "stroke": 4}
+       });
 
 render('Square Weaving',
        {
@@ -137,18 +146,18 @@ render('Linear Color Scale hex',
            }
        });
 
-render('Linear Color Scale triangles',
-       {
-           "description": "multivariate normal data",
-           "data": {"url": "mn_data.json"},
-           "compose": {
-               "mix": "weavingtri",
-               "size": 8
-           },
-           "rescale": {
-               "type": "linear"
-           }
-       });
+// render('Linear Color Scale triangles',
+//        {
+//            "description": "multivariate normal data",
+//            "data": {"url": "mn_data.json"},
+//            "compose": {
+//                "mix": "weavingtri",
+//                "size": 8
+//            },
+//            "rescale": {
+//                "type": "linear"
+//            }
+//        });
 
 
 render('Random Weaving',
@@ -157,7 +166,7 @@ render('Random Weaving',
            "data": {"url": "mn_data.json"},
            "compose": {
                "mix": "weavingrandom",
-               "size": 8
+               "size": 6
            },
            "rescale": {
                "type": "linear"
@@ -171,10 +180,10 @@ render('Voronoi Tiling Mean',
            "rebin": {
                "type": "voronoi",
                "size": 32,
-               "stroke": "black"
+               "stroke": "white"
            },
            "compose": {
-               "mix": "mean"
+               "mix": "max"
            }
        });
 
@@ -185,11 +194,11 @@ render('Voronoi Tiling',
            "rebin": {
                "type": "voronoi",
                "size": 32,
-               "stroke": "black"
+               "stroke": "white"
            },
            "compose": {
                "mix": "weavingsquare",
-               "size": 4
+               "size": 6
            }
        });
 
@@ -200,14 +209,80 @@ render('Voronoi Tiling + Hatching',
            "rebin": {
                "type": "voronoi",
                "size": 32,
-               "stroke": "black"
+               "stroke": "white"
            },
            "compose": {
                "mix": "hatching",
                "size": 8
            }
-       }, true);
+       });
 
+render('Voronoi Tiling + (Glyph - bars)',
+       {
+           "description": "multivariate normal data",
+           "data": {"url": "mn_data.json"},
+           "rebin": {
+               "type": "voronoi",
+               "size": 32,
+               "stroke": "grey"
+           },
+           "compose": {
+               "mix": "glyph",
+               "glyphSpec": {
+                   "template": "bars",
+                   "width": 20,
+                   "height": 20
+               }
+           }
+          });
+
+render('Voronoi Tiling + (Glyph - circles)',
+       {
+           "description": "multivariate normal data",
+           "data": {"url": "mn_data.json"},
+           "rebin": {
+               "type": "voronoi",
+               "size": 32,
+               "stroke": "grey"
+           },
+           "compose": {
+                "mix": "glyph",
+                "glyphSpec": {
+                    "template": "punchcard"
+                }
+            }
+          });
+
+render('Voronoi Tiling + Tilted Hatching',
+       {
+           "description": "multivariate normal data",
+           "data": {"url": "mn_data.json"},
+           "rebin": {
+               "type": "voronoi",
+               "size": 32,
+               "stroke": "white"
+           },
+           "compose": {
+               "mix": "weavingtri",
+               "size": 6
+           }
+       });
+
+render('Voronoi Tiling + Tilted Hatching + contours',
+       {
+           "description": "multivariate normal data",
+           "data": {"url": "mn_data.json"},
+           "rebin": {
+               "type": "voronoi",
+               "size": 32,
+               "stroke": "white"
+           },
+           "compose": {
+               "mix": "weavingsquare",
+               "size": 1
+           },
+           "contour": { "stroke": 4}
+       });
 
 </script>
     </body>
