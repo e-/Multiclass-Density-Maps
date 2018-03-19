@@ -56,13 +56,16 @@ function equiDepthColorMap(defs:any, interpolator:Scale.ScaleTrait, db:DerivedBu
 
     // bounds do not include the last value
     scale.bounds.concat([scale.bounds[n - 2] + 1]).forEach((value, i) => {
+        let color = db.colorScale.map(value - 1);
+        if(isNaN(color.r)) color = Color.Transparent;
+
         lg.append('stop')
             .attr('offset', i / n)
-            .style('stop-color', db.colorScale.map(value - 1).css());
+            .style('stop-color', color.css());
 
         lg.append('stop')
             .attr('offset', (i + 1) / n)
-            .style('stop-color', db.colorScale.map(value - 1).css());
+            .style('stop-color', color.css());
     });
 
     return id;
@@ -159,6 +162,11 @@ function horizontalColormaps(id:string, interp:Interpreter) {
         .selectAll('text.tick')
         .data(tickValues)
 
+    let step = 1;
+    if(spec.numTicks) {
+        step = Math.floor(tickValues.length / spec.numTicks!);
+    }
+
     ticks.enter()
         .append('text')
         .attr('class', 'tick')
@@ -168,6 +176,10 @@ function horizontalColormaps(id:string, interp:Interpreter) {
             return 'middle';
         })
         .attr('transform', (d, i) => translate(colormapScale(d, i), 0))
+        .style('display', (d, i) => {
+            if(i % step === 0) return 'inline';
+            return 'none';
+        })
         .style('font-size', spec.tickFontSize)
         .attr('dy', '.5em')
         .text(d => d3.format(spec.format)(d))

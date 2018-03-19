@@ -234,6 +234,7 @@ export class LegendSpec {
     tickFontSize:string = "10px";
 
     markers:number = 3;
+    numTicks?:number;
 
     // multiplicative circles
     size:number = 150;
