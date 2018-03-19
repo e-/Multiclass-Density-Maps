@@ -275,7 +275,6 @@ function bars(id:string, interp:Interpreter) {
         return {category: buffer.originalDataBuffer.name, value: mean[i]}}
     );
 
-    console.log(data);
     let barSpec:any = {
         $schema: "https://vega.github.io/schema/vega-lite/v2.0.json",
         data: {
@@ -286,10 +285,10 @@ function bars(id:string, interp:Interpreter) {
             x: {
                 field: "category",
                 type: "ordinal",
-                legend: false,
-                axis: {
-                    title: null
-                }
+                // legend: false,
+                // axis: {
+                //     title: null
+                // }
             },
             color: {
                 field: "category",
@@ -298,7 +297,7 @@ function bars(id:string, interp:Interpreter) {
                   domain: data.map(d => d.category),
                   range: data.map((d, i) => derivedBuffers[i].color!.css())
                 },
-                legend: false
+                // legend: false
             },
             y: {
                 field: "value",
@@ -306,8 +305,8 @@ function bars(id:string, interp:Interpreter) {
                 scale: {
                     type: "linear"
                 },
-                legend: false,
-                axis: false
+                // legend: false,
+                // axis: false
             }
         },
         config: {
@@ -334,6 +333,104 @@ function bars(id:string, interp:Interpreter) {
     });
 }
 
+function punchcard(id:string, interp:Interpreter) {
+    let derivedBuffers:DerivedBuffer[] = interp.derivedBuffers;
+    let n = derivedBuffers.length;
+    let spec = interp.legend as Parser.LegendSpec;
+
+    let svg = d3.select('#' + id)
+        .style('font-family', spec.fontFamily)
+        .style('font-size', spec.fontSize)
+
+    let sum = new Array(n).fill(0);
+
+    for(let tile of interp.tiles) {
+        tile.dataValues.forEach((value, i) => {
+            sum[i] += value;
+        })
+    }
+
+    let mean = sum.map(s => s / n);
+
+    let cols = Math.ceil(Math.sqrt(n));
+
+    let data = derivedBuffers.map((buffer, i) => {return {
+        category: buffer.originalDataBuffer.name,
+        value: mean[i],
+        row: Math.floor(i / cols),
+        col: i % cols,
+    }});
+
+    let barSpec:any = {
+        $schema: "https://vega.github.io/schema/vega-lite/v2.0.json",
+        data: {
+            values: data
+        },
+        layer: [
+            {
+                mark: "circle",
+                encoding: {
+                    size: {
+                        field: "value",
+                        type: "quantitative",
+                        scale: {
+                            type: "linear"
+                        },
+                        // legend: false
+                    },
+                    color: {
+                        field: "category",
+                        type: "ordinal",
+                        scale: {
+                            domain: derivedBuffers.map(b => b.originalDataBuffer.name),
+                            range: derivedBuffers.map(b => (b.color || Color.Blue).css())
+                        },
+                        // legend: false
+                    }
+                }
+            },
+            {
+                mark: {
+                    type: "text",
+                    baseline: "middle",
+                },
+                encoding: {
+                    text: {field: "category"}
+                }
+            }
+        ],
+        encoding: {
+            x: {field: "col", type: "ordinal", axis: false, legend:false},
+            y: {field: "row", type: "ordinal", axis: false, legend:false},
+        },
+        config: {
+            group: {
+                strokeWidth: 0
+            },
+            mark: {
+                opacity: 1
+            }
+        },
+        width: spec.width,
+        height: spec.height,
+        padding: 0
+    };
+
+    let wrapper = document.createElement('div') as HTMLElement;
+    return vegaEmbed(wrapper as HTMLBaseElement, barSpec, {
+        actions: false,
+        renderer: 'svg'
+    }).then(() => {
+        let result = wrapper!.getElementsByTagName('svg')[0];
+        let svgNode = <SVGSVGElement>svg.node();
+
+        svgNode.innerHTML = result.innerHTML;
+        let rect = svgNode.getBoundingClientRect();
+        svg.attr("width", <any>result.getAttribute("width"))
+            .attr("height", <any>result.getAttribute("height"));
+    });
+}
+
 export default function LegendBuilder(id:string, interp:Interpreter) {
     if(interp.legend === false) return;
 
@@ -343,6 +440,9 @@ export default function LegendBuilder(id:string, interp:Interpreter) {
     else if(interp.compose.mix === "glyph") {
         if(interp.compose.glyphSpec!.template === "bars") {
             bars(id, interp);
+        }
+        else if(interp.compose.glyphSpec!.template === "punchcard") {
+            punchcard(id, interp);
         }
     }
     else {

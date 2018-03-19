@@ -163,7 +163,7 @@ export default class Composer {
         let data = buffers.map((buffer, i) => {return {
             name: buffer.originalDataBuffer.name,
             value: values[i],
-            row: Math.floor(n / cols) - 1 - Math.floor(i / cols),
+            row: Math.floor(i / cols),
             col: i % cols,
         }});
 
