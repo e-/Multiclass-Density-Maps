@@ -175,7 +175,7 @@ export class ComposeSpec {
 }
 
 export class GlyphSpec {
-    template?: "bars"|"punchcard4";
+    template?: "bars"|"punchcard";
     width:number = 32;
     height:number = 32;
 

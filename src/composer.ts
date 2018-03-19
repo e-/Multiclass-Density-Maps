@@ -150,64 +150,61 @@ export default class Composer {
             width?:number,
             height?:number,
             'z.scale.domain': [number, number],
-            'z.scale.type': string
-        } = {'z.scale.domain': [0, 1], 'z.scale.type': 'linear'}
+            'z.scale.type': string,
+            'z.scale.base'?: number,
+            cols?: number
+        } = {'z.scale.domain': [0, 1], 'z.scale.type': 'linear', 'z.scale.base': 10}
     ) {
         let n = buffers.length;
-        let cols = Math.ceil(Math.sqrt(n));
+        let cols = options.cols || Math.ceil(Math.sqrt(n));
         let width = options.width || 30;
         let height = options.height || 30;
+
+        let data = buffers.map((buffer, i) => {return {
+            name: buffer.originalDataBuffer.name,
+            value: values[i],
+            row: Math.floor(n / cols) - 1 - Math.floor(i / cols),
+            col: i % cols,
+        }});
 
         let spec = {
             "$schema": "https://vega.github.io/schema/vega-lite/v2.0.json",
             data: {
-                values: buffers.map((buffer, i) => {return {
-                    name: buffer.originalDataBuffer.name,
-                    value: values[i],
-                    row: Math.floor(i / cols),
-                    col: i % cols,
-                }})
+                values: data
             },
             mark: "circle",
             encoding: {
-                "x": {"field": "col", "type": "ordinal"},
-                "y": {"field": "row", "type": "ordinal"},
-                "size": {
-                    "field": "value",
-                    "type": "quantitative",
+                x: {field: "col", type: "ordinal", axis: false, legend:false},
+                y: {field: "row", type: "ordinal", axis: false, legend:false},
+                size: {
+                    field: "value",
+                    type: "quantitative",
                     scale: {
                         domain: options["z.scale.domain"],
                         type: options["z.scale.type"]
-                    }
+                    },
+                    legend: false
                 },
                 color: {
-                    "field": "name",
-                    "type": "ordinal",
+                    field: "name",
+                    type: "ordinal",
                     scale: {
                         domain: buffers.map(b => b.originalDataBuffer.name),
                         range: buffers.map(b => (b.color || Color.Blue).css())
-                    }
+                    },
+                    legend: false
                 }
             },
-            autosize: "none",
             config: {
                 group: {
                     strokeWidth: 0
-                },
-                axis: {
-                    domain: false,
-                    ticks: false,
-                    labels: false,
-                    grid: false,
-                    tickExtra: false,
-                    gridColor: null
                 },
                 mark: {
                     opacity: 1
                 }
             },
-            width: width / 1,
-            height: height / 1,
+            width: width,
+            height: height,
             padding: 0
         };
 

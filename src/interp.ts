@@ -293,19 +293,19 @@ export default class Interpreter {
             let maxCount = util.amax(this.tiles.map(tile => util.amax(tile.dataValues)));
             let glyphSpec = this.compose.glyphSpec!;
 
-            if(glyphSpec.template === "bars") {
-                let d3scale, d3base = 1;
-                if(this.scale instanceof Scale.LinearScale) {
-                    d3scale = 'linear';
-                }
-                else if(this.scale instanceof Scale.LogScale) {
-                    d3scale = 'log';
-                    d3base = (<Scale.LogScale>this.scale).base;
-                }
-                else {
-                    throw 'failed to convert a scale to a d3 scale. Please add a specification';
-                }
+            let d3scale, d3base = 1;
+            if(this.scale instanceof Scale.LinearScale) {
+                d3scale = 'linear';
+            }
+            else if(this.scale instanceof Scale.LogScale) {
+                d3scale = 'log';
+                d3base = (<Scale.LogScale>this.scale).base;
+            }
+            else {
+                throw 'failed to convert a scale to a d3 scale. Please add a specification';
+            }
 
+            if(glyphSpec.template === "bars") {
                 for(let tile of this.tiles) {
                     if(tile.mask.width < glyphSpec.width
                         || tile.mask.height < glyphSpec.height) continue;
@@ -320,6 +320,28 @@ export default class Interpreter {
                         this.image[0].render(vegaCanvas, tile.center(), {
                             width: glyphSpec.width,
                             height: glyphSpec.height
+                        });
+                    })
+
+                    promises.push(promise);
+                }
+            }
+            else if(glyphSpec.template === "punchcard") {
+                for(let tile of this.tiles) {
+                    let width = tile.mask.width;
+                    let height = tile.mask.height;
+
+                    let promise = Composer.punchcard(this.derivedBuffers, tile.dataValues, {
+                        width: width,
+                        height: height,
+                        'z.scale.domain': this.scale.domain as [number, number],
+                        'z.scale.type': d3scale,
+                        'z.scale.base': d3base,
+                        cols: Math.ceil(Math.sqrt(this.derivedBuffers.length))
+                    }).then((vegaCanvas) => {
+                        this.image[0].render(vegaCanvas, tile.center(), {
+                            width: width,
+                            height: height,
                         });
                     })
 
