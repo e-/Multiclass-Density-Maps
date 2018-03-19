@@ -1,6 +1,6 @@
 import vegaEmbed from 'vega-embed';
 
-export default function extract(spec:any, options: {clip?: [number, number, number, number]} = {}) {
+export default function extract(spec:any) {
     let wrapper = document.createElement('div') as HTMLElement;
 
     return vegaEmbed(wrapper as HTMLBaseElement, spec, {
@@ -9,6 +9,6 @@ export default function extract(spec:any, options: {clip?: [number, number, numb
         let canvas = wrapper!.getElementsByTagName('canvas')[0];
         let ctx:any = canvas.getContext('2d');
 
-        return ctx.getImageData.apply(ctx, options.clip || [0, 0, canvas.width, canvas.height]) as ImageData;
+        return canvas;
     });
 }

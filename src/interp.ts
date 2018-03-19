@@ -316,8 +316,11 @@ export default class Interpreter {
                         'y.scale.domain': this.scale.domain as [number, number],
                         'y.scale.type': d3scale,
                         'y.scale.base': d3base
-                    }).then((vegaPixels) => {
-                        this.image[0].render(vegaPixels, tile);
+                    }).then((vegaCanvas) => {
+                        this.image[0].render(vegaCanvas, tile.center(), {
+                            width: glyphSpec.width,
+                            height: glyphSpec.height
+                        });
                     })
 
                     promises.push(promise);
