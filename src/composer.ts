@@ -104,7 +104,12 @@ export default class Composer {
             },
             mark: "bar",
             encoding: {
-                x: {field: "name", type: "ordinal"},
+                x: {
+                    field: "name",
+                    type: "ordinal",
+                    legend: false,
+                    axis: false
+                },
                 color: {
                     field: "name",
                     type: "ordinal",
@@ -112,7 +117,8 @@ export default class Composer {
                       domain: data.map(d => d.name),
                       range: data.map((d, i) => buffers[i].color!.css())
                       // will use a fully opaque color, since we use the length encoding
-                    }
+                    },
+                    legend: false
                 },
                 y: {
                     field: "value",
@@ -121,21 +127,14 @@ export default class Composer {
                         domain: options['y.scale.domain'],
                         type: options['y.scale.type'],
                         base: options['y.scale.base']
-                    }
+                    },
+                    lgend: false,
+                    axis: false
                 }
             },
-            autosize: "none",
             config: {
                 group: {
                     strokeWidth: 0
-                },
-                axis: {
-                    ticks: false,
-                    labels: false,
-                    domain: false,
-                    grid: false,
-                    tickExtra: false,
-                    gridColor: null
                 }
             },
             width: options.width || 30,

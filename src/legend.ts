@@ -5,6 +5,7 @@ import Color from './color';
 import Interpreter from './interp';
 import * as Scale from './scale';
 import Composer from './composer';
+import vegaEmbed from 'vega-embed';
 
 function translate(x:number, y:number) {
     return `translate(${x},${y})`;
@@ -251,11 +252,98 @@ function multiplicativeCircles(id:string, interp:Interpreter) {
 
 }
 
+function bars(id:string, interp:Interpreter) {
+    let derivedBuffers:DerivedBuffer[] = interp.derivedBuffers;
+    let n = derivedBuffers.length;
+    let spec = interp.legend as Parser.LegendSpec;
+
+    let svg = d3.select('#' + id)
+        .style('font-family', spec.fontFamily)
+        .style('font-size', spec.fontSize)
+
+    let sum = new Array(n).fill(0);
+
+    for(let tile of interp.tiles) {
+        tile.dataValues.forEach((value, i) => {
+            sum[i] += value;
+        })
+    }
+
+    let mean = sum.map(s => s / n);
+
+    let data = derivedBuffers.map((buffer, i) => {
+        return {category: buffer.originalDataBuffer.name, value: mean[i]}}
+    );
+
+    console.log(data);
+    let barSpec:any = {
+        $schema: "https://vega.github.io/schema/vega-lite/v2.0.json",
+        data: {
+            values: data
+        },
+        mark: "bar",
+        encoding: {
+            x: {
+                field: "category",
+                type: "ordinal",
+                legend: false,
+                axis: {
+                    title: null
+                }
+            },
+            color: {
+                field: "category",
+                type: "ordinal",
+                scale: {
+                  domain: data.map(d => d.category),
+                  range: data.map((d, i) => derivedBuffers[i].color!.css())
+                },
+                legend: false
+            },
+            y: {
+                field: "value",
+                type: "quantitative",
+                scale: {
+                    type: "linear"
+                },
+                legend: false,
+                axis: false
+            }
+        },
+        config: {
+            group: {
+                strokeWidth: 0
+            }
+        },
+        width: spec.width,
+        height: spec.height
+    };
+
+    let wrapper = document.createElement('div') as HTMLElement;
+    return vegaEmbed(wrapper as HTMLBaseElement, barSpec, {
+        actions: false,
+        renderer: 'svg'
+    }).then(() => {
+        let result = wrapper!.getElementsByTagName('svg')[0];
+        let svgNode = <SVGSVGElement>svg.node();
+
+        svgNode.innerHTML = result.innerHTML;
+        let rect = svgNode.getBoundingClientRect();
+        svg.attr("width", <any>result.getAttribute("width"))
+            .attr("height", <any>result.getAttribute("height"));
+    });
+}
+
 export default function LegendBuilder(id:string, interp:Interpreter) {
     if(interp.legend === false) return;
 
     if(interp.composer === Composer.multiplicativeMix) {
         multiplicativeCircles(id, interp);
+    }
+    else if(interp.compose.mix === "glyph") {
+        if(interp.compose.glyphSpec!.template === "bars") {
+            bars(id, interp);
+        }
     }
     else {
         horizontalColormaps(id, interp);

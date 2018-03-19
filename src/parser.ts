@@ -239,6 +239,10 @@ export class LegendSpec {
     // multiplicative circles
     size:number = 150;
 
+    // bars
+    width:number = 50;
+    height:number = 50;
+
     constructor(options?: LegendSpec) {
         if(options) Object.assign(this, options);
     }
