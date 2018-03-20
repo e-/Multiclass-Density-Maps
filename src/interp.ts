@@ -328,8 +328,8 @@ export default class Interpreter {
             }
             else if(glyphSpec.template === "punchcard") {
                 for(let tile of this.tiles) {
-                    let width = tile.mask.width;
-                    let height = tile.mask.height;
+                    let width = glyphSpec.width; // tile.mask.width;
+                    let height = glyphSpec.height; // tile.mask.height;
 
                     // console.log('mask', width, height);
 

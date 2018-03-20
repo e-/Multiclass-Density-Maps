@@ -23,7 +23,7 @@ Start the dev server:
 npm start
 ```
 
-Open the address that the server gives and navigate to `example.html`.
+Open the address that the server gives and navigate to `example-parsed.html`.
 
-Try `npm link` if there is a problem.
+In case of problem when installing `topojson`, try `npm install topojson --no-bin-links`.
 
