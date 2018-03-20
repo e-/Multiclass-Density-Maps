@@ -331,6 +331,8 @@ export default class Interpreter {
                     let width = tile.mask.width;
                     let height = tile.mask.height;
 
+                    // console.log('mask', width, height);
+
                     let promise = Composer.punchcard(this.derivedBuffers, tile.dataValues, {
                         width: width,
                         height: height,
@@ -339,6 +341,7 @@ export default class Interpreter {
                         'z.scale.base': d3base,
                         cols: Math.ceil(Math.sqrt(this.derivedBuffers.length))
                     }).then((vegaCanvas) => {
+                        // console.log('canvas', vegaCanvas.width, vegaCanvas.height);
                         this.image[0].render(vegaCanvas, tile.center(), {
                             width: width,
                             height: height,

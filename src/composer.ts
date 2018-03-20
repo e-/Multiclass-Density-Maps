@@ -3,6 +3,7 @@ import Color from './color';
 import { ScaleTrait } from './scale';
 import extract from './vega-extractor'
 import Tile from './tile';
+import * as util from './util';
 
 export default class Composer {
     static max(buffers:DerivedBuffer[], values:number[]):Color {
@@ -160,6 +161,14 @@ export default class Composer {
         let width = options.width || 30;
         let height = options.height || 30;
 
+        let names = buffers.map(b => b.originalDataBuffer.name);
+        let colors = buffers.map(b => (b.color || Color.Blue).css());
+
+        let factor = 8;
+        // TODO: I am really not sure why this magic number is required to
+        // determine the size of full circles. It seems that this number changes
+        // depending on the size of a tile and the number of circles in a tile.
+
         let data = buffers.map((buffer, i) => {return {
             name: buffer.originalDataBuffer.name,
             value: values[i],
@@ -167,6 +176,25 @@ export default class Composer {
             col: i % cols,
         }});
 
+        // (1, 1, 16)
+        // (2, 4, 8)
+        // (3, 9, 4)
+        // (4, 16, 2)
+        // n = 4;
+        // cols = 2;
+
+        // names = util.arange(n).map(d => d.toString());
+        // colors = new Array(n).fill(Color.Blue.css());
+        // data = util.arange(n).map(i => {
+        //     return {
+        //         name: i.toString(),
+        //         value: options["z.scale.domain"][1],
+        //         row: Math.floor(i / cols),
+        //         col: i % cols
+        //     }
+        // });
+
+        let rows = Math.ceil(n / cols);
         let spec = {
             "$schema": "https://vega.github.io/schema/vega-lite/v2.0.json",
             data: {
@@ -174,14 +202,35 @@ export default class Composer {
             },
             mark: "circle",
             encoding: {
-                x: {field: "col", type: "ordinal", axis: false, legend:false},
-                y: {field: "row", type: "ordinal", axis: false, legend:false},
+                x: {
+                    field: "col",
+                    type: "ordinal",
+                    axis: false,
+                    legend: false,
+                    scale: {
+                        type: 'point',
+                        domain: util.arange(cols),
+                        padding: 0.5
+                    }
+                },
+                y: {
+                    field: "row",
+                    type: "ordinal",
+                    axis: false,
+                    legend:false,
+                    scale: {
+                        type: 'point',
+                        domain: util.arange(rows),
+                        padding: 0.5
+                    }
+                },
                 size: {
                     field: "value",
                     type: "quantitative",
                     scale: {
                         domain: options["z.scale.domain"],
-                        type: options["z.scale.type"]
+                        type: options["z.scale.type"],
+                        range: [0, Math.min(width, height) * factor]
                     },
                     legend: false
                 },
@@ -189,19 +238,21 @@ export default class Composer {
                     field: "name",
                     type: "ordinal",
                     scale: {
-                        domain: buffers.map(b => b.originalDataBuffer.name),
-                        range: buffers.map(b => (b.color || Color.Blue).css())
+                        domain: names,
+                        range: colors
                     },
                     legend: false
                 }
             },
+            autosize: "none",
             config: {
-                group: {
-                    strokeWidth: 0
-                },
                 mark: {
                     opacity: 1
-                }
+                },
+                group: {
+                    strokeWidth: 0,
+                    stroke: "transparent"
+                },
             },
             width: width,
             height: height,
