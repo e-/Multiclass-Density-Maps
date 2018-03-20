@@ -10,7 +10,6 @@ import Composer from './composer';
 import * as Parser from './parser';
 import DerivedBuffer from './derived-buffer';
 import * as Scale from './scale';
-import Polys2D from './polys2D'
 import * as d3 from 'd3';
 import Interpreter from './interp';
 

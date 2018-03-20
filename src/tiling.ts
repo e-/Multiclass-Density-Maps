@@ -104,37 +104,19 @@ export function topojsonTiling(width:number, height:number,
       continue;
     }
 
-    let path         = gp.context(context1);
+    let mpath = mask.getPath();
+    let path  = gp.context(<any>mpath);
+    path(onefeature);
 
     // now render the shape (black opaque over black transparent)
     context1.clearRect(0, 0, canvas1.width, canvas1.height);
     context1.fillStyle="rgba(0, 0, 0, 1.0)";
     context1.translate(-xmin, -ymin);
-    path(onefeature);
-    context1.fill();
+    context1.fill(mpath);
 
     // let's get an array of pixels from the result drawing
     let pixels = context1!.getImageData(0, 0, canvas1.width, canvas1.height);
-
-    // and use it to update the mask
-    for (let r = 0; r < canvas1.height; r++) {
-        for (let c = 0; c < canvas1.width; c++) {
-            if (pixels.data[c*4+r*4*canvas1.width +3] > 127){
-              mask.mask[r][c] = 1;
-            }
-        }
-    }
-
-    // use it to update the vector mask as well
-    for (let i in onefeature.geometry.coordinates) {
-      let main = onefeature.geometry.coordinates[i][0]; // no holes ?
-      if (!Array.isArray(onefeature.geometry.coordinates[i][0][0]))
-        main = onefeature.geometry.coordinates[i];
-      // project the points
-      var ptsx = main.map(function(value:any,index:any) { return projection(value)![0]; });
-      var ptsy = main.map(function(value:any,index:any) { return projection(value)![1]; });
-      mask.pols.addPoly(ptsx, ptsy);
-    }
+    mask.copyFrom(pixels);
 
     // now with a correct mask we can create the tile
     let tile:Tile = new Tile(Math.floor(xmin), Math.floor(ymin), mask);
@@ -184,28 +166,23 @@ export function voronoiTiling(width:number, height:number,
     let mask:Mask = new Mask(Math.ceil(maxx-minx)+1, Math.ceil(maxy-miny)+1, 0);
     let canvas1      = mask.getCanvas();
     let context1:any = canvas1.getContext("2d");
+    let path = mask.getPath();
 
     context1.clearRect(0, 0, canvas1.width, canvas1.height);
     context1.fillStyle="rgba(0, 0, 0, 1.0)";
 
-    context1.beginPath();
-    context1.moveTo(polys[p][0][0]-minx, polys[p][0][1]-miny);
+    //context1.beginPath();
+    path.moveTo(polys[p][0][0], polys[p][0][1]);
     for (let k=1; k<polys[p].length; k++){
       let x = Math.min(width, Math.max(0, polys[p][k][0]));
       let y = Math.min(height, Math.max(0, polys[p][k][1]));
-      context1.lineTo(x-minx, y-miny);
+      path.lineTo(x, y);
     }
-    context1.lineTo(polys[p][0][0]-minx, polys[p][0][1]-miny);
-    context1.fill();
+    path.lineTo(polys[p][0][0], polys[p][0][1]);
+    context1.translate(-minx, -miny);
+    context1.fill(path);
 
-    mask.pols.addPoly(ptsx, ptsy);
-    for (let r = Math.floor(miny); r < Math.ceil(maxy); r++) {
-      for (let c = Math.floor(minx); c < Math.ceil(maxx); c++) {
-        if (mask.pols.isPointInPoly(-1, c, r)){
-          mask.mask[r-Math.floor(miny)][c-Math.floor(minx)] = 1;
-        }
-      }
-    }
+    mask.copyFrom(context1.getImageData(0, 0, canvas1.width, canvas1.height));
     tiles.push(new Tile(Math.floor(minx), Math.floor(miny), mask));
   }
 
