@@ -286,12 +286,24 @@ export default class Interpreter {
                 let hatch = Composer.hatch(tile, this.derivedBuffers,
                                            this.compose.size,
                                            this.compose.proportional);
-                this.image[0].render(hatch, tile.center());
+                this.image[0].render(hatch, tile.center);
             }
         }
         else if (this.compose.mix === "glyph") {
             let maxCount = util.amax(this.tiles.map(tile => util.amax(tile.dataValues)));
             let glyphSpec = this.compose.glyphSpec!;
+
+            let d3scale, d3base = 1;
+            if(this.scale instanceof Scale.LinearScale) {
+                d3scale = 'linear';
+            }
+            else if(this.scale instanceof Scale.LogScale) {
+                d3scale = 'log';
+                d3base = (<Scale.LogScale>this.scale).base;
+            }
+            else {
+                throw 'failed to convert a scale to a d3 scale. Please add a specification';
+            }
 
             if(glyphSpec.template === "bars") {
                 for(let tile of this.tiles) {
@@ -301,10 +313,40 @@ export default class Interpreter {
                     let promise = Composer.bars(this.derivedBuffers, tile.dataValues, {
                         width: glyphSpec.width,
                         height: glyphSpec.height,
-                        'y.scale.domain': [1, maxCount],
-                        'y.scale.type': 'sqrt'
-                    }).then((vegaPixels) => {
-                        this.image[0].render(vegaPixels, tile);
+                        'y.scale.domain': this.scale.domain as [number, number],
+                        'y.scale.type': d3scale,
+                        'y.scale.base': d3base
+                    }).then((vegaCanvas) => {
+                        this.image[0].render(vegaCanvas, tile.getGravityCenter(), {
+                            width: glyphSpec.width,
+                            height: glyphSpec.height
+                        });
+                    })
+
+                    promises.push(promise);
+                }
+            }
+            else if(glyphSpec.template === "punchcard") {
+                for(let tile of this.tiles) {
+                    let width = glyphSpec.width; // tile.mask.width;
+                    let height = glyphSpec.height; // tile.mask.height;
+
+                    // console.log('mask', width, height);
+
+                    let promise = Composer.punchcard(this.derivedBuffers, tile.dataValues, {
+                        width: width,
+                        height: height,
+                        'z.scale.domain': this.scale.domain as [number, number],
+                        'z.scale.type': d3scale,
+                        'z.scale.base': d3base,
+                        cols: Math.ceil(Math.sqrt(this.derivedBuffers.length)),
+                        factor: glyphSpec.factor
+                    }).then((vegaCanvas) => {
+                        // console.log('canvas', vegaCanvas.width, vegaCanvas.height);
+                        this.image[0].render(vegaCanvas, tile.getGravityCenter(), {
+                            width: width,
+                            height: height,
+                        });
                     })
 
                     promises.push(promise);

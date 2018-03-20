@@ -175,9 +175,10 @@ export class ComposeSpec {
 }
 
 export class GlyphSpec {
-    template?: "bars"|"punchcard4";
+    template?: "bars"|"punchcard";
     width:number = 32;
     height:number = 32;
+    factor:number = 8;
 
     constructor(options?: GlyphSpec) {
         if(options) Object.assign(this, options);
@@ -234,9 +235,14 @@ export class LegendSpec {
     tickFontSize:string = "10px";
 
     markers:number = 3;
+    numTicks?:number;
 
     // multiplicative circles
     size:number = 150;
+
+    // bars
+    width:number = 50;
+    height:number = 50;
 
     constructor(options?: LegendSpec) {
         if(options) Object.assign(this, options);

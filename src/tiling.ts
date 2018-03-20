@@ -7,6 +7,7 @@ import * as util from './util';
 import * as topo from 'topojson';
 import * as rn from 'random-seed';
 import proj4 from 'proj4';
+import Point from './point';
 
 export function pixelTiling (width:number, height:number) {
   let tiles:Tile[] = [];
@@ -206,7 +207,13 @@ export function voronoiTiling(width:number, height:number,
         }
       }
     }
-    tiles.push(new Tile(Math.floor(minx), Math.floor(miny), mask));
+
+    let cx = ptsx.reduce((a, b) => a + b, 0) / ptsx.length;
+    let cy = ptsy.reduce((a, b) => a + b, 0) / ptsy.length;
+
+    tiles.push(
+        new Tile(Math.floor(minx), Math.floor(miny), mask)
+    );
   }
 
   return tiles;

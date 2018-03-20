@@ -18,12 +18,11 @@ export default class Image {
     }
 
     render(color: Color, rect: Rect):void;
-    render(canvas: HTMLCanvasElement, at: Point): void;
-    render(imageData: ImageData, tile:Tile):void;
+    render(canvas: HTMLCanvasElement, at: Point, options?:any): void;
     render(color: Color, tile: Tile, mask?: Mask):void;
 
-    render(source: Color | ImageData | HTMLCanvasElement,
-           shapeOrPoint:Rect | Tile | Point, mask?: Mask) {
+    render(source: Color | HTMLCanvasElement,
+           shapeOrPoint:Rect | Tile | Point, mask?: Mask | any) {
         if(source instanceof Color) {
             if(shapeOrPoint instanceof Tile) {
                 this.fillColorByTile(source as Color,
@@ -35,13 +34,9 @@ export default class Image {
                                      shapeOrPoint as Rect);
             }
         }
-        else if(source instanceof ImageData) {
-            this.putImageByTile(source as ImageData,
-                                shapeOrPoint as Tile);
-        }
         else if(source instanceof HTMLCanvasElement) {
             this.drawTileAtPosition(source as HTMLCanvasElement,
-                                    shapeOrPoint as Point);
+                                    shapeOrPoint as Point, mask);
         }
     }
 
@@ -74,7 +69,7 @@ export default class Image {
         }
     }
 
-    private drawTileAtPosition(canvas:HTMLCanvasElement, point:Point){
+    private checkOrCreate() {
         if (this.imageCanvas == undefined) {
             this.imageCanvas = document.createElement('canvas');
             if (this.imageCanvas == null) {
@@ -84,11 +79,25 @@ export default class Image {
             this.imageCanvas.width  = this.width;
             this.imageCanvas.height = this.height;
         }
+    }
 
-        let ctx = this.imageCanvas.getContext("2d")!;
+    private drawTileAtPosition(canvas:HTMLCanvasElement, point:Point, options?:any){
+        this.checkOrCreate();
+
+        let ctx = this.imageCanvas!.getContext("2d")!;
         ctx.save();
-        ctx.translate(point.x, point.y);
-        ctx.drawImage(canvas, -canvas.width/2, -canvas.height/2);
+
+        if(options && options.width && options.height) {
+            let width = options.width!;
+            let height = options.height!;
+
+            ctx.drawImage(canvas, point.x - width / 2, point.y - height / 2, width, height);
+        }
+        else {
+            ctx.translate(point.x, point.y);
+            ctx.drawImage(canvas, -canvas.width/2, -canvas.height/2);
+        }
+
         ctx.restore();
     }
 
@@ -103,32 +112,33 @@ export default class Image {
     }
 
     // default to center
-    private putImageByTile(imageData:ImageData, tile:Tile) {
-        let width = imageData.width;
-        let height = imageData.height;
+    // private putImageByTile(imageData:ImageData, tile:Tile, options:any = {}) {
 
-        let topLeft = new Point(tile.x + tile.mask.width / 2 - width / 2 ,
-                                tile.y + tile.mask.height / 2 - height / 2).round();
+    //     let width = imageData.width;
+    //     let height = imageData.height;
 
-        let data = imageData.data;
+    //     let topLeft = new Point(tile.x + tile.mask.width / 2 - width / 2 ,
+    //                             tile.y + tile.mask.height / 2 - height / 2).round();
 
-        for(let r = 0; r < height; r++) {
-            for(let c = 0; c < width; c++) {
-                let tr = r + topLeft.y; // target row
-                let tc = c + topLeft.x; // target column
+    //     let data = imageData.data;
 
-                if(tr < 0 || tc < 0 || tr >= this.height || tc >= this.width) continue;
+    //     for(let r = 0; r < height; r++) {
+    //         for(let c = 0; c < width; c++) {
+    //             let tr = r + topLeft.y; // target row
+    //             let tc = c + topLeft.x; // target column
 
-                let color = new Color(
-                    data[(r * width + c) * 4    ] / 255,
-                    data[(r * width + c) * 4 + 1] / 255,
-                    data[(r * width + c) * 4 + 2] / 255,
-                    data[(r * width + c) * 4 + 3] / 255,
-                );
-                this.pixels[tr][tc] = color;
-            }
-        }
-    }
+    //             if(tr < 0 || tc < 0 || tr >= this.height || tc >= this.width) continue;
+
+    //             let color = new Color(
+    //                 data[(r * width + c) * 4    ] / 255,
+    //                 data[(r * width + c) * 4 + 1] / 255,
+    //                 data[(r * width + c) * 4 + 2] / 255,
+    //                 data[(r * width + c) * 4 + 3] / 255,
+    //             );
+    //             this.pixels[tr][tc] = color;
+    //         }
+    //     }
+    // }
 
     // fillByTile2(color:Color, tile:Tile, mask?:Mask) {
     //     let ctx = this.imageCanvas.getContext("2d")!;

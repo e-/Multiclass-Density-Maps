@@ -130,6 +130,25 @@ render('Random Rectangular Weaving',
            }
        });
 
+render('Rectangular binning + circles',
+       {
+           "description": "multivariate normal data",
+           "data": {"url": "mn_data.json"},
+           "rebin": {
+               "type": "square",
+               "size": 32
+           },
+           /*"rescale": {
+               "type": "log"
+           },*/
+           "compose": {
+                "mix": "glyph",
+                "glyphSpec": {
+                    "template": "punchcard"
+                }
+            }
+       });
+
 render('Square Rectangular Weaving',
        {
            "description": "multivariate normal data",
@@ -166,6 +185,9 @@ render('EquiDepth Color Scale triangles',
            },
            "rescale": {
                "type": "equidepth"
+           },
+           "legend": {
+               "numTicks": 4
            }
        }, true);
 

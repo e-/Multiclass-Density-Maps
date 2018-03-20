@@ -14,7 +14,9 @@ export default class Tile extends Point {
     dataValues:number[] = [];
     id:number = -1
 
-    constructor(x:number, y:number, public mask:Mask) {
+    constructor(x:number, y:number, public mask:Mask,
+        public center:Point = new Point(x + mask.width / 2, y + mask.height / 2))
+    {
       super(x, y);
     }
 
@@ -65,8 +67,22 @@ export default class Tile extends Point {
         return buffers.map(buffer => this.aggregateOne(buffer, op));
     }
 
-    center() {
-        return new Point(this.x+this.mask.width/2, this.y+this.mask.height/2)
-    }
+    getGravityCenter() {
+        if(this.mask && this.mask.pols.allpolys.length > 0){
+            let cx = 0, cy = 0, n = 0;
+            let polys = this.mask.pols.allpolys;
 
+            polys.forEach((poly) => {
+                n += poly.ptx.length;
+
+                cx += poly.ptx.reduce((a, b) => a + b, 0);
+                cy += poly.pty.reduce((a, b) => a + b, 0);
+            })
+
+            return new Point(cx / n, cy / n);
+        }
+
+        // if this is not a polygon, fallback
+        return this.center;
+    }
 }

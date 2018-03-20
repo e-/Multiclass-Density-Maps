@@ -408,7 +408,7 @@ export class TestMain {
               let hatch:any = Composer.hatch(tile, derivedBuffers16, hatchingSize, true);
               outputImage16.render(
                 hatch,
-                tile.center()
+                tile.center
               );
         }
 
@@ -736,7 +736,7 @@ export class TestMain {
 
             outputImage.render(
                 Composer.hatch(tile, derivedBuffers, hatchingSize, propWidth),
-                tile.center()
+                tile.center
             );
         }
 
