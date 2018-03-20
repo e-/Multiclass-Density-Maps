@@ -1,13 +1,14 @@
 import * as util from './util';
+import {Path} from './path';
 
 export default class Mask {
-    path?:Path2D;
+    path?:Path;
     maskCanvas?:HTMLCanvasElement;
     mask:Uint8ClampedArray[];
 
     constructor(public width:number, public height:number,
                 default_value:number = 1) {
-        // public mask = util.create2D<number>(width, height, default_value)
+        //this.pols = new Path();
         let buffer = new ArrayBuffer(width*height);
         this.mask = Array<Uint8ClampedArray>(height);
         for (let i = 0; i < height; i++) 
@@ -25,7 +26,7 @@ export default class Mask {
   
     getPath() {
       if (this.path === undefined)
-        this.path = new Path2D();
+        this.path = new Path();
       return this.path;
     }
 
@@ -105,9 +106,11 @@ export default class Mask {
             }
         }
         masks.forEach(mask => {
+            if (mask.path === undefined) return;
             let ctx = <CanvasRenderingContext2D>mask.getCanvas().getContext("2d");
             ctx.fillStyle = "#111";
-            ctx.fill(mask.getPath());
+            mask.path.send(ctx)
+            ctx.fill();
             let imageData =  ctx.getImageData(0, 0, mask.width, mask.height);
             let maskImage = new Uint8ClampedArray(mask.mask[0].buffer);
             for (let i = 0, j = 0; i < maskImage.length; i++, j+= 4) 
@@ -155,9 +158,11 @@ export default class Mask {
             }
         }
         masks.forEach(mask => {
+            if (mask.path === undefined) return;
             let ctx = <CanvasRenderingContext2D>mask.getCanvas().getContext("2d");
             ctx.fillStyle = "#111";
-            ctx.fill(mask.getPath());
+            mask.path.send(ctx);
+            ctx.fill();
             let imageData =  ctx.getImageData(0, 0, mask.width, mask.height);
             let maskImage = new Uint8ClampedArray(mask.mask[0].buffer);
             for (let i = 0, j = 0; i < maskImage.length; i++, j+= 4) 

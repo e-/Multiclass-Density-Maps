@@ -3,10 +3,10 @@ import Mask from './mask';
 import * as GeoJSON from 'geojson';
 import * as d3 from 'd3';
 import * as D3Geo from 'd3-geo';
-import * as util from './util';
 import * as topo from 'topojson';
 import * as rn from 'random-seed';
 import proj4 from 'proj4';
+import Point from './point';
 
 export function pixelTiling (width:number, height:number) {
   let tiles:Tile[] = [];
@@ -71,7 +71,7 @@ export function topojsonTiling(width:number, height:number,
   }
   else
     projection.fitSize([width, height], allfeatures);
-  let gp              = d3.geoPath(projection);
+    let gp = d3.geoPath(projection);
 
   // mainland states
   for (let j=0; j<feature.geometries.length; j++){
@@ -112,7 +112,8 @@ export function topojsonTiling(width:number, height:number,
     context1.clearRect(0, 0, canvas1.width, canvas1.height);
     context1.fillStyle="rgba(0, 0, 0, 1.0)";
     context1.translate(-xmin, -ymin);
-    context1.fill(mpath);
+    mpath.send(context1);
+    context1.fill();
 
     // let's get an array of pixels from the result drawing
     let pixels = context1!.getImageData(0, 0, canvas1.width, canvas1.height);
@@ -180,10 +181,16 @@ export function voronoiTiling(width:number, height:number,
     }
     path.lineTo(polys[p][0][0], polys[p][0][1]);
     context1.translate(-minx, -miny);
-    context1.fill(path);
+    path.send(context1);
+    context1.fill();
 
     mask.copyFrom(context1.getImageData(0, 0, canvas1.width, canvas1.height));
-    tiles.push(new Tile(Math.floor(minx), Math.floor(miny), mask));
+    let cx = ptsx.reduce((a, b) => a + b, 0) / ptsx.length;
+    let cy = ptsy.reduce((a, b) => a + b, 0) / ptsy.length;
+
+    tiles.push(
+        new Tile(Math.floor(minx), Math.floor(miny), mask)
+    );
   }
 
   return tiles;

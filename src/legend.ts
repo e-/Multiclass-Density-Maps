@@ -392,7 +392,7 @@ function punchcard(id:string, interp:Interpreter) {
             {
                 mark: {
                     type: "text",
-                    baseline: "middle",
+                    baseline: "middle"
                 },
                 encoding: {
                     text: {field: "category"}

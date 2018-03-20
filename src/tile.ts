@@ -2,6 +2,8 @@ import Point from './point';
 import DataBuffer from './data-buffer';
 import Mask from './mask';
 import Color from './color';
+import Rect from './rect';
+import * as util from './util';
 
 export enum TileAggregation {
     Min,
@@ -14,7 +16,9 @@ export default class Tile extends Point {
     dataValues:number[] = [];
     id:number = -1
 
-    constructor(x:number, y:number, public mask:Mask) {
+    constructor(x:number, y:number, public mask:Mask,
+        public center:Point = new Point(x + mask.width / 2, y + mask.height / 2))
+    {
       super(x, y);
     }
 
@@ -65,8 +69,29 @@ export default class Tile extends Point {
         return buffers.map(buffer => this.aggregateOne(buffer, op));
     }
 
-    center() {
-        return new Point(this.x+this.mask.width/2, this.y+this.mask.height/2)
-    }
+    getRectAtCenter() {
+        if(this.mask && this.mask.path != undefined){
+            let poly:[number, number][] = this.mask.path.pts;
 
+            let center = util.largeRectInPoly(poly, {
+                angle: 0,
+                aspectRatio: 1
+            });
+
+            if(!center) {
+                return null;
+            }
+
+            let p = center[0]! as {cx:number, cy:number, width:number, height:number};
+            return new Rect(
+                new Point(p.cx - p.width / 2, p.cy - p.height / 2),
+                new Point(p.cx + p.width / 2, p.cy + p.height / 2)
+            );
+        }
+
+        return new Rect(
+            new Point(this.x, this.y),
+            new Point(this.x + this.mask.width, this.y + this.mask.height)
+        );
+    }
 }

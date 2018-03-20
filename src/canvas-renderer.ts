@@ -141,7 +141,8 @@ export default class CanvasRenderer {
       ctx.beginPath();
       ctx.strokeStyle = options.color || '#000';
       ctx.lineWidth = options.lineWidth || 1;
-      ctx.stroke(mask.path);
+      mask.path.send(ctx);
+      ctx.stroke();
     }
 
     static renderMultiples(images:Image[], id:string, options:{rows?:number, cols?:number} = {}) {

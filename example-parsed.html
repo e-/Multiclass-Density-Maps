@@ -138,6 +138,9 @@ render('Rectangular binning + circles',
                "type": "square",
                "size": 32
            },
+           /*"rescale": {
+               "type": "log"
+           },*/
            "compose": {
                 "mix": "glyph",
                 "glyphSpec": {
@@ -285,6 +288,22 @@ render('Voronoi Tiling (Multicative)',{
     }
 });
 
+render('Voronoi Tiling + Prop. lines',
+       {
+           "description": "multivariate normal data",
+           "data": {"url": "mn_data.json"},
+           "rebin": {
+               "type": "voronoi",
+               "size": 32,
+               "stroke": "black"
+           },
+           "compose": {
+               "mix": "propline",
+               "size": 4,
+               "widthprop":"percent",
+               "colprop":true
+           }
+       });
 render('Voronoi Tiling + Hatching',
        {
            "description": "multivariate normal data",
@@ -296,8 +315,9 @@ render('Voronoi Tiling + Hatching',
            },
            "compose": {
                "mix": "hatching",
-               "size": 5,
-               "proportional": false
+               "size": 2,
+               "widthprop":1.0,
+               "colprop":false
            }
        }, true);
 
@@ -345,7 +365,7 @@ render('Census Data Random Weaving',
           "type": "topojson",
           "url": "us.json",
           "feature": "states",
-           "feature": "counties",
+          // "feature": "counties",
           /*"minfeature": 0,
           "maxfeature": 3109,*/
         //  "maxfeature": 49,
@@ -432,7 +452,7 @@ render('French Presidential Election',
             "field": "z",
             "type": "nominal",
             "scale": {
-                "range": ["Red", "Pink", "Orange", "Blue", "Black"]
+                "range": ["Red", "Pink", "Orange", "Blue", "#5B3C11"]
             }
         }
     },
@@ -452,7 +472,7 @@ render('French Presidential Election',
       "blur": 16,
       "stroke": 24
     }
-}, true, "600px", "500px");
+}, true, "600px", "520px");
 
 </script>
     </body>

@@ -276,19 +276,41 @@ export default class Interpreter {
                 });
             }
         }
-        else if (this.compose.mix === "hatching") {
+        else if (this.compose.mix === "propline") {
             for(let tile of this.tiles) {
                 this.derivedBuffers.forEach((derivedBuffer:DerivedBuffer, i:number) => {
                     // Ugly side effect, should pass dataValues to Composer.hatch instead
                     derivedBuffer.color = derivedBuffer.colorScale.map(tile.dataValues[i]);
                 });
 
-                let hatch = Composer.hatch(tile, this.derivedBuffers,
-                                           this.compose.size,
-                                           this.compose.proportional);
-                this.image[0].render(hatch, tile.center());
+                let hatch = Composer.hatch(tile, this.derivedBuffers, this.compose.size,
+                                           this.compose.widthprop, this.compose.colprop);
+                this.image[0].render(hatch, tile.center);
             }
         }
+        else if (this.compose.mix === "hatching") {
+            let maxCount = util.amax(this.tiles.map(tile => util.amax(tile.dataValues)));
+            for(let tile of this.tiles) {
+                this.derivedBuffers.forEach((derivedBuffer:DerivedBuffer, i:number) => {
+                    // Ugly side effect, should pass dataValues to Composer.hatch instead
+                    derivedBuffer.color = derivedBuffer.colorScale.map(tile.dataValues[i]);
+                    derivedBuffer.angle = Math.PI * i / (2*this.derivedBuffers.length);
+                });
+
+
+                let hatch:HTMLCanvasElement;
+
+                if (typeof this.compose.widthprop === "number")
+                  hatch= Composer.hatch(tile, this.derivedBuffers,             this.compose.size,
+                                              this.compose.widthprop*maxCount, this.compose.colprop);
+                else
+                  hatch = Composer.hatch(tile, this.derivedBuffers,    this.compose.size,
+                                               this.compose.widthprop, this.compose.colprop);
+
+                this.image[0].render(hatch, tile.center);
+            }
+        }
+
         else if (this.compose.mix === "glyph") {
             let maxCount = util.amax(this.tiles.map(tile => util.amax(tile.dataValues)));
             let glyphSpec = this.compose.glyphSpec!;
@@ -306,9 +328,12 @@ export default class Interpreter {
             }
 
             if(glyphSpec.template === "bars") {
+                let width = glyphSpec.width; // tile.mask.width;
+                let height = glyphSpec.height; // tile.mask.height;
+
                 for(let tile of this.tiles) {
-                    if(tile.mask.width < glyphSpec.width
-                        || tile.mask.height < glyphSpec.height) continue;
+                    if(tile.mask.width < width
+                        || tile.mask.height < height) continue;
 
                     let promise = Composer.bars(this.derivedBuffers, tile.dataValues, {
                         width: glyphSpec.width,
@@ -317,9 +342,12 @@ export default class Interpreter {
                         'y.scale.type': d3scale,
                         'y.scale.base': d3base
                     }).then((vegaCanvas) => {
-                        this.image[0].render(vegaCanvas, tile.center(), {
-                            width: glyphSpec.width,
-                            height: glyphSpec.height
+                        let rect = tile.getRectAtCenter();
+                        if(!rect || rect.width() < width || rect.height() < height) return;
+
+                        this.image[0].render(vegaCanvas, rect.center(), {
+                            width: width,
+                            height: height
                         });
                     })
 
@@ -331,15 +359,23 @@ export default class Interpreter {
                     let width = glyphSpec.width; // tile.mask.width;
                     let height = glyphSpec.height; // tile.mask.height;
 
+                    // console.log('mask', width, height);
+
                     let promise = Composer.punchcard(this.derivedBuffers, tile.dataValues, {
                         width: width,
                         height: height,
                         'z.scale.domain': this.scale.domain as [number, number],
                         'z.scale.type': d3scale,
                         'z.scale.base': d3base,
-                        cols: Math.ceil(Math.sqrt(this.derivedBuffers.length))
+                        cols: Math.ceil(Math.sqrt(this.derivedBuffers.length)),
+                        factor: glyphSpec.factor
                     }).then((vegaCanvas) => {
-                        this.image[0].render(vegaCanvas, tile.center(), {
+                        // console.log('canvas', vegaCanvas.width, vegaCanvas.height);
+                        let rect = tile.getRectAtCenter();
+
+                        if(!rect || rect.width() < width || rect.height() < height) return;
+
+                        this.image[0].render(vegaCanvas, rect.center(), {
                             width: width,
                             height: height,
                         });

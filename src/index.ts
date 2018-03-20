@@ -404,10 +404,10 @@ export class TestMain {
               else
                   derivedBuffers16[i].color = Color.Category10[i];
 
-              let hatch:any = Composer.hatch(tile, derivedBuffers16, hatchingSize, true);
+              let hatch:any = Composer.hatch(tile, derivedBuffers16, hatchingSize, "percent");
               outputImage16.render(
                 hatch,
-                tile.center()
+                tile.center
               );
         }
 
@@ -647,10 +647,10 @@ export class TestMain {
     }
 
     figure1c1(config:Parser.Configuration, topous:any, update:boolean=false) {
-          let me = this;
-          let savedConfig = config;
-          let savedTopous = topous;
-          if (!update){
+        let me = this;
+        let savedConfig = config;
+        let savedTopous = topous;
+        if (!update){
             jquery( "#slider1c1" ).css("background", "#ddd").slider({
                 min:   1,
                 value: 2,
@@ -723,10 +723,10 @@ export class TestMain {
                   derivedBuffers[i].color = Color.Category10[i];
                 derivedBuffers[i].angle = 0;
             }
-            let propWidth = false;
+            let propWidth = "none";
 
              if (jquery("#compo1c1d option:selected").text()=='Width')
-                 propWidth = true;
+                 propWidth = "percent";
 
              if (jquery("#compo1c1f option:selected").text()=="Align")
                  derivedBuffers.forEach((buffer) => { buffer.angle = Math.PI*parseInt(jquery("#compo1c1e option:selected").text())/180; })
@@ -735,7 +735,7 @@ export class TestMain {
 
             outputImage.render(
                 Composer.hatch(tile, derivedBuffers, hatchingSize, propWidth),
-                tile.center()
+                tile.center
             );
         }
 
@@ -934,7 +934,11 @@ export class TestMain {
         let maxCount = util.amax(ustiles.map(tile => util.amax(tile.dataValues)));
 
 
-        let derivedBuffers = dataBuffers.map((dataBuffer, i) => new DerivedBuffer(dataBuffer))
+        let derivedBuffers = dataBuffers.map((dataBuffer, i) => {
+            let db = new DerivedBuffer(dataBuffer);
+            db.color = Color.Category10[i];
+            return db;
+        })
 
         let outputImage = new Image(width, height);
         let promises = [];

@@ -1,4 +1,4 @@
-# MultiClassPlots
+# Multiclass Density Maps
 
 ## Development
 
@@ -7,8 +7,8 @@ Install NodeJS and NPM from https://nodejs.org/en/download/
 Clone the repo:
 
 ```bash
-git clone https://github.com/e-/MultiClassPlots.git
-cd MultiClassPlots
+git clone https://github.com/e-/Multiclass-Density-Maps.git
+cd Multiclass-Density-Maps
 ```
 
 Install the dependencies:
