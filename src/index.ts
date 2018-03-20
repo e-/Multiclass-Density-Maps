@@ -648,10 +648,10 @@ export class TestMain {
     }
 
     figure1c1(config:Parser.Configuration, topous:any, update:boolean=false) {
-          let me = this;
-          let savedConfig = config;
-          let savedTopous = topous;
-          if (!update){
+        let me = this;
+        let savedConfig = config;
+        let savedTopous = topous;
+        if (!update){
             jquery( "#slider1c1" ).css("background", "#ddd").slider({
                 min:   1,
                 value: 2,
@@ -935,7 +935,11 @@ export class TestMain {
         let maxCount = util.amax(ustiles.map(tile => util.amax(tile.dataValues)));
 
 
-        let derivedBuffers = dataBuffers.map((dataBuffer, i) => new DerivedBuffer(dataBuffer))
+        let derivedBuffers = dataBuffers.map((dataBuffer, i) => {
+            let db = new DerivedBuffer(dataBuffer);
+            db.color = Color.Category10[i];
+            return db;
+        })
 
         let outputImage = new Image(width, height);
         let promises = [];

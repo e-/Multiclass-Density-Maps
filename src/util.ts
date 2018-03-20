@@ -89,3 +89,6 @@ export function get(url: string): Promise<any> {
         request.send();
     });
 }
+
+
+export { default as largeRectInPoly } from './largest-rect-in-poly';

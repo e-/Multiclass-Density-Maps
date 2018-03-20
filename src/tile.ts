@@ -2,6 +2,8 @@ import Point from './point';
 import DataBuffer from './data-buffer';
 import Mask from './mask';
 import Color from './color';
+import Rect from './rect';
+import * as util from './util';
 
 export enum TileAggregation {
     Min,
@@ -67,22 +69,33 @@ export default class Tile extends Point {
         return buffers.map(buffer => this.aggregateOne(buffer, op));
     }
 
-    getGravityCenter() {
+    getRectAtCenter() {
         if(this.mask && this.mask.pols.allpolys.length > 0){
-            let cx = 0, cy = 0, n = 0;
-            let polys = this.mask.pols.allpolys;
-
-            polys.forEach((poly) => {
-                n += poly.ptx.length;
-
-                cx += poly.ptx.reduce((a, b) => a + b, 0);
-                cy += poly.pty.reduce((a, b) => a + b, 0);
+            let poly:[number, number][] = [];
+            let maskPoly = this.mask.pols.allpolys[0];
+            util.arange(maskPoly.ptx.length).forEach(i => {
+                poly.push([maskPoly.ptx[i], maskPoly.pty[i]]);
             })
 
-            return new Point(cx / n, cy / n);
+            let center = util.largeRectInPoly(poly, {
+                angle: 0,
+                aspectRatio: 1
+            });
+
+            if(!center) {
+                return null;
+            }
+
+            let p = center[0]! as {cx:number, cy:number, width:number, height:number};
+            return new Rect(
+                new Point(p.cx - p.width / 2, p.cy - p.height / 2),
+                new Point(p.cx + p.width / 2, p.cy + p.height / 2)
+            );
         }
 
-        // if this is not a polygon, fallback
-        return this.center;
+        return new Rect(
+            new Point(this.x, this.y),
+            new Point(this.x + this.mask.width, this.y + this.mask.height)
+        );
     }
 }
