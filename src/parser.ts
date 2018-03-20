@@ -161,10 +161,11 @@ export interface ConfigurationReencodingSpec {
 export class ComposeSpec {
     mix: "none"|"min"|"mean"|"max"|"blend"|
           "weavingrandom"|"weavingsquare"|"weavinghex"|"weavingtri"|
-          "hatching"|"separate"|"glyph"="mean";
+          "propline"|"hatching"|"separate"|"glyph"="mean";
     mixing: "additive"|"subtractive"|"multicative" = "additive";
     size:number = 8;
-    proportional:boolean = true;
+    widthprop:string|number = "none";
+    colprop:boolean = false;
     select?:number;
     url?:string;
     glyphSpec?: GlyphSpec;
@@ -176,7 +177,7 @@ export class ComposeSpec {
 
 export class GlyphSpec {
     template?: "bars"|"punchcard";
-    width:number = 32;
+    width:number  = 32;
     height:number = 32;
     factor:number = 8;
 

@@ -405,7 +405,7 @@ export class TestMain {
               else
                   derivedBuffers16[i].color = Color.Category10[i];
 
-              let hatch:any = Composer.hatch(tile, derivedBuffers16, hatchingSize, true);
+              let hatch:any = Composer.hatch(tile, derivedBuffers16, hatchingSize, "percent");
               outputImage16.render(
                 hatch,
                 tile.center
@@ -724,10 +724,10 @@ export class TestMain {
                   derivedBuffers[i].color = Color.Category10[i];
                 derivedBuffers[i].angle = 0;
             }
-            let propWidth = false;
+            let propWidth = "none";
 
              if (jquery("#compo1c1d option:selected").text()=='Width')
-                 propWidth = true;
+                 propWidth = "percent";
 
              if (jquery("#compo1c1f option:selected").text()=="Align")
                  derivedBuffers.forEach((buffer) => { buffer.angle = Math.PI*parseInt(jquery("#compo1c1e option:selected").text())/180; })

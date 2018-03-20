@@ -263,7 +263,7 @@ export default class Composer {
         return extract(spec);
     }
 
-    static hatch(tile:Tile, buffers:DerivedBuffer[], thickness:number, proportinal:boolean): HTMLCanvasElement{
+    static hatch(tile:Tile, buffers:DerivedBuffer[], thickness:number, widthprop:string|number, colprop:boolean=false): HTMLCanvasElement{
         let hatchCanvas = <HTMLCanvasElement>document.createElement('canvas');
         hatchCanvas.width  = tile.mask.width;
         hatchCanvas.height = tile.mask.height;
@@ -294,10 +294,18 @@ export default class Composer {
             ctx.translate(hatchCanvas.width/2, hatchCanvas.height/2);
             ctx.rotate(buffer.angle!);
             ctx.strokeStyle = buffer.color!.css();
-            if(proportinal){
-                ctx.lineWidth=thickness * tile.dataValues.length * tile.dataValues[obj.index] / sum;
-            } else{
-                ctx.lineWidth=thickness;
+
+            if (colprop)
+                ctx.strokeStyle = buffers[obj.index].colorScale.map(tile.dataValues[obj.index]).css();
+            else
+                ctx.strokeStyle = Color.Category10[obj.index].css();
+
+            if(typeof widthprop === "string" && widthprop=="none"){
+              ctx.lineWidth = thickness;
+            } else if(typeof widthprop === "string" && widthprop=="percent"){
+              ctx.lineWidth = thickness * tile.dataValues.length * tile.dataValues[obj.index] / sum;
+            }else if(typeof widthprop === "number"){
+              ctx.lineWidth = thickness * tile.dataValues.length * tile.dataValues[obj.index] / widthprop;
             }
             acc += ctx.lineWidth/2;
             let tx = tile.x+hatchCanvas.width/2-diag;
