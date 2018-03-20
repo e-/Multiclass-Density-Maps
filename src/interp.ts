@@ -286,7 +286,7 @@ export default class Interpreter {
                 let hatch = Composer.hatch(tile, this.derivedBuffers,
                                            this.compose.size,
                                            this.compose.proportional);
-                this.image[0].render(hatch, tile.center());
+                this.image[0].render(hatch, tile.center);
             }
         }
         else if (this.compose.mix === "glyph") {
@@ -317,7 +317,7 @@ export default class Interpreter {
                         'y.scale.type': d3scale,
                         'y.scale.base': d3base
                     }).then((vegaCanvas) => {
-                        this.image[0].render(vegaCanvas, tile.center(), {
+                        this.image[0].render(vegaCanvas, tile.getGravityCenter(), {
                             width: glyphSpec.width,
                             height: glyphSpec.height
                         });
@@ -343,7 +343,7 @@ export default class Interpreter {
                         factor: glyphSpec.factor
                     }).then((vegaCanvas) => {
                         // console.log('canvas', vegaCanvas.width, vegaCanvas.height);
-                        this.image[0].render(vegaCanvas, tile.center(), {
+                        this.image[0].render(vegaCanvas, tile.getGravityCenter(), {
                             width: width,
                             height: height,
                         });
