@@ -339,7 +339,8 @@ export default class Interpreter {
                         'z.scale.domain': this.scale.domain as [number, number],
                         'z.scale.type': d3scale,
                         'z.scale.base': d3base,
-                        cols: Math.ceil(Math.sqrt(this.derivedBuffers.length))
+                        cols: Math.ceil(Math.sqrt(this.derivedBuffers.length)),
+                        factor: glyphSpec.factor
                     }).then((vegaCanvas) => {
                         // console.log('canvas', vegaCanvas.width, vegaCanvas.height);
                         this.image[0].render(vegaCanvas, tile.center(), {

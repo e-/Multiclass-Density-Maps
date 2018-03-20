@@ -150,11 +150,12 @@ export default class Composer {
         options:{
             width?:number,
             height?:number,
-            'z.scale.domain': [number, number],
-            'z.scale.type': string,
+            'z.scale.domain'?: [number, number],
+            'z.scale.type'?: string,
             'z.scale.base'?: number,
-            cols?: number
-        } = {'z.scale.domain': [0, 1], 'z.scale.type': 'linear', 'z.scale.base': 10}
+            cols?: number,
+            factor?:number
+        } = {'z.scale.domain': [0, 1], 'z.scale.type': 'linear', 'z.scale.base': 10, factor: 8}
     ) {
         let n = buffers.length;
         let cols = options.cols || Math.ceil(Math.sqrt(n));
@@ -164,7 +165,7 @@ export default class Composer {
         let names = buffers.map(b => b.originalDataBuffer.name);
         let colors = buffers.map(b => (b.color || Color.Blue).css());
 
-        let factor = 8;
+        let factor = options.factor || 8;
         // TODO: I am really not sure why this magic number is required to
         // determine the size of full circles. It seems that this number changes
         // depending on the size of a tile and the number of circles in a tile.

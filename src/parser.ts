@@ -178,6 +178,7 @@ export class GlyphSpec {
     template?: "bars"|"punchcard";
     width:number = 32;
     height:number = 32;
+    factor:number = 8;
 
     constructor(options?: GlyphSpec) {
         if(options) Object.assign(this, options);
