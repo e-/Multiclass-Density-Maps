@@ -328,9 +328,12 @@ export default class Interpreter {
             }
 
             if(glyphSpec.template === "bars") {
+                let width = glyphSpec.width; // tile.mask.width;
+                let height = glyphSpec.height; // tile.mask.height;
+
                 for(let tile of this.tiles) {
-                    if(tile.mask.width < glyphSpec.width
-                        || tile.mask.height < glyphSpec.height) continue;
+                    if(tile.mask.width < width
+                        || tile.mask.height < height) continue;
 
                     let promise = Composer.bars(this.derivedBuffers, tile.dataValues, {
                         width: glyphSpec.width,
@@ -339,9 +342,12 @@ export default class Interpreter {
                         'y.scale.type': d3scale,
                         'y.scale.base': d3base
                     }).then((vegaCanvas) => {
-                        this.image[0].render(vegaCanvas, tile.getGravityCenter(), {
-                            width: glyphSpec.width,
-                            height: glyphSpec.height
+                        let rect = tile.getRectAtCenter();
+                        if(!rect || rect.width() < width || rect.height() < height) return;
+
+                        this.image[0].render(vegaCanvas, rect.center(), {
+                            width: width,
+                            height: height
                         });
                     })
 
@@ -365,7 +371,11 @@ export default class Interpreter {
                         factor: glyphSpec.factor
                     }).then((vegaCanvas) => {
                         // console.log('canvas', vegaCanvas.width, vegaCanvas.height);
-                        this.image[0].render(vegaCanvas, tile.getGravityCenter(), {
+                        let rect = tile.getRectAtCenter();
+
+                        if(!rect || rect.width() < width || rect.height() < height) return;
+
+                        this.image[0].render(vegaCanvas, rect.center(), {
                             width: width,
                             height: height,
                         });
