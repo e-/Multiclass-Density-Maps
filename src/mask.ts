@@ -31,11 +31,14 @@ export default class Mask {
     }
 
     copyFrom(imageData:ImageData) {
+        var i = 0;
         for (let r = 0; r < imageData.height; r++) {
+            let row = this.mask[r];
             for (let c = 0; c < imageData.width; c++) {
-                if (imageData.data[c*4+r*4*imageData.width +3] > 0){
-                    this.mask[r][c] = 1;
+                if (imageData.data[i] > 0){
+                    row[c] = 1;
                 }
+                i += 4;
             }
         }
     }

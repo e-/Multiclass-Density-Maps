@@ -110,7 +110,7 @@ export function topojsonTiling(width:number, height:number,
 
     // now render the shape (black opaque over black transparent)
     context1.clearRect(0, 0, canvas1.width, canvas1.height);
-    context1.fillStyle="rgba(0, 0, 0, 1.0)";
+    context1.fillStyle="#111";
     context1.translate(-xmin, -ymin);
     mpath.send(context1);
     context1.fill();
@@ -170,7 +170,7 @@ export function voronoiTiling(width:number, height:number,
     let path = mask.getPath();
 
     context1.clearRect(0, 0, canvas1.width, canvas1.height);
-    context1.fillStyle="rgba(0, 0, 0, 1.0)";
+    context1.fillStyle="#111";
 
     //context1.beginPath();
     path.moveTo(polys[p][0][0], polys[p][0][1]);
@@ -185,8 +185,8 @@ export function voronoiTiling(width:number, height:number,
     context1.fill();
 
     mask.copyFrom(context1.getImageData(0, 0, canvas1.width, canvas1.height));
-    let cx = ptsx.reduce((a, b) => a + b, 0) / ptsx.length;
-    let cy = ptsy.reduce((a, b) => a + b, 0) / ptsy.length;
+    //let cx = ptsx.reduce((a, b) => a + b, 0) / ptsx.length;
+    //let cy = ptsy.reduce((a, b) => a + b, 0) / ptsy.length;
 
     tiles.push(
         new Tile(Math.floor(minx), Math.floor(miny), mask)
