@@ -1,5 +1,6 @@
 import CanvasRenderer from './canvas-renderer';
 import Mask from './mask';
+import * as Weaving from './weaving';
 import Image from './image';
 import Tile, {TileAggregation} from './tile';
 import DataBuffer from './data-buffer';
@@ -161,8 +162,8 @@ export class TestMain {
 
         let maxCount2 = util.amax(bigRectTiles.map(tile => util.amax(tile.dataValues)));
 
-        let randomMasks = Mask.generateWeavingRandomMasks(this.dataBuffers.length, bigTileSize, this.width, this.height);
-        let squareMasks = Mask.generateWeavingSquareMasks(this.dataBuffers.length, bigTileSize, this.width, this.height);
+        let randomMasks = Weaving.generateRandomMasks(this.dataBuffers.length, bigTileSize, this.width, this.height);
+        let squareMasks = Weaving.generateSquareMasks(this.dataBuffers.length, bigTileSize, this.width, this.height);
 
         let derivedBuffers4 = this.dataBuffers.map((dataBuffer, i) => {
             let derivedBuffer = new DerivedBuffer(dataBuffer);
@@ -263,7 +264,7 @@ export class TestMain {
         //console.log("  should be false:"+po.isPointInPolys(2.5, 1.1)+" "+po.isPointInPolys(3.0, 2.5)+" "+po.isPointInPolys(2.5, 2.8)+" "+po.isPointInPolys(1.6, 2.0)+" "+po.isPointInPolys(3.01, 2.0));
         //console.log("  borderline:"+    po.isPointInPolys(1.75, 2.0)+" "+po.isPointInPolys(3.0, 3.0)+" "+po.isPointInPolys(3.0, 3.0)+" "+po.isPointInPolys(3.0, 4.5)+" "+po.isPointInPolys(5.0, 4.0));
 
-        let hexaMasks   = Mask.generateWeavingHexaMasks(this.dataBuffers.length,   8, this.width, this.height);
+        let hexaMasks   = Weaving.generateHexMasks(this.dataBuffers.length,   8, this.width, this.height);
         let bigRectTiles = Tiling.rectangularTiling(this.width, this.height, this.width / 16, this.height / 16);
 
 
@@ -299,7 +300,7 @@ export class TestMain {
 
     testTriang(id:number){
 
-        let triangMasks   = Mask.generateWeavingTriangleMasks(this.dataBuffers.length,   8, this.width, this.height);
+        let triangMasks   = Weaving.generateTriangleMasks(this.dataBuffers.length,   8, this.width, this.height);
         let bigRectTiles = Tiling.rectangularTiling(this.width, this.height, this.width / 16, this.height / 16);
 
 
@@ -336,7 +337,7 @@ export class TestMain {
     testVoronoiWeaving(){
         // tiling now returns an 1D array of tiles
         let n            = parseInt(jquery("#compo9 option:selected").text());
-        let randomMasks  = Mask.generateWeavingRandomMasks(this.dataBuffers.length, 4, this.width, this.height);
+        let randomMasks  = Weaving.generateRandomMasks(this.dataBuffers.length, 4, this.width, this.height);
         let voronoiTiles = Tiling.voronoiTiling(this.width, this.height, n);
 
 
@@ -372,7 +373,7 @@ export class TestMain {
     testVoronoiHatching(){
         // tiling now returns an 1D array of tiles
         let n            = parseInt(jquery("#compo16 option:selected").text());
-        let randomMasks  = Mask.generateWeavingRandomMasks(this.dataBuffers.length, 4, this.width, this.height);
+        let randomMasks  = Weaving.generateRandomMasks(this.dataBuffers.length, 4, this.width, this.height);
         let voronoiTiles = Tiling.voronoiTiling(this.width, this.height, n);
 
 
@@ -834,7 +835,7 @@ export class TestMain {
                                           geo.projection, geo.latitudes, geo.longitudes);
 
         let weavingSize = jquery("#slider1e").slider("option", "value");
-        let randomMasks = Mask.generateWeavingRandomMasks(dataBuffers.length, weavingSize, width!, height!);
+        let randomMasks = Weaving.generateRandomMasks(dataBuffers.length, weavingSize, width!, height!);
 
         let aggreg =jquery("#compo1ea option:selected").text();
         for(let tile of ustiles) {
