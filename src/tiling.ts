@@ -10,9 +10,13 @@ import Point from './point';
 
 export function pixelTiling (width:number, height:number) {
   let tiles:Tile[] = [];
+  let buffer = new ArrayBuffer(width*height);
+  new Uint8ClampedArray(buffer).fill(1);
   for(let row = 0; row < height; row++) {
     for(let col = 0; col < width; col++) {
-      tiles.push(new Tile(col, row, new Mask(1, 1)));
+      tiles.push(new Tile(col, row,
+                          new Mask(1, 1,
+                                   undefined, buffer, row*width + col)));
     }
   }
 

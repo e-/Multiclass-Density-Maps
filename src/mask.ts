@@ -7,20 +7,24 @@ export default class Mask {
     mask:Uint8ClampedArray[];
 
     constructor(public width:number, public height:number,
-                default_value:number = 1) {
-        //this.pols = new Path();
-        let buffer = new ArrayBuffer(width*height);
+                default_value:number = 1, buffer?:ArrayBuffer, offset:number = 0) {
+        if (buffer === undefined)
+            buffer = new ArrayBuffer(width*height);
         this.mask = Array<Uint8ClampedArray>(height);
-        for (let i = 0; i < height; i++) 
-            this.mask[i] = new Uint8ClampedArray(buffer, i*width, width).fill(default_value);
+        for (let i = 0; i < height; i++) {
+            this.mask[i] = new Uint8ClampedArray(buffer, i*width + offset, width);
+            if (default_value != undefined)
+                this.mask[i].fill(default_value);
+        }
     }
 
     buffer() { return this.mask[0].buffer; }
 
-    linearize():number[] {
-        // Fool the type system of TS that prevents returning the Float32Array directly
-        return <number[]><any>new Uint8ClampedArray(this.buffer());
-    }
+    // linearize():number[] {
+    //     // Fool the type system of TS that prevents returning the Float32Array directly
+    //     return <number[]><any>new Uint8ClampedArray(this.buffer(), this.width*this.height,
+    //                                                 this.offset);
+    // }
     getCanvas() {
         if (this.maskCanvas == undefined) {
             this.maskCanvas = <HTMLCanvasElement>document.createElement('canvas');
