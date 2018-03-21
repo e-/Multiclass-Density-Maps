@@ -12,6 +12,7 @@ import Composer from './composer';
 import * as Scale from './scale';
 import * as util from './util';
 import Mask from './mask';
+import * as Weaving from './weaving';
 import LegendBuilder from './legend';
 import * as d3 from 'd3';
 
@@ -221,21 +222,21 @@ export default class Interpreter {
                 this.composer = Composer.additiveMix;
         }
         else if (this.compose.mix === "weavingrandom")
-            this.masks = Mask.generateWeavingRandomMasks(this.n,
-                                                         this.compose.size||8,
-                                                         this.width, this.height);
+            this.masks = Weaving.generateRandomMasks(this.n,
+                                                     this.compose.size||8,
+                                                     this.width, this.height);
         else if (this.compose.mix === "weavingsquare")
-            this.masks = Mask.generateWeavingSquareMasks(this.n,
-                                                         this.compose.size||8,
-                                                         this.width, this.height);
+            this.masks = Weaving.generateSquareMasks(this.n,
+                                                     this.compose.size||8,
+                                                     this.width, this.height);
         else if (this.compose.mix === "weavinghex")
-            this.masks = Mask.generateWeavingHexaMasks(this.n,
+            this.masks = Weaving.generateHexMasks(this.n,
+                                                  this.compose.size||8,
+                                                  this.width, this.height);
+        else if (this.compose.mix === "weavingtri")
+            this.masks = Weaving.generateTriangleMasks(this.n,
                                                        this.compose.size||8,
                                                        this.width, this.height);
-        else if (this.compose.mix === "weavingtri")
-            this.masks = Mask.generateWeavingTriangleMasks(this.n,
-                                                           this.compose.size||8,
-                                                           this.width, this.height);
     }
 
     setup(id:string) {
