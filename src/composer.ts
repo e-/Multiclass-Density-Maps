@@ -295,9 +295,10 @@ export default class Composer {
             ctx.rotate(buffer.angle!);
             ctx.strokeStyle = buffer.color!.css();
 
-            if (colprop)
+            if (colprop){
+                //if (j==0) console.log(tile.dataValues[obj.index]+" = >"+buffers[obj.index].colorScale.map(tile.dataValues[obj.index]).css())
                 ctx.strokeStyle = buffers[obj.index].colorScale.map(tile.dataValues[obj.index]).css();
-            else
+            }else
                 ctx.strokeStyle = Color.Category10[obj.index].css();
 
             if(typeof widthprop === "string" && widthprop=="none"){

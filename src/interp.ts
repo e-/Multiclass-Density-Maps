@@ -112,7 +112,7 @@ export default class Interpreter {
 
         this.derivedBuffers = this.dataBuffers.map((dataBuffer, i) => {
             let derivedBuffer = new DerivedBuffer(dataBuffer);
-            derivedBuffer.colorScale = new Scale.ColorScale([Color.None, this.colors[i]], this.scale);
+            derivedBuffer.colorScale = new Scale.ColorScale([this.colors[i].totTransparent(), this.colors[i]], this.scale); //
             derivedBuffer.color = this.colors[i];
             if (this.masks.length > i)
                 derivedBuffer.mask = this.masks[i];
@@ -251,8 +251,9 @@ export default class Interpreter {
         let promises = [];
         if (this.compose.mix === "separate") { // small multiples
             this.image = this.derivedBuffers.map((b) => new Image(this.width, this.height));
+            console.log(this.tiles.length);
             for(let tile of this.tiles) {
-                let color = this.composer(this.derivedBuffers, tile.dataValues);
+                //let color = this.composer(this.derivedBuffers, tile.dataValues); // ???
                 this.derivedBuffers.forEach((derivedBuffer, i) => {
                     let color = Composer.one(derivedBuffer, tile.dataValues[i]);
                     this.image[i].render(color, tile);

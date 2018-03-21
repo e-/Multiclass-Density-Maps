@@ -43,17 +43,16 @@ export default class CanvasRenderer {
         if(!options.noResetDims) {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
         }
-        if (image.imageCanvas)
+        if (image.imageCanvas){
             ctx.drawImage(image.imageCanvas, 0, 0);
-        else {
+        }else {
             let imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
 
             if(!options.blendingMode ||
                options.blendingMode as BlendingMode === BlendingMode.Normal) {
-                this.renderToImageData(image, imageData);
+                 this.renderToImageData(image, imageData);
             }
             else if(options.blendingMode as BlendingMode === BlendingMode.Alpha) {
-                this.renderAlphaBlending(image, imageData);
             }
 
             ctx.putImageData(imageData, 0, 0);
@@ -94,9 +93,9 @@ export default class CanvasRenderer {
                     data[i++] = p.a * 255;
                 }
                 else {
-                    data[i++] = p.r / a * 255;
-                    data[i++] = p.g / a * 255;
-                    data[i++] = p.b / a * 255;
+                    data[i++] = p.r * 255;
+                    data[i++] = p.g * 255;
+                    data[i++] = p.b * 255;
                     data[i++] = p.a * 255;
                 }
             }

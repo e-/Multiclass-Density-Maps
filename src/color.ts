@@ -63,17 +63,30 @@ export default class Color {
         return hex;
     }
 
-    css() {
+    cssDepremultiply() {
         let a = this.a;
         if (a == 0)
             return "rgba(0,0,0,0)";
-        let r = this.r / a, g = this.g / a, b = this.b / a;
+        let r = this.r / a , g = this.g / a, b = this.b / a;
         return "rgba("+
               Math.floor(255*r)+","+
               Math.floor(255*g)+","+
               Math.floor(255*b)+","+
               Math.round(100*a)/100+")";
     }
+
+    css() {
+        let a = this.a;
+        /*if (a == 0)
+            return "rgba(0,0,0,0)";*/
+        let r = this.r , g = this.g , b = this.b ;
+        return "rgba("+
+              Math.floor(255*r)+","+
+              Math.floor(255*g)+","+
+              Math.floor(255*b)+","+
+              Math.round(100*a)/100+")";
+    }
+
 
     add(c:Color) {
         return new Color(
@@ -90,6 +103,15 @@ export default class Color {
         this.g/2,
         this.b/2,
         this.a
+        );
+    }
+
+    totTransparent() {
+        return new Color(
+        this.r,
+        this.g,
+        this.b,
+        0.0
         );
     }
 
@@ -115,19 +137,19 @@ export default class Color {
         return Color.compose(a, 1 - r, b, r);
     }
 
-    static None = new Color(0, 0, 0, 0);
-    static White = new Color(1, 1, 1, 1);
-    static Black = new Color(0, 0, 0, 1);
-    static Blue = new Color(31 / 255, 120 / 255, 180 / 255, 1); // Blue
-    static Orange = new Color(255 / 255, 127 / 255, 0 / 255, 1); // orange
-    static Green = new Color(51 / 255, 160 / 255, 44 / 255, 1); // green
-    static Red = new Color(211 / 255, 39 / 255, 40 / 255, 1);
-    static Purple = new Color(148 / 255, 103 / 255, 189 / 255, 1);
-    static Brown = new Color(140 / 255, 86 / 255, 75 / 255, 1);
-    static Pink = new Color(227 / 255, 119 / 255, 194 / 255, 1);
-    static Gray = new Color(127 / 255, 127 / 255, 127 / 255, 1);
-    static Yellow = new Color(188 / 255, 189 / 255, 34 / 255, 1);
-    static Skyblue = new Color(23 / 255, 190 / 255, 207 / 255, 1);
+    static None        = new Color(0, 0, 0, 0);
+    static White       = new Color(1, 1, 1, 1);
+    static Black       = new Color(0, 0, 0, 1);
+    static Blue        = new Color(31 / 255, 120 / 255, 180 / 255, 1); // Blue
+    static Orange      = new Color(255 / 255, 127 / 255, 0 / 255, 1); // orange
+    static Green       = new Color(51 / 255, 160 / 255, 44 / 255, 1); // green
+    static Red         = new Color(211 / 255, 39 / 255, 40 / 255, 1);
+    static Purple      = new Color(148 / 255, 103 / 255, 189 / 255, 1);
+    static Brown       = new Color(140 / 255, 86 / 255, 75 / 255, 1);
+    static Pink        = new Color(227 / 255, 119 / 255, 194 / 255, 1);
+    static Gray        = new Color(127 / 255, 127 / 255, 127 / 255, 1);
+    static Yellow      = new Color(188 / 255, 189 / 255, 34 / 255, 1);
+    static Skyblue     = new Color(23 / 255, 190 / 255, 207 / 255, 1);
     static Transparent = new Color(0, 0, 0, 0);
 
     static ColorByName:any = {

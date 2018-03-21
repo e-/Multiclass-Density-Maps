@@ -452,7 +452,7 @@ render('French Presidential Election',
             "field": "z",
             "type": "nominal",
             "scale": {
-                "range": ["Red", "Pink", "Orange", "Blue", "#5B3C11"]
+                "range": ["Red", "Pink", "Orange", "Blue", "Brown"]
             }
         }
     },
@@ -466,10 +466,10 @@ render('French Presidential Election',
           "mix": "none"
     },
     "rescale": {
-        "type": "sqrt"
+        "type": "cbrt"
     },
     "contour": {
-      "blur": 16,
+      "blur": 8,
       "stroke": 24
     }
 }, true, "600px", "520px");

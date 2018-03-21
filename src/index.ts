@@ -384,7 +384,7 @@ export class TestMain {
         let derivedBuffers16 = this.dataBuffers.map((dataBuffer, i) => {
             let derivedBuffer = new DerivedBuffer(dataBuffer);
 
-            derivedBuffer.colorScale = new Scale.LinearColorScale([0, maxCount2], [Color.White, Color.Category10[i]]);
+            derivedBuffer.colorScale = new Scale.LinearColorScale([0, maxCount2], [Color.Category10[i].totTransparent(), Color.Category10[i]]);
             //derivedBuffer.mask = randomMasks[i];
 
             return derivedBuffer;
@@ -393,18 +393,19 @@ export class TestMain {
 
 
         let hatchingSize  = jquery("#slider16").slider("option", "value");
+        let colprop = jquery("#compo16c option:selected").text()=='Color';
 
         for(let tile of voronoiTiles) {
           let colors:Color[] = [];
 
 
           for(let i in derivedBuffers16)
-              if (jquery("#compo16c option:selected").text()=='Color')
+              if (colprop)
                   derivedBuffers16[i].color = derivedBuffers16[i].colorScale.map(tile.dataValues[i]);
               else
                   derivedBuffers16[i].color = Color.Category10[i];
 
-              let hatch:any = Composer.hatch(tile, derivedBuffers16, hatchingSize, "percent");
+              let hatch:any = Composer.hatch(tile, derivedBuffers16, hatchingSize, "percent", colprop);
               outputImage16.render(
                 hatch,
                 tile.center
@@ -712,8 +713,9 @@ export class TestMain {
             return derivedBuffer;
         });
 
-        let outputImage = new Image(width, height);
-        let hatchingSize = jquery("#slider1c1").slider("option", "value")
+        let outputImage  = new Image(width, height);
+        let hatchingSize = jquery("#slider1c1").slider("option", "value");
+        let colprop      = jquery("#compo1c1c option:selected").text()=="Color";
 
         for(let tile of ustiles) {
             for(let i in derivedBuffers) {
@@ -734,7 +736,7 @@ export class TestMain {
                  derivedBuffers.forEach((buffer, i) => { buffer.angle = Math.PI * i / 8; })
 
             outputImage.render(
-                Composer.hatch(tile, derivedBuffers, hatchingSize, propWidth),
+                Composer.hatch(tile, derivedBuffers, hatchingSize, propWidth, colprop),
                 tile.center
             );
         }
