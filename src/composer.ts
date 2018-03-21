@@ -321,7 +321,7 @@ export default class Composer {
             ctx.restore();
         }
 
-        let pixels = ctx.getImageData(0, 0, hatchCanvas.width, hatchCanvas.height)!;
+        //let pixels = ctx.getImageData(0, 0, hatchCanvas.width, hatchCanvas.height)!;
 
         return hatchCanvas;
     }

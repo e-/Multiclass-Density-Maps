@@ -3,7 +3,7 @@ import {Path} from './path';
 
 export default class Mask {
     path?:Path;
-    maskCanvas?:HTMLCanvasElement;
+    private maskCanvas?:HTMLCanvasElement;
     mask:Uint8ClampedArray[];
 
     constructor(public width:number, public height:number,
@@ -18,7 +18,8 @@ export default class Mask {
         }
     }
 
-    buffer() { return this.mask[0].buffer; }
+    //[jdf] For linearize and buffer to work, we need to store the offset in the class
+    //buffer() { return this.mask[0].buffer; }
 
     // linearize():number[] {
     //     // Fool the type system of TS that prevents returning the Float32Array directly
@@ -40,7 +41,8 @@ export default class Mask {
       return this.path;
     }
 
-    copyFrom(imageData:ImageData) {
+    copyFrom(ctx:CanvasRenderingContext2D) {
+        let imageData = ctx.getImageData(0, 0, this.width, this.height);
         var i = 0;
         for (let r = 0; r < imageData.height; r++) {
             let row = this.mask[r];
@@ -124,10 +126,7 @@ export default class Mask {
             ctx.fillStyle = "#111";
             mask.path.send(ctx)
             ctx.fill();
-            let imageData =  ctx.getImageData(0, 0, mask.width, mask.height);
-            let maskImage = new Uint8ClampedArray(mask.mask[0].buffer);
-            for (let i = 0, j = 0; i < maskImage.length; i++, j+= 4) 
-                maskImage[i] = imageData.data[j];
+            mask.copyFrom(ctx);
         });
         return masks;
     }
@@ -167,7 +166,6 @@ export default class Mask {
                 path.lineTo(col+0.75*3*size, row+2*size);
                 path.lineTo(col+0.75*4*size, row+size);
                 path.closePath();
-
             }
         }
         masks.forEach(mask => {
@@ -176,10 +174,7 @@ export default class Mask {
             ctx.fillStyle = "#111";
             mask.path.send(ctx);
             ctx.fill();
-            let imageData =  ctx.getImageData(0, 0, mask.width, mask.height);
-            let maskImage = new Uint8ClampedArray(mask.mask[0].buffer);
-            for (let i = 0, j = 0; i < maskImage.length; i++, j+= 4) 
-                maskImage[i] = imageData.data[j];
+            mask.copyFrom(ctx);
         });
         return masks;
     }

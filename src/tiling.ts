@@ -102,7 +102,7 @@ export function topojsonTiling(width:number, height:number,
                                 Math.ceil(ymax)-Math.floor(ymin),
                                 0);
     let canvas1      = mask.getCanvas();
-    let context1 = canvas1.getContext("2d"); // CanvasRenderingContext2D | null
+    let context1     = canvas1.getContext("2d");
     if (context1 == null) {
       console.log('Cannot create context for new mask');
       continue;
@@ -119,9 +119,7 @@ export function topojsonTiling(width:number, height:number,
     mpath.send(context1);
     context1.fill();
 
-    // let's get an array of pixels from the result drawing
-    let pixels = context1!.getImageData(0, 0, canvas1.width, canvas1.height);
-    mask.copyFrom(pixels);
+    mask.copyFrom(context1);
 
     // now with a correct mask we can create the tile
     let tile:Tile = new Tile(Math.floor(xmin), Math.floor(ymin), mask);
@@ -188,7 +186,7 @@ export function voronoiTiling(width:number, height:number,
     path.send(context1);
     context1.fill();
 
-    mask.copyFrom(context1.getImageData(0, 0, canvas1.width, canvas1.height));
+    mask.copyFrom(context1);
     //let cx = ptsx.reduce((a, b) => a + b, 0) / ptsx.length;
     //let cy = ptsy.reduce((a, b) => a + b, 0) / ptsy.length;
 
