@@ -47,7 +47,7 @@ export default class DataBuffer {
             GaussianBlur(values, target, this.width, this.height, blur);
             values = target;
         }
-            
+
         if (thresholds != undefined)
             contours.thresholds(thresholds);
         return contours(values);
@@ -62,7 +62,7 @@ export default class DataBuffer {
             maxi = util.amax(this.values.map(mymax)),
             bandsize = (maxi-mini)/contourNumber,
             ids = new DataBuffer(this.name, this.width, this.height);
-        
+
         // compute ids first
         for (let y=0; y < this.height; y++) {
             let src = this.values[y],

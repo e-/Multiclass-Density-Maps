@@ -434,45 +434,6 @@ render('Census Data Contour',
     }
 }, true);
 
-render('French Presidential Election',
-{
-    "description": "5 main candidate at Round #1",
-    "data": {"url": "francePresElec_data.json"},
-    "smooth": {},
-    "reencoding": {
-        "label": {
-            "field": "z",
-            "type": "nominal",
-            "scale": {
-                "domain": ["melenchon", "hamon", "macron", "fillon", "lepen"],
-                "range": ["Melenchon", "Hamon", "Macron", "Fillon", "Lepen"]
-            }
-        },
-        "color": {
-            "field": "z",
-            "type": "nominal",
-            "scale": {
-                "range": ["Red", "Pink", "Orange", "Blue", "Brown"]
-            }
-        }
-    },
-    "rebin": {
-          "type": "topojson",
-          "url": "franceD.json",
-          "feature": "poly",
-          "stroke": "grey"
-    },
-    "compose": {
-          "mix": "none"
-    },
-    "rescale": {
-        "type": "cbrt"
-    },
-    "contour": {
-      "blur": 8,
-      "stroke": 24
-    }
-}, true, "600px", "520px");
 
 </script>
     </body>

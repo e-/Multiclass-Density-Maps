@@ -23,6 +23,7 @@ export default class Interpreter {
     public sourceBuffers:DataBuffer[] = [];
     public dataBuffers:DataBuffer[] = [];
     public derivedBuffers: DerivedBuffer[] = [];
+    public blurredBuffers: DerivedBuffer[] = [];
     public image:Image[] = [];
     public tiles:Tile[] = [];
     public tileAggregation=TileAggregation.Mean;
@@ -393,18 +394,49 @@ export default class Interpreter {
             let ctx = CanvasRenderer.renderAll(this.image, id, this.compose.select);
             if (this.contour.stroke > 0) {
                 // Assume all the scales are shared between derived buffers
-                let path       = d3.geoPath(null, ctx),
+                let path   = d3.geoPath(null, ctx),
                 thresholds = this.derivedBuffers[0].thresholds(this.contour.stroke);
 
                 ctx.strokeStyle = 'black';
 
-                this.derivedBuffers.forEach((derivedBuffer, i) => {
-                    let geometries = derivedBuffer.contours(thresholds, this.contour.blur),
-                    colors = thresholds.map(v => derivedBuffer.colorScale.map(v));
-                    geometries.forEach((geo,i) => {
+                let minStretch = Infinity;
+                this.derivedBuffers.forEach((derivedBuffer, k) => {
+                  let loop0 = -Infinity;
+                  for ( let j = 0, l = derivedBuffer.originalDataBuffer.values.length; j < l; j++ )
+                    for (let i = 0, l2=derivedBuffer.originalDataBuffer.values[j].length; i < l2; i++)
+                      if ( derivedBuffer.originalDataBuffer.values[j][i] > loop0 )
+                        loop0 = derivedBuffer.originalDataBuffer.values[j][i];
+
+                  this.blurredBuffers[k] = derivedBuffer.blur(this.contour.blur);
+
+                  let loop1 = -Infinity;
+                  for ( let j = 0, l = this.blurredBuffers[k].originalDataBuffer.values.length; j < l; j++ )
+                    for (let i = 0, l2=this.blurredBuffers[k].originalDataBuffer.values[j].length; i < l2; i++)
+                      if ( this.blurredBuffers[k].originalDataBuffer.values[j][i] > loop1 )
+                        loop1 = this.blurredBuffers[k].originalDataBuffer.values[j][i];
+                  minStretch = Math.min(minStretch, loop0/loop1);
+                });
+
+                this.blurredBuffers.forEach((blurredBuffer, k) => {
+                  for ( let j = 0, l = blurredBuffer.originalDataBuffer.values.length; j < l; j++ )
+                    for (let i = 0, l2=blurredBuffer.originalDataBuffer.values[j].length; i < l2; i++)
+                      blurredBuffer.originalDataBuffer.values[j][i] = blurredBuffer.originalDataBuffer.values[j][i]*minStretch;
+                });
+
+                this.blurredBuffers.forEach((blurredBuffer, k) => {
+
+                    let locthresholds = blurredBuffer.thresholds(this.contour.stroke);
+
+                    let geometries = blurredBuffer.contours(locthresholds, this.contour.blur),
+                        colors     = locthresholds.map(v => blurredBuffer.colorScale.colorRange[1]);
+                    if (this.contour.colProp)
+                      colors = thresholds.map(v => blurredBuffer.colorScale.map(v));
+
+                    geometries.forEach((geo,k) => {
                         ctx.beginPath();
                         path(geo);
-                        ctx.strokeStyle = colors[i].css();
+                        ctx.strokeStyle = colors[k].css();
+                        ctx.lineWidth =this.contour.lineWidth;
                         ctx.stroke();
                     });
                 });

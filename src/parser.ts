@@ -213,8 +213,10 @@ export class RescaleSpec {
 }
 
 export class ContourSpec {
-    stroke:number = 0;
-    fill:number = 0; // percentile over which we fill
+    stroke:number    = 0;
+    lineWidth:number = 1;
+    colProp:boolean  = true;
+    fill:number      = 0; // percentile over which we fill
     values?:number[]; // percentiles to stroke
     blur:number=2;
 
