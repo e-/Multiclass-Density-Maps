@@ -190,7 +190,7 @@ function horizontalColormaps(id:string, interp:Interpreter) {
         .data(markerValues)
         .enter()
         .append('line')
-        .attr('x1', 0)
+        .attr('x1', 10)
         .attr('x2', 0)
         .attr('y1', 0)
         .attr('y2', rowHeight)
