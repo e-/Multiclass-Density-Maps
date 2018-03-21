@@ -1,6 +1,6 @@
 import Mask from './mask';
 
-export function generateSquareMasks(m: number, size: number, width: number, height: number, xincr: number = 1) : Mask[]
+export function squareMasks(m: number, size: number, width: number, height: number, xincr: number = 1) : Mask[]
 {
     let masks:Mask[] = Array<Mask>(m);
     let i:number, j:number;
@@ -30,7 +30,7 @@ export function generateSquareMasks(m: number, size: number, width: number, heig
     return masks;
 }
 
-export function generateHexMasks(m: number, size: number, width: number, height: number, xincr: number = 1) : Mask[]
+export function hexMasks(m: number, size: number, width: number, height: number, xincr: number = 1) : Mask[]
 {
     let masks:Mask[] = Array<Mask>(m);
     let i:number, j:number;
@@ -76,7 +76,7 @@ export function generateHexMasks(m: number, size: number, width: number, height:
     return masks;
 }
 
-export function generateTriangleMasks(m: number, size: number, width: number, height: number): Mask[]
+export function triangleMasks(m: number, size: number, width: number, height: number): Mask[]
 {
     //TODO (jdf) fix to work with any m or throw exception when m is odd??
     let masks:Mask[] = Array<Mask>(m);
@@ -124,7 +124,7 @@ export function generateTriangleMasks(m: number, size: number, width: number, he
     return masks;
 }
 
-export function generateRandomMasks(m: number, size: number, width: number, height: number) : Mask[]
+export function randomMasks(m: number, size: number, width: number, height: number) : Mask[]
 {
     let masks:Mask[] = Array<Mask>(m);
     size = Math.floor(size);

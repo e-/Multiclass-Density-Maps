@@ -123,7 +123,6 @@ export function topojsonTiling(width:number, height:number,
 
     // now with a correct mask we can create the tile
     let tile:Tile = new Tile(Math.floor(xmin), Math.floor(ymin), mask);
-    tile.id = j;
     tiles.push(tile);
   }
 

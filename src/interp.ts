@@ -120,7 +120,6 @@ export default class Interpreter {
                 derivedBuffer.mask = this.masks[i];
             return derivedBuffer;
         });
-
     }
 
     private computeDerivedBuffers(context={}) {
@@ -222,21 +221,21 @@ export default class Interpreter {
                 this.composer = Composer.additiveMix;
         }
         else if (this.compose.mix === "weavingrandom")
-            this.masks = Weaving.generateRandomMasks(this.n,
-                                                     this.compose.size||8,
-                                                     this.width, this.height);
+            this.masks = Weaving.randomMasks(this.n,
+                                             this.compose.size||8,
+                                             this.width, this.height);
         else if (this.compose.mix === "weavingsquare")
-            this.masks = Weaving.generateSquareMasks(this.n,
-                                                     this.compose.size||8,
-                                                     this.width, this.height);
+            this.masks = Weaving.squareMasks(this.n,
+                                             this.compose.size||8,
+                                             this.width, this.height);
         else if (this.compose.mix === "weavinghex")
-            this.masks = Weaving.generateHexMasks(this.n,
-                                                  this.compose.size||8,
-                                                  this.width, this.height);
+            this.masks = Weaving.hexMasks(this.n,
+                                          this.compose.size||8,
+                                          this.width, this.height);
         else if (this.compose.mix === "weavingtri")
-            this.masks = Weaving.generateTriangleMasks(this.n,
-                                                       this.compose.size||8,
-                                                       this.width, this.height);
+            this.masks = Weaving.triangleMasks(this.n,
+                                               this.compose.size||8,
+                                               this.width, this.height);
     }
 
     setup(id:string) {
@@ -265,6 +264,16 @@ export default class Interpreter {
         else {
             this.image = [new Image(this.width, this.height)];
         }
+        // Need the tiles to compute dot density plots
+        if (this.compose.mix === "dotdensity") {
+            let rowcounts = this.tiles.map(tile => tile.rowcounts());
+            let areas = rowcounts.map(rc => rc[rc.length-1]);
+            let densities = this.tiles.map((tile, i) => {
+                let area = areas[i];
+                return area == 0 ? 0 : util.amax(tile.dataValues) / area;
+            });
+        }
+
         if (this.composer != Composer.none) {
             for(let tile of this.tiles) {
                 let color = this.composer(this.derivedBuffers, tile.dataValues);
@@ -313,7 +322,6 @@ export default class Interpreter {
                 this.image[0].render(hatch, tile.center);
             }
         }
-
         else if (this.compose.mix === "glyph") {
             let maxCount = util.amax(this.tiles.map(tile => util.amax(tile.dataValues)));
             let glyphSpec = this.compose.glyphSpec!;

@@ -14,13 +14,15 @@ export enum TileAggregation {
 
 export default class Tile extends Point {
     dataValues:number[] = [];
-    id:number = -1
 
     constructor(x:number, y:number, public mask:Mask,
         public center:Point = new Point(x + mask.width / 2, y + mask.height / 2))
     {
       super(x, y);
     }
+
+    area() { return this.mask.area(); }
+    rowcounts() { return this.mask.rowcounts(); }
 
     aggregateOne(buffer:DataBuffer, op:TileAggregation = TileAggregation.Mean): number {
         let val = 0;

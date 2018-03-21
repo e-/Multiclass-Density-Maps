@@ -1,5 +1,6 @@
 import * as util from './util';
 import {Path} from './path';
+import * as rn from 'random-seed';
 
 export default class Mask {
     path?:Path;
@@ -16,6 +17,37 @@ export default class Mask {
             if (default_value != undefined)
                 this.mask[i].fill(default_value);
         }
+    }
+
+    rowcounts() {
+        let reducer = (accumulator:number, currentValue:number) => accumulator + currentValue;
+        let rowcounts = this.mask.map(row => row.reduce(reducer));
+        for (let i = 1; i < rowcounts.length; i++)
+            rowcounts[i] += rowcounts[i-1];
+        return rowcounts;
+    }
+
+    area() {
+        let rc = this.rowcounts();
+        return rc[rc.length-1];
+    }
+
+    randomPoint(rowcounts?:number[]) {
+        if (rowcounts === undefined)
+            rowcounts = this.rowcounts();
+        let rand = rn.create('JaeminFredPierreJean-Daniel');
+        var pos = rand(rowcounts[rowcounts.length-1]);
+        var r = 0;
+        while (rowcounts[r] < pos) r++;
+        if (r > 0)
+            pos -= rowcounts[r-1];
+        let row = this.mask[r];
+        for (let c = 0; c < this.width; c++) {
+            if (row[c]) pos--;
+            if (pos==0)
+                return [r, c];
+        }
+        throw new Error('Random point not found as expected');
     }
 
     //[jdf] For linearize and buffer to work, we need to store the offset in the class
