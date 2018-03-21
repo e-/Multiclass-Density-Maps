@@ -49,21 +49,27 @@ export default class Image {
 
         if (mask) {
             for(let r = y; r < maxy; r++) {
-                for(let c = Math.ceil(tile.x); c < tile.x + tile.mask.width; c++) {
-                    if(tmask.mask[r-y][c-x] == 0)
+                let trow = tmask.mask[r-y];
+                let row = this.pixels[r];
+                for(let c = x; c < maxx; c++) {
+                    if(trow[c-x] == 0)
                         continue;
-                    if(r < mask.height && c < mask.width && mask.mask[r][c] == 0)
+                    if(r < mask.height &&
+                       c < mask.width &&
+                       mask.mask[r][c] == 0)
                         continue;
-                    this.pixels[r][c] = color;
+                    row[c] = color;
                 }
             }
         }
         else {
             for(let r = y; r < maxy; r++) {
-                for(let c = Math.ceil(tile.x); c < tile.x + tile.mask.width; c++) {
-                    if(tmask.mask[r-y][c-x] == 0)
+                let trow = tmask.mask[r-y];
+                let row = this.pixels[r];
+                for(let c = x; c < maxx; c++) {
+                    if(trow[c-x] == 0)
                         continue;
-                    this.pixels[r][c] = color;
+                    row[c] = color;
                 }
             }
         }

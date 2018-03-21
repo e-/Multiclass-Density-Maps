@@ -15,6 +15,12 @@ export default class Mask {
             this.mask[i] = new Uint8ClampedArray(buffer, i*width, width).fill(default_value);
     }
 
+    buffer() { return this.mask[0].buffer; }
+
+    linearize():number[] {
+        // Fool the type system of TS that prevents returning the Float32Array directly
+        return <number[]><any>new Uint8ClampedArray(this.buffer());
+    }
     getCanvas() {
         if (this.maskCanvas == undefined) {
             this.maskCanvas = <HTMLCanvasElement>document.createElement('canvas');

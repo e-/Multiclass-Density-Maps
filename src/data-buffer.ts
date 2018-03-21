@@ -6,10 +6,6 @@ import * as d3 from 'd3-contour';
 
 export default class DataBuffer {
     values:Float32Array[];
-    // construct a data buffer from a specification object
-    static fromSpec(spec:any) {
-        return new DataBuffer('example', 5, 5);
-    }
 
     constructor(public name:string, public width:number, public height:number,
                 values?:number[][]) {

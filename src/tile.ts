@@ -30,57 +30,29 @@ export default class Tile extends Point {
         let rmax = Math.min(this.y + this.mask.height, buffer.height);
         let cmax = Math.min(this.x + this.mask.width, buffer.width);
 
-        if (this.mask.mask == undefined) {
-            for(let r = r0; r < rmax; r++) {
-                let row = buffer.values[r];
-                for(let c = c0; c < cmax; c++) {
-                    if(cnt == 0)
-                        val = row[c];
-                    else {
-                        let current = row[c];
-                        switch(op) {
-                        case TileAggregation.Min:
-                            val = Math.min(val, current);
-                            break;
-                        case TileAggregation.Mean:
-                        case TileAggregation.Sum:
-                            val += current;
-                            break;
-                        case TileAggregation.Max:
-                            val = Math.max(val, current);
-                            break;
-                        }
+        for(let r = r0; r < rmax; r++) {
+            let row = buffer.values[r];
+            let mrow = this.mask.mask[r-r0];
+            for(let c = c0; c < cmax; c++) {
+                if (mrow[c-c0] == 0) continue;
+                if(cnt == 0)
+                    val = row[c];
+                else {
+                    let current = row[c];
+                    switch(op) {
+                    case TileAggregation.Min:
+                        val = Math.min(val, current);
+                        break;
+                    case TileAggregation.Mean:
+                    case TileAggregation.Sum:
+                        val += current;
+                        break;
+                    case TileAggregation.Max:
+                        val = Math.max(val, current);
+                        break;
                     }
-                    cnt ++;
                 }
-            }
-        }
-        else {
-            for(let r = r0; r < rmax; r++) {
-                let row = buffer.values[r];
-                let mrow = this.mask.mask[r-r0];
-                //if (!buffer.values[r]) continue;
-                for(let c = c0; c < cmax; c++) {
-                    if (mrow[c-c0] == 0) continue;
-                    if(cnt == 0)
-                        val = row[c];
-                    else {
-                        let current = row[c];
-                        switch(op) {
-                        case TileAggregation.Min:
-                            val = Math.min(val, current);
-                            break;
-                        case TileAggregation.Mean:
-                        case TileAggregation.Sum:
-                            val += current;
-                            break;
-                        case TileAggregation.Max:
-                            val = Math.max(val, current);
-                            break;
-                        }
-                    }
-                    cnt ++;
-                }
+                cnt ++;
             }
         }
 
