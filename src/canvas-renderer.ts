@@ -1,6 +1,5 @@
 import Image from './image';
 import Mask from './mask';
-import * as Polys2D from './polys2D';
 
 enum BlendingMode {
     Normal = 0,
@@ -133,7 +132,7 @@ export default class CanvasRenderer {
         color?:string,
         lineWidth?:number
     } = {}){
-      if (!mask) return;
+      if (!mask || mask.path == undefined) return;
       //console.log("drawMask "+mask.pols.allpolys.length);
 
       let canvas:any = document.getElementById(id);
@@ -142,12 +141,7 @@ export default class CanvasRenderer {
       ctx.beginPath();
       ctx.strokeStyle = options.color || '#000';
       ctx.lineWidth = options.lineWidth || 1;
-      for (let j=0; j<mask.pols.allpolys.length; j++){
-        let pol:any = mask.pols.allpolys[j];
-        ctx.moveTo(pol.ptx[0], pol.pty[0]);
-        for (let i=1; i<=pol.ptx.length; i++)
-          ctx.lineTo(pol.ptx[i%pol.ptx.length], pol.pty[i%pol.ptx.length]);
-      }
+      mask.path.send(ctx);
       ctx.stroke();
     }
 

@@ -81,32 +81,59 @@ function horizontalColormaps(id:string, interp:Interpreter) {
         .style('font-size', spec.fontSize)
 
     let defs = svg.append('defs');
-    let g = svg.append('g').attr('transform', translate(0, 0));
+    let padding = spec.padding;
 
-
+    let g = svg.append('g').attr('transform', translate(padding, padding));
+    let categoryG = g.append('g')
+    let valueG = g.append('g');
+    let n = derivedBuffers.length;
     let rowHeight = spec.rowHeight;
-    let gutter = spec.gutter;
-    let labelWidth = spec.labelWidth;
     let colorMapWidth = spec.colorMapWidth;
+    let labelWidth = spec.labelWidth;
+    let gutter = spec.gutter;
+    let verticalGutter = 2;
 
     svg
-        .attr('width', labelWidth + colorMapWidth + gutter)
-        .attr('height', (rowHeight + gutter) * derivedBuffers.length + rowHeight)
+        .attr('width', colorMapWidth + padding * 2)
+        .attr('height', (rowHeight + verticalGutter) * (n + 1) * 2 + rowHeight + padding * 2)
 
-    let update = g.selectAll('g')
+    categoryG
+        .append('text')
+        .text('category')
+        .attr('dy', '0.5em')
+
+    let categories = categoryG.selectAll('g')
         .data(derivedBuffers)
 
-
-    let enter = update.enter()
-        .append('g')
-        .attr('transform', (d, i) => translate(0, (rowHeight + gutter) * i))
-
     let labels = interp.labels == undefined ? interp.bufferNames : interp.labels;
-    enter.append('text')
+
+
+    let categoryEnter = categories
+        .enter()
+        .append('g')
+        .attr('transform', (d, i) => translate(0, (rowHeight + verticalGutter) * (i + 1)))
+
+    categoryEnter
+        .append('circle')
+        .attr('r', 5)
+        .attr('fill', d => d.color!.css())
+        .attr('transform', translate(5, 0))
+
+    categoryEnter
+        .append('text')
         .text((d, i) => labels[i])
-        .attr('transform', translate(labelWidth, 0))
+        .attr('transform', translate(10 + gutter, 0))
+        .attr('dy', '0.4em')
+        .style('font-size', spec.tickFontSize)
+        .style('font-weight', 'normal')
+        .attr('text-anchor', 'start')
+
+    valueG
+        .attr('transform', translate(0, (rowHeight + verticalGutter) * (n + 1)))
+
+    valueG.append('text')
+        .text('value')
         .attr('dy', '1em')
-        .attr('text-anchor', 'end')
 
 
     let gradientFunc:(defs:any, interpolator:Scale.ScaleTrait, db:DerivedBuffer) => string;
@@ -144,20 +171,27 @@ function horizontalColormaps(id:string, interp:Interpreter) {
         return gradientFunc(defs, interp.scale, db);
     })
 
-    // domain value to width
+    let values = valueG.selectAll('g')
+        .data(derivedBuffers)
 
-    enter
+    let valueEnter = values
+        .enter()
+        .append('g')
+        .attr('transform', (d, i) => translate(0, (rowHeight + verticalGutter) * (i + 1)))
+
+    // colormaps
+    valueEnter
         .append('rect')
         .attr('height', rowHeight)
         .attr('width', colorMapWidth)
-        .attr('transform', translate(labelWidth + gutter, 0))
+        .attr('transform', translate(0, 0))
         .attr('stroke', '#ddd')
         .style('fill', (d, i) => `url(#${ids[i]})`)
 
-    let tickG = g
+    let tickG = valueG
         .append('g')
         .attr('class', 'ticks')
-        .attr('transform', translate(labelWidth + gutter, (rowHeight + gutter) * derivedBuffers.length))
+        .attr('transform', translate(0, (rowHeight + verticalGutter) * (derivedBuffers.length + 1)))
 
     let ticks = tickG
         .selectAll('text.tick')
@@ -168,6 +202,7 @@ function horizontalColormaps(id:string, interp:Interpreter) {
         step = Math.floor(tickValues.length / spec.numTicks!);
     }
 
+    // ticks (0, .., 1.7K)
     ticks.enter()
         .append('text')
         .attr('class', 'tick')
@@ -181,11 +216,12 @@ function horizontalColormaps(id:string, interp:Interpreter) {
             if(i % step === 0) return 'inline';
             return 'none';
         })
+        .attr('dy', '1em')
         .style('font-size', spec.tickFontSize)
-        .attr('dy', '.5em')
+        .style('font-weight', 'normal')
         .text(d => d3.format(spec.format)(d))
 
-    enter
+    valueEnter
         .selectAll('line')
         .data(markerValues)
         .enter()
@@ -197,7 +233,7 @@ function horizontalColormaps(id:string, interp:Interpreter) {
         .style('stroke', '#ddd')
         .style('stroke-width', 1)
         .style('shape-rendering', 'crispEdges')
-        .attr('transform', (d, i) => translate(labelWidth + gutter + colormapScale(d, i), 0))
+        .attr('transform', (d, i) => translate(colormapScale(d, i), 0))
 }
 
 function multiplicativeCircles(id:string, interp:Interpreter) {

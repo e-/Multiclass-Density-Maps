@@ -70,12 +70,8 @@ export default class Tile extends Point {
     }
 
     getRectAtCenter() {
-        if(this.mask && this.mask.pols.allpolys.length > 0){
-            let poly:[number, number][] = [];
-            let maskPoly = this.mask.pols.allpolys[0];
-            util.arange(maskPoly.ptx.length).forEach(i => {
-                poly.push([maskPoly.ptx[i], maskPoly.pty[i]]);
-            })
+        if(this.mask && this.mask.path != undefined){
+            let poly:[number, number][] = this.mask.path.pts;
 
             let center = util.largeRectInPoly(poly, {
                 angle: 0,
