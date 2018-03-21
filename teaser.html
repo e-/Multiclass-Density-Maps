@@ -212,10 +212,10 @@ render('Voronoi Tiling + Hatching',
                "stroke": "white"
            },
            "compose": {
-               "mix": "hatching",
-               "size": 2,
-               "widthprop":1.0,
-               "colprop":false
+               "mix": "propline",
+               "size": 4,
+               "widthprop":"percent",
+               "colprop":true
            }
        });
 
@@ -269,7 +269,9 @@ render('Voronoi Tiling + Tilted Hatching',
            },
            "compose": {
                "mix": "hatching",
-               "size": 8
+               "size": 2,
+               "widthprop":1.0,
+               "colprop":false
            }
        });
 
