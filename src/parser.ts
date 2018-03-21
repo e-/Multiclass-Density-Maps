@@ -225,13 +225,14 @@ export class ContourSpec {
 
 export class LegendSpec {
     format:string = ".2s";
-    fontSize:string = "12px";
+    fontSize:string = "11px";
     fontFamily:string = "sans-serif";
 
     rowHeight:number = 15;
     gutter:number = 5;
-    labelWidth:number = 40;
+    labelWidth:number = 80;
     colorMapWidth:number = 120;
+    padding:number = 5;
 
     tickFontSize:string = "10px";
 
