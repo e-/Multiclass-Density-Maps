@@ -444,7 +444,7 @@ export default class Interpreter {
                     geometries.forEach((geo,k) => {
                         ctx.beginPath();
                         path(geo);
-                        ctx.strokeStyle = colors[k].css();
+                        ctx.strokeStyle = colors[k].hex();
                         ctx.lineWidth =this.contour.lineWidth;
                         ctx.stroke();
                     });
