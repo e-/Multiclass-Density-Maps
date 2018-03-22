@@ -435,7 +435,7 @@ export default class Interpreter {
                         ctx.beginPath();
                         path(geo);
                         ctx.strokeStyle = colors[k].hex();
-                        ctx.lineWidth =this.contour.lineWidth*(1.0-k/geometries.length);
+                        ctx.lineWidth =this.contour.lineWidth;
                         ctx.stroke();
                     });
                 });
