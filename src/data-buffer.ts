@@ -31,12 +31,12 @@ export default class DataBuffer {
 
     min() {
         let mymin:any = util.amin;
-        return util.amin(this.values.map(mymin));
+        return util.amin(this.linearize());
     }
 
     max() {
         let mymax:any = util.amax;
-        return util.amax(this.values.map(mymax));
+        return util.amax(this.linearize());
     }
 
     blur(radius:number = 3): DataBuffer {

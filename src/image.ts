@@ -43,8 +43,15 @@ export default class Image {
     private fillColorByTile(color:Color, tile:Tile, mask?:Mask) {
         let tmask = tile.mask,
             y     = Math.ceil(tile.y),
-            maxy  = Math.min(tile.y + tmask.height, this.height),
-            x     = Math.ceil(tile.x),
+            x     = Math.ceil(tile.x);
+
+        if (tmask.width == 1 && tmask.height == 1) {
+            if ((mask==undefined || mask.mask[y][x] != 0) && tmask.mask[0][0] != 0)
+                this.pixels[y][x] = color;
+            return;
+        }
+
+        let maxy  = Math.min(tile.y + tmask.height, this.height),
             maxx  = Math.min(tile.x + tmask.width, this.width);
 
         if (mask) {
