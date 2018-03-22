@@ -419,9 +419,9 @@ export default class Interpreter {
                     minStretch = Math.min(minStretch, loop0/loop1);
                 });
 
-                let scale = minStretch == 0 ? 0 : 1 / minStretch;
+                //let scale = minStretch == 0 ? 0 :  minStretch;
                 this.blurredBuffers.forEach((blurredBuffer, k) => {
-                    blurredBuffer.originalDataBuffer.rescale(scale);
+                    blurredBuffer.originalDataBuffer.rescale(minStretch);
                 });
 
                 this.blurredBuffers.forEach((blurredBuffer, k) => {
