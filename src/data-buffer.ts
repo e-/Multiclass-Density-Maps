@@ -39,6 +39,13 @@ export default class DataBuffer {
         return util.amax(this.linearize());
     }
 
+    rescale(scale:number) {
+        let arr = this.linearize();
+        for (let i = 0; i < arr.length; i++)
+            arr[i] *= scale;
+    }
+    
+
     blur(radius:number = 3): DataBuffer {
         if (radius==0) return this;
         // Linearize the array

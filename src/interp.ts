@@ -413,32 +413,19 @@ export default class Interpreter {
 
                 let minStretch = Infinity;
                 this.derivedBuffers.forEach((derivedBuffer, k) => {
-                  var loop0 = -Infinity;
-                  for ( let j = 0, l = derivedBuffer.originalDataBuffer.values.length; j < l; j++ )
-                    for (let i = 0, l2=derivedBuffer.originalDataBuffer.values[j].length; i < l2; i++)
-                      if ( derivedBuffer.originalDataBuffer.values[j][i] > loop0 )
-                        loop0 = derivedBuffer.originalDataBuffer.values[j][i];
+                    let loop0 = derivedBuffer.originalDataBuffer.max();
+                    this.blurredBuffers[k] = derivedBuffer.blur(this.contour.blur);
+                    var loop1 = this.blurredBuffers[k].originalDataBuffer.max();
+                    minStretch = Math.min(minStretch, loop0/loop1);
+                });
 
-                  this.blurredBuffers[k] = derivedBuffer.blur(this.contour.blur);
-
-                  var loop1 = -Infinity;
-                  for ( let j = 0, l = this.blurredBuffers[k].originalDataBuffer.values.length; j < l; j++ )
-                    for (let i = 0, l2=this.blurredBuffers[k].originalDataBuffer.values[j].length; i < l2; i++)
-                      if ( this.blurredBuffers[k].originalDataBuffer.values[j][i] > loop1 )
-                        loop1 = this.blurredBuffers[k].originalDataBuffer.values[j][i];
-                  minStretch = Math.min(minStretch, loop0/loop1);
+                let scale = minStretch == 0 ? 0 : 1 / minStretch;
+                this.blurredBuffers.forEach((blurredBuffer, k) => {
+                    blurredBuffer.originalDataBuffer.rescale(scale);
                 });
 
                 this.blurredBuffers.forEach((blurredBuffer, k) => {
-                  for ( let j = 0, l = blurredBuffer.originalDataBuffer.values.length; j < l; j++ )
-                    for (let i = 0, l2=blurredBuffer.originalDataBuffer.values[j].length; i < l2; i++)
-                      blurredBuffer.originalDataBuffer.values[j][i] = blurredBuffer.originalDataBuffer.values[j][i]*minStretch;
-                });
-
-                this.blurredBuffers.forEach((blurredBuffer, k) => {
-
                     let locthresholds = blurredBuffer.thresholds(this.contour.stroke);
-
                     let geometries = blurredBuffer.contours(locthresholds, this.contour.blur),
                         colors     = locthresholds.map(v => blurredBuffer.colorScale.colorRange[1]);
                     if (this.contour.colProp)
