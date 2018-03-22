@@ -94,7 +94,7 @@ export default class Interpreter {
         for (let tile of this.tiles) {
             tile.dataValues = tile.aggregate(this.dataBuffers, this.tileAggregation);
         }
-        let maxCount = util.amax(this.tiles.map(tile => util.amax(tile.dataValues)));
+        let maxCount = util.amax(this.tiles.map(tile => tile.maxValue()));
         // TODO test if scales are per-buffer or shared, for now, we'll make one per buffer
         if (this.rescale.type === "linear")
             this.scale = new Scale.LinearScale([0, maxCount], [0, 1]);
@@ -270,7 +270,7 @@ export default class Interpreter {
             let areas = rowcounts.map(rc => rc[rc.length-1]);
             let densities = this.tiles.map((tile, i) => {
                 let area = areas[i];
-                return area == 0 ? 0 : util.amax(tile.dataValues) / area;
+                return area == 0 ? 0 : tile.maxValue() / area;
             });
         }
 
@@ -301,7 +301,7 @@ export default class Interpreter {
             }
         }
         else if (this.compose.mix === "hatching") {
-            let maxCount = util.amax(this.tiles.map(tile => util.amax(tile.dataValues)));
+            let maxCount = util.amax(this.tiles.map(tile => tile.maxValue()));
             for(let tile of this.tiles) {
                 this.derivedBuffers.forEach((derivedBuffer:DerivedBuffer, i:number) => {
                     // Ugly side effect, should pass dataValues to Composer.hatch instead
@@ -323,7 +323,7 @@ export default class Interpreter {
             }
         }
         else if (this.compose.mix === "glyph") {
-            let maxCount = util.amax(this.tiles.map(tile => util.amax(tile.dataValues)));
+            let maxCount = util.amax(this.tiles.map(tile => tile.maxValue()));
             let glyphSpec = this.compose.glyphSpec!;
 
             let d3scale, d3base = 1;
@@ -400,7 +400,10 @@ export default class Interpreter {
             console.log('No composition');
 
         let render = () => {
-            let ctx = CanvasRenderer.renderAll(this.image, id, this.compose.select);
+            let options = <any>{};
+            if (this.blur != undefined)
+                options["blur"] = this.blur;
+            let ctx = CanvasRenderer.renderAll(this.image, id, this.compose.select, options);
             if (this.contour.stroke > 0) {
                 // Assume all the scales are shared between derived buffers
                 let path   = d3.geoPath(null, ctx),
@@ -410,7 +413,7 @@ export default class Interpreter {
 
                 let minStretch = Infinity;
                 this.derivedBuffers.forEach((derivedBuffer, k) => {
-                  let loop0 = -Infinity;
+                  var loop0 = -Infinity;
                   for ( let j = 0, l = derivedBuffer.originalDataBuffer.values.length; j < l; j++ )
                     for (let i = 0, l2=derivedBuffer.originalDataBuffer.values[j].length; i < l2; i++)
                       if ( derivedBuffer.originalDataBuffer.values[j][i] > loop0 )
@@ -418,7 +421,7 @@ export default class Interpreter {
 
                   this.blurredBuffers[k] = derivedBuffer.blur(this.contour.blur);
 
-                  let loop1 = -Infinity;
+                  var loop1 = -Infinity;
                   for ( let j = 0, l = this.blurredBuffers[k].originalDataBuffer.values.length; j < l; j++ )
                     for (let i = 0, l2=this.blurredBuffers[k].originalDataBuffer.values[j].length; i < l2; i++)
                       if ( this.blurredBuffers[k].originalDataBuffer.values[j][i] > loop1 )

@@ -96,7 +96,7 @@ export class TestMain {
         }
 
         // get max count of bins for scale
-        let maxCount = util.amax(rectTiles.map(tile => util.amax(tile.dataValues)));
+        let maxCount = util.amax(rectTiles.map(tile => tile.maxValue()));
 
         // assignProperties()
         let derivedBuffers1 = this.dataBuffers.map((dataBuffer, i) => {
@@ -160,7 +160,7 @@ export class TestMain {
             tile.dataValues = tile.aggregate(this.dataBuffers, TileAggregation.Sum);
         }
 
-        let maxCount2 = util.amax(bigRectTiles.map(tile => util.amax(tile.dataValues)));
+        let maxCount2 = util.amax(bigRectTiles.map(tile => tile.maxValue()));
 
         let randomMasks = Weaving.randomMasks(this.dataBuffers.length, bigTileSize, this.width, this.height);
         let squareMasks = Weaving.squareMasks(this.dataBuffers.length, bigTileSize, this.width, this.height);
@@ -271,7 +271,7 @@ export class TestMain {
         for(let tile of bigRectTiles) {
             tile.dataValues = tile.aggregate(this.dataBuffers, TileAggregation.Sum);
         }
-        let maxCount2 = util.amax(bigRectTiles.map(tile => util.amax(tile.dataValues)));
+        let maxCount2 = util.amax(bigRectTiles.map(tile => tile.maxValue()));
 
         let derivedBuffers6 = this.dataBuffers.map((dataBuffer, i) => {
             let derivedBuffer = new DerivedBuffer(dataBuffer);
@@ -307,7 +307,7 @@ export class TestMain {
         for(let tile of bigRectTiles) {
             tile.dataValues = tile.aggregate(this.dataBuffers, TileAggregation.Sum);
         }
-        let maxCount2 = util.amax(bigRectTiles.map(tile => util.amax(tile.dataValues)));
+        let maxCount2 = util.amax(bigRectTiles.map(tile => tile.maxValue()));
 
         let derivedBuffers17 = this.dataBuffers.map((dataBuffer, i) => {
             let derivedBuffer = new DerivedBuffer(dataBuffer);
@@ -344,7 +344,7 @@ export class TestMain {
         for(let tile of voronoiTiles) {
             tile.dataValues = tile.aggregate(this.dataBuffers, TileAggregation.Sum);
         }
-        let maxCount2 = util.amax(voronoiTiles.map(tile => util.amax(tile.dataValues)));
+        let maxCount2 = util.amax(voronoiTiles.map(tile => tile.maxValue()));
 
         let derivedBuffers9 = this.dataBuffers.map((dataBuffer, i) => {
             let derivedBuffer = new DerivedBuffer(dataBuffer);
@@ -380,7 +380,7 @@ export class TestMain {
         for(let tile of voronoiTiles) {
             tile.dataValues = tile.aggregate(this.dataBuffers, TileAggregation.Sum);
         }
-        let maxCount2 = util.amax(voronoiTiles.map(tile => util.amax(tile.dataValues)));
+        let maxCount2 = util.amax(voronoiTiles.map(tile => tile.maxValue()));
 
         let derivedBuffers16 = this.dataBuffers.map((dataBuffer, i) => {
             let derivedBuffer = new DerivedBuffer(dataBuffer);
@@ -490,7 +490,7 @@ export class TestMain {
         }
 
         // get max count of bins for scale
-        let maxCount = util.amax(tiles.map(tile => util.amax(tile.dataValues)));
+        let maxCount = util.amax(tiles.map(tile => tile.maxValue()));
 
         let svg = d3.select("#legend1a-legend");
         svg.selectAll("*").remove();
@@ -605,7 +605,7 @@ export class TestMain {
                tile.dataValues = tile.aggregate(dataBuffers, TileAggregation.Max);
         }
 
-        let maxCount = util.amax(ustiles.map(tile => util.amax(tile.dataValues)));
+        let maxCount = util.amax(ustiles.map(tile => tile.maxValue()));
 
         // NOTE: manipulated maxCount to balance colors
         // NOTE2: replaced by local max for the given buffer
@@ -690,7 +690,7 @@ export class TestMain {
                tile.dataValues = tile.aggregate(dataBuffers, TileAggregation.Max);
         }
 
-        let maxCount = util.amax(ustiles.map(tile => util.amax(tile.dataValues)));
+        let maxCount = util.amax(ustiles.map(tile => tile.maxValue()));
 
         let colscale =jquery("#compo1c1b option:selected").text();
         let derivedBuffers = dataBuffers.map((dataBuffer, i) => {
@@ -761,7 +761,7 @@ export class TestMain {
             tile.dataValues = tile.aggregate(dataBuffers, TileAggregation.Sum);
         }
 
-        let maxCount = util.amax(tiles.map(tile => util.amax(tile.dataValues)));
+        let maxCount = util.amax(tiles.map(tile => tile.maxValue()));
 
         let derivedBuffers = this.dataBuffers.map((dataBuffer, i) => {
             let derivedBuffer = new DerivedBuffer(dataBuffer);
@@ -849,7 +849,7 @@ export class TestMain {
                tile.dataValues = tile.aggregate(dataBuffers, TileAggregation.Max);
         }
 
-        let maxCount = util.amax(ustiles.map(tile => util.amax(tile.dataValues)));
+        let maxCount = util.amax(ustiles.map(tile => tile.maxValue()));
 
         let colscale =jquery("#compo1eb option:selected").text();
         let derivedBuffers = dataBuffers.map((dataBuffer, i) => {
@@ -934,7 +934,7 @@ export class TestMain {
                tile.dataValues = tile.aggregate(dataBuffers, TileAggregation.Max);
         }
 
-        let maxCount = util.amax(ustiles.map(tile => util.amax(tile.dataValues)));
+        let maxCount = util.amax(ustiles.map(tile => tile.maxValue()));
 
 
         let derivedBuffers = dataBuffers.map((dataBuffer, i) => {
@@ -1025,7 +1025,7 @@ export class TestMain {
         }
 
         // get max count of bins for scale
-        let maxCount = util.amax(tiles.map(tile => util.amax(tile.dataValues)));
+        let maxCount = util.amax(tiles.map(tile => tile.maxValue()));
 
         let svg = d3.select("#legend1g-legend");
         svg.selectAll("*").remove();

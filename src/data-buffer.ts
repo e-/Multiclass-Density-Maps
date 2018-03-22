@@ -29,6 +29,16 @@ export default class DataBuffer {
         return <number[]><any>new Float32Array(this.buffer());
     }
 
+    min() {
+        let mymin:any = util.amin;
+        return util.amin(this.values.map(mymin));
+    }
+
+    max() {
+        let mymax:any = util.amax;
+        return util.amax(this.values.map(mymax));
+    }
+
     blur(radius:number = 3): DataBuffer {
         if (radius==0) return this;
         // Linearize the array
@@ -55,11 +65,8 @@ export default class DataBuffer {
 
     makeContour(contourNumber:number = 12): DataBuffer {
         if (contourNumber==0) return this;
-        let mymin:any = util.amin, // Fool the type system
-            mymax:any = util.amax;
-
-        let mini = util.amin(this.values.map(mymin)),
-            maxi = util.amax(this.values.map(mymax)),
+        let mini = this.min(),
+            maxi = this.max(),
             bandsize = (maxi-mini)/contourNumber,
             ids = new DataBuffer(this.name, this.width, this.height);
 
