@@ -8,6 +8,23 @@ export function create2D<T>(width:number, height:number, value:T) {
     return arr;
 }
 
+export function asum(values:number[]) {
+    let n = values.length;
+    var i = -1, value, sum = NaN;
+
+    while (++i < n) { // Find the first comparable value.
+        if ((value = values[i]) != null && value >= value) {
+            sum = value;
+            while (++i < n) { // Compare the remaining values.
+                if ((value = values[i]) != null && value >= value) {
+                    sum += value;
+                }
+            }
+        }
+    }
+    return sum;
+}
+
 export function amax(values:number[]) {
     let n = values.length;
     var i = -1, value, max = NaN;

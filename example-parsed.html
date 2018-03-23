@@ -272,7 +272,19 @@ render('Voronoi Tiling',
                "size": 4
            }
        });
-
+render('Voronoi Tiling(dot densities)',
+       {
+           "description": "multivariate normal data",
+           "data": {"url": "mn_data.json"},
+           "rebin": {
+               "type": "voronoi",
+               "size": 32,
+               "stroke": "black"
+           },
+           "compose": {
+               "mix": "dotdensity"
+           }
+       });
 render('Voronoi Tiling (Multicative)',{
     "description": "multivariate normal data",
     "data": {"url": "mn_data.json"},
