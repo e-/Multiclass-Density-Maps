@@ -1,0 +1,405 @@
+<!doctype html>
+<html>
+    <head>
+        <title>Scalable Rendering of Multiclass Density Maps with Parser</title>
+<style>
+.example canvas {
+  border: 1px solid grey;
+}
+bodyno {
+  background-image:url('Baboon.png');
+  background-repeat:repeat;
+}
+.example {
+  font-weight: bold;
+  float:left;
+  margin:5px;
+}
+.clearBoth { clear:both; }
+
+</style>
+    </head>
+    <body>
+        <h1>Rendition</h1>
+
+        <script src="https://d3js.org/d3-dsv.v1.min.js"></script>
+        <script src="https://d3js.org/d3-fetch.v1.min.js"></script>
+        <script src="dist/bundle.js" type="text/javascript"></script>
+<script>
+var mcp = new MCP.MCP(), prefix = "specs/";
+var configuration, interpreter, canvasCount=0;
+
+function render(desc, json, do_break, forcedWidth, forcedHeight) {
+    var body = document.getElementsByTagName('body')[0],
+        div = document.createElement("div"),
+        canvas = document.createElement("canvas"),
+        svg = document.createElementNS("http://www.w3.org/2000/svg", "svg"),
+        id = "canvas"+(++canvasCount);
+
+    div.classList.add("example");
+    canvas.id = id;
+    svg.id = id + '-legend';
+
+    div.appendChild(document.createTextNode(desc));
+    div.appendChild(document.createElement("br"));
+    div.appendChild(canvas);
+    div.appendChild(svg);
+
+
+  body.appendChild(div);
+  if (forcedWidth) {
+    canvas.style.width = forcedWidth;
+  }
+  if (forcedHeight) {
+    canvas.style.height = forcedHeight;
+  }
+  if (do_break) {
+      var br = document.createElement("br");
+      br.classList.add('clearBoth');
+      body.appendChild(br);
+  }
+  var conf = mcp.create_configuration(json);
+  conf.load('data/').then(function(conf) {
+      interp = mcp.create_interp(conf);
+      interp.setup(id);
+      interpreter = interp;
+      interp.interpret();
+      interp.render(id);
+      interp.renderLegend(id+'-legend');
+  });
+}
+
+
+/*
+render('Census Data',
+{
+    "description": "US Census Synthetic people",
+    "data": {"url": "census.snappy_data.json"},
+    "reencoding": {
+        "label": {
+            "field": "z",
+            "type": "nominal",
+            "scale": {
+                "domain": ["w", "h", "a", "b", "o"],
+                "range": ["White", "Hispanic", "Asian", "Black", "Other"]
+            }
+        },
+        "color": {
+            "field": "z",
+            "type": "nominal",
+            "scale": {
+                "range": ["Blue", "Orange", "Red", "Green", "Brown"]
+            }
+        }
+    },
+    "compose": {
+        "mix": "mean",
+        "mixing": "additive"
+    },
+    "rescale": {
+        "type": "log"
+    },
+    "legend": {
+        "labelWidth": 60
+    }
+});
+
+render('Census Data Smoothed',
+{
+    "description": "US Census Synthetic people",
+    "data": {"url": "census.snappy_data.json"},
+    "smooth": {"radius": 1},
+    "reencoding": {
+        "label": {
+            "field": "z",
+            "type": "nominal",
+            "scale": {
+                "domain": ["w", "h", "a", "b", "o"],
+                "range": ["White", "Hispanic", "Asian", "Black", "Other"]
+            }
+        },
+        "color": {
+            "field": "z",
+            "type": "nominal",
+            "scale": {
+                "range": ["Blue", "Orange", "Red", "Green", "Brown"]
+            }
+        }
+    },
+    "compose": {
+        "mix": "mean",
+        "mixing": "additive"
+    },
+    "rescale": {
+        "type": "log"
+    },
+    "legend": {
+        "labelWidth": 60
+    }
+}, true);
+
+
+
+render('Census Data Random Weaving',
+{
+    "description": "US Census Synthetic people",
+    "data": {"url": "census.snappy_data.json"},
+    "reencoding": {
+        "label": {
+            "field": "z",
+            "type": "nominal",
+            "scale": {
+                "domain": ["w", "h", "a", "b", "o"],
+                "range": ["White", "Hispanic", "Asian", "Black", "Other"]
+            }
+        },
+        "color": {
+            "field": "z",
+            "type": "nominal",
+            "scale": {
+                "range": ["Blue", "Orange", "Red", "Green", "Brown"]
+            }
+        }
+    },
+    "rebin": {
+          "type": "topojson",
+          "url": "us.json",
+          "feature": "states",
+          // "feature": "counties",
+
+        //  "maxfeature": 49,
+        //    "feature": "counties",
+        //     "minfeature": 0,
+        //   "maxfeature": 3109,
+          "stroke": "rgba(0,0,0,0.25)"
+    },
+    "compose": {
+          "mix": "weavingrandom",
+          "size": 2
+    },
+    "rescale": {
+        "type": "log"
+    },
+    "legend": {
+        "labelWidth": 60
+    }
+});*/
+
+render('Census Data weaving',
+{
+    "description": "US Census Synthetic people",
+    "data": {"url": "census.snappy_data.json"},
+    "reencoding": {
+        "label": {
+            "field": "z",
+            "type": "nominal",
+            "scale": {
+                "domain": ["w", "h", "a", "b", "o"],
+                "range": ["White", "Hispanic", "Asian", "Black", "Other"]
+            }
+        },
+        "color": {
+            "field": "z",
+            "type": "nominal",
+            "scale": {
+                "range": ["Blue", "Orange", "Red", "Green", "Brown"]
+            }
+        }
+    },
+    "rebin": {
+          "type": "topojson",
+          "url": "us.json",
+          "feature": "states",
+          "stroke": "grey"
+
+    },
+    "compose": {
+          "mix": "weavingrandom",
+          "size": 2
+    },
+    "rescale": {
+        "type": "log"
+    },
+
+
+    "legend": {
+        "labelWidth": 60
+    }
+});
+
+render('Census Data multiplicative choropleth',
+{
+    "description": "US Census Synthetic people",
+    "data": {"url": "census.snappy_data.json"},
+    "reencoding": {
+        "label": {
+            "field": "z",
+            "type": "nominal",
+            "scale": {
+                "domain": ["w", "h", "a", "b", "o"],
+                "range": ["White", "Hispanic", "Asian", "Black", "Other"]
+            }
+        },
+        "color": {
+            "field": "z",
+            "type": "nominal",
+            "scale": {
+                "range0": ["White", "White", "White", "White", "White"],
+                "range1": ["Blue", "Orange", "Red", "Green", "Brown"]
+            }
+        }
+    },
+    "rebin": {
+          "type": "topojson",
+          "url": "us.json",
+          "feature": "counties",
+          "stroke": "rgba(255,255,255,0.1)"
+
+    },
+    "compose": {
+          "mix": "blend",
+          "mixing": "multiplicative"
+    },
+    "rescale": {
+        "type": "log"
+    },
+
+
+    "legend": {
+        "labelWidth": 60
+    }
+}, true);
+
+render('Census Data choropleth',
+{
+    "description": "US Census Synthetic people",
+    "data": {"url": "census.snappy_data.json"},
+    "reencoding": {
+        "label": {
+            "field": "z",
+            "type": "nominal",
+            "scale": {
+                "domain": ["w", "h", "a", "b", "o"],
+                "range": ["White", "Hispanic", "Asian", "Black", "Other"]
+            }
+        },
+        "color": {
+            "field": "z",
+            "type": "nominal",
+            "scale": {
+                "range": ["Blue", "Orange", "Red", "Green", "Brown"]
+            }
+        }
+    },
+    "rebin": {
+          "type": "topojson",
+          "url": "us.json",
+          "feature": "states",
+          "stroke": "white"
+
+    },
+    "compose": {
+          "mix": "mean",
+          "size": 2
+    },
+    "rescale": {
+        "type": "sqroot"
+    },
+
+
+    "legend": {
+        "labelWidth": 60
+    }
+});
+
+render('Census Data Contour',
+{
+    "description": "US Census Synthetic people",
+    "data": {"url": "census.snappy_data.json"},
+    "reencoding": {
+        "label": {
+            "field": "z",
+            "type": "nominal",
+            "scale": {
+                "domain": ["w", "h", "a", "b", "o"],
+                "range": ["White", "Hispanic", "Asian", "Black", "Other"]
+            }
+        },
+        "color": {
+            "field": "z",
+            "type": "nominal",
+            "scale": {
+                "range": ["Blue", "Orange", "Red", "Green", "Brown"]
+            }
+        }
+    },
+    "rebin": {
+          "type": "topojson",
+          "url": "us.json",
+          "feature": "states",
+          "stroke": "grey"
+
+    },
+    "compose": {
+          "mix": "none"
+    },
+    "rescale": {
+        "type": "linear"
+    },
+    "contour": {
+          "stroke": 4,
+          "colProp":false,
+          "lineWidth":2,
+          "blur": 4
+    },
+    "legend": {
+        "labelWidth": 60
+    }
+}, true);
+
+
+render('French Presidential Election',
+{
+    "description": "5 main candidate at Round #1",
+    "data": {"url": "francePresElec_data.json"},
+    "smooth": {},
+    "reencoding": {
+        "label": {
+            "field": "z",
+            "type": "nominal",
+            "scale": {
+                "domain": ["melenchon", "hamon", "macron", "fillon", "lepen"],
+                "range": ["Melenchon", "Hamon", "Macron", "Fillon", "Lepen"]
+            }
+        },
+        "color": {
+            "field": "z",
+            "type": "nominal",
+            "scale": {
+                "range": ["Red", "Pink", "Orange", "Blue", "Brown"]
+            }
+        }
+    },
+    "rebin": {
+          "type": "topojson",
+          "url": "franceD.json",
+          "feature": "poly",
+          "stroke": "grey"
+    },
+    "compose": {
+          "mix": "none"
+    },
+    "rescale": {
+        "type": "cbrt"
+    },
+    "contour": {
+      "blur": 3,
+      "lineWidth":3,
+      "colProp":false,
+      "stroke": 4
+    }
+}, true, "600px", "520px");
+
+</script>
+    </body>
+</html>
