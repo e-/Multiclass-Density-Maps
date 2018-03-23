@@ -24,6 +24,7 @@ export default class Tile extends Point {
     area() { return this.mask.area(); }
     rowcounts() { return this.mask.rowcounts(); }
     maxValue() { return util.amax(this.dataValues); }
+    sumValue() { return util.asum(this.dataValues); }
 
     aggregateOne(buffer:DataBuffer, op:TileAggregation = TileAggregation.Mean): number {
         let val = 0;

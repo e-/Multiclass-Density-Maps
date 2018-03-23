@@ -66,7 +66,7 @@ export default class Mask {
         }
         return this.maskCanvas;
     }
-  
+
     getPath() {
       if (this.path === undefined)
         this.path = new Path();
@@ -81,6 +81,20 @@ export default class Mask {
             for (let c = 0; c < imageData.width; c++) {
                 if (imageData.data[i] > 0){
                     row[c] = 1;
+                }
+                i += 4;
+            }
+        }
+    }
+
+    copyTo(ctx:CanvasRenderingContext2D) {
+        let imageData = ctx.getImageData(0, 0, this.width, this.height);
+        var i = 0;
+        for (let r = 0; r < imageData.height; r++) {
+            let row = this.mask[r];
+            for (let c = 0; c < imageData.width; c++) {
+                if ( row[c] > 0){
+                    imageData.data[i] = 255;
                 }
                 i += 4;
             }

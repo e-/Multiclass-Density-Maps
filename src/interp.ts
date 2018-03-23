@@ -255,7 +255,6 @@ export default class Interpreter {
         let promises = [];
         if (this.compose.mix === "separate") { // small multiples
             this.image = this.derivedBuffers.map((b) => new Image(this.width, this.height));
-            console.log(this.tiles.length);
             for(let tile of this.tiles) {
                 //let color = this.composer(this.derivedBuffers, tile.dataValues); // ???
                 this.derivedBuffers.forEach((derivedBuffer, i) => {
@@ -267,14 +266,102 @@ export default class Interpreter {
         else {
             this.image = [new Image(this.width, this.height)];
         }
+
         // Need the tiles to compute dot density plots
         if (this.compose.mix === "dotdensity") {
+
+            // create one mask per databuffer
+            let masks:Mask[] = Array<Mask>(this.derivedBuffers.length);
+            for (let i = 0; i < this.derivedBuffers.length; i++) {
+                masks[i] = new Mask(this.width, this.height, 0);
+            }
+
             let rowcounts = this.tiles.map(tile => tile.rowcounts());
-            let areas = rowcounts.map(rc => rc[rc.length-1]);
+            let areas     = rowcounts.map(rc => rc[rc.length-1]);
+            let biggest   = util.amax(areas);
             let densities = this.tiles.map((tile, i) => {
                 let area = areas[i];
-                return area == 0 ? 0 : tile.maxValue() / area;
+                return area == 0 ? 0 : tile.sumValue() / (area-1);
             });
+            let maxDensity = util.amax(densities);
+            let rawMask  = new Uint8Array(biggest);
+
+            this.tiles.forEach(function (tile, k) {
+              // create a local mask to store all the values together before dispathing them in every mask for every databuffer
+              let buffer = new ArrayBuffer(tile.mask.width*tile.mask.height);
+              let mask = Array<Uint8ClampedArray>(tile.mask.height);
+              for (let j = 0; j < tile.mask.height; j++) {
+                  mask[j] = new Uint8ClampedArray(buffer, j*tile.mask.width, tile.mask.width);
+                  mask[j].set(tile.mask.mask[j]);
+              }
+              // proportion and suming
+              let acc =0;
+              let pixCounts = tile.dataValues.map(function(v){acc+=v/maxDensity; return acc;});
+
+              // for every buffer we want to distribute a given number of points in its mask.
+              // to do so we create a buffer of values to distriibute among the buffer masks.
+              // values 1+2 will fall where the mask of buffer#1 should display something.
+              // values 2+2 will fall where the mask of buffer#2 should display something, etc.
+              // values 0 and 1 already lies in the masks and mean the mask is filled or not.
+              // in the end mask can only display something where there was a 1 before.
+              let prev = 0;
+              pixCounts.forEach (function(pc, j){
+                rawMask.fill(j+1, prev, Math.round(pc));
+                prev=Math.floor(pc);
+              });
+              // finish with special values that will fall in no buffer in the end
+              rawMask.fill(0, prev, areas[k]);
+
+              // shuffle
+              for (let i = areas[k]-1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [rawMask[i], rawMask[j]] = [rawMask[j], rawMask[i]];
+              }
+
+              // dispatch the values in the straight array toward the common mask (only where there are 1)
+              acc = 0;
+              for (let j = 0; j < mask.length; j++) {
+                for (let i = 0, w=mask[j].length; i < w; i++){
+                  if (mask[j][i]>0){
+                    mask[j][i] = rawMask[acc++];
+                  }
+                }
+              }
+
+              // dispatch the values in the common mask toward every mask of every buffer
+
+              //debug => display the mask
+              //let toto= document.createElement('canvas');
+              //toto.width  = tile.mask.width;
+              //toto.height = tile.mask.height;
+              //let ctx = toto!.getContext("2d")!;
+              //let imageData = ctx.getImageData(0, 0, tile.mask.width, tile.mask.height);
+              //var i = 0;
+              for (let r = 0; r < mask.length; r++) {
+                  let row = mask[r];
+                  for (let c = 0; c < row.length; c++) {
+                      if ( row[c] > 0){
+                          //imageData.data[i+0] = 0;
+                          //imageData.data[i+1] = 0;
+                          //imageData.data[i+2] = row[c]*255/tile.dataValues.length;
+                          //imageData.data[i+3] = 255;
+                          masks[row[c]-1].mask[r+tile.y][c+tile.x] = 1;
+                      }
+                      //i += 4;
+                  }
+              }
+              //ctx.putImageData(imageData, 0, 0);
+              //var body = document.getElementsByTagName('body')[0]
+              //body.appendChild(toto);
+            });
+
+            for (let tile of this.tiles) {
+                this.derivedBuffers.forEach((derivedBuffer, i) => {
+                    let color = derivedBuffer.colorScale.map(tile.dataValues[i]);
+                    this.image[0].render(color, tile, masks[i]);
+                });
+            }
+
         }
 
         if (this.composer != Composer.none) {
