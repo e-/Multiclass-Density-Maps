@@ -22,7 +22,7 @@ canvas {
         <script src="https://d3js.org/d3-fetch.v1.min.js"></script>
         <script src="dist/bundle.js" type="text/javascript"></script>
 <script>
-var testMain = new MCS.TestMain(), prefix = "specs/";
+var mcp = new MCP.MCP(), prefix = "specs/";
 var configuration, interpreter;
 
 function render(id, desc, json, do_break) {
@@ -46,9 +46,9 @@ function render(id, desc, json, do_break) {
       br.classList.add('clearBoth');
       body.appendChild(br);
   }
-  var conf = testMain.create_configuration(json);
+  var conf = mcp.create_configuration(json);
   conf.load('data/').then(function(conf) {
-      interp = testMain.create_interp(conf);
+      interp = mcp.create_interp(conf);
       console.log('interp w='+conf.width+' h='+conf.height);
       interp.setup(id);
       interpreter = interp;

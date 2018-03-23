@@ -22,7 +22,7 @@ module.exports = {
         filename: 'bundle.js',
         path: path.resolve(__dirname, 'dist'),
         publicPath: '/dist/',
-        library: 'MCS'
+        library: 'MCP'
     }
     ,
     plugins: [
