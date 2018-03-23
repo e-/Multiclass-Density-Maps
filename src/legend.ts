@@ -373,6 +373,7 @@ function punchcard(id:string, interp:Interpreter) {
     let derivedBuffers:DerivedBuffer[] = interp.derivedBuffers;
     let n = derivedBuffers.length;
     let spec = interp.legend as Parser.LegendSpec;
+    let glyphSpec = interp.compose.glyphSpec!;
 
     let svg = d3.select('#' + id)
         .style('font-family', spec.fontFamily)
@@ -397,10 +398,11 @@ function punchcard(id:string, interp:Interpreter) {
         col: i % cols,
     }});
 
-    let barSpec:any = {
+
+    let punchcardSpec:any = {
         $schema: "https://vega.github.io/schema/vega-lite/v2.0.json",
         data: {
-            values: data
+            values: []
         },
         layer: [
             {
@@ -410,9 +412,14 @@ function punchcard(id:string, interp:Interpreter) {
                         field: "value",
                         type: "quantitative",
                         scale: {
-                            type: "linear"
+                            type: interp.d3scale,
+                            base: interp.d3base,
+                            domain: interp.scale.domain as [number, number],
+                            range: [0, Math.min(glyphSpec.width, glyphSpec.height) * glyphSpec.factor]
                         },
-                        // legend: false
+                        legend: {
+                            orient: "left"
+                        }
                     },
                     color: {
                         field: "category",
@@ -421,7 +428,9 @@ function punchcard(id:string, interp:Interpreter) {
                             domain: derivedBuffers.map(b => b.originalDataBuffer.name),
                             range: derivedBuffers.map(b => (b.color || Color.Blue).css())
                         },
-                        // legend: false
+                        legend: {
+                            orient: "left"
+                        }
                     }
                 }
             },
@@ -449,11 +458,11 @@ function punchcard(id:string, interp:Interpreter) {
         },
         width: spec.width,
         height: spec.height,
-        padding: 0
+        padding: 5
     };
 
     let wrapper = document.createElement('div') as HTMLElement;
-    return vegaEmbed(wrapper as HTMLBaseElement, barSpec, {
+    return vegaEmbed(wrapper as HTMLBaseElement, punchcardSpec, {
         actions: false,
         renderer: 'svg'
     }).then(() => {

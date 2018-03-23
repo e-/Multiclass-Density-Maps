@@ -47,6 +47,10 @@ export default class Interpreter {
     public legend:Parser.LegendSpec | false;
     public scale:Scale.ScaleTrait = new Scale.LinearScale([0, 1], [0, 1]);
 
+    // d3 name of scale, used for legend
+    public d3scale:string = "linear";
+    public d3base:number = 10;
+
     constructor(public configuration:Parser.Configuration) {
         if (! configuration.validate())
             throw "Invalid configuration";
@@ -87,7 +91,6 @@ export default class Interpreter {
 
     public interpret(context={}) {
         this.computeDerivedBuffers(context);
-        this.computeReencoding(context);
         this.computeRebin(context);
         this.computeCompose(context);
 
@@ -202,9 +205,6 @@ export default class Interpreter {
         if (this.rebin != undefined && this.rebin.stroke)
             this.maskStroke = this.rebin.stroke;
         this.tiles = tiles;
-    }
-
-    private computeReencoding(context={}) {
     }
 
     private computeCompose(context={}) {
@@ -337,6 +337,9 @@ export default class Interpreter {
             else {
                 throw 'failed to convert a scale to a d3 scale. Please add a specification';
             }
+
+            this.d3base = d3base;
+            this.d3scale = d3scale;
 
             if(glyphSpec.template === "bars") {
                 let width = glyphSpec.width; // tile.mask.width;
