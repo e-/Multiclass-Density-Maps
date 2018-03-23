@@ -487,6 +487,12 @@ function punchcard(id:string, interp:Interpreter) {
     });
 }
 
+function colorBlending(id:string, interp:Interpreter) {
+    // interp.compose.mix == max or mean or blend
+    // interp.compose.mixing == multiplicative or additive
+
+}
+
 export default function LegendBuilder(id:string, interp:Interpreter) {
     if(interp.legend === false) return;
 
@@ -500,6 +506,9 @@ export default function LegendBuilder(id:string, interp:Interpreter) {
         else if(interp.compose.glyphSpec!.template === "punchcard") {
             punchcard(id, interp);
         }
+    }
+    else if(["max", "mean", "blend"].indexOf(interp.compose.mix) >= 0) {
+        colorBlending(id, interp);
     }
     else {
         horizontalColormaps(id, interp);
