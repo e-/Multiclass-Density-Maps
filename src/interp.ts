@@ -273,7 +273,7 @@ export default class Interpreter {
             // create one mask per databuffer
             let masks:Mask[] = Array<Mask>(this.derivedBuffers.length);
             for (let i = 0; i < this.derivedBuffers.length; i++) {
-                masks[i] = new Mask(this.width, this.height, 0);
+              masks[i] = new Mask(this.width, this.height, 0);
             }
 
             let rowcounts = this.tiles.map(tile => tile.rowcounts());
@@ -288,12 +288,12 @@ export default class Interpreter {
 
             this.tiles.forEach(function (tile, k) {
               // create a local mask to store all the values together before dispathing them in every mask for every databuffer
-              let buffer = new ArrayBuffer(tile.mask.width*tile.mask.height);
-              let mask = Array<Uint8ClampedArray>(tile.mask.height);
-              for (let j = 0; j < tile.mask.height; j++) {
-                  mask[j] = new Uint8ClampedArray(buffer, j*tile.mask.width, tile.mask.width);
-                  mask[j].set(tile.mask.mask[j]);
-              }
+              //let buffer = new ArrayBuffer(tile.mask.width*tile.mask.height);
+              //let mask = Array<Uint8ClampedArray>(tile.mask.height);
+              //for (let j = 0; j < tile.mask.height; j++) {
+              //    mask[j] = new Uint8ClampedArray(buffer, j*tile.mask.width, tile.mask.width);
+              //    mask[j].set(tile.mask.mask[j]);
+              //}
               // proportion and suming
               let acc =0;
               let pixCounts = tile.dataValues.map(function(v){acc+=v/maxDensity; return acc;});
@@ -318,46 +318,25 @@ export default class Interpreter {
                 [rawMask[i], rawMask[j]] = [rawMask[j], rawMask[i]];
               }
 
-              // dispatch the values in the straight array toward the common mask (only where there are 1)
+              // dispatch the values in the straight array toward the masks (only where there are 1 in the tile's mask)
               acc = 0;
-              for (let j = 0; j < mask.length; j++) {
-                for (let i = 0, w=mask[j].length; i < w; i++){
-                  if (mask[j][i]>0){
-                    mask[j][i] = rawMask[acc++];
+              for (let j = 0; j < tile.mask.mask.length; j++) {
+                let row = tile.mask.mask[j];
+                for (let i = 0, w=tile.mask.mask[j].length; i < w; i++){
+                  if (row[i]>0){
+                    let id = rawMask[acc++];
+                    if (id>0)
+                      masks[id-1].mask[j+tile.y][i+tile.x] = 1;
                   }
                 }
               }
 
-              // dispatch the values in the common mask toward every mask of every buffer
-
-              //debug => display the mask
-              //let toto= document.createElement('canvas');
-              //toto.width  = tile.mask.width;
-              //toto.height = tile.mask.height;
-              //let ctx = toto!.getContext("2d")!;
-              //let imageData = ctx.getImageData(0, 0, tile.mask.width, tile.mask.height);
-              //var i = 0;
-              for (let r = 0; r < mask.length; r++) {
-                  let row = mask[r];
-                  for (let c = 0; c < row.length; c++) {
-                      if ( row[c] > 0){
-                          //imageData.data[i+0] = 0;
-                          //imageData.data[i+1] = 0;
-                          //imageData.data[i+2] = row[c]*255/tile.dataValues.length;
-                          //imageData.data[i+3] = 255;
-                          masks[row[c]-1].mask[r+tile.y][c+tile.x] = 1;
-                      }
-                      //i += 4;
-                  }
-              }
-              //ctx.putImageData(imageData, 0, 0);
-              //var body = document.getElementsByTagName('body')[0]
-              //body.appendChild(toto);
             });
 
             for (let tile of this.tiles) {
                 this.derivedBuffers.forEach((derivedBuffer, i) => {
-                    let color = derivedBuffer.colorScale.map(tile.dataValues[i]);
+                    //let color = derivedBuffer.colorScale.map(tile.dataValues[i]);
+                    let color = derivedBuffer.colorScale.colorRange[1]
                     this.image[0].render(color, tile, masks[i]);
                 });
             }
