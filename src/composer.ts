@@ -57,7 +57,7 @@ export default class Composer {
           ret = ret.add(buffers[i].colorScale.map(value));
         });
 
-        ret = ret.clamp();
+        //ret = ret.clamp();
         return ret;
     }
 

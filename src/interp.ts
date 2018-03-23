@@ -33,7 +33,8 @@ export default class Interpreter {
     public fillCanvas:boolean = true;
     public background?:string;
     public bufferNames:string[];
-    public colors:Color[] = Color.Category10;
+    public colors0:Color[] = Color.Category10t;
+    public colors1:Color[] = Color.Category10;
     public labels?:string[];
     public rebin: any;
     public rescale:Parser.RescaleSpec;
@@ -64,12 +65,21 @@ export default class Interpreter {
         this.sourceBuffers = configuration.getBuffers();
         this.dataBuffers = this.sourceBuffers;
         this.labels = configuration.getLabels();
-        let colormap = configuration.getColors();
-        if (colormap.length >= this.bufferNames.length)
-            this.colors = colormap.map((name)=>Color.byName(name));
-        else if (colormap.length != 0) {
-            console.log('  WARNING:Not enough colors in colormap, ignored');
+
+        let colormap0 = configuration.getColors0();
+        if (colormap0.length >= this.bufferNames.length)
+            this.colors0 = colormap0.map((name)=>Color.byName(name));
+        else if (colormap0.length != 0) {
+            console.log('  WARNING: Not enough colors(0) in colormap, ignored');
         }
+
+        let colormap1 = configuration.getColors1();
+        if (colormap1.length >= this.bufferNames.length)
+            this.colors1 = colormap1.map((name)=>Color.byName(name));
+        else if (colormap1.length != 0) {
+            console.log('  WARNING: Not enough colors(1) in colormap, ignored');
+        }
+
         this.rebin = configuration.rebin;
         if (configuration.compose === undefined)
             this.compose = new Parser.ComposeSpec();
@@ -117,8 +127,8 @@ export default class Interpreter {
 
         this.derivedBuffers = this.dataBuffers.map((dataBuffer, i) => {
             let derivedBuffer = new DerivedBuffer(dataBuffer);
-            derivedBuffer.colorScale = new Scale.ColorScale([this.colors[i].totTransparent(), this.colors[i]], this.scale); //
-            derivedBuffer.color = this.colors[i];
+            derivedBuffer.colorScale = new Scale.ColorScale([this.colors0[i], this.colors1[i]], this.scale); //
+            derivedBuffer.color = this.colors1[i];
             if (this.masks.length > i)
                 derivedBuffer.mask = this.masks[i];
             return derivedBuffer;
@@ -215,7 +225,7 @@ export default class Interpreter {
         else if (this.compose.mix === "min")
             this.composer = Composer.min;
         else if (this.compose.mix === "blend") {
-            if(this.compose.mixing === "multicative")
+            if(this.compose.mixing === "multiplicative")
                 this.composer = Composer.multiplicativeMix;
             else
                 this.composer = Composer.additiveMix;

@@ -148,7 +148,9 @@ export default class Color {
     static Brown       = new Color(140 / 255, 86 / 255, 75 / 255, 1);
     static Pink        = new Color(227 / 255, 119 / 255, 194 / 255, 1);
     static Gray        = new Color(127 / 255, 127 / 255, 127 / 255, 1);
-    static Yellow      = new Color(188 / 255, 189 / 255, 34 / 255, 1);
+    static Yellow      = new Color(255 / 255, 255 / 255, 0 / 255, 1);
+    static Cyan        = new Color(0 / 255,   255 / 255, 255 / 255, 1);
+    static Magenta      = new Color(255 / 255, 0 / 255,   255 / 255, 1);
     static Skyblue     = new Color(23 / 255, 190 / 255, 207 / 255, 1);
     static Transparent = new Color(0, 0, 0, 0);
 
@@ -165,6 +167,8 @@ export default class Color {
         "pink": Color.Pink,
         "gray": Color.Gray,
         "yellow": Color.Yellow,
+        "cyan": Color.Cyan,
+        "magenta": Color.Magenta,
         "skyblue": Color.Skyblue
     };
     static byName(name:string): Color {
@@ -175,6 +179,7 @@ export default class Color {
     };
 
     static Category10 = [Color.Blue, Color.Orange, Color.Green, Color.Red, Color.Purple, Color.Brown, Color.Pink, Color.Gray, Color.Yellow, Color.Skyblue];
+    static Category10t = Color.Category10.map(c => new Color(c.r, c.g, c.b, 0));
     static Category10a = [Color.Blue, Color.Red, Color.Green, Color.Orange, Color.Purple, Color.Brown, Color.Pink, Color.Gray, Color.Yellow, Color.Skyblue];
     static Category10b = [Color.Red, Color.Yellow, Color.Blue, Color.Orange, Color.Purple, Color.Green, Color.Pink, Color.Gray, Color.Yellow, Color.Skyblue];
 }

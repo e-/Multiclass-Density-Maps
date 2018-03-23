@@ -135,7 +135,8 @@ export interface ConfigurationReencodingLabelSpec {
 
 export interface ConfigurationReencodingColorScaleSpec {
     domain?: string[];
-    range: string[];
+    range0: string[];
+    range1: string[];
     type?: string;
 }
 
@@ -162,7 +163,7 @@ export class ComposeSpec {
     mix: "none"|"min"|"mean"|"max"|"blend"|
           "weavingrandom"|"weavingsquare"|"weavinghex"|"weavingtri"|
           "propline"|"hatching"|"separate"|"glyph"|"dotdensity"="mean";
-    mixing: "additive"|"subtractive"|"multicative" = "additive";
+    mixing: "additive"|"substractive"|"multiplicative" = "additive";
     size:number = 8;
     widthprop:string|number = "none";
     colprop:boolean = false;
@@ -477,13 +478,22 @@ export class Configuration {
         return this.reencoding.label.scale.range;
     }
 
-    public getColors(): string[]  {
+    public getColors0(): string[]  {
         if (! this.reencoding
             || ! this.reencoding.color
             || ! this.reencoding.color.scale
-            || ! this.reencoding.color.scale.range)
+            || ! this.reencoding.color.scale.range0)
             return [];
-        return this.reencoding.color.scale.range;
+        return this.reencoding.color.scale.range0;
+    }
+
+    public getColors1(): string[]  {
+        if (! this.reencoding
+            || ! this.reencoding.color
+            || ! this.reencoding.color.scale
+            || ! this.reencoding.color.scale.range1)
+            return [];
+        return this.reencoding.color.scale.range1;
     }
 
     public getGeo():GeoSpec {
