@@ -289,34 +289,26 @@ export default class Interpreter {
             }
         }
         else if (this.compose.mix === "propline") {
-            for(let tile of this.tiles) {
-                this.derivedBuffers.forEach((derivedBuffer:DerivedBuffer, i:number) => {
-                    // Ugly side effect, should pass dataValues to Composer.hatch instead
-                    derivedBuffer.color = derivedBuffer.colorScale.map(tile.dataValues[i]);
-                });
-
-                let hatch = Composer.hatch(tile, this.derivedBuffers, this.compose.size,
+            for(let tile of this.tiles) {let hatch = Composer.hatch(tile, this.derivedBuffers, tile.dataValues, this.compose.size,
                                            this.compose.widthprop, this.compose.colprop);
                 this.image[0].render(hatch, tile.center);
             }
         }
         else if (this.compose.mix === "hatching") {
             let maxCount = util.amax(this.tiles.map(tile => tile.maxValue()));
+            this.derivedBuffers.forEach((derivedBuffer:DerivedBuffer, i:number) => {
+                // Ugly side effect, should pass dataValues to Composer.hatch instead
+                derivedBuffer.angle = Math.PI * i / (2*this.derivedBuffers.length);
+            });
+
             for(let tile of this.tiles) {
-                this.derivedBuffers.forEach((derivedBuffer:DerivedBuffer, i:number) => {
-                    // Ugly side effect, should pass dataValues to Composer.hatch instead
-                    derivedBuffer.color = derivedBuffer.colorScale.map(tile.dataValues[i]);
-                    derivedBuffer.angle = Math.PI * i / (2*this.derivedBuffers.length);
-                });
-
-
                 let hatch:HTMLCanvasElement;
 
                 if (typeof this.compose.widthprop === "number")
-                  hatch= Composer.hatch(tile, this.derivedBuffers,             this.compose.size,
+                  hatch= Composer.hatch(tile, this.derivedBuffers, tile.dataValues, this.compose.size,
                                               this.compose.widthprop*maxCount, this.compose.colprop);
                 else
-                  hatch = Composer.hatch(tile, this.derivedBuffers,    this.compose.size,
+                  hatch = Composer.hatch(tile, this.derivedBuffers, tile.dataValues, this.compose.size,
                                                this.compose.widthprop, this.compose.colprop);
 
                 this.image[0].render(hatch, tile.center);

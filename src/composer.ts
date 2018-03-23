@@ -263,7 +263,8 @@ export default class Composer {
         return extract(spec);
     }
 
-    static hatch(tile:Tile, buffers:DerivedBuffer[], thickness:number, widthprop:string|number, colprop:boolean=false): HTMLCanvasElement{
+    static hatch(tile:Tile, buffers:DerivedBuffer[], dataValues:number[],
+        thickness:number, widthprop:string|number, colprop:boolean=false): HTMLCanvasElement{
         let hatchCanvas = <HTMLCanvasElement>document.createElement('canvas');
         hatchCanvas.width  = tile.mask.width;
         hatchCanvas.height = tile.mask.height;
@@ -276,37 +277,41 @@ export default class Composer {
         ctx.fillRect(0,0,ctx.canvas.width, ctx.canvas.height);
         ctx.save();
 
-        let dataValues2 = [];
+        let sorted:{index:number, value:number}[] = [];
         let diag = Math.sqrt(hatchCanvas.width*hatchCanvas.width+hatchCanvas.height*hatchCanvas.height);
         let sum = 0;
-        for (let i in tile.dataValues){
-            sum+=tile.dataValues[i];
-            dataValues2.push({"val":tile.dataValues[i], "index":i});
-        }
-        dataValues2.sort(function(a, b){return a.val<b.val?1:-1;})
+        dataValues.forEach((value, i) => {
+            sum += value;
+            sorted.push({
+                index: i,
+                value: value
+            });
+        })
+        sorted.sort(function(a, b){return b.value - a.value});
 
         let acc = 0;
-        //buffers.forEach((buffer, i) => {
-        for (let j=0; j<dataValues2.length; j++){
-            let obj:any = dataValues2[j];
-            let buffer = buffers[obj.index];
+        sorted.forEach(d => {
+            let dataValue = d.value;
+            let i = d.index;
+
+            let buffer = buffers[i];
             ctx.save();
             ctx.translate(hatchCanvas.width/2, hatchCanvas.height/2);
             ctx.rotate(buffer.angle!);
-            ctx.strokeStyle = buffer.color!.css();
+            ctx.strokeStyle = buffer.colorScale.map(dataValue).css();
 
             if (colprop){
                 //if (j==0) console.log(tile.dataValues[obj.index]+" = >"+buffers[obj.index].colorScale.map(tile.dataValues[obj.index]).css())
-                ctx.strokeStyle = buffers[obj.index].colorScale.map(tile.dataValues[obj.index]).css();
+                ctx.strokeStyle = buffer.colorScale.map(dataValue).css();
             }else
-                ctx.strokeStyle = Color.Category10[obj.index].css();
+                ctx.strokeStyle = Color.Category10[i].css();
 
             if(typeof widthprop === "string" && widthprop=="none"){
               ctx.lineWidth = thickness;
             } else if(typeof widthprop === "string" && widthprop=="percent"){
-              ctx.lineWidth = thickness * tile.dataValues.length * tile.dataValues[obj.index] / sum;
+              ctx.lineWidth = thickness * tile.dataValues.length * dataValue / sum;
             }else if(typeof widthprop === "number"){
-              ctx.lineWidth = thickness * tile.dataValues.length * tile.dataValues[obj.index] / widthprop;
+              ctx.lineWidth = thickness * tile.dataValues.length * dataValue / widthprop;
             }
             acc += ctx.lineWidth/2;
             let tx = tile.x+hatchCanvas.width/2-diag;
@@ -320,9 +325,7 @@ export default class Composer {
             }
             acc += ctx.lineWidth/2;
             ctx.restore();
-        }
-
-        //let pixels = ctx.getImageData(0, 0, hatchCanvas.width, hatchCanvas.height)!;
+        });
 
         return hatchCanvas;
     }
