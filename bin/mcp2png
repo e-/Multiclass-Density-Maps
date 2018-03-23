@@ -1,0 +1,64 @@
+#!/usr/bin/env node
+// Render a MCP specification to PNG, using node canvas
+// Borrowed from vega vg2png: https://github.com/vega/vega
+
+var helpText =
+  'Render a MultiClassPlot specification to PNG.\n\n' +
+  'Usage: mcp2png [mcp_json_file] [output_png_file]\n' +
+  '  If no arguments are provided, reads from stdin.\n' +
+  '  If output_png_file is not provided, writes to stdout.\n\n' +
+  'To load data, you may need to set a base directory:\n' +
+  '  For web retrieval, use `-b http://host/data/`. \n' +
+  '  For files, use `-b file:///dir/data/` (absolute) or `-b data/` (relative).';
+
+// import required libraries
+var path = require('path'),
+    fs = require('fs'),
+    canvas = require('canvas');,
+    mcp = require('../dist/bundle');
+
+// arguments
+var args = require('yargs')
+  .usage(helpText)
+  .demand(0)
+  .string('b').alias('b', 'base')
+  .describe('b', 'Base directory for data loading.')
+  .help()
+  .version()
+  .argv;
+
+// set baseURL if provided on command line
+var base = args.b ? args.b + path.sep : null;
+
+// input / output files
+var specFile = args._[0] || '/dev/stdin',
+    outputFile = args._[1] || null;
+
+// load spec, render to png
+fs.readFile(specFile, 'utf8', function(err, text) {
+  if (err) throw err;
+  render(JSON.parse(text));
+});
+
+// ---
+
+function writePNG(canvas, file) {
+  var out = file ? fs.createWriteStream(file) : process.stdout;
+  var stream = canvas.createPNGStream();
+  stream.on('data', function(chunk) { out.write(chunk); });
+}
+
+function render(spec) {
+  var testMain = mcp.testMain();
+  var conf = new testMain.create_configuration(spec);
+  var canvas = new canvas(100, 100);
+  conf.load(base).then(function (conf) {
+      interp = testMain.create_interp(conf);
+      console.log('interp w='+conf.width+' h='+conf.height);
+      interp.setup(id);
+      interpreter = interp;
+      interp.interpret();
+      interp.render(canvas);
+      writePNG(canvas, outputFile);
+    });
+}
