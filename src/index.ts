@@ -406,7 +406,7 @@ export class TestMain {
               else
                   derivedBuffers16[i].color = Color.Category10[i];
 
-              let hatch:any = Composer.hatch(tile, derivedBuffers16, hatchingSize, "percent", colprop);
+              let hatch:any = Composer.hatch(tile, derivedBuffers16, tile.dataValues, hatchingSize, "percent", colprop);
               outputImage16.render(
                 hatch,
                 tile.center
@@ -737,7 +737,7 @@ export class TestMain {
                  derivedBuffers.forEach((buffer, i) => { buffer.angle = Math.PI * i / 8; })
 
             outputImage.render(
-                Composer.hatch(tile, derivedBuffers, hatchingSize, propWidth, colprop),
+                Composer.hatch(tile, derivedBuffers, tile.dataValues, hatchingSize, propWidth, colprop),
                 tile.center
             );
         }

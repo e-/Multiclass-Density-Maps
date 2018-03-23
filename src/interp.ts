@@ -47,6 +47,10 @@ export default class Interpreter {
     public legend:Parser.LegendSpec | false;
     public scale:Scale.ScaleTrait = new Scale.LinearScale([0, 1], [0, 1]);
 
+    // d3 name of scale, used for legend
+    public d3scale:string = "linear";
+    public d3base:number = 10;
+
     constructor(public configuration:Parser.Configuration) {
         if (! configuration.validate())
             throw "Invalid configuration";
@@ -87,7 +91,6 @@ export default class Interpreter {
 
     public interpret(context={}) {
         this.computeDerivedBuffers(context);
-        this.computeReencoding(context);
         this.computeRebin(context);
         this.computeCompose(context);
 
@@ -204,9 +207,6 @@ export default class Interpreter {
         this.tiles = tiles;
     }
 
-    private computeReencoding(context={}) {
-    }
-
     private computeCompose(context={}) {
         if (this.compose.mix === "max")
             this.composer = Composer.max;
@@ -238,8 +238,9 @@ export default class Interpreter {
                                                this.width, this.height);
     }
 
-    setup(id:string) {
-        let canvas:any = document.getElementById(id);
+    setup(id:string|HTMLCanvasElement) {
+        let canvas = id instanceof HTMLCanvasElement ? id :
+              document.getElementById(id) as HTMLCanvasElement;
         canvas.width   = this.width;
         canvas.height  = this.height;
         if (this.background != undefined)
@@ -248,7 +249,9 @@ export default class Interpreter {
             canvas.setAttribute("title", this.description);
     }
 
-    render(id:string) {
+    render(id:string|HTMLCanvasElement) {
+        let canvas = id instanceof HTMLCanvasElement ? id :
+              document.getElementById(id) as HTMLCanvasElement;
         let promises = [];
         if (this.compose.mix === "separate") { // small multiples
             this.image = this.derivedBuffers.map((b) => new Image(this.width, this.height));
@@ -376,34 +379,26 @@ export default class Interpreter {
             }
         }
         else if (this.compose.mix === "propline") {
-            for(let tile of this.tiles) {
-                this.derivedBuffers.forEach((derivedBuffer:DerivedBuffer, i:number) => {
-                    // Ugly side effect, should pass dataValues to Composer.hatch instead
-                    derivedBuffer.color = derivedBuffer.colorScale.map(tile.dataValues[i]);
-                });
-
-                let hatch = Composer.hatch(tile, this.derivedBuffers, this.compose.size,
+            for(let tile of this.tiles) {let hatch = Composer.hatch(tile, this.derivedBuffers, tile.dataValues, this.compose.size,
                                            this.compose.widthprop, this.compose.colprop);
                 this.image[0].render(hatch, tile.center);
             }
         }
         else if (this.compose.mix === "hatching") {
             let maxCount = util.amax(this.tiles.map(tile => tile.maxValue()));
+            this.derivedBuffers.forEach((derivedBuffer:DerivedBuffer, i:number) => {
+                // Ugly side effect, should pass dataValues to Composer.hatch instead
+                derivedBuffer.angle = Math.PI * i / (2*this.derivedBuffers.length);
+            });
+
             for(let tile of this.tiles) {
-                this.derivedBuffers.forEach((derivedBuffer:DerivedBuffer, i:number) => {
-                    // Ugly side effect, should pass dataValues to Composer.hatch instead
-                    derivedBuffer.color = derivedBuffer.colorScale.map(tile.dataValues[i]);
-                    derivedBuffer.angle = Math.PI * i / (2*this.derivedBuffers.length);
-                });
-
-
                 let hatch:HTMLCanvasElement;
 
                 if (typeof this.compose.widthprop === "number")
-                  hatch= Composer.hatch(tile, this.derivedBuffers,             this.compose.size,
+                  hatch= Composer.hatch(tile, this.derivedBuffers, tile.dataValues, this.compose.size,
                                               this.compose.widthprop*maxCount, this.compose.colprop);
                 else
-                  hatch = Composer.hatch(tile, this.derivedBuffers,    this.compose.size,
+                  hatch = Composer.hatch(tile, this.derivedBuffers, tile.dataValues, this.compose.size,
                                                this.compose.widthprop, this.compose.colprop);
 
                 this.image[0].render(hatch, tile.center);
@@ -424,6 +419,9 @@ export default class Interpreter {
             else {
                 throw 'failed to convert a scale to a d3 scale. Please add a specification';
             }
+
+            this.d3base = d3base;
+            this.d3scale = d3scale;
 
             if(glyphSpec.template === "bars") {
                 let width = glyphSpec.width; // tile.mask.width;
