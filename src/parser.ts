@@ -488,7 +488,3 @@ export class Configuration {
     }
 }
 
-export function parse(json: any): Configuration {
-    return new Configuration(json);
-}
-
