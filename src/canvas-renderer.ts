@@ -1,5 +1,6 @@
 import Image from './image';
 import Mask from './mask';
+import {arange} from './util';
 
 export enum BlendingMode {
     Normal = 0,
@@ -10,7 +11,7 @@ export default class CanvasRenderer {
     static BlendingMode = BlendingMode;
 
     static renderAll(images:Image[], canvas:string|HTMLCanvasElement,
-                     select?: number,
+                     order?: number[],
                      options: {
                          blur?:number,
                          blendingMode?:BlendingMode,
@@ -19,10 +20,10 @@ export default class CanvasRenderer {
                      } = {}): CanvasRenderingContext2D {
         if (images.length == 1)
             return CanvasRenderer.render(images[0], canvas, options);
-        else if (select && select < images.length)
-            return CanvasRenderer.render(images[select], canvas, options);
+        else if (order && order.length == 1 && order[0] < images.length)
+            return CanvasRenderer.render(images[order[0]], canvas, options);
         else
-            return CanvasRenderer.renderMultiples(images, canvas, options);
+            return CanvasRenderer.renderMultiples(images, canvas, order, options);
     }
 
     static render(image:Image, id:string|HTMLCanvasElement, options:{
@@ -146,12 +147,17 @@ export default class CanvasRenderer {
     }
 
     static renderMultiples(images:Image[], id:string|HTMLCanvasElement,
+                           order?: number[],
                            options:{rows?:number, cols?:number} = {}) {
+        let len = (order!==undefined) ? order.length : images.length;
+        if (order === undefined) {
+            order = arange(len);
+        }
         let rows = options.rows || 1;
         let cols = options.cols || 1;
 
-        if(rows * cols < images.length) {
-            rows = cols = Math.ceil(Math.sqrt(images.length));
+        if(rows * cols < len) {
+            rows = cols = Math.ceil(Math.sqrt(len));
         }
 
         let canvas = id instanceof HTMLCanvasElement ? id :
@@ -178,8 +184,8 @@ export default class CanvasRenderer {
 
             memoryCtx.putImageData(imageData, 0, 0);
 
-            let col = Math.floor(i / rows);
-            let row = i % rows;
+            let col = Math.floor(order![i] / rows);
+            let row = order![i] % rows;
             ctx.drawImage(memoryCanvas, 0,           0,                         width,      height,
                                         width * col / cols, height * row /rows, width/cols, height/rows);
         });

@@ -166,7 +166,7 @@ export class ComposeSpec {
     size:number = 8;
     widthprop:string|number = "none";
     colprop:boolean = false;
-    select?:number;
+    order?:number[];
     url?:string;
     glyphSpec?: GlyphSpec;
 
@@ -390,6 +390,21 @@ export class Configuration {
                 error = k;
             }
         });
+        if (this.compose != undefined && this.compose.order != undefined) {
+            let order = this.compose.order;
+            let valid = new Set<number>();
+            for (let i = 0; i < order.length; i++) {
+                if (order[i] < 0 || order[i] >= data.buffers.length) {
+                    error = 'invalid buffer index '+order[i];
+                    break;
+                }
+                else if (order[i] in valid) {
+                    error = 'duplicated buffer index '+order[i];
+                }
+                valid.add(order[i]);
+            }
+        }
+
         if (error != '')
             return false;
         return true;

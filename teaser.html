@@ -66,7 +66,8 @@ render('Linear Color Scale Small Multiples',
            "description": "multivariate normal data",
            "data": {"url": "mn_data.json"},
            "compose": {
-               "mix": "separate" //, select: 1
+               "mix": "separate",
+               "order": [1, 3, 0, 2]
            },
            "rescale": {
                "type": "linear"
@@ -97,25 +98,14 @@ render('Linear Color Scale Max',
            }
        });
 
-// render('Linear Color Scale mean equalized',
-//        {
-//            "description": "multivariate normal data",
-//            "data": {"url": "mn_data.json"},
-//            "compose": {
-//                "mix": "mean",
-//                "mixing": "additive"
-//            },
-//            "rescale": {
-//                "type": "equidepth"
-//            }
-//        }, true);
 
-render('Contour lines',
+render('Triangular Weaving with Contour lines',
        {
            "description": "multivariate normal data",
            "data": {"url": "mn_data.json"},
            "compose": {
-               "mix": "none"
+               "mix": "weavingtri",
+               "size": 8
            },
            "contour": { "stroke": 4}
        });
@@ -275,20 +265,18 @@ render('Voronoi Tiling + Tilted Hatching',
            }
        });
 
-render('Voronoi Tiling + Tilted Hatching + contours',
+render('Voronoi Tiling(dot densities)',
        {
            "description": "multivariate normal data",
            "data": {"url": "mn_data.json"},
            "rebin": {
                "type": "voronoi",
                "size": 32,
-               "stroke": "white"
+               "stroke": "grey"
            },
            "compose": {
-               "mix": "weavingsquare",
-               "size": 6
-           },
-           "contour": { "stroke": 4}
+               "mix": "dotdensity"
+           }
        });
 
 </script>
