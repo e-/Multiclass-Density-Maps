@@ -9,7 +9,7 @@ enum BlendingMode {
 export default class CanvasRenderer {
     static BlendingMode = BlendingMode;
 
-    static renderAll(images:Image[], id:string,
+    static renderAll(images:Image[], canvas:string|HTMLCanvasElement,
                      select?: number,
                      options: {
                          blur?:number,
@@ -18,20 +18,21 @@ export default class CanvasRenderer {
                          rows?:number, cols?:number
                      } = {}): CanvasRenderingContext2D {
         if (images.length == 1)
-            return CanvasRenderer.render(images[0], id, options);
+            return CanvasRenderer.render(images[0], canvas, options);
         else if (select && select < images.length)
-            return CanvasRenderer.render(images[select], id, options);
+            return CanvasRenderer.render(images[select], canvas, options);
         else
-            return CanvasRenderer.renderMultiples(images, id, options);
+            return CanvasRenderer.renderMultiples(images, canvas, options);
     }
 
-    static render(image:Image, id:string, options:{
+    static render(image:Image, id:string|HTMLCanvasElement, options:{
             blur?:number,
             blendingMode?:BlendingMode,
             noResetDims?:boolean
         } = {}
     ) : CanvasRenderingContext2D {
-        let canvas:any = document.getElementById(id);
+        let canvas = id instanceof HTMLCanvasElement ? id :
+              document.getElementById(id) as HTMLCanvasElement;
 
         // After somthing drawn, changing the dimension of a canvas seems to reset all pixels.
         // For blending, set options.noResetDims to true.
@@ -39,7 +40,7 @@ export default class CanvasRenderer {
             canvas.width   = image.width;
             canvas.height  = image.height;
         }
-        let ctx:CanvasRenderingContext2D = canvas.getContext('2d');
+        let ctx:CanvasRenderingContext2D = canvas.getContext('2d') as CanvasRenderingContext2D;
         if(!options.noResetDims) {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
         }
@@ -61,12 +62,13 @@ export default class CanvasRenderer {
         return ctx;
     }
 
-    static render2(image:Image, id:string, options:{blur?:number} = {}) : CanvasRenderingContext2D { // return the context
+    static render2(image:Image, id:string|HTMLCanvasElement, options:{blur?:number} = {}) : CanvasRenderingContext2D { // return the context
         //console.log("render2 "+id+": "+image.width+"x"+image.height)
-        let canvas:any = document.getElementById(id);
+        let canvas = id instanceof HTMLCanvasElement ? id :
+              document.getElementById(id) as HTMLCanvasElement;
         canvas.width   = image.width;
         canvas.height  = image.height;
-        let ctx:CanvasRenderingContext2D = canvas.getContext('2d');
+        let ctx:CanvasRenderingContext2D = canvas.getContext('2d') as CanvasRenderingContext2D;
 
         ctx.drawImage(image.imageCanvas!, 0, 0);
         return ctx;
@@ -127,15 +129,14 @@ export default class CanvasRenderer {
         }
     }
 
-    static strokeVectorMask(mask:Mask|undefined, id:string, options:{
-        color?:string,
-        lineWidth?:number
-    } = {}){
+    static strokeVectorMask(mask:Mask|undefined, id:string|HTMLCanvasElement,
+                            options:{ color?:string, lineWidth?:number} = {}){
       if (!mask || mask.path == undefined) return;
       //console.log("drawMask "+mask.pols.allpolys.length);
 
-      let canvas:any = document.getElementById(id);
-      let ctx = canvas.getContext('2d');
+      let canvas = id instanceof HTMLCanvasElement ? id :
+              document.getElementById(id) as HTMLCanvasElement;
+      let ctx = canvas.getContext('2d') as CanvasRenderingContext2D;
 
       ctx.beginPath();
       ctx.strokeStyle = options.color || '#000';
@@ -144,7 +145,8 @@ export default class CanvasRenderer {
       ctx.stroke();
     }
 
-    static renderMultiples(images:Image[], id:string, options:{rows?:number, cols?:number} = {}) {
+    static renderMultiples(images:Image[], id:string|HTMLCanvasElement,
+                           options:{rows?:number, cols?:number} = {}) {
         let rows = options.rows || 1;
         let cols = options.cols || 1;
 
@@ -152,19 +154,21 @@ export default class CanvasRenderer {
             rows = cols = Math.ceil(Math.sqrt(images.length));
         }
 
+        let canvas = id instanceof HTMLCanvasElement ? id :
+              document.getElementById(id) as HTMLCanvasElement;
         let width = images[0].width,
             height = images[0].height;
 
-        let canvas:any = document.getElementById(id);
+        //let canvas:any = document.getElementById(id);
         canvas.width   = width ;
         canvas.height  = height ;
 
-        let ctx:CanvasRenderingContext2D = canvas.getContext('2d');
+        let ctx:CanvasRenderingContext2D = canvas.getContext('2d') as CanvasRenderingContext2D;
 
         let memoryCanvas:any = document.createElement('canvas');
         memoryCanvas.width = width;
         memoryCanvas.height = height;
-        let memoryCtx:CanvasRenderingContext2D = memoryCanvas.getContext('2d');
+        let memoryCtx:CanvasRenderingContext2D = memoryCanvas.getContext('2d') as CanvasRenderingContext2D;
         let imageData = memoryCtx.getImageData(0, 0, width, height);
         let mWidth = width / cols;
         let mHeight = height / rows;

@@ -1,4 +1,5 @@
 const path = require('path');
+const WriteFilePlugin = require('write-file-webpack-plugin');
 
 module.exports = {
     devtool: 'source-map', //only to debug
@@ -23,4 +24,8 @@ module.exports = {
         publicPath: '/dist/',
         library: 'MCS'
     }
+    ,
+    plugins: [
+        new WriteFilePlugin()
+    ]
 };

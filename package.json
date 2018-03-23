@@ -32,7 +32,8 @@
     "typescript": "^2.7.2",
     "vega-embed": "^3.1.1",
     "webpack": "^3.11.0",
-    "webpack-dev-server": "^2.11.2"
+    "webpack-dev-server": "^2.11.2",
+    "write-file-webpack-plugin": "^4.2.0"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",

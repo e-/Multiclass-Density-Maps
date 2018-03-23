@@ -238,8 +238,9 @@ export default class Interpreter {
                                                this.width, this.height);
     }
 
-    setup(id:string) {
-        let canvas:any = document.getElementById(id);
+    setup(id:string|HTMLCanvasElement) {
+        let canvas = id instanceof HTMLCanvasElement ? id :
+              document.getElementById(id) as HTMLCanvasElement;
         canvas.width   = this.width;
         canvas.height  = this.height;
         if (this.background != undefined)
@@ -248,7 +249,9 @@ export default class Interpreter {
             canvas.setAttribute("title", this.description);
     }
 
-    render(id:string) {
+    render(id:string|HTMLCanvasElement) {
+        let canvas = id instanceof HTMLCanvasElement ? id :
+              document.getElementById(id) as HTMLCanvasElement;
         let promises = [];
         if (this.compose.mix === "separate") { // small multiples
             this.image = this.derivedBuffers.map((b) => new Image(this.width, this.height));
