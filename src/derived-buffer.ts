@@ -25,7 +25,7 @@ export default class DerivedBuffer {
                    .map(v => scaleTrait.invmap(v));
     }
 
-    contours(thresholds:number[], blur:number = 3) {
+    contours(thresholds:number[], blur:number = 3):any {
         return this.originalDataBuffer.contours(thresholds, blur);
     }
 

@@ -516,7 +516,7 @@ export default class Interpreter {
                     if (this.contour.colProp)
                       colors = thresholds.map(v => blurredBuffer.colorScale.map(v));
 
-                    geometries.forEach((geo,k) => {
+                    geometries.forEach((geo:any,k:number) => {
                         ctx.beginPath();
                         path(geo);
                         ctx.strokeStyle = colors[k].hex();

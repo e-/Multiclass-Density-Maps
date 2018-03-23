@@ -1,7 +1,7 @@
 import Image from './image';
 import Mask from './mask';
 
-enum BlendingMode {
+export enum BlendingMode {
     Normal = 0,
     Alpha
 }

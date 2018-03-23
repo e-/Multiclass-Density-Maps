@@ -14,8 +14,15 @@ var helpText =
 // import required libraries
 var path = require('path'),
     fs = require('fs'),
-    canvas = require('canvas');,
-    mcp = require('../dist/bundle');
+    canvas = require('canvas'),
+    ignore = function () {};
+
+self = {
+     location: {protocol: "file"},
+     addEventListener: ignore
+};
+
+var  MCP = require('..');
 
 // arguments
 var args = require('yargs')
@@ -49,11 +56,11 @@ function writePNG(canvas, file) {
 }
 
 function render(spec) {
-  var testMain = mcp.testMain();
-  var conf = new testMain.create_configuration(spec);
+  var mcp = MCP();
+  var conf = new mcp.create_configuration(spec);
   var canvas = new canvas(100, 100);
   conf.load(base).then(function (conf) {
-      interp = testMain.create_interp(conf);
+      interp = mcp.create_interp(conf);
       console.log('interp w='+conf.width+' h='+conf.height);
       interp.setup(id);
       interpreter = interp;

@@ -2,7 +2,8 @@
   "name": "multiclassplots",
   "version": "0.0.1",
   "description": "",
-  "main": "src/index.ts",
+  "main": "dist/bundle.js",
+  "types": "dist/dist/index.d.ts",
   "dependencies": {
     "@types/d3": "^5.0.0",
     "@types/geojson": "^7946.0.2",
@@ -32,13 +33,13 @@
     "typescript": "^2.7.2",
     "vega-embed": "^3.1.1",
     "webpack": "^3.11.0",
-    "webpack-dev-server": "^2.11.2",
-    "write-file-webpack-plugin": "^4.2.0"
+    "webpack-dev-server": "^2.11.2"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "tsc": "tsc",
-    "start": "webpack-dev-server --open"
+    "start": "webpack-dev-server --open",
+    "build": "webpack"
   },
   "repository": {
     "type": "git",

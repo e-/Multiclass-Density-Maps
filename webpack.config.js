@@ -1,5 +1,4 @@
-const path = require('path');
-const WriteFilePlugin = require('write-file-webpack-plugin');
+var path = require('path');
 
 module.exports = {
     devtool: 'source-map', //only to debug
@@ -17,15 +16,10 @@ module.exports = {
     devServer: {
         contentBase: './'
     },
-    //watch:true,
     output: {
         filename: 'bundle.js',
         path: path.resolve(__dirname, 'dist'),
         publicPath: '/dist/',
         library: 'MCP'
     }
-    ,
-    plugins: [
-        new WriteFilePlugin()
-    ]
 };

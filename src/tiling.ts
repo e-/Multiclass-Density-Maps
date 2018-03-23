@@ -6,7 +6,6 @@ import * as D3Geo from 'd3-geo';
 import * as topo from 'topojson';
 import * as rn from 'random-seed';
 import proj4 from 'proj4';
-import Point from './point';
 
 export function pixelTiling (width:number, height:number) {
   let tiles:Tile[] = [];

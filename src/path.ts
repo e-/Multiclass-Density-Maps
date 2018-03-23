@@ -1,4 +1,4 @@
-type Point = [number, number];
+export type Point = [number, number];
 
 export class Path {
     public x0?:number;

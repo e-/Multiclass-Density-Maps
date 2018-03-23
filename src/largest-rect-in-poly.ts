@@ -11,16 +11,16 @@ Three modification:
 import {Simplify} from 'simplify-ts';
 import * as d3 from 'd3';
 
-type Point = [number, number];
+type point = [number, number];
 
-function squaredDist(a:Point, b:Point) {
+function squaredDist(a:point, b:point) {
 	var deltax, deltay;
 	deltax = b[0] - a[0];
 	deltay = b[1] - a[1];
 	return deltax * deltax + deltay * deltay;
 };
 
-function rayIntersectsSegment (p:Point, p1:Point, p2:Point) {
+function rayIntersectsSegment (p:point, p1:point, p2:point) {
 	var a, b, mAB, mAP, ref;
 	ref = (p1[1] < p2[1]) ? [p1, p2] : [p2, p1];
 	a = ref[0];
@@ -41,7 +41,7 @@ function rayIntersectsSegment (p:Point, p1:Point, p2:Point) {
 	}
 };
 
-function pointInPoly(p:Point, poly:Point[]) {
+function pointInPoly(p:point, poly:point[]) {
 	var a, b, c, i, n;
 	i = -1;
 	n = poly.length;
@@ -57,7 +57,7 @@ function pointInPoly(p:Point, poly:Point[]) {
 	return c % 2 !== 0;
 };
 
-function pointInSegmentBox(p:Point, p1:Point, q1:Point) {
+function pointInSegmentBox(p:point, p1:point, q1:point) {
 	var eps, px, py;
 	eps = 1e-9;
 	px = p[0];
@@ -68,7 +68,7 @@ function pointInSegmentBox(p:Point, p1:Point, q1:Point) {
 	return true;
 };
 
-function lineIntersection(p1:Point, q1:Point, p2:Point, q2:Point):Point {
+function lineIntersection(p1:point, q1:point, p2:point, q2:point):point {
 	var cross1, cross2, denom, dx1, dx2, dy1, dy2, eps, px, py;
 	eps = 1e-9;
 	dx1 = p1[0] - q1[0];
@@ -86,7 +86,7 @@ function lineIntersection(p1:Point, q1:Point, p2:Point, q2:Point):Point {
 	return [px, py];
 };
 
-function segmentsIntersect(p1:Point, q1:Point, p2:Point, q2:Point) {
+function segmentsIntersect(p1:point, q1:point, p2:point, q2:point) {
 	let p;
 	p = lineIntersection(p1, q1, p2, q2);
 	if (isNaN(p[0])) {
@@ -95,7 +95,7 @@ function segmentsIntersect(p1:Point, q1:Point, p2:Point, q2:Point) {
 	return pointInSegmentBox(p, p1, q1) && pointInSegmentBox(p, p2, q2);
 };
 
-function polyInsidePoly(polyA:Point[], polyB:Point[]) {
+function polyInsidePoly(polyA:point[], polyB:point[]) {
 	var aA, aB, bA, bB, iA, iB, nA, nB;
 	iA = -1;
 	nA = polyA.length;
@@ -117,7 +117,7 @@ function polyInsidePoly(polyA:Point[], polyB:Point[]) {
 	return pointInPoly(polyA[0], polyB);
 };
 
-function rotatePoint(p:Point, alpha:number, origin:Point) {
+function rotatePoint(p:point, alpha:number, origin:point) {
 	var cosAlpha, sinAlpha, xshifted, yshifted;
 	if (origin == null) {
 		origin = [0, 0];
@@ -126,11 +126,11 @@ function rotatePoint(p:Point, alpha:number, origin:Point) {
 	yshifted = p[1] - origin[1];
 	cosAlpha = Math.cos(alpha);
 	sinAlpha = Math.sin(alpha);
-	return [cosAlpha * xshifted - sinAlpha * yshifted + origin[0], sinAlpha * xshifted + cosAlpha * yshifted + origin[1]] as Point;
+	return [cosAlpha * xshifted - sinAlpha * yshifted + origin[0], sinAlpha * xshifted + cosAlpha * yshifted + origin[1]] as point;
 };
 
-function rotatePoly(poly:Point[], alpha:number, origin:Point) {
-	var j, len, point, results:Point[];
+function rotatePoly(poly:point[], alpha:number, origin:point) {
+	var j, len, point, results:point[];
 	results = [];
 	for (j = 0, len = poly.length; j < len; j++) {
 		point = poly[j];
@@ -139,13 +139,13 @@ function rotatePoly(poly:Point[], alpha:number, origin:Point) {
 	return results;
 };
 
-function intersectPoints(poly:Point[], origin:Point, alpha:number) {
+function intersectPoints(poly:point[], origin:point, alpha:number) {
 	var a, b, closestPointLeft, closestPointRight, eps, i, idx, minSqDistLeft, minSqDistRight, n, p, sqDist, x0, y0;
 	eps = 1e-9;
 	origin = [origin[0] + eps * Math.cos(alpha), origin[1] + eps * Math.sin(alpha)];
 	x0 = origin[0];
 	y0 = origin[1];
-	let shiftedOrigin:Point = [x0 + Math.cos(alpha), y0 + Math.sin(alpha)];
+	let shiftedOrigin:point = [x0 + Math.cos(alpha), y0 + Math.sin(alpha)];
 	idx = 0;
 	if (Math.abs(shiftedOrigin[0] - x0) < eps) {
 		idx = 1;
@@ -221,7 +221,7 @@ function intersectPoints(poly:Point[], origin:Point, alpha:number) {
  area Total area of the result rectangle
  events Array of events that occurred while finding the rectangle
  */
-export default function largestRectInPoly(poly:Point[], options:any = {
+export default function largestRectInPoly(poly:[number,number][], options:any = {
 
 }) {
     let aRatio, aRatios, angle, angleRad, angleStep, angles, area,
@@ -229,8 +229,8 @@ export default function largestRectInPoly(poly:Point[], options:any = {
     centroid, events, height, i, insidePoly, j, k, l, left,
     len, len1, len2, len3, m, maxArea, maxAspectRatio,
     maxHeight, maxRect, maxWidth, maxx, maxy, minAspectRatio,
-    minSqDistH, minSqDistW, minx, miny, modifOrigins:Point[], origOrigin,
-    origin, origins, p, p1H, p1W, p2H, p2W, rectPoly:Point[], ref, ref1,
+    minSqDistH, minSqDistW, minx, miny, modifOrigins:point[], origOrigin,
+    origin, origins, p, p1H, p1W, p2H, p2W, rectPoly:point[], ref, ref1,
     ref2, ref3, ref4, ref5, ref6, ref7, ref8, right, rndPoint, rndX, rndY,
     tempPoly, tolerance, width, widthStep, x0, y0;
 	if (poly.length < 3) {
@@ -323,7 +323,7 @@ export default function largestRectInPoly(poly:Point[], options:any = {
 			results = [];
 			for (j = 0, len = tempPoly.length; j < len; j++) {
 				p = tempPoly[j];
-				results.push([p.x, p.y] as Point);
+				results.push([p.x, p.y] as point);
 			}
 			return results;
 		})();
@@ -352,7 +352,7 @@ export default function largestRectInPoly(poly:Point[], options:any = {
 		while (origins.length < options.nTries) {
 			rndX = Math.random() * boxWidth + minx;
 			rndY = Math.random() * boxHeight + miny;
-			rndPoint = [rndX, rndY] as Point;
+			rndPoint = [rndX, rndY] as point;
 			if (pointInPoly(rndPoint, poly)) {
 				origins.push(rndPoint);
 			}

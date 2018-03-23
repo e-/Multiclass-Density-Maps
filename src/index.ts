@@ -9,5 +9,4 @@ export class MCP {
     create_interp(conf:Configuration) {
         return new Interpreter(conf);
     }
-
 };
