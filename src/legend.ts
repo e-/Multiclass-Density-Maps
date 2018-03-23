@@ -306,25 +306,36 @@ function bars(id:string, interp:Interpreter) {
     }
 
     let mean = sum.map(s => s / n);
+    let domain = interp.scale.domain as [number, number];
 
     let data = derivedBuffers.map((buffer, i) => {
-        return {category: buffer.originalDataBuffer.name, value: mean[i]}}
-    );
+        return {
+            category: buffer.originalDataBuffer.name,
+            value: (domain[1] - domain[0]) * (i + 1) / n + domain[0]
+        };
+    });
+
+    let glyphSpec = interp.compose.glyphSpec!;
 
     let barSpec:any = {
         $schema: "https://vega.github.io/schema/vega-lite/v2.0.json",
         data: {
             values: data
         },
-        mark: "bar",
+        mark: {
+            type: "bar"
+        },
         encoding: {
             x: {
                 field: "category",
                 type: "ordinal",
-                // legend: false,
-                // axis: {
-                //     title: null
-                // }
+                axis: {
+                    orient: "top",
+                    title: "value",
+                    domain: false,
+                    ticks: false,
+                    labels: false
+                }
             },
             color: {
                 field: "category",
@@ -333,16 +344,24 @@ function bars(id:string, interp:Interpreter) {
                   domain: data.map(d => d.category),
                   range: data.map((d, i) => derivedBuffers[i].color!.css())
                 },
-                // legend: false
+                legend: {
+                    orient: "top"
+                }
             },
             y: {
                 field: "value",
                 type: "quantitative",
                 scale: {
-                    type: "linear"
+                    type: interp.d3scale,
+                    base: interp.d3base,
+                    domain: domain,
+                    range: [glyphSpec.height, 0]
                 },
                 // legend: false,
-                // axis: false
+                axis: {
+                    orient: "right",
+                    title: false
+                }
             }
         },
         config: {
@@ -350,8 +369,8 @@ function bars(id:string, interp:Interpreter) {
                 strokeWidth: 0
             }
         },
-        width: spec.width,
-        height: spec.height
+        width: glyphSpec.width,
+        height: glyphSpec.height
     };
 
     let wrapper = document.createElement('div') as HTMLElement;
@@ -390,14 +409,6 @@ function punchcard(id:string, interp:Interpreter) {
     let mean = sum.map(s => s / n);
 
     let cols = Math.ceil(Math.sqrt(n));
-
-    let data = derivedBuffers.map((buffer, i) => {return {
-        category: buffer.originalDataBuffer.name,
-        value: mean[i],
-        row: Math.floor(i / cols),
-        col: i % cols,
-    }});
-
 
     let punchcardSpec:any = {
         $schema: "https://vega.github.io/schema/vega-lite/v2.0.json",
