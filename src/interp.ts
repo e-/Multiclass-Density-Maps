@@ -467,7 +467,7 @@ export default class Interpreter {
             let options = <any>{};
             if (this.blur != undefined)
                 options["blur"] = this.blur;
-            let ctx = CanvasRenderer.renderAll(this.image, id, this.compose.select, options);
+            let ctx = CanvasRenderer.renderAll(this.image, id, this.compose.order, options);
             if (this.contour.stroke > 0) {
                 // Assume all the scales are shared between derived buffers
                 let path   = d3.geoPath(null, ctx),
