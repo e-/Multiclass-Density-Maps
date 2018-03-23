@@ -99,12 +99,12 @@ render('Linear Color Scale Max',
        });
 
 
-render('Triangular Weaving with Contour lines',
+render('Contour lines',
        {
            "description": "multivariate normal data",
            "data": {"url": "mn_data.json"},
            "compose": {
-               "mix": "weavingtri",
+               "mix": "none",
                "size": 8
            },
            "contour": { "stroke": 4}
@@ -188,7 +188,7 @@ render('Voronoi Tiling',
            },
            "compose": {
                "mix": "weavingsquare",
-               "size": 6
+               "size": 8
            }
        });
 
@@ -260,7 +260,7 @@ render('Voronoi Tiling + Tilted Hatching',
            "compose": {
                "mix": "hatching",
                "size": 2,
-               "widthprop":1.0,
+               "widthprop":1.5,
                "colprop":false
            }
        });
