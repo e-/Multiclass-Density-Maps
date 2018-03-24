@@ -81,29 +81,38 @@ export function arange(start:number, end?:number, step?:number): number[] {
     return array;
 }
 
-let cache:any = {};
+let ongoing:{[url: string]: [(value?:any) => void, (value?:any) => void][]} = {};
 
 export function get(url: string): Promise<any> {
-    if(cache[url]) {
-        return Promise.resolve(cache[url]);
-    }
+    if(!ongoing[url]) {
+        ongoing[url] = [];
 
-    return new Promise<any>(
-        function (resolve, reject) {
-            const request = new XMLHttpRequest();
-            request.onload = function () {
+        const request = new XMLHttpRequest();
+        request.onload = function () {
+
             if (this.status === 200) {
-                cache[url] = this.response;
-                resolve(this.response);
+                ongoing[url].forEach(f => {
+                    f[0](this.response);
+                })
             } else {
-                reject(new Error(this.statusText));
+                ongoing[url].forEach(f => {
+                    f[1](new Error(this.statusText));
+                })
             }
+            delete ongoing[url];
         };
+
         request.onerror = function () {
-            reject(new Error('XMLHttpRequest Error: ' + this.statusText));
+            ongoing[url].forEach(f => {
+                f[1](new Error('XMLHttpRequest Error: ' + this.statusText));
+            })
         };
         request.open('GET', url);
         request.send();
+    }
+
+    return new Promise<any>(function (resolve, reject) {
+        ongoing[url].push([resolve, reject]);
     });
 }
 
