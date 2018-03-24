@@ -87,6 +87,7 @@ function colorCategories(g:d3.Selection<d3.BaseType, {}, HTMLElement, any>,
     g
         .append('text')
         .text(title)
+        .attr('font-weight', 'bold')
         .attr('dy', spec.titleDy);
 
     let categories = g.selectAll('g')
@@ -130,6 +131,7 @@ function colorRamps(
 
     g.append('text')
         .text(`${title} (${interp.rescale.type})`)
+        .attr('font-weight', 'bold')
         .attr('dy', spec.titleDy)
 
     let gradientFunc:(defs:any, interpolator:Scale.ScaleTrait, db:DerivedBuffer) => string;
@@ -255,6 +257,7 @@ function colorMixMap(g:d3.Selection<d3.BaseType, {}, HTMLElement, any>,
     g.append('text')
         .text(`${title} (${name})`)
         .attr('dy', spec.titleDy)
+        .attr('font-weight', 'bold')
         .attr('transform', translate(0, top))
 
     let fo = g.append('foreignObject')
