@@ -72,20 +72,10 @@ function equiDepthColorMap(defs:any, interpolator:Scale.ScaleTrait, db:DerivedBu
     return id;
 }
 
-function horizontalColormaps(id:string, interp:Interpreter) {
-    let derivedBuffers:DerivedBuffer[] = interp.derivedBuffers;
-    let spec = interp.legend as Parser.LegendSpec;
+function colorCategories(g:d3.Selection<d3.BaseType, {}, HTMLElement, any>,
+    derivedBuffers:DerivedBuffer[],
+    spec:Parser.LegendSpec, labels:string[], title:string = "category") {
 
-    let svg = d3.select('#' + id)
-        .style('font-family', spec.fontFamily)
-        .style('font-size', spec.fontSize)
-
-    let defs = svg.append('defs');
-    let padding = spec.padding;
-
-    let g = svg.append('g').attr('transform', translate(padding, padding));
-    let categoryG = g.append('g')
-    let valueG = g.append('g');
     let n = derivedBuffers.length;
     let rowHeight = spec.rowHeight;
     let colorMapWidth = spec.colorMapWidth;
@@ -93,20 +83,13 @@ function horizontalColormaps(id:string, interp:Interpreter) {
     let gutter = spec.gutter;
     let verticalGutter = 2;
 
-    svg
-        .attr('width', colorMapWidth + padding * 2)
-        .attr('height', (rowHeight + verticalGutter) * (n + 1) * 2 + rowHeight + padding * 2)
-
-    categoryG
+    g
         .append('text')
-        .text('category')
-        .attr('dy', '0.5em')
+        .text(title)
+        // .attr('dy', '0.5em')
 
-    let categories = categoryG.selectAll('g')
+    let categories = g.selectAll('g')
         .data(derivedBuffers)
-
-    let labels = interp.labels == undefined ? interp.bufferNames : interp.labels;
-
 
     let categoryEnter = categories
         .enter()
@@ -127,14 +110,24 @@ function horizontalColormaps(id:string, interp:Interpreter) {
         .style('font-size', spec.tickFontSize)
         .style('font-weight', 'normal')
         .attr('text-anchor', 'start')
+}
 
-    valueG
-        .attr('transform', translate(0, (rowHeight + verticalGutter) * (n + 1)))
+function colorRamps(
+    g:d3.Selection<d3.BaseType, {}, HTMLElement, any>,
+    defs:d3.Selection<d3.BaseType, {}, HTMLElement, any>,
+    derivedBuffers:DerivedBuffer[],
+    interp:Interpreter, spec:Parser.LegendSpec, title:string = "value") {
 
-    valueG.append('text')
-        .text('value')
-        .attr('dy', '1em')
+    let n = derivedBuffers.length;
+    let rowHeight = spec.rowHeight;
+    let colorMapWidth = spec.colorMapWidth;
+    let labelWidth = spec.labelWidth;
+    let gutter = spec.gutter;
+    let verticalGutter = 2;
 
+    g.append('text')
+        .text(title)
+        .attr('dy', '0.5em')
 
     let gradientFunc:(defs:any, interpolator:Scale.ScaleTrait, db:DerivedBuffer) => string;
 
@@ -171,7 +164,7 @@ function horizontalColormaps(id:string, interp:Interpreter) {
         return gradientFunc(defs, interp.scale, db);
     })
 
-    let values = valueG.selectAll('g')
+    let values = g.selectAll('g')
         .data(derivedBuffers)
 
     let valueEnter = values
@@ -188,7 +181,7 @@ function horizontalColormaps(id:string, interp:Interpreter) {
         .attr('stroke', '#ddd')
         .style('fill', (d, i) => `url(#${ids[i]})`)
 
-    let tickG = valueG
+    let tickG = g
         .append('g')
         .attr('class', 'ticks')
         .attr('transform', translate(0, (rowHeight + verticalGutter) * (derivedBuffers.length + 1)))
@@ -234,6 +227,111 @@ function horizontalColormaps(id:string, interp:Interpreter) {
         .style('stroke-width', 1)
         .style('shape-rendering', 'crispEdges')
         .attr('transform', (d, i) => translate(colormapScale(d, i), 0))
+
+}
+
+function colorMixMap(g:d3.Selection<d3.BaseType, {}, HTMLElement, any>,
+    derivedBuffers:DerivedBuffer[],
+    interp:Interpreter,
+    spec:Parser.LegendSpec,
+    title:string = "mix"
+) {
+    let n = derivedBuffers.length;
+    let rowHeight = spec.rowHeight;
+    let colorMapWidth = spec.colorMapWidth;
+    let labelWidth = spec.labelWidth;
+    let gutter = spec.gutter;
+    let verticalGutter = 2;
+
+    let size = spec.mixMapSize;
+
+    g.append('text')
+        .text(title)
+        .attr('dy', '1em')
+
+
+    let fo = g.append('foreignObject')
+        .attr('width', size)
+        .attr('height', size)
+        .attr('x', 0)
+        .attr('y', 0)
+
+    /*
+        Translating the <g> elements doesn't work with <foreignObject> in Webkit browsers.
+        Regardless of translation, <foreignObject> is rendered as it is abolutely positioned.
+        A workaround is to use the (top, left) css properties.
+    */
+
+    let canvas:HTMLCanvasElement = fo
+        .append('xhtml:body')
+        .attr('width', size)
+        .attr('height', size)
+        .style('position', 'relative')
+        .style('top', '150px')
+        .style('margin', 0)
+        .append('canvas')
+        .attr('width', size)
+        .attr('height', size)
+        .node() as HTMLCanvasElement
+
+    let context = canvas.getContext('2d') as CanvasRenderingContext2D;
+    let imageData = context.getImageData(0, 0, size, size);
+    let data = imageData.data;
+
+    for(let i = 0; i < data.length; i+=4) {
+        data[i + 0] = Math.random() * 255;
+        data[i + 1] = Math.random() * 255;
+        data[i + 2] = Math.random() * 255;
+        data[i + 3] = 255;
+    }
+
+    context.putImageData(imageData, 0, 0);
+}
+
+
+function mixLegend(id:string, interp:Interpreter) {
+    let derivedBuffers:DerivedBuffer[] = interp.derivedBuffers;
+    let spec = interp.legend as Parser.LegendSpec;
+
+    let svg = d3.select('#' + id)
+        .style('font-family', spec.fontFamily)
+        .style('font-size', spec.fontSize)
+
+    let defs = svg.append('defs');
+    let padding = spec.padding;
+
+    let g = svg.append('g').attr('transform', translate(padding, padding));
+    let categoryG = g.append('g')
+    let rampG = g.append('g');
+    let n = derivedBuffers.length;
+    let rowHeight = spec.rowHeight;
+    let colorMapWidth = spec.colorMapWidth;
+    let labelWidth = spec.labelWidth;
+    let gutter = spec.gutter;
+    let verticalGutter = 2;
+
+    svg
+        .attr('width', colorMapWidth + padding * 2)
+        .attr('height', (rowHeight + verticalGutter) * (n + 1) * 3 + rowHeight + padding * 2)
+
+    let labels = interp.labels == undefined ? interp.bufferNames : interp.labels;
+    colorCategories(categoryG, derivedBuffers, spec, labels);
+
+    rampG.attr('transform', translate(0, (rowHeight + verticalGutter) * (n + 1) + padding))
+    colorRamps(rampG, defs, derivedBuffers, interp, spec);
+
+    // interp.compose.mix == max or mean or blend
+    // interp.compose.mixing == multiplicative or additive
+
+    // checks whether a mix map is shown
+    if(["max", "mean", "blend"].indexOf(interp.compose.mix) >= 0) {
+        let mixG = g.append('g')
+
+        colorMixMap(mixG, derivedBuffers, interp, spec);
+        // mixG.attr('transform', translate(0,
+        //     (rowHeight + verticalGutter) * (2 * n + 3) + padding * 2
+        // ))
+    }
 }
 
 function multiplicativeCircles(id:string, interp:Interpreter) {
@@ -487,12 +585,6 @@ function punchcard(id:string, interp:Interpreter) {
     });
 }
 
-function colorBlending(id:string, interp:Interpreter) {
-    // interp.compose.mix == max or mean or blend
-    // interp.compose.mixing == multiplicative or additive
-
-}
-
 export default function LegendBuilder(id:string, interp:Interpreter) {
     if(interp.legend === false) return;
 
@@ -507,10 +599,7 @@ export default function LegendBuilder(id:string, interp:Interpreter) {
             punchcard(id, interp);
         }
     }
-    else if(["max", "mean", "blend"].indexOf(interp.compose.mix) >= 0) {
-        colorBlending(id, interp);
-    }
     else {
-        horizontalColormaps(id, interp);
+        mixLegend(id, interp);
     }
 }

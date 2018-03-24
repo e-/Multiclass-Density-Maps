@@ -231,11 +231,12 @@ export class LegendSpec {
     fontSize:string = "11px";
     fontFamily:string = "sans-serif";
 
-    rowHeight:number = 15;
+    rowHeight:number = 10;
     gutter:number = 5;
     labelWidth:number = 80;
-    colorMapWidth:number = 120;
-    padding:number = 5;
+    colorMapWidth:number = 100;
+    padding:number = 10;
+    mixMapSize:number = 50;
 
     tickFontSize:string = "10px";
 
