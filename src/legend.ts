@@ -77,16 +77,17 @@ function colorCategories(g:d3.Selection<d3.BaseType, {}, HTMLElement, any>,
     spec:Parser.LegendSpec, labels:string[], title:string = "category") {
 
     let n = derivedBuffers.length;
+    let titleHeight = spec.titleHeight;
     let rowHeight = spec.rowHeight;
     let colorMapWidth = spec.colorMapWidth;
     let labelWidth = spec.labelWidth;
-    let gutter = spec.gutter;
-    let verticalGutter = 2;
+    let horizontalGutter = spec.horizontalGutter;
+    let verticalGutter = spec.verticalGutter;
 
     g
         .append('text')
         .text(title)
-        // .attr('dy', '0.5em')
+        .attr('dy', spec.titleDy);
 
     let categories = g.selectAll('g')
         .data(derivedBuffers)
@@ -94,19 +95,20 @@ function colorCategories(g:d3.Selection<d3.BaseType, {}, HTMLElement, any>,
     let categoryEnter = categories
         .enter()
         .append('g')
-        .attr('transform', (d, i) => translate(0, (rowHeight + verticalGutter) * (i + 1)))
+        .attr('transform', (d, i) => translate(0,
+            titleHeight + verticalGutter + (rowHeight + verticalGutter) * i))
 
     categoryEnter
         .append('circle')
         .attr('r', 5)
         .attr('fill', d => d.color!.css())
-        .attr('transform', translate(5, 0))
+        .attr('transform', translate(5, 2.5))
 
     categoryEnter
         .append('text')
         .text((d, i) => labels[i])
-        .attr('transform', translate(10 + gutter, 0))
-        .attr('dy', '0.4em')
+        .attr('transform', translate(10 + horizontalGutter, 0))
+        .attr('dy', '0.6em')
         .style('font-size', spec.tickFontSize)
         .style('font-weight', 'normal')
         .attr('text-anchor', 'start')
@@ -116,18 +118,19 @@ function colorRamps(
     g:d3.Selection<d3.BaseType, {}, HTMLElement, any>,
     defs:d3.Selection<d3.BaseType, {}, HTMLElement, any>,
     derivedBuffers:DerivedBuffer[],
-    interp:Interpreter, spec:Parser.LegendSpec, title:string = "value") {
+    interp:Interpreter, spec:Parser.LegendSpec, title:string = "scale") {
 
     let n = derivedBuffers.length;
     let rowHeight = spec.rowHeight;
     let colorMapWidth = spec.colorMapWidth;
     let labelWidth = spec.labelWidth;
-    let gutter = spec.gutter;
-    let verticalGutter = 2;
+    let horizontalGutter = spec.horizontalGutter;
+    let verticalGutter = spec.verticalGutter;
+    let titleHeight = spec.titleHeight;
 
     g.append('text')
-        .text(title)
-        .attr('dy', '0.5em')
+        .text(`${title} (${interp.rescale.type})`)
+        .attr('dy', spec.titleDy)
 
     let gradientFunc:(defs:any, interpolator:Scale.ScaleTrait, db:DerivedBuffer) => string;
 
@@ -170,7 +173,8 @@ function colorRamps(
     let valueEnter = values
         .enter()
         .append('g')
-        .attr('transform', (d, i) => translate(0, (rowHeight + verticalGutter) * (i + 1)))
+        .attr('transform', (d, i) => translate(0,
+            titleHeight + verticalGutter + (rowHeight + verticalGutter) * i))
 
     // colormaps
     valueEnter
@@ -184,7 +188,8 @@ function colorRamps(
     let tickG = g
         .append('g')
         .attr('class', 'ticks')
-        .attr('transform', translate(0, (rowHeight + verticalGutter) * (derivedBuffers.length + 1)))
+        .attr('transform', translate(0,
+            titleHeight + verticalGutter + (rowHeight + verticalGutter) * derivedBuffers.length))
 
     let ticks = tickG
         .selectAll('text.tick')
@@ -234,21 +239,23 @@ function colorMixMap(g:d3.Selection<d3.BaseType, {}, HTMLElement, any>,
     derivedBuffers:DerivedBuffer[],
     interp:Interpreter,
     spec:Parser.LegendSpec,
-    title:string = "mix"
+    top:number,
+    title:string = "blend"
 ) {
     let n = derivedBuffers.length;
     let rowHeight = spec.rowHeight;
     let colorMapWidth = spec.colorMapWidth;
     let labelWidth = spec.labelWidth;
-    let gutter = spec.gutter;
-    let verticalGutter = 2;
-
+    let horizontalGutter = spec.horizontalGutter;
+    let verticalGutter = spec.verticalGutter;
+    let titleHeight = spec.titleHeight;
     let size = spec.mixMapSize;
 
+    let name = interp.compose.mix === "blend" ? interp.compose.mixing : interp.compose.mix;
     g.append('text')
-        .text(title)
-        .attr('dy', '1em')
-
+        .text(`${title} (${name})`)
+        .attr('dy', spec.titleDy)
+        .attr('transform', translate(0, top))
 
     let fo = g.append('foreignObject')
         .attr('width', size)
@@ -267,9 +274,11 @@ function colorMixMap(g:d3.Selection<d3.BaseType, {}, HTMLElement, any>,
         .attr('width', size)
         .attr('height', size)
         .style('position', 'relative')
-        .style('top', '150px')
+        .style('top', (top + titleHeight * 1.5 + verticalGutter) + 'px')
+        .style('left', spec.padding + 'px')
         .style('margin', 0)
         .append('canvas')
+        .style('border', 'none')
         .attr('width', size)
         .attr('height', size)
         .node() as HTMLCanvasElement
@@ -278,11 +287,36 @@ function colorMixMap(g:d3.Selection<d3.BaseType, {}, HTMLElement, any>,
     let imageData = context.getImageData(0, 0, size, size);
     let data = imageData.data;
 
-    for(let i = 0; i < data.length; i+=4) {
-        data[i + 0] = Math.random() * 255;
-        data[i + 1] = Math.random() * 255;
-        data[i + 2] = Math.random() * 255;
-        data[i + 3] = 255;
+    let buffer1 = derivedBuffers[0];
+    let buffer2 = derivedBuffers[1];
+
+    let domain:((x:number) => number) = x => 0;
+
+    if(["linear", "pow", "sqrt", "cbrt", "log"].indexOf(interp.rescale!.type) >= 0) {
+        domain = x => interp.scale.invmap(x);
+    }
+    else if(interp.rescale!.type === "equidepth") {
+        domain = x => interp.scale.invmap(x);
+    }
+
+    for(let r = 0; r < size; ++r) {
+        for(let c = 0; c < size; ++c) {
+            let rValue = domain(r / size);
+            let cValue = domain(c / size);
+
+            // console.log(interp.scale, c, cValue);
+            // let rColor = buffer1.colorScale.map(rValue);
+            // let cColor = buffer2.colorScale.map(cValue);
+
+            let color = interp.composer([buffer1, buffer2], [rValue, cValue]);
+
+            let offset = (r * size + c) * 4;
+
+            data[offset + 0] = color.r * 255;
+            data[offset + 1] = color.g * 255;
+            data[offset + 2] = color.b * 255;
+            data[offset + 3] = color.a * 255;
+        }
     }
 
     context.putImageData(imageData, 0, 0);
@@ -307,31 +341,43 @@ function mixLegend(id:string, interp:Interpreter) {
     let rowHeight = spec.rowHeight;
     let colorMapWidth = spec.colorMapWidth;
     let labelWidth = spec.labelWidth;
-    let gutter = spec.gutter;
-    let verticalGutter = 2;
-
-    svg
-        .attr('width', colorMapWidth + padding * 2)
-        .attr('height', (rowHeight + verticalGutter) * (n + 1) * 3 + rowHeight + padding * 2)
+    let horizontalGutter = spec.horizontalGutter;
+    let verticalGutter = spec.verticalGutter;
+    let size = spec.mixMapSize;
+    let titleHeight = spec.titleHeight;
 
     let labels = interp.labels == undefined ? interp.bufferNames : interp.labels;
     colorCategories(categoryG, derivedBuffers, spec, labels);
 
-    rampG.attr('transform', translate(0, (rowHeight + verticalGutter) * (n + 1) + padding))
+    rampG.attr('transform', translate(0,
+        titleHeight + verticalGutter + (rowHeight + verticalGutter) * n + padding))
     colorRamps(rampG, defs, derivedBuffers, interp, spec);
 
     // interp.compose.mix == max or mean or blend
     // interp.compose.mixing == multiplicative or additive
 
-    // checks whether a mix map is shown
-    if(["max", "mean", "blend"].indexOf(interp.compose.mix) >= 0) {
-        let mixG = g.append('g')
+    let height = (rowHeight + verticalGutter) * n * 2 +
+        (titleHeight + verticalGutter) * 2 + padding * 2;
 
-        colorMixMap(mixG, derivedBuffers, interp, spec);
-        // mixG.attr('transform', translate(0,
-        //     (rowHeight + verticalGutter) * (2 * n + 3) + padding * 2
-        // ))
+    // checks whether a mix map is shown
+    if(["max", "mean", "blend"].indexOf(interp.compose.mix) >= 0 && derivedBuffers.length >= 2) {
+        height += size + titleHeight + verticalGutter;
+        let mixG = g.append('g')
+        let top =
+            (titleHeight + verticalGutter + (rowHeight + verticalGutter) * n + padding) * 2
+            + padding;
+
+        // since <foreignObject> has a rendering issue on Webkit browesers,
+        // we cannot translate g. See the colorMixMap function for detail.
+
+        colorMixMap(mixG, derivedBuffers, interp, spec, top);
     }
+
+
+    svg
+        .attr('width', colorMapWidth + padding * 2)
+        .attr('height', height + padding * 2)
+
 }
 
 function multiplicativeCircles(id:string, interp:Interpreter) {
@@ -588,10 +634,11 @@ function punchcard(id:string, interp:Interpreter) {
 export default function LegendBuilder(id:string, interp:Interpreter) {
     if(interp.legend === false) return;
 
-    if(interp.composer === Composer.multiplicativeMix) {
-        multiplicativeCircles(id, interp);
-    }
-    else if(interp.compose.mix === "glyph") {
+    // if(interp.composer === Composer.multiplicativeMix) {
+    //     multiplicativeCircles(id, interp);
+    // }
+    // else
+    if(interp.compose.mix === "glyph") {
         if(interp.compose.glyphSpec!.template === "bars") {
             bars(id, interp);
         }

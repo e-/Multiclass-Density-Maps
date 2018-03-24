@@ -231,8 +231,12 @@ export class LegendSpec {
     fontSize:string = "11px";
     fontFamily:string = "sans-serif";
 
+    titleHeight:number = 12;
+    titleDy:string = '.6em';
+
     rowHeight:number = 10;
-    gutter:number = 5;
+    horizontalGutter:number = 5;
+    verticalGutter:number = 3;
     labelWidth:number = 80;
     colorMapWidth:number = 100;
     padding:number = 10;

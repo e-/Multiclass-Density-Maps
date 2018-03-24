@@ -286,10 +286,20 @@ render('Voronoi Tiling(dot densities)',
                "mix": "dotdensity"
            }
        });
-render('Voronoi Tiling (Multicative)',{
+render('Voronoi Tiling (Multiplicative)',{
     "description": "multivariate normal data",
     "data": {"url": "mn_data.json"},
     "smooth": {},
+    "reencoding": {
+        "color": {
+            "field": "z",
+            "type": "nominal",
+            "scale": {
+                "range0": ["White", "White", "White", "White"],
+                "range1": ["Blue", "Orange", "Red", "Green"]
+            }
+        }
+    },
     "rebin": {
         "type": "voronoi",
         "size": 32,
@@ -297,7 +307,7 @@ render('Voronoi Tiling (Multicative)',{
     },
     "compose": {
         "mix": "blend",
-        "mixing": "multicative"
+        "mixing": "multiplicative"
     }
 });
 

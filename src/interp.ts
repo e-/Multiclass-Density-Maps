@@ -124,6 +124,9 @@ export default class Interpreter {
             equidepth.computeBounds();
             this.scale = equidepth;
         }
+        else {
+            throw `undefined rescale type: ${this.rescale.type}`;
+        }
 
         this.derivedBuffers = this.dataBuffers.map((dataBuffer, i) => {
             let derivedBuffer = new DerivedBuffer(dataBuffer);
