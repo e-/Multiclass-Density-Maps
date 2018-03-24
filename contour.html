@@ -25,20 +25,22 @@ canvas {
 var mcp = new MCP.MCP(), prefix = "specs/";
 var configuration, interpreter;
 
+
 function render(id, desc, json, do_break) {
     var body = document.getElementsByTagName('body')[0],
         div = document.createElement("div"),
         canvas = document.createElement("canvas"),
+        span = document.createElement("span"),
         svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
 
     div.classList.add("example");
     canvas.id = id;
     svg.id = id + '-legend';
     div.appendChild(document.createTextNode(desc));
+    div.appendChild(span);
     div.appendChild(document.createElement("br"));
     div.appendChild(canvas);
     div.appendChild(svg);
-
 
   body.appendChild(div);
   if (do_break) {
@@ -56,6 +58,14 @@ function render(id, desc, json, do_break) {
       interp.render(id);
       interp.renderLegend(id+'-legend');
   });
+  canvas.onmousemove = function(e) {
+          var rect = canvas.getBoundingClientRect();
+          var pt = interp.pickValues(Math.floor(e.clientX-rect.left),
+                                     Math.floor(e.clientY-rect.top));
+          if (pt.length != 0)
+              span.textContent = ' Values: '+pt.toString();
+          };
+  canvas.onmouseleave = function() { span.textContent = ''; }
 }
 
 render('canvas1','Linear Color Scale',

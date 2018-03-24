@@ -8,6 +8,10 @@ export function create2D<T>(width:number, height:number, value:T) {
     return arr;
 }
 
+export function linterp(v1:number, v2:number, t:number) {
+    return v1*(1-t) + v2*t;
+}
+
 export function asum(values:number[]) {
     let n = values.length;
     var i = -1, value, sum = NaN;

@@ -2,6 +2,7 @@ import * as util from './util';
 import * as d3 from 'd3';
 import DataBuffer from './data-buffer';
 
+export type NumPair = [number, number];
 
 export interface SourceSpec {
     filename?: string;
@@ -10,8 +11,8 @@ export interface SourceSpec {
 }
 
 export interface XYEncodingScaleSpec {
-    domain: [number, number];
-    range: [number, number];
+    domain: NumPair;
+    range: NumPair;
 }
 
 export interface XYEncodingSpec {
@@ -43,7 +44,7 @@ export interface BufferSpec {
     url?: string;
     data?: number[][];
     count?: number;
-    range?: [number, number]
+    range?: NumPair;
 }
 
 interface ProjectionSpec {
@@ -52,8 +53,8 @@ interface ProjectionSpec {
 
 export class GeoSpec {
     constructor(public projection:string="mercator",
-                public latitudes?:[number,number],
-                public longitudes?:[number,number],
+                public latitudes?:NumPair,
+                public longitudes?:NumPair,
                 public proj4?:string) { }
 }
 
@@ -196,7 +197,7 @@ export class RebinSpec {
     feature?: string;
     url?: string;
     topojson?: any;
-    points?: [number, number][];
+    points?: NumPair[];
     stroke?: string; // color
 
     constructor(options?: RebinSpec) {
@@ -508,6 +509,28 @@ export class Configuration {
             this.specs.rebin.proj4 != undefined)
             geo.proj4 = this.specs.rebin.proj4;
         return geo;
+    }
+
+    public getXDomain(): NumPair {
+        let data = this.data!.dataSpec!;
+        if (! data ||
+            ! data.encoding ||
+            ! data.encoding.x ||
+            ! data.encoding.x.scale ||
+            ! data.encoding.x.scale.domain)
+            return [0,this.height];
+        return data.encoding.x.scale.domain;
+    }
+
+    public getYDomain(): NumPair {
+        let data = this.data!.dataSpec!;
+        if (! data ||
+            ! data.encoding ||
+            ! data.encoding.y ||
+            ! data.encoding.y.scale ||
+            ! data.encoding.y.scale.domain)
+            return [0,this.height];
+        return data.encoding.y.scale.domain;
     }
 
     private parseLegend() {

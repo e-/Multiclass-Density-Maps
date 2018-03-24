@@ -26,6 +26,15 @@ export default class Tile extends Point {
     maxValue() { return util.amax(this.dataValues); }
     sumValue() { return util.asum(this.dataValues); }
 
+    contains(x:number, y:number) {
+        if (x < this.x ||
+            y < this.y ||
+            x >= (this.x+this.mask.width) ||
+            y >= (this.y+this.mask.height))
+            return false;
+        return this.mask.mask[y-this.y][x-this.x] != 0;
+    }
+
     aggregateOne(buffer:DataBuffer, op:TileAggregation = TileAggregation.Mean): number {
         let val = 0;
         let cnt = 0;
