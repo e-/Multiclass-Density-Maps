@@ -87,7 +87,7 @@ export function arange(start:number, end?:number, step?:number): number[] {
 
 let ongoing:{[url: string]: [(value?:any) => void, (value?:any) => void][]} = {};
 
-export function get(url: string): Promise<any> {
+export function get(url: string, responseType?:string): Promise<any> {
     if(!ongoing[url]) {
         ongoing[url] = [];
 
@@ -112,6 +112,8 @@ export function get(url: string): Promise<any> {
             })
         };
         request.open('GET', url);
+        if (responseType)
+            request.responseType = <any>responseType;
         request.send();
     }
 
