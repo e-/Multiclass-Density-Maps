@@ -37,8 +37,8 @@ export class LinearScale implements ScaleTrait {
     invmap(value:number) {
         let dmin = amin(this.domain),
             dmax = amax(this.domain);
-        if (value <= dmin) return this.scale > 0 ? this.min : this.max;
-        if (value >= dmax) return this.scale > 0 ? this.max : this.min;
+        if (value <= this.min) return this.scale > 0 ? dmin : dmax;
+        if (value >= this.max) return this.scale > 0 ? dmax : dmin;
         return (value - this.range[0]) / this.scale + this.domain[0];
     }
 }
@@ -58,7 +58,7 @@ export class LogScale implements ScaleTrait {
     }
 
     invmap(value:number) {
-        return this.internalScale.invmap(Math.exp(value*this.logBase));
+        return Math.exp(this.internalScale.invmap(value) * this.logBase);
     }
 }
 
@@ -74,7 +74,7 @@ export class RootScale implements ScaleTrait {
     }
 
     invmap(value:number) {
-        return this.internalScale.invmap(Math.pow(value, this.degree));
+        return Math.pow(this.internalScale.invmap(value), this.degree);
     }
 }
 
@@ -93,6 +93,7 @@ export class CubicRootScale extends RootScale {
 export class EquiDepthScale implements ScaleTrait {
     digest:Digest;
     bounds:number[] = [];
+    minBound:number = 0;
 
     constructor(public domain: number[], public range: [number, number], public level:number = 32) {
         this.digest = new Digest();
@@ -108,6 +109,7 @@ export class EquiDepthScale implements ScaleTrait {
     computeBounds() {
         this.digest.compress();
         let n = this.level; //-1;
+        this.minBound = this.digest.percentile(0);
         this.bounds = this.digest.percentile(arange(n).map(i => ((i+1)/ n)));
     }
 
@@ -139,16 +141,19 @@ export class EquiDepthScale implements ScaleTrait {
     }
 
     invmap(value:number) {
-        if (value <= this.domain[0]) return this.range[0];
-        if (value >= this.domain[1]) return this.range[1];
-
         this.getBounds();
 
-        let v = (value - this.domain[0]) * (this.level=1) / (this.domain[1] - this.domain[0]),
+        if (value < this.range[0]) return this.minBound;
+        if (value > this.range[1]) return this.bounds[this.level - 1];
+
+        let v = (value - this.range[0]) / (this.range[1] - this.range[0]) * this.level,
             i = Math.floor(v),
             r = v-i;
 
-        return this.bounds[i]*(1-r) + this.bounds[i+1]*r;
+        let left = i === 0 ? this.minBound : this.bounds[i - 1];
+        let right = this.bounds[i];
+
+        return left * (1 - r) + right * r;
     }
 }
 

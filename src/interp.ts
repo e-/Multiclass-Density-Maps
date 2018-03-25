@@ -47,6 +47,8 @@ export default class Interpreter {
     public geo:Parser.GeoSpec;
     public legend:Parser.LegendSpec | false;
     public scale:Scale.ScaleTrait = new Scale.LinearScale([0, 1], [0, 1]);
+    public xdomain:Parser.NumPair;
+    public ydomain:Parser.NumPair;
 
     // d3 name of scale, used for legend
     public d3scale:string = "linear";
@@ -97,6 +99,8 @@ export default class Interpreter {
             this.contour = configuration.contour;
         this.geo = configuration.getGeo();
         this.legend = configuration.legend;
+        this.xdomain = configuration.getXDomain();
+        this.ydomain = configuration.getYDomain();
     }
 
     public interpret(context={}) {
@@ -124,6 +128,9 @@ export default class Interpreter {
             equidepth.computeBounds();
             this.scale = equidepth;
         }
+        else {
+            throw `undefined rescale type: ${this.rescale.type}`;
+        }
 
         this.derivedBuffers = this.dataBuffers.map((dataBuffer, i) => {
             let derivedBuffer = new DerivedBuffer(dataBuffer);
@@ -149,7 +156,7 @@ export default class Interpreter {
             this.rebin.type=="none") {
             console.log('  Pixel rebin');
             tiles = Tiling.pixelTiling(this.width,
-                                        this.height);
+                                       this.height);
         }
         else if (this.rebin.type == "square") {
             let size = this.rebin.size || 10;
@@ -488,8 +495,13 @@ export default class Interpreter {
                 let minStretch = Infinity;
                 this.derivedBuffers.forEach((derivedBuffer, k) => {
                     let loop0 = derivedBuffer.originalDataBuffer.max();
-                    this.blurredBuffers[k] = derivedBuffer.blur(this.contour.blur);
-                    var loop1 = this.blurredBuffers[k].originalDataBuffer.max();
+
+                    // TODO: check if this is correct
+                    // jaemin: the "blur" method is destructive, not returning a new derivedBuffer instance
+                    derivedBuffer.originalDataBuffer.blur(this.contour.blur);
+
+                    this.blurredBuffers[k] = derivedBuffer;
+                    let loop1 = this.blurredBuffers[k].originalDataBuffer.max();
                     minStretch = Math.min(minStretch, loop0/loop1);
                 });
 
@@ -526,5 +538,52 @@ export default class Interpreter {
         LegendBuilder(id, this);
     }
 
+    pickDomains(x:number, y:number): [number, number]|null {
+        if (x < 0 || x >= this.width || y < 0 || y >= this.height)
+            return null;
+        return [util.linterp(this.xdomain[0], this.xdomain[1], x/this.width),
+                util.linterp(this.ydomain[0], this.ydomain[1], y/this.height)];
+    }
+
+    pickValues(x:number, y:number): number[] {
+        if (x < 0 || x >= this.width || y < 0 || y >= this.height)
+            return [];
+        return this.dataBuffers.map(dataBuffer => dataBuffer.values[y][x]);
+    }
+
+    pickTile(x:number, y:number): Tile|null {
+        if (this.tiles.length == 0 ||
+            x < 0 || x >= this.width || y < 0 || y >= this.height)
+            return null;
+        
+        var tile: Tile|null = null;
+
+        if (this.rebin===undefined ||
+            this.rebin.type===undefined ||
+            this.rebin.type=="none") {
+            tile = this.tiles[this.width*y + x];
+        }
+        else if (this.rebin.type == "square") {
+            let size = this.rebin.size || 10;
+            x = Math.floor(x/size);
+            y = Math.floor(y/size);
+            tile = this.tiles[Math.floor(this.width/size)*y + x];
+        }
+        else if (this.rebin.type == "rect") {
+            let width = this.rebin.width || 10,
+                height = this.rebin.height || 10;
+            x = Math.floor(x/width);
+            y = Math.floor(y/height);
+            tile = this.tiles[Math.floor(this.width/width)*y + x];
+        }
+        else {
+            for (let t of this.tiles)
+                if (t.contains(x,y)) {
+                    tile = t;
+                    break;
+                }
+        }
+        return tile;
+    }
 }
 

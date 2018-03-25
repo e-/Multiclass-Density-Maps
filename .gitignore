@@ -1,4 +1,6 @@
 package-lock.json
 /node_modules
 *~
-data/*_cat_*.json
+data/*_elec2017_*.json
+data/*_crime2_*.json
+data/*_pickup_*.json
