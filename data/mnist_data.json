@@ -1,0 +1,155 @@
+{
+  "encoding": {
+    "z": {
+      "field": "mnist_labels.txt",
+      "scale": {
+        "domain": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9
+        ]
+      },
+      "type": "nominal"
+    },
+    "y": {
+      "field": "y",
+      "scale": {
+        "range": [
+          0,
+          475
+        ],
+        "domain": [
+          -37.70715,
+          39.831939
+        ]
+      },
+      "bin": {
+        "maxbins": 475
+      },
+      "type": "quantitative",
+      "aggregate": "count"
+    },
+    "x": {
+      "field": "x",
+      "scale": {
+        "range": [
+          0,
+          512
+        ],
+        "domain": [
+          -40.223633,
+          43.275045
+        ]
+      },
+      "bin": {
+        "maxbins": 512
+      },
+      "type": "quantitative",
+      "aggregate": "count"
+    }
+  },
+  "buffers": [
+    {
+      "url": "mnist_cat_0.json",
+      "value": 0,
+      "count": 5923,
+      "range": [
+        0,
+        9
+      ]
+    },
+    {
+      "url": "mnist_cat_1.json",
+      "value": 1,
+      "count": 6742,
+      "range": [
+        0,
+        8
+      ]
+    },
+    {
+      "url": "mnist_cat_2.json",
+      "value": 2,
+      "count": 5958,
+      "range": [
+        0,
+        10
+      ]
+    },
+    {
+      "url": "mnist_cat_3.json",
+      "value": 3,
+      "count": 6131,
+      "range": [
+        0,
+        9
+      ]
+    },
+    {
+      "url": "mnist_cat_4.json",
+      "value": 4,
+      "count": 5842,
+      "range": [
+        0,
+        8
+      ]
+    },
+    {
+      "url": "mnist_cat_5.json",
+      "value": 5,
+      "count": 5421,
+      "range": [
+        0,
+        10
+      ]
+    },
+    {
+      "url": "mnist_cat_6.json",
+      "value": 6,
+      "count": 5918,
+      "range": [
+        0,
+        8
+      ]
+    },
+    {
+      "url": "mnist_cat_7.json",
+      "value": 7,
+      "count": 6265,
+      "range": [
+        0,
+        13
+      ]
+    },
+    {
+      "url": "mnist_cat_8.json",
+      "value": 8,
+      "count": 5851,
+      "range": [
+        0,
+        9
+      ]
+    },
+    {
+      "url": "mnist_cat_9.json",
+      "value": 9,
+      "count": 5949,
+      "range": [
+        0,
+        7
+      ]
+    }
+  ],
+  "source": {
+    "rows": 60000,
+    "type": "txt",
+    "filename": "mnist.txt"
+  }
+}

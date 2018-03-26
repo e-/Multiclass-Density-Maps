@@ -151,6 +151,21 @@ export default class Interpreter {
 
     private computeRebin(context={}) {
         var tiles = this.tiles;
+        if(this.rebin) {
+            if(this.rebin!.aggregation === "max") {
+                this.tileAggregation = TileAggregation.Max;
+            }
+            else if(this.rebin!.aggregation === "min") {
+                this.tileAggregation = TileAggregation.Min;
+            }
+            else if(this.rebin!.aggregation === "mean") {
+                this.tileAggregation = TileAggregation.Mean;
+            }
+            else if(this.rebin!.aggregation === "sum") {
+                this.tileAggregation = TileAggregation.Sum;
+            }
+        }
+
         if (this.rebin===undefined ||
             this.rebin.type===undefined ||
             this.rebin.type=="none") {
@@ -555,7 +570,7 @@ export default class Interpreter {
         if (this.tiles.length == 0 ||
             x < 0 || x >= this.width || y < 0 || y >= this.height)
             return null;
-        
+
         var tile: Tile|null = null;
 
         if (this.rebin===undefined ||
