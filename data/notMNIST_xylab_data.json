@@ -1,0 +1,155 @@
+{
+  "source": {
+    "filename": "notMNIST_xylab.csv",
+    "type": "csv",
+    "rows": 529114
+  },
+  "encoding": {
+    "x": {
+      "field": "x",
+      "type": "quantitative",
+      "bin": {
+        "maxbins": 1024
+      },
+      "aggregate": "count",
+      "scale": {
+        "domain": [
+          -42.982372,
+          38.599129
+        ],
+        "range": [
+          0,
+          1024
+        ]
+      }
+    },
+    "y": {
+      "field": "y",
+      "type": "quantitative",
+      "bin": {
+        "maxbins": 1165
+      },
+      "aggregate": "count",
+      "scale": {
+        "domain": [
+          -44.562744,
+          48.289333
+        ],
+        "range": [
+          0,
+          1165
+        ]
+      }
+    },
+    "z": {
+      "field": "label",
+      "type": "nominal",
+      "scale": {
+        "domain": [
+          "A",
+          "B",
+          "C",
+          "D",
+          "E",
+          "F",
+          "G",
+          "H",
+          "I",
+          "J"
+        ]
+      }
+    }
+  },
+  "buffers": [
+    {
+      "url": "notMNIST_xylab_cat_A.json",
+      "count": 52909,
+      "value": "A",
+      "range": [
+        0,
+        74
+      ]
+    },
+    {
+      "url": "notMNIST_xylab_cat_B.json",
+      "count": 52911,
+      "value": "B",
+      "range": [
+        0,
+        77
+      ]
+    },
+    {
+      "url": "notMNIST_xylab_cat_C.json",
+      "count": 52912,
+      "value": "C",
+      "range": [
+        0,
+        149
+      ]
+    },
+    {
+      "url": "notMNIST_xylab_cat_D.json",
+      "count": 52911,
+      "value": "D",
+      "range": [
+        0,
+        87
+      ]
+    },
+    {
+      "url": "notMNIST_xylab_cat_E.json",
+      "count": 52912,
+      "value": "E",
+      "range": [
+        0,
+        102
+      ]
+    },
+    {
+      "url": "notMNIST_xylab_cat_F.json",
+      "count": 52912,
+      "value": "F",
+      "range": [
+        0,
+        84
+      ]
+    },
+    {
+      "url": "notMNIST_xylab_cat_G.json",
+      "count": 52912,
+      "value": "G",
+      "range": [
+        0,
+        81
+      ]
+    },
+    {
+      "url": "notMNIST_xylab_cat_H.json",
+      "count": 52912,
+      "value": "H",
+      "range": [
+        0,
+        126
+      ]
+    },
+    {
+      "url": "notMNIST_xylab_cat_I.json",
+      "count": 52912,
+      "value": "I",
+      "range": [
+        0,
+        321
+      ]
+    },
+    {
+      "url": "notMNIST_xylab_cat_J.json",
+      "count": 52911,
+      "value": "J",
+      "range": [
+        0,
+        63
+      ]
+    }
+  ]
+}
