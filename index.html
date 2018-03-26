@@ -55,16 +55,17 @@ $(function() {
         return document.createElementNS('http://www.w3.org/2000/svg', 'svg')
     }
 
-    function render(title, spec, wide, width, height) {
+    function render(title, spec, wide, width, height, timeN) {
         var 
             $wrapper = $('<div></div>').attr('class', wide ? 'col-lg-12' : 'col-lg-4').appendTo($gallery),
             $card = $('<div class="card"></div>').appendTo($wrapper),
             $title = $('<h5 class="card-header"></h5>').html(title).appendTo($card),
             $body = $('<div class="card-body"></div>').appendTo($card),
             id = 'canvas' + canvasCount++,
+            legendId = id + '-legend',
             $mdm = $('<div class="mdm">').appendTo($body),
             $canvas = $('<canvas class="map">').attr('id', id).appendTo($mdm),
-            $legend= $(SVG()).attr('class', 'legend').attr('id', id + '-legend').appendTo($mdm),
+            $legend= $(SVG()).attr('class', 'legend').attr('id', legendId).appendTo($mdm),
             $desc = $('<p class="card-text">').html(spec.description).appendTo($body),
             $pre = $('<code>').css('display', 'none').appendTo($body),
             $code = $('<pre>').appendTo($pre).text(JSON.stringify(spec, null, 2)),
@@ -77,14 +78,38 @@ $(function() {
         if(width) $canvas.css('width', width)
         if(height) $canvas.css('height', height)
 
+        let $dummy, dummyId;
+        if(timeN > 0) {
+            $canvas.remove();
+            dummyId = id;
+            $box = $('<div>').attr('id', dummyId).prependTo($mdm)
+                    .css('display', 'inline-block')
+                    .css('position', 'relative');
+            id += '-';
+
+            for(let i = timeN - 1; i >= 0; i--) {
+                let $canvas = $('<canvas class="map">').attr('id', id+i).appendTo($box);
+
+                $canvas
+                    .css('position', 'absolute')
+                    .css('left', 0)
+            }
+            id += '{i}';
+        }
+
         var conf = mcp.create_configuration(spec);
         conf.load('data/').then(function(conf) {
             interp = mcp.create_interp(conf);
-            interp.setup(id);
+            if(timeN > 0) {
+                $box.css('width', interp.width).css('height', interp.height);
+                for(let i = 0; i <timeN; ++i) {
+                    interp.setup(id.replace("{i}", i));
+                }
+            }
             interpreter = interp;
             interp.interpret();
             interp.render(id);
-            interp.renderLegend(id+'-legend');
+            interp.renderLegend(legendId);
         });
     }
 
@@ -110,6 +135,18 @@ render('Log Color Scale',
                "type": "log"
            }
        });
+
+render('Time Multiplexing',
+       {
+           "description": "multivariate normal data",
+           "data": {"url": "mn_data.json"},
+           "compose": {
+               "mix": "time"
+           },
+           "rescale": {
+               "type": "log"
+           }
+       }, false, 0, 0, 4);
 
 render('EquiDepth Color Scale (levels=3)',
        {

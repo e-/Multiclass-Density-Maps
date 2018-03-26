@@ -288,7 +288,15 @@ export default class Interpreter {
         if (this.compose.mix === "separate") { // small multiples
             this.image = this.derivedBuffers.map((b) => new Image(this.width, this.height));
             for(let tile of this.tiles) {
-                //let color = this.composer(this.derivedBuffers, tile.dataValues); // ???
+                this.derivedBuffers.forEach((derivedBuffer, i) => {
+                    let color = Composer.one(derivedBuffer, tile.dataValues[i]);
+                    this.image[i].render(color, tile);
+                });
+            }
+        }
+        else if (this.compose.mix === "time") { // time multiplexing
+            this.image = this.derivedBuffers.map((b) => new Image(this.width, this.height));
+            for(let tile of this.tiles) {
                 this.derivedBuffers.forEach((derivedBuffer, i) => {
                     let color = Composer.one(derivedBuffer, tile.dataValues[i]);
                     this.image[i].render(color, tile);
@@ -498,8 +506,14 @@ export default class Interpreter {
         let render = () => {
             let options = <any>{};
             if (this.blur != undefined)
-                options["blur"] = this.blur;
+                options.blur = this.blur;
+
+            if (this.compose.mix === "time")
+                options.interval = this.compose.interval;
+
             let ctx = CanvasRenderer.renderAll(this.image, id, this.compose.order, options);
+            // TODO: adding strokes does not work with time multiplexing
+
             if (this.contour.stroke > 0) {
                 // Assume all the scales are shared between derived buffers
                 let path   = d3.geoPath(null, ctx),

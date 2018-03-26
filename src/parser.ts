@@ -163,14 +163,18 @@ export interface ConfigurationReencodingSpec {
 export class ComposeSpec {
     mix: "none"|"min"|"mean"|"max"|"blend"|
           "weavingrandom"|"weavingsquare"|"weavinghex"|"weavingtri"|
-          "propline"|"hatching"|"separate"|"glyph"|"dotdensity"="mean";
+          "propline"|"hatching"|"separate"|"glyph"|"dotdensity"|"time"="mean";
     mixing: "additive"|"subtractive"|"multiplicative" = "additive";
+
     size:number = 8;
     widthprop:string|number = "none";
     colprop:boolean = false;
     order?:number[];
     url?:string;
     glyphSpec?: GlyphSpec;
+
+    // temporal multiplexing
+    interval:number = 0.6;
 
     constructor(options?: ComposeSpec) {
         if(options) Object.assign(this, options);
