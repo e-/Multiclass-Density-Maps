@@ -20,18 +20,24 @@ export default class Composer {
         return buffers[bestIndex].colorScale.map(best);
     }
 
-    static min(buffers:DerivedBuffer[], values:number[]):Color {
-        let best = values[0];
-        let bestIndex = 0;
+    static min(buffers:DerivedBuffer[], values:number[], threshold=1):Color {
+        let best = Infinity;
+        let bestIndex = -1;
 
-        values.forEach((value, i) => {
-          if(value < best) {
-            best = value;
-            bestIndex = i;
-          }
-        });
+        for (let i = 0; i < values.length; i++) {
+            let value = values[i];
+            if (value < threshold) continue;
+            if (value < best) {
+                best = value;
+                bestIndex = i;
+            }
+        }
+        if (bestIndex == -1)
+            return buffers[0].colorScale.map(0);
+        let buffer = buffers[bestIndex];
+        let scaleTrait = buffer.colorScale.interpolator;
 
-        return buffers[bestIndex].colorScale.map(best);
+        return buffer.colorScale.map(scaleTrait.domain[1]-best);
     }
 
     static mean(buffers:DerivedBuffer[], values:number[]):Color {

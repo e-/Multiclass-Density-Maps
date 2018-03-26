@@ -54,7 +54,11 @@ export default class Tile extends Point {
                     let current = row[c];
                     switch(op) {
                     case TileAggregation.Min:
-                        val = Math.min(val, current);
+                        if (current == 0) continue;
+                        if (val == 0)
+                            val = current;
+                        else
+                            val = Math.min(val, current);
                         break;
                     case TileAggregation.Mean:
                     case TileAggregation.Sum:

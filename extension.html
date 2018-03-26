@@ -80,20 +80,22 @@ render('MNIST t-SNE',
            }
        });
 
-render('MNIST t-SNE, Voronoi Tiling (glyph - bars)',{
-    "description": "multivariate normal data",
-    "data": {"url": "mnist_data.json"},
-    "smooth": {},
-    "compose": {
-        "mix": "weavingrandom",
-        "size": 1
-    },
-    "rebin": {
-        "type": "square",
-        "size": 6,
-        "aggregation": "sum"
-    }
-});
+render('MNIST t-SNE',
+       {
+           "description": "multivariate normal data",
+           "data": {"url": "mnist_data.json"},
+           "compose": {
+               "mix": "min"
+           },
+           "rescale": {
+               "type": "sqrt"
+           },
+           "rebin": {
+               "type": "square",
+               "size": 2,
+               "aggregation": "min"
+           }
+       });
 
 
 </script>
