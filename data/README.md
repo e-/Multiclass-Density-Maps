@@ -63,3 +63,47 @@ Files:
 - nyc_crime2_RAPE.json.gz
 - nyc_crime2_ROBBERY.json.gz
 
+
+## notMNIST
+
+url: http://yaroslavvb.blogspot.fr/2011/09/notmnist-dataset.html
+
+Dataset with about 530,000 small images (28x28 grey pixels) representing characters A-J using various fonts.
+
+Donwload the data at http://yaroslavvb.com/upload/notMNIST/notMNIST_large.tar.gz
+Uncompress and transform: 
+
+```bash
+gunzip notMNIST_large.tar.gz
+
+python $MULTICLASSPLOTS/data/notMNIST2LV.py
+# creates notMNIST_vec748D.txt
+python $MULTICLASSPLOTS/data/notMNIST2csv.py
+# creates notMNIST.csv
+
+# retrieve LargeVis
+git clone git@github.com:lferry007/LargeVis.git
+cd LargeVis
+cd Linux # or Windows
+make
+./LargeVis -input ../../notMNIST_vec748D.txt -ouput ../../notMNIST_vec2D.txt
+
+# wait for 1h for the program to run
+cd ../..
+
+# assemble the file with Python/Pandas
+python
+import pandas as pd
+
+df_labels = pd.read_csv('notMNIST.csv', delimiter=' ', usecols=['label'])
+df_2d = pd.read_csv('notMNIST_vec2D.txt', delimiter=' ', names=['x', 'y'], skiprows=1)
+df_2d['label'] = df_labels['label']
+df_2d.to_csv('notMNIST_xylab.csv', sep=',')
+exit
+
+# run csv2json.py to get the data buffers
+python $MULTICLASSPLOTS/data/csv2json notMNIST_xylab.csv  --width 1024 x y label
+# produces notMNIST_xylab_data.json and notMNIST_xylab_cat_[A-J].json
+
+```
+

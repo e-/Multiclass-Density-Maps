@@ -24,4 +24,4 @@ def read_dirs(dirs, outfile):
         for directory in dirs:
             read_dir(directory, directory, csvwriter)
 
-read_dirs(['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J'], 'notMNIST784D.txt')
+read_dirs(['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J'], 'notMNIST_vec784D.txt')
