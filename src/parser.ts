@@ -164,7 +164,7 @@ export class ComposeSpec {
     mix: "none"|"min"|"mean"|"max"|"blend"|
           "weavingrandom"|"weavingsquare"|"weavinghex"|"weavingtri"|
           "propline"|"hatching"|"separate"|"glyph"|"dotdensity"="mean";
-    mixing: "additive"|"substractive"|"multiplicative" = "additive";
+    mixing: "additive"|"subtractive"|"multiplicative" = "additive";
     size:number = 8;
     widthprop:string|number = "none";
     colprop:boolean = false;
@@ -207,7 +207,7 @@ export class RebinSpec {
 
 export class RescaleSpec {
     type:"linear"|"log"|"pow"|"sqrt"|"cbrt"|"equidepth" = "linear";
-    level:number = 32; // for equidepth
+    levels:number = 32; // for equidepth
 
     constructor(options?: RescaleSpec) {
         if(options) Object.assign(this, options);
