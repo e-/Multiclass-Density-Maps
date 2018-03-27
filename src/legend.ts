@@ -356,7 +356,7 @@ function mixLegend(id:string, interp:Interpreter) {
     let height = (rowHeight + verticalGutter) * n +
         (titleHeight + verticalGutter) + padding * 2;
 
-    if(!(interp.compose.mix in ["hatching", "propline"]) || interp.compose.colprop) {
+    if(["hatching", "propline"].indexOf(interp.compose.mix) < 0 || interp.compose.colprop) {
         height += (rowHeight + verticalGutter) * n +
         (titleHeight + verticalGutter);
 
