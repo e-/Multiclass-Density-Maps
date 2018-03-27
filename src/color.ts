@@ -148,9 +148,9 @@ export default class Color {
     static Brown       = new Color(140 / 255, 86 / 255, 75 / 255, 1);
     static Pink        = new Color(227 / 255, 119 / 255, 194 / 255, 1);
     static Gray        = new Color(127 / 255, 127 / 255, 127 / 255, 1);
-    static Yellow      = new Color(255 / 255, 255 / 255, 0 / 255, 1);
-    static Cyan        = new Color(0 / 255,   255 / 255, 255 / 255, 1);
-    static Magenta      = new Color(255 / 255, 0 / 255,   255 / 255, 1);
+    static Yellow      = new Color(255 / 255, 240 / 255, 65 / 255, 1);
+    static Cyan        = new Color(0 / 255,   190 / 255, 255 / 255, 1);
+    static Magenta     = new Color(241 / 255, 31 / 255,   141 / 255, 1);
     static Skyblue     = new Color(23 / 255, 190 / 255, 207 / 255, 1);
     static Transparent = new Color(0, 0, 0, 0);
 

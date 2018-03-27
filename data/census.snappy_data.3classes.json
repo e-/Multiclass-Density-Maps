@@ -50,7 +50,8 @@
       "scale": {
         "domain": [
           "w",
-          "haob"
+          "h",
+          "aob"
         ]
       }
     }
@@ -66,12 +67,21 @@
       ]
     },
     {
-      "url": "census.snappy_cat_haob.json",
-      "count": 110622117,
-      "value": "haob",
+      "url": "census.snappy_cat_h.json",
+      "count": 50317503,
+      "value": "h",
       "range": [
         0,
         721925
+      ]
+    },
+    {
+      "url": "census.snappy_cat_aob.json",
+      "count": 60304614,
+      "value": "aob",
+      "range": [
+        0,
+        245504
       ]
     }
   ]

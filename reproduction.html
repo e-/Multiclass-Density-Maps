@@ -157,22 +157,22 @@ render('Figure2a',
 render('Census Data multiplicative choropleth',
 {
     "description": "US Census Synthetic people",
-    "data": {"url": "census.snappy_data.json"},
+    "data": {"url": "census.snappy_data.3classes.json"},
     "reencoding": {
         "label": {
             "field": "z",
             "type": "nominal",
             "scale": {
-                "domain": ["w", "h", "a", "b", "o"],
-                "range": ["White", "Hispanic", "Asian", "Black", "Other"]
+                "domain": ["w", "h", "aob"],
+                "range": ["High School", "College", "Income"]
             }
         },
         "color": {
             "field": "z",
             "type": "nominal",
             "scale": {
-                "range0": ["White", "White", "White", "White", "White"],
-                "range1": ["Blue", "Orange", "Red", "Green", "Brown"]
+                "range0": ["White", "White", "White"],
+                "range1": ["Magenta", "Yellow", "Cyan"]
             }
         }
     },
@@ -190,10 +190,8 @@ render('Census Data multiplicative choropleth',
     "rescale": {
         "type": "log"
     },
-
-
     "legend": {
-        "labelWidth": 60
+        "labelWidth": 100
     }
 }, true);
 
