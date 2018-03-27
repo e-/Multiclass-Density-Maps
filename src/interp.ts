@@ -315,10 +315,8 @@ export default class Interpreter {
         if (this.compose.mix === "dotdensity") {
 
             // create one mask per databuffer
-            let masks:Mask[] = Array<Mask>(this.derivedBuffers.length);
-            for (let i = 0; i < this.derivedBuffers.length; i++) {
-              masks[i] = new Mask(this.width, this.height, 0);
-            }
+            let masks:Mask[] = this.derivedBuffers
+                  .map((buffer) => new Mask(this.width, this.height, 0));
 
             let rowcounts = this.tiles.map(tile => tile.rowcounts());
             let areas     = rowcounts.map(rc => rc[rc.length-1]);
@@ -328,10 +326,11 @@ export default class Interpreter {
                 return area == 0 ? 0 : tile.sumValue() / (area-1);
             });
             let maxDensity = util.amax(densities);
-            let rawMask  = new Uint8Array(biggest);
+            let rawMask  = new Uint8Array(biggest); // max of 253 data buffers
 
             this.tiles.forEach(function (tile, k) {
-              // create a local mask to store all the values together before dispathing them in every mask for every databuffer
+              // create a local mask to store all the values together before dispatching
+              // them in every mask for every databuffer.
               //let buffer = new ArrayBuffer(tile.mask.width*tile.mask.height);
               //let mask = Array<Uint8ClampedArray>(tile.mask.height);
               //for (let j = 0; j < tile.mask.height; j++) {
@@ -340,17 +339,17 @@ export default class Interpreter {
               //}
               // proportion and suming
               let acc =0;
-              let pixCounts = tile.dataValues.map(function(v){acc+=v/maxDensity; return acc;});
+              let pixCounts = tile.dataValues.map((v) => { acc+=v/maxDensity; return acc;});
 
               // for every buffer we want to distribute a given number of points in its mask.
-              // to do so we create a buffer of values to distriibute among the buffer masks.
+              // to do so, we create a buffer of values to distriibute among the buffer masks.
               // values 1+2 will fall where the mask of buffer#1 should display something.
               // values 2+2 will fall where the mask of buffer#2 should display something, etc.
               // values 0 and 1 already lies in the masks and mean the mask is filled or not.
               // in the end mask can only display something where there was a 1 before.
               let prev = 0;
-              pixCounts.forEach (function(pc, j){
-                rawMask.fill(j+1, prev, Math.round(pc));
+              pixCounts.forEach ((pc, j) => {
+                rawMask.fill(j+1, prev, Math.floor(pc)); // was round??
                 prev=Math.floor(pc);
               });
               // finish with special values that will fall in no buffer in the end
@@ -384,7 +383,6 @@ export default class Interpreter {
                     this.image[0].render(color, tile, masks[i]);
                 });
             }
-
         }
 
         if (this.composer != Composer.none) {
