@@ -49,6 +49,7 @@ export default class Interpreter {
     public scale:Scale.ScaleTrait = new Scale.LinearScale([0, 1], [0, 1]);
     public xdomain:Parser.NumPair;
     public ydomain:Parser.NumPair;
+    public stroke?:Parser.StrokeSpec;
 
     // d3 name of scale, used for legend
     public d3scale:string = "linear";
@@ -97,6 +98,9 @@ export default class Interpreter {
             this.contour = new Parser.ContourSpec();
         else
             this.contour = configuration.contour;
+
+        this.stroke = configuration.stroke;
+
         this.geo = configuration.getGeo();
         this.legend = configuration.legend;
         this.xdomain = configuration.getXDomain();
@@ -555,6 +559,9 @@ export default class Interpreter {
                     });
                 });
             }
+
+            this.renderStroke(id);
+
             if (this.maskStroke)
                 for(let tile of this.tiles)
                     CanvasRenderer.strokeVectorMask(tile.mask, id, {color: this.maskStroke});
@@ -567,6 +574,37 @@ export default class Interpreter {
         LegendBuilder(id, this);
     }
 
+    renderStroke(id:HTMLCanvasElement | string)
+    {
+        if(!this.stroke) return;
+
+        let stroke = this.stroke!;
+
+        let url      = stroke.url,
+            topojson = stroke.topojson,
+            feature  = stroke.feature; //CHECK
+
+        console.log(`topojson stroke url=${url} feature=${feature}`);
+        // TODO get the projection, transform, clip, etc.
+
+        if (!topojson.objects[feature] ||
+            !topojson.objects[feature].geometries ||
+            !Array.isArray(topojson.objects[feature].geometries) ||
+            topojson.objects[feature].geometries.length === 0 ){
+            console.log("ERROR: no correct array named 'geometries' in the specified feature("+feature+"). Is it really topojson or did you specify wrong feature name?");
+        }
+
+        let projection = this.geo.proj4 || this.geo.projection;
+        let tiles = Tiling.topojsonTiling(this.width, this.height,
+                                    topojson,
+                                    topojson.objects[feature],
+                                    projection,
+                                    this.geo.latitudes, this.geo.longitudes);
+
+        for(let tile of tiles)
+            CanvasRenderer.strokeVectorMask(tile.mask, id, {color: stroke.color, lineWidth: stroke.lineWidth});
+
+    }
     pickDomains(x:number, y:number): [number, number]|null {
         if (x < 0 || x >= this.width || y < 0 || y >= this.height)
             return null;

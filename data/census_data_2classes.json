@@ -1,0 +1,31 @@
+{
+    "description": "US Census Synthetic people (2 classes)",
+    "background": "Black",
+    "data": {"url": "census.snappy_data.2classes.json"},
+    "derived_buffers": {
+        "all": {"buffers": [], "aggregate": "sum"}
+    },
+    "reencoding": {
+        "label": {
+            "field": "z",
+            "type": "nominal",
+            "scale": {
+                "domain": ["w", "h"],
+                "range": ["White", "Hispanic"]
+            }
+        },
+        "color": {
+            "field": "z",
+            "type": "nominal",
+            "scale": {
+                "range": ["Blue", "Orange"],
+                "scale": "log"
+            }
+        }
+    },
+    "rebin": {},
+    "compose": {
+        "mix": "blend",
+        "mixing": "additive"
+    }
+}

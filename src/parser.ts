@@ -265,6 +265,19 @@ export class LegendSpec {
     }
 }
 
+export class StrokeSpec {
+    color:string = "rgba(0, 0, 0, .25)";
+    lineWidth:number = 2;
+    type:"topojson" = "topojson";
+    url?:string;
+    topojson:any;
+    feature:string = "state";
+
+    constructor(options?: StrokeSpec) {
+        if(options) Object.assign(this, options);
+    }
+}
+
 export class Configuration {
     description?: string;
     background?: string;
@@ -279,6 +292,7 @@ export class Configuration {
     height: number= -1;
     bufferNames:string[] = [];
     legend: LegendSpec | false = new LegendSpec();
+    stroke?: StrokeSpec
 
     constructor(public specs:any) {
         if(typeof this.specs === 'string') {
@@ -296,6 +310,7 @@ export class Configuration {
         this.parseRescale();
         this.parseContour();
         this.parseLegend();
+        this.parseStroke();
     }
 
     private parseDescription() {
@@ -337,10 +352,21 @@ export class Configuration {
             }
         }
     }
-
     private parseRescale() {
         if (this.specs.rescale)
             this.rescale = new RescaleSpec(this.specs.rescale);
+    }
+    private parseLegend() {
+        if(this.specs.legend === false)
+            this.legend = false;
+        else if(this.specs.legend)
+            this.legend = new LegendSpec(this.specs.legend);
+    }
+    private parseStroke() {
+        if(this.specs.stroke)
+            this.stroke = new StrokeSpec(this.specs.stroke);
+        else
+            this.stroke = undefined;
     }
 
     public validate():boolean {
@@ -377,7 +403,7 @@ export class Configuration {
             if (buffer.value)
                 this.bufferNames.push(buffer.value);
             else
-                this.bufferNames.push(""+i);
+                this.bufferNames.push(i.toString());
             if (buffer.data instanceof Array) {
                 heights.set(buffer.value, buffer.data.length);
                 widths.set(buffer.value, buffer.data[0].length);
@@ -440,6 +466,24 @@ export class Configuration {
         return Promise.resolve(this);
     }
 
+    loadStroke(base:string = '') : Promise<Configuration> {
+        if (this.stroke &&
+            this.stroke.type === 'topojson' && this.stroke.url) {
+            return util
+                  .get(base + this.stroke.url)
+                  .then(response => {
+                      console.log('[Stroke] Loaded topojson at '+(base+this.stroke!.url!));
+                      this.stroke!.topojson = JSON.parse(response);
+                      return this;
+                  })
+                  .catch((reason)=> {
+                      console.log('Cannot load topojson at '+(base+this.stroke!.url!)+': '+reason);
+                      return this;
+                  });
+        }
+        return Promise.resolve(this);
+    }
+
     // load data from the server if this.data contains url
     load(base:string = ''): Promise<Configuration> {
         if(!this.data!.dataSpec && this.data!.url) {
@@ -453,7 +497,9 @@ export class Configuration {
                       return dataSpec
                             .load(base)
                             .then(() => {
-                                return this.loadTopojson(base);
+                                return this.loadTopojson(base).then(() => {
+                                    return this.loadStroke(base);
+                                });
                             });
                   })
                   .catch((reason)=> {
@@ -462,7 +508,11 @@ export class Configuration {
                   });
         }
 
-        return this.loadTopojson(base).then(() => {return this;});
+        return this.loadTopojson(base).then(() => {
+            return this.loadStroke(base).then(() => {
+                return this;
+            })
+        })
     }
 
     public getBuffers() : DataBuffer[] {
@@ -538,11 +588,6 @@ export class Configuration {
         return data.encoding.y.scale.domain;
     }
 
-    private parseLegend() {
-        if(this.specs.legend === false)
-            this.legend = false;
-        else if(this.specs.legend)
-            this.legend = new LegendSpec(this.specs.legend);
-    }
+
 }
 
