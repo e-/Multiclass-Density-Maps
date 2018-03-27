@@ -19,12 +19,21 @@ export default class Mask {
         }
     }
 
-    rowcounts() {
-        let reducer = (accumulator:number, currentValue:number) => accumulator + currentValue;
+
+    rowcounts(step:number =1) {
+        let reducer = (accumulator:number, currentValue:number) => accumulator +currentValue;
         let rowcounts = this.mask.map(row => row.reduce(reducer));
         for (let i = 1; i < rowcounts.length; i++)
             rowcounts[i] += rowcounts[i-1];
-        return rowcounts;
+         return rowcounts;
+    }
+
+    pixcount(step:number =1) {
+      let cpt = 0;
+      for (let j = 0; j < this.mask.length; j+=step)
+        for (let i = 0; i < this.mask[j].length; i+=step)
+          cpt += this.mask[j][i];
+      return cpt;
     }
 
     area() {

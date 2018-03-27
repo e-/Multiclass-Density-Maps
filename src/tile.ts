@@ -23,6 +23,7 @@ export default class Tile extends Point {
 
     area() { return this.mask.area(); }
     rowcounts() { return this.mask.rowcounts(); }
+    pixcount(step:number =1) { return this.mask.pixcount(step); }
     maxValue() { return util.amax(this.dataValues); }
     sumValue() { return util.asum(this.dataValues); }
 

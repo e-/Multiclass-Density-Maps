@@ -313,14 +313,15 @@ export default class Interpreter {
 
         // Need the tiles to compute dot density plots
         if (this.compose.mix === "dotdensity") {
+            let size = this.compose.size;
 
             // create one mask per databuffer
             let masks:Mask[] = this.derivedBuffers
                   .map((buffer) => new Mask(this.width, this.height, 0));
 
-            let rowcounts = this.tiles.map(tile => tile.rowcounts());
-            let areas     = rowcounts.map(rc => rc[rc.length-1]);
+            let areas = this.tiles.map(tile => tile.pixcount(size));
             let biggest   = util.amax(areas);
+
             let densities = this.tiles.map((tile, i) => {
                 let area = areas[i];
                 return area == 0 ? 0 : tile.sumValue() / (area-1);
@@ -363,13 +364,14 @@ export default class Interpreter {
 
               // dispatch the values in the straight array toward the masks (only where there are 1 in the tile's mask)
               acc = 0;
-              for (let j = 0; j < tile.mask.mask.length; j++) {
+              for (let j = 0; j < tile.mask.mask.length; j+=size) {
                 let row = tile.mask.mask[j];
-                for (let i = 0, w=tile.mask.mask[j].length; i < w; i++){
+                for (let i = 0, w=tile.mask.mask[j].length; i < w; i+=size){
                   if (row[i]>0){
                     let id = rawMask[acc++];
                     if (id>0)
-                      masks[id-1].mask[j+tile.y][i+tile.x] = 1;
+                      for (let dj=0; dj<size&&j+dj+tile.y<masks[id-1].mask.length; dj++)
+                        masks[id-1].mask[j+dj+tile.y].fill(1, i+tile.x, i+tile.x+size);
                   }
                 }
               }
