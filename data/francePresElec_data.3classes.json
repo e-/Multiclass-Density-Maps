@@ -1,0 +1,90 @@
+{
+  "source": {
+    "filename": "Presidentielle_2017_T1.csv",
+    "type": "csv",
+    "rows": 35282
+  },
+  "projection": {
+    "type": "Equirectangular"
+  },
+  "encoding": {
+    "x": {
+      "field": "easting",
+      "type": "latitude",
+      "bin": {
+        "maxbins": 1507
+      },
+      "aggregate": "sum",
+      "scale": {
+        "domain": [
+          -5.09389,
+          9.51667
+        ],
+        "range": [
+          0,
+          1507
+        ]
+      }
+    },
+    "y": {
+      "field": "northing",
+      "type": "longitude",
+      "bin": {
+        "maxbins": 1000
+      },
+      "aggregate": "sum",
+      "scale": {
+        "domain": [
+          41.3875,
+          51.0833
+        ],
+        "range": [
+          0,
+          1000
+        ]
+      }
+    },
+    "z": {
+      "field": "candidate",
+      "type": "nominal",
+      "scale": {
+        "domain": [
+          "melenchon",
+          "hamon",
+          "macron",
+          "fillon",
+          "lepen"
+        ]
+      }
+    }
+  },
+  "buffers": [
+    {
+      "url": "melenchon_elec2017_a.json",
+      "count": 35282,
+      "value": "melenchon",
+      "range": [
+        0,
+        662632
+      ]
+    },
+    {
+      "url": "macron_elec2017_a.json",
+      "count": 35282,
+      "value": "macron",
+      "range": [
+        0,
+        721925
+      ]
+    },
+    {
+      "url": "lepen_elec2017_a.json",
+      "count": 35282,
+      "value": "lepen",
+      "range": [
+        0,
+        535410
+      ]
+    }
+  ]
+}

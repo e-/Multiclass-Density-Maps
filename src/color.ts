@@ -171,12 +171,30 @@ export default class Color {
         "magenta": Color.Magenta,
         "skyblue": Color.Skyblue
     };
-    static byName(name:string): Color {
+
+    static rgb(code:string) {
+        if(code.startsWith('rgb')) {
+            let res = code.split(/[(,)]/);
+
+            if(res.length >= 4) {
+                let r = parseFloat(res[1]);
+                let g = parseFloat(res[2]);
+                let b = parseFloat(res[3]);
+
+                return new Color(r / 255, g / 255, b / 255, 1);
+            }
+        }
+        return Color.None;
+    }
+
+    static get(name:string): Color {
         name = name.toLowerCase();
         if (name in Color.ColorByName)
             return <Color>Color.ColorByName[name];
-         return Color.None;
+
+        return this.rgb(name);
     };
+
 
     static Category10 = [Color.Blue, Color.Orange, Color.Green, Color.Red, Color.Purple, Color.Brown, Color.Pink, Color.Gray, Color.Yellow, Color.Skyblue];
     static Category10t = Color.Category10.map(c => new Color(c.r, c.g, c.b, 0));

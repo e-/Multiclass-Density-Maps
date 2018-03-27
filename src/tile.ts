@@ -95,7 +95,8 @@ export default class Tile extends Point {
 
             let center = util.largeRectInPoly(poly, {
                 angle: 0,
-                aspectRatio: 1
+                aspectRatio: 1,
+                nTries: 100
             });
 
             if(!center) {

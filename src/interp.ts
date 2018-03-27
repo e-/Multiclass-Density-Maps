@@ -71,14 +71,14 @@ export default class Interpreter {
 
         let colormap0 = configuration.getColors0();
         if (colormap0.length >= this.bufferNames.length)
-            this.colors0 = colormap0.map((name)=>Color.byName(name));
+            this.colors0 = colormap0.map((name)=>Color.get(name));
         else if (colormap0.length != 0) {
             console.log('  WARNING: Not enough colors(0) in colormap, ignored');
         }
 
         let colormap1 = configuration.getColors1();
         if (colormap1.length >= this.bufferNames.length)
-            this.colors1 = colormap1.map((name)=>Color.byName(name));
+            this.colors1 = colormap1.map((name)=>Color.get(name));
         else if (colormap1.length != 0) {
             console.log('  WARNING: Not enough colors(1) in colormap, ignored');
         }
@@ -454,7 +454,7 @@ export default class Interpreter {
                     if(tile.mask.width < width
                         || tile.mask.height < height) continue;
 
-                    let promise = Composer.bars(this.derivedBuffers, tile.dataValues, {
+                    let promise = Composer.bars(this.derivedBuffers, this.bufferNames || this.labels, tile.dataValues, {
                         width: glyphSpec.width,
                         height: glyphSpec.height,
                         'y.scale.domain': this.scale.domain as [number, number],
@@ -480,7 +480,7 @@ export default class Interpreter {
 
                     // console.log('mask', width, height);
 
-                    let promise = Composer.punchcard(this.derivedBuffers, tile.dataValues, {
+                    let promise = Composer.punchcard(this.derivedBuffers, this.bufferNames || this.labels, tile.dataValues, {
                         width: width,
                         height: height,
                         'z.scale.domain': this.scale.domain as [number, number],

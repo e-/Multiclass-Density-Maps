@@ -352,15 +352,22 @@ function mixLegend(id:string, interp:Interpreter) {
     let labels = interp.labels == undefined ? interp.bufferNames : interp.labels;
     colorCategories(categoryG, derivedBuffers, spec, labels);
 
-    rampG.attr('transform', translate(0,
-        titleHeight + verticalGutter + (rowHeight + verticalGutter) * n + padding))
-    colorRamps(rampG, defs, derivedBuffers, interp, spec);
+
+    let height = (rowHeight + verticalGutter) * n +
+        (titleHeight + verticalGutter) + padding * 2;
+
+    if(!(interp.compose.mix in ["hatching", "propline"]) || interp.compose.colprop) {
+        height += (rowHeight + verticalGutter) * n +
+        (titleHeight + verticalGutter);
+
+        rampG.attr('transform', translate(0,
+            titleHeight + verticalGutter + (rowHeight + verticalGutter) * n + padding))
+        colorRamps(rampG, defs, derivedBuffers, interp, spec);
+    }
 
     // interp.compose.mix == max or mean or blend
     // interp.compose.mixing == multiplicative or additive
 
-    let height = (rowHeight + verticalGutter) * n * 2 +
-        (titleHeight + verticalGutter) * 2 + padding * 2;
 
     // checks whether a mix map is shown
     if(["max", "mean", "blend"].indexOf(interp.compose.mix) >= 0 && derivedBuffers.length >= 2) {
@@ -454,10 +461,11 @@ function bars(id:string, interp:Interpreter) {
 
     let mean = sum.map(s => s / n);
     let domain = interp.scale.domain as [number, number];
+    let labels = interp.labels == undefined ? interp.bufferNames : interp.labels;
 
     let data = derivedBuffers.map((buffer, i) => {
         return {
-            category: buffer.originalDataBuffer.name,
+            category: labels[i],
             value: (domain[1] - domain[0]) * (i + 1) / n + domain[0]
         };
     });
@@ -476,6 +484,8 @@ function bars(id:string, interp:Interpreter) {
             x: {
                 field: "category",
                 type: "ordinal",
+                // domain: labels,
+                sort: null,
                 axis: {
                     orient: "top",
                     title: "value",
@@ -507,7 +517,8 @@ function bars(id:string, interp:Interpreter) {
                 // legend: false,
                 axis: {
                     orient: "right",
-                    title: false
+                    title: false,
+                    format: ",.2f"
                 }
             }
         },

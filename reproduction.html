@@ -154,7 +154,7 @@ render('Figure2a',
     }
 }, true);
 
-render('Census Data multiplicative choropleth',
+render('Figure2b',
 {
     "description": "US Census Synthetic people",
     "data": {"url": "census.snappy_data.3classes.json"},
@@ -195,25 +195,26 @@ render('Census Data multiplicative choropleth',
     }
 }, true);
 
-render('French Presidential Election',
+render('Figure 2cl',
 {
     "description": "5 main candidate at Round #1",
-    "data": {"url": "francePresElec_data.json"},
+    "data": {"url": "francePresElec_data.3classes.json"},
     "smooth": {},
     "reencoding": {
         "label": {
             "field": "z",
             "type": "nominal",
             "scale": {
-                "domain": ["melenchon", "hamon", "macron", "fillon", "lepen"],
-                "range": ["Melenchon", "Hamon", "Macron", "Fillon", "Lepen"]
+                "domain": ["melenchon", "macron", "lepen"],
+                "range": ["Primary", "Secondary", "Tertiary"]
             }
         },
         "color": {
             "field": "z",
             "type": "nominal",
             "scale": {
-                "range": ["Red", "Pink", "Orange", "Blue", "Brown"]
+                "range0": ["White", "White", "White"],
+                "range1": [ "rgb(222, 227, 13)", "rgb(246, 108, 133)", "rgb(35, 33, 22)"]
             }
         }
     },
@@ -224,25 +225,27 @@ render('French Presidential Election',
           "stroke": "grey"
     },
     "compose": {
-          "mix": "mean"
+        "mix": "propline",
+        "size": 8,
+        "widthprop": "percent"
     },
     "rescale": {
-        "type": "log"
+        "type": "linear"
     }
-}, true, 550, 520);
+}, true, 600, 520);
 
-render('French Presidential Election',
+render('Figure 2cr',
 {
     "description": "5 main candidate at Round #1",
-    "data": {"url": "francePresElec_data.json"},
+    "data": {"url": "francePresElec_data.3classes.json"},
     "smooth": {},
     "reencoding": {
         "label": {
             "field": "z",
             "type": "nominal",
             "scale": {
-                "domain": ["melenchon", "hamon", "macron", "fillon", "lepen"],
-                "range": ["Melenchon", "Hamon", "Macron", "Fillon", "Lepen"]
+                "domain": ["melenchon", "macron", "lepen"],
+                "range": ["Primary", "Secondary", "Tertiary"]
             }
         },
         "color": {
@@ -253,26 +256,37 @@ render('French Presidential Election',
             }
         }
     },
-    "rebin": {
+    "stroke": {
           "type": "topojson",
           "url": "franceD.json",
           "feature": "poly",
-          "stroke": "grey"
+          "lineWidth": 1,
+          "color": "rgba(0, 0, 0, 0.3)"
+    },
+    "rebin": {
+        "type": "square",
+        "size": 64,
+        "aggregation": "sum"
     },
     "compose": {
-          "mix": "mean"
-    },
+        "mix": "glyph",
+        "glyphSpec": {
+            "template": "punchcard",
+            "width": 64,
+            "height": 64,
+            "factor": 16
+        }
+    },      
     "rescale": {
         "type": "log"
     }
-}, true, 50, 520);
+}, true, 600, 520);
 
 
-render('Census Data Smoothed',
+render('Figure 2d',
 {
     "description": "US Census Synthetic people",
     "data": {"url": "census.snappy_data.json"},
-    "smooth": {"radius": 1},
     "reencoding": {
         "label": {
             "field": "z",
@@ -290,9 +304,60 @@ render('Census Data Smoothed',
             }
         }
     },
+    "rebin": {
+          "type": "topojson",
+          "url": "us.json",
+          "feature": "states",
+          "stroke": "rgba(0,0,0,0.25)"
+    },
     "compose": {
-        "mix": "mean",
-        "mixing": "additive"
+        "mix": "hatching",
+        "size": 2,
+        "widthprop": "percent"
+    },
+    "rescale": {
+        "type": "log"
+    }
+}, true);
+
+
+render('Figure 2e',
+{
+    "description": "US Census Synthetic people",
+    "data": {"url": "census.snappy_data.json"},
+    "reencoding": {
+        "label": {
+            "field": "z",
+            "type": "nominal",
+            "scale": {
+                "domain": ["w", "h", "a", "b", "o"],
+                "range": ["White", "Hispanic", "Asian", "Black", "Other"]
+            }
+        },
+        "color": {
+            "field": "z",
+            "type": "nominal",
+            "scale": {
+                "range": ["Blue", "Orange", "Red", "Green", "Brown"]
+            }
+        }
+    },
+    "rebin": {
+          "type": "topojson",
+          "url": "us.json",
+          "feature": "states",
+          // "feature": "counties",
+          /*"minfeature": 0,
+          "maxfeature": 3109,*/
+        //  "maxfeature": 49,
+        //    "feature": "counties",
+        //     "minfeature": 0,
+        //   "maxfeature": 3109,
+          "stroke": "rgba(0,0,0,0.25)"
+    },
+    "compose": {
+          "mix": "weavingrandom",
+          "size": 2
     },
     "rescale": {
         "type": "log"
@@ -302,12 +367,10 @@ render('Census Data Smoothed',
     }
 }, true);
 
-
-render('Census Data Smoothed',
+render('Figure 2f',
 {
     "description": "US Census Synthetic people",
     "data": {"url": "census.snappy_data.json"},
-    "smooth": {"radius": 1},
     "reencoding": {
         "label": {
             "field": "z",
@@ -325,49 +388,29 @@ render('Census Data Smoothed',
             }
         }
     },
+    "rebin": {
+          "type": "topojson",
+          "url": "us.json",
+          "feature": "states",
+          // "feature": "counties",
+          /*"minfeature": 0,
+          "maxfeature": 3109,*/
+        //  "maxfeature": 49,
+        //    "feature": "counties",
+        //     "minfeature": 0,
+        //   "maxfeature": 3109,
+          "stroke": "rgba(0,0,0,0.25)"
+    },
     "compose": {
-        "mix": "mean",
-        "mixing": "additive"
-    },
-    "rescale": {
-        "type": "log"
-    },
-    "legend": {
-        "labelWidth": 60
-    }
-}, true);
-
-render('Census Data Smoothed',
-{
-    "description": "US Census Synthetic people",
-    "data": {"url": "census.snappy_data.json"},
-    "smooth": {"radius": 1},
-    "reencoding": {
-        "label": {
-            "field": "z",
-            "type": "nominal",
-            "scale": {
-                "domain": ["w", "h", "a", "b", "o"],
-                "range": ["White", "Hispanic", "Asian", "Black", "Other"]
-            }
-        },
-        "color": {
-            "field": "z",
-            "type": "nominal",
-            "scale": {
-                "range": ["Blue", "Orange", "Red", "Green", "Brown"]
-            }
+        "mix": "glyph",
+        "glyphSpec": {
+            "template": "bars",
+            "width": 20,
+            "height": 24
         }
     },
-    "compose": {
-        "mix": "mean",
-        "mixing": "additive"
-    },
     "rescale": {
         "type": "log"
-    },
-    "legend": {
-        "labelWidth": 60
     }
 }, true);
 

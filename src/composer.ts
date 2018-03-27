@@ -92,7 +92,7 @@ export default class Composer {
         return buffer.colorScale.map(value);
     }
 
-    static bars(buffers:DerivedBuffer[], values:number[],
+    static bars(buffers:DerivedBuffer[], names:string[], values:number[],
         options:{
             width?:number,
             height?:number,
@@ -145,14 +145,14 @@ export default class Composer {
                 }
             },
             width: options.width || 30,
-            height: options.height ? options.height : 30,
+            height: options.height || 30,
             padding: 0
         };
 
         return extract(spec);
     }
 
-    static punchcard(buffers:DerivedBuffer[], values:number[],
+    static punchcard(buffers:DerivedBuffer[], names:string[], values:number[],
         options:{
             width?:number,
             height?:number,
@@ -168,7 +168,6 @@ export default class Composer {
         let width = options.width || 30;
         let height = options.height || 30;
 
-        let names = buffers.map(b => b.originalDataBuffer.name);
         let colors = buffers.map(b => (b.color || Color.Blue).css());
 
         let factor = options.factor || 8;
@@ -177,7 +176,7 @@ export default class Composer {
         // depending on the size of a tile and the number of circles in a tile.
 
         let data = buffers.map((buffer, i) => {return {
-            name: buffer.originalDataBuffer.name,
+            name: names[i],
             value: values[i],
             row: Math.floor(i / cols),
             col: i % cols,
@@ -310,7 +309,7 @@ export default class Composer {
                 //if (j==0) console.log(tile.dataValues[obj.index]+" = >"+buffers[obj.index].colorScale.map(tile.dataValues[obj.index]).css())
                 ctx.strokeStyle = buffer.colorScale.map(dataValue).css();
             }else
-                ctx.strokeStyle = Color.Category10[i].css();
+                ctx.strokeStyle = buffer.color!.css();
 
             if(typeof widthprop === "string" && widthprop=="none"){
               ctx.lineWidth = thickness;
