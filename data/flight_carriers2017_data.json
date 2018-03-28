@@ -1,0 +1,85 @@
+{
+  "source": {
+    "filename": "flight_carriers2017.csv",
+    "type": "csv",
+    "rows": 2404389
+  },
+  "encoding": {
+    "x": {
+      "field": "AIR_TIME",
+      "type": "quantitative",
+      "bin": {
+        "maxbins": 256
+      },
+      "aggregate": "count",
+      "scale": {
+        "domain": [
+          -0.0,
+          420.0
+        ],
+        "range": [
+          0,
+          256
+        ]
+      }
+    },
+    "y": {
+      "field": "DISTANCE",
+      "type": "quantitative",
+      "bin": {
+        "maxbins": 256
+      },
+      "aggregate": "count",
+      "scale": {
+        "domain": [
+          1.4025974025974026,
+          12.064814814814815
+        ],
+        "range": [
+          0,
+          256
+        ]
+      }
+    },
+    "z": {
+      "field": "CARRIER",
+      "type": "nominal",
+      "scale": {
+        "domain": [
+          "AA",
+          "DL",
+          "UA"
+        ]
+      }
+    }
+  },
+  "buffers": [
+    {
+      "url": "flight_carriers2017_cat_AA.json",
+      "count": 896348,
+      "value": "AA",
+      "range": [
+        0,
+        1289
+      ]
+    },
+    {
+      "url": "flight_carriers2017_cat_DL.json",
+      "count": 923560,
+      "value": "DL",
+      "range": [
+        0,
+        2105
+      ]
+    },
+    {
+      "url": "flight_carriers2017_cat_UA.json",
+      "count": 584481,
+      "value": "UA",
+      "range": [
+        0,
+        1092
+      ]
+    }
+  ]
+}

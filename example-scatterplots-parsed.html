@@ -82,14 +82,14 @@ render('US Flight delays vs Distance for every day of the week - January 2017',
             "type": "nominal",
             "scale": {
                 "domain": ["1", "2", "3", "4", "5", "6", "7"],
-                "range": ["Sunday", "Monday", "Tuesday", "Wednesday", "Thrusday", "Friday", "Saturday"]
+                "range": ["Monday", "Tuesday", "Wednesday", "Thrusday", "Friday", "Saturday", "Sunday"]
             }
         },
         "color": {
             "field": "z",
             "type": "nominal",
             "scale": {
-                "range": ["Red", "Pink", "Blue", "Brown", "Green", "Purple", "Orange"]
+                "range": ["Red", "Orange", "Pink", "Blue", "Brown", "Green", "Purple"]
             }
         }
     },
@@ -99,10 +99,10 @@ render('US Flight delays vs Distance for every day of the week - January 2017',
          "mixing": "additive"
      },
      "rescale": {
-         "type": "sqrt"
+         "type": "cbrt"
      },
      "contour": {
-      "blur": 3,
+      "blur": 2,
       "lineWidth":1,
       "colProp":false,
       "stroke": 4
@@ -121,14 +121,14 @@ render('US Flight delays vs Distance for every day of the week - January 2017',
             "type": "nominal",
             "scale": {
                 "domain": ["1", "2", "3", "4", "5", "6", "7"],
-                "range": ["Sunday", "Monday", "Tuesday", "Wednesday", "Thrusday", "Friday", "Saturday"]
+                "range": ["Monday", "Tuesday", "Wednesday", "Thrusday", "Friday", "Saturday", "Sunday"]
             }
         },
         "color": {
             "field": "z",
             "type": "nominal",
             "scale": {
-                "range": ["Red", "Pink", "Blue", "Brown", "Green", "Purple", "Orange"]
+                "range": ["Red", "Orange", "Pink", "Blue", "Brown", "Green", "Purple"]
             }
         }
     },
@@ -138,7 +138,7 @@ render('US Flight delays vs Distance for every day of the week - January 2017',
          "mixing": "additive"
      },
      "rescale": {
-         "type": "sqrt"
+         "type": "cbrt"
      },
     "rebin": {
                "type": "voronoi",
@@ -154,35 +154,66 @@ render('US Flight delays vs Distance for every day of the week - January 2017',
 
 }, true);
 
-render('US Flight delays vs Distance for every day of the week - January 2017',
+render('US Flight air time vs speed for 3 main carriers = 2 Fekete items',
 {
-    "description": "US Flight delays vs Distance for every day of the week",
-    "data": {"url": "223029297_T_ONTIME_1701_data.json"},
+    "description": "US Flight Distance for every day of the week",
+    "data": {"url": "flight_carriers2017_data.json"},
     "smooth": {},
     "reencoding": {
-        "label": {
-            "field": "z",
-            "type": "nominal",
-            "scale": {
-                "domain": ["1", "2", "3", "4", "5", "6", "7"],
-                "range": ["Sunday", "Monday", "Tuesday", "Wednesday", "Thrusday", "Friday", "Saturday"]
-            }
-        },
+
         "color": {
             "field": "z",
             "type": "nominal",
             "scale": {
-                "range": ["Red", "Pink", "Blue", "Brown", "Green", "Purple", "Orange"]
+                "range": ["Red", "Orange", "Pink", "Blue", "Brown", "Green", "Purple"]
             }
         }
     },
     "compose": {
-         "mix": "weavingtri",
-         "size": 8
+         "mix": "max",
+         "mixing": "additive"
      },
      "rescale": {
-         "type": "equidepth"
+         "type": "cbrt"
      },
+     "contour": {
+      "blur": 2,
+      "lineWidth":1,
+      "colProp":false,
+      "stroke": 4
+    }
+
+
+}, false);
+
+render('US Flight delays vs Speed for every group of delays = 5.6 Fekete items',
+{
+    "description": "US Flight delays vs Distance for every day of the week",
+    "data": {"url": "flight_delays2017_data.json"},
+    "smooth": {},
+    "reencoding": {
+
+        "color": {
+            "field": "z",
+            "type": "nominal",
+            "scale": {
+                "range": ["Red", "Orange", "Pink", "Blue", "Brown", "Green", "Purple"]
+            }
+        }
+    },
+    "compose": {
+         "mix": "max",
+         "mixing": "additive"
+     },
+     "rescale": {
+         "type": "cbrt"
+     },
+     "contour": {
+      "blur": 2,
+      "lineWidth":1,
+      "colProp":false,
+      "stroke": 4
+    }
 
 
 }, true);
