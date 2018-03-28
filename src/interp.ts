@@ -529,11 +529,7 @@ export default class Interpreter {
                 this.derivedBuffers.forEach((derivedBuffer, k) => {
                     let loop0 = derivedBuffer.originalDataBuffer.max();
 
-                    // TODO: check if this is correct
-                    // jaemin: the "blur" method is destructive, not returning a new derivedBuffer instance
-                    derivedBuffer.originalDataBuffer.blur(this.contour.blur);
-
-                    this.blurredBuffers[k] = derivedBuffer;
+                    this.blurredBuffers[k] = derivedBuffer.blur(this.contour.blur);
                     let loop1 = this.blurredBuffers[k].originalDataBuffer.max();
                     minStretch = Math.min(minStretch, loop0/loop1);
                 });

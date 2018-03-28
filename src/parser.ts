@@ -203,7 +203,7 @@ export class RebinSpec {
     topojson?: any;
     points?: NumPair[];
     stroke?: string; // color
-    aggregation: "max"|"mean"|"sum"|"min"= "mean";
+    aggregation: "max"|"mean"|"sum"|"min"= "max";
 
     constructor(options?: RebinSpec) {
         if(options) Object.assign(this, options);

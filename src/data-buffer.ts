@@ -9,7 +9,6 @@ export default class DataBuffer {
 
     constructor(public name:string, public width:number, public height:number,
                 values?:number[][]) {
-        // = util.create2D<number>(width, height, 0)) {
         let buffer = new ArrayBuffer(width*height*4); // sizeof float32
         this.values = Array<Float32Array>(height);
         for (let i = 0; i < height; i++) {
@@ -27,6 +26,19 @@ export default class DataBuffer {
         //return Array.prototype.slice.call(new Float32Array(this.values[0].buffer));
         // Fool the type system of TS that prevents returning the Float32Array directly
         return <number[]><any>new Float32Array(this.buffer());
+    }
+
+    copy() {
+        return new DataBuffer(this.name, this.width, this.height, <any>this.values);
+    }
+        
+    equals(other:DataBuffer) {
+        let b1 = this.linearize();
+        let b2 = other.linearize();
+        if (b1.length != b2.length) return false;
+        for (let i = 0; i < b1.length; i++) 
+            if (b1[i] != b2[i]) return false;
+        return true;
     }
 
     min() {
@@ -49,7 +61,7 @@ export default class DataBuffer {
     blur(radius:number = 3): DataBuffer {
         if (radius==0) return this;
         // Linearize the array
-        let source = this.linearize(),
+        let source = this.linearize().slice(0), // copy
             dest = new DataBuffer(this.name, this.width, this.height),
             target = <number[]><any>new Float32Array(dest.buffer());
         GaussianBlur(source, target, this.width, this.height, radius);
