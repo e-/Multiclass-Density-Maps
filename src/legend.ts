@@ -156,10 +156,15 @@ function colorRamps(
         markerValues = d3.range(n).map(i => tickValues[0] + (tickValues[1] - tickValues[0]) * (i + 1) / (n + 1));
     }
     else if(interp.rescale!.type === "equidepth") { // discrete such as equidepth
+        let interpolator = derivedBuffers[0].colorScale.interpolator;
         gradientFunc = equiDepthColorMap;
 
-        tickValues = [derivedBuffers[0].colorScale.interpolator.domain[0]]
-            .concat((interp.scale as Scale.EquiDepthScale).bounds);
+        tickValues = [interpolator.domain[0],
+                      Math.floor(interpolator.invmap(0.25)),
+                      Math.floor(interpolator.invmap(0.50)),
+                      Math.floor(interpolator.invmap(0.75)),
+                      interpolator.domain[1]];
+              //.concat((interp.scale as Scale.EquiDepthScale).bounds);
 
         colormapScale = (v, i) => colorMapWidth / (tickValues.length - 1) * i;
         markerValues = [];
