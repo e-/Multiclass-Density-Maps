@@ -15,13 +15,13 @@ unzip census.snappy.parq.zip
 python parq2json.py census.snappy.parq easting northing race
 python json2png.py census.snappy*.json
 ```
-Files: 
+Files:
 - census.snappy_a.json.gz
 - census.snappy_b.json.gz
 - census.snappy_h.json.gz
 - census.snappy_o.json.gz
 - census.snappy_w.json.gz
- 
+
 Rendition:
 - census.snappy_a.png
 - census.snappy_b.png
@@ -54,7 +54,7 @@ python json2png.py nyc_crime2*.json
 gzip -9 nyc_crime2.json
 ```
 
-Files: 
+Files:
 - nyc_crime2_BURGLARY.json.gz
 - nyc_crime2_FELONY ASSAULT.json.gz
 - nyc_crime2_GRAND LARCENY.json.gz
@@ -71,7 +71,7 @@ url: http://yaroslavvb.blogspot.fr/2011/09/notmnist-dataset.html
 Dataset with about 530,000 small images (28x28 grey pixels) representing characters A-J using various fonts.
 
 Donwload the data at http://yaroslavvb.com/upload/notMNIST/notMNIST_large.tar.gz
-Uncompress and transform: 
+Uncompress and transform:
 
 ```bash
 gunzip notMNIST_large.tar.gz
@@ -101,8 +101,11 @@ df_2d['label'] = df_labels['label']
 df_2d.to_csv('notMNIST_xylab.csv', sep=',')
 exit
 
+# install some python libraries
+conda install pyproj
+
 # run csv2json.py to get the data buffers
-python $MULTICLASSPLOTS/data/csv2json notMNIST_xylab.csv  --width 1024 x y label
+python $MULTICLASSPLOTS/data/csv2json.py notMNIST_xylab.csv  --width 1024 x y label
 # produces notMNIST_xylab_data.json and notMNIST_xylab_cat_[A-J].json
 
 ```
