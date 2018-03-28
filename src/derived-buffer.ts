@@ -30,6 +30,7 @@ export default class DerivedBuffer {
     }
 
     blur( blur:number = 3): DerivedBuffer {
+        if (blur == 0) return this;
         let blurred:DataBuffer    = this.originalDataBuffer.blur(blur);
         let derivedBlurred        = new DerivedBuffer(blurred);
         derivedBlurred.mask       = this.mask;
