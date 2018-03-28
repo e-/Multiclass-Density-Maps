@@ -45,12 +45,23 @@ export default class Composer {
         let ret = new Color(0, 0, 0, 0);
 
         values.forEach((value, i) => {
-          sum += value;
-          ret = ret.add(buffers[i].colorScale.map(value).dissolve(value));
+            if (value != 0) {
+                let color = buffers[i].colorScale.map(value);
+                ret.r += color.r * value;
+                ret.g += color.g * value;
+                ret.b += color.b * value;
+                ret.a += color.a * value;
+                sum += value;
+            }
         });
 
-        if(sum > 0)
-          ret = ret.dissolve(1 / sum); // TODO: is this correct?
+        if(sum > 0) {
+            ret.r /= sum;
+            ret.g /= sum;
+            ret.b /= sum;
+            ret.a /= sum;
+        }
+        //if (! ret.valid())console.log("Invalid color "+ret);
 
         return ret;
     }
@@ -73,13 +84,11 @@ export default class Composer {
         values.forEach((value, i) => {
             let color = buffers[i].colorScale.map(value);
 
-            ret = new Color(
-                ret.r * color.r,
-                ret.g * color.g,
-                ret.b * color.b,
-                ret.a * color.a
-            );
-        })
+            ret.r *= color.r;
+            ret.g *= color.g,
+            ret.b *= color.b;
+            ret.a *= color.a;
+        });
 
         return ret;
     }

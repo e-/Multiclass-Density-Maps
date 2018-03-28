@@ -19,6 +19,20 @@ export default class Color {
         );
     }
 
+    valid() {
+        if (isNaN(this.r) ||
+            isNaN(this.g) ||
+            isNaN(this.b) ||
+            isNaN(this.a))
+            return false;
+        if (this.r < 0 || this.r > 1 ||
+            this.g < 0 || this.g > 1 ||
+            this.b < 0 || this.b > 1 ||
+            this.a < 0 || this.a > 1)
+            return false;
+        return true;
+    }
+
     clone() {
         return new Color(this.r, this.g, this.b, this.a);
     }

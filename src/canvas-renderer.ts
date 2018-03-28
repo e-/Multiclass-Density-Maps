@@ -85,8 +85,9 @@ export default class CanvasRenderer {
         var i = 0;
 
         for (let r = 0; r < image.height; r++) {
+            let row = image.pixels[r];
             for (let c = 0; c < image.width; c++) {
-                let p = image.pixels[r][c],
+                let p = row[c],
                     a = p.a;
                 if (a == 0) {
                     data[i++] = 0;
