@@ -56,12 +56,9 @@ export default class Composer {
         });
 
         if(sum > 0) {
-            ret.r /= sum;
-            ret.g /= sum;
-            ret.b /= sum;
-            ret.a /= sum;
+            ret.rdissolve(1/sum);
         }
-        //if (! ret.valid())console.log("Invalid color "+ret);
+        //if (! ret.isValid())console.log("Invalid color "+ret);
 
         return ret;
     }
@@ -71,7 +68,7 @@ export default class Composer {
         let ret = new Color(0, 0, 0, 1);
 
         values.forEach((value, i) => {
-          ret = ret.add(buffers[i].colorScale.map(value));
+          ret.radd(buffers[i].colorScale.map(value));
         });
 
         //ret = ret.clamp();

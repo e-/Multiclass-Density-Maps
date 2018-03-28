@@ -121,14 +121,14 @@ export class EquiDepthScale implements ScaleTrait {
     }
 
     map(value:number) {
-        if(value < this.domain[0] || value > this.domain[1])
-            return NaN;
 
         // linear search is faster than binary search for that simple case
         // https://hannes.muehleisen.org/damon2017-simd-imprints.pdf
         let min = this.range[0];
-
-        if (value == 0) return min; // shortcut
+        if (value <= this.domain[0])
+            return min;
+        if (value >= this.domain[1])
+            return this.range[1];
 
         let n   = this.level-1,
             w   = this.range[1] - min;

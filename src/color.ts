@@ -19,7 +19,7 @@ export default class Color {
         );
     }
 
-    valid() {
+    isValid() {
         if (isNaN(this.r) ||
             isNaN(this.g) ||
             isNaN(this.b) ||
@@ -51,6 +51,13 @@ export default class Color {
 
     dissolve(v:number) {
         return new Color(this.r * v, this.g * v, this.b * v, this.a * v);
+    }
+
+    rdissolve(v:number) {
+        this.r *= v;
+        this.g *= v;
+        this.b *= v;
+        this.a *= v;
     }
 
     toString(){
@@ -104,11 +111,18 @@ export default class Color {
 
     add(c:Color) {
         return new Color(
-        this.r + c.r,
-        this.g + c.g,
-        this.b + c.b,
-        this.a + c.a
+            this.r + c.r,
+            this.g + c.g,
+            this.b + c.b,
+            this.a + c.a
         );
+    }
+
+    radd(c:Color) {
+        this.r += c.r;
+        this.g += c.g;
+        this.b += c.b;
+        this.a += c.a;
     }
 
     darker() {
