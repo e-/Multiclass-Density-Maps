@@ -258,7 +258,7 @@ render('Census Data Smoothed',
     }
 }, true);
 
-render('Voronoi Tiling',
+render('Voronoi Tiling (Weaving)',
        {
            "description": "multivariate normal data",
            "data": {"url": "mn_data.json"},
@@ -283,7 +283,23 @@ render('Voronoi Tiling(dot densities)',
                "stroke": "black"
            },
            "compose": {
-               "mix": "dotdensity"
+               "mix": "dotdensity",
+               "size" : 3
+           }
+       });
+
+render('Hexa Tiling(dot densities)',
+       {
+           "description": "multivariate normal data",
+           "data": {"url": "mn_data.json"},
+           "rebin": {
+               "type": "hexa",
+               "size": 16,
+               "stroke": "rgba(0,0,0,0.3)"
+           },
+           "compose": {
+               "mix": "dotdensity",
+               "size":1
            }
        });
 render('Voronoi Tiling (Multiplicative)',{
