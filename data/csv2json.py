@@ -8,7 +8,7 @@ import pyproj
 
 def csv_to_databuffers(filename, x, y, category, width=512, height=None,
                        xmin=None, ymin=None, xmax=None, ymax=None,
-                       projection=None):
+                       projection=None, catnames=False):
     proj = lambda x, y, inverse :  (x, y)
     root, ext = os.path.splitext(filename)
     if ext != '.csv':
@@ -58,6 +58,8 @@ def csv_to_databuffers(filename, x, y, category, width=512, height=None,
             bins = [xedges, yedges]
         if isinstance(cat, str):
             key = cat
+        if catnames:
+            key = str(cat)
         else:
             key = i+1
         histograms[key] = histo
@@ -135,6 +137,8 @@ if __name__ == '__main__':
     parser.add_argument('x', help='x column name')
     parser.add_argument('y', help='y column name')
     parser.add_argument('category', help='category column name')
+    parser.add_argument('--catnames', dest='catnames', action='store_false',
+                        help='Force category names instead of integers')
     parser.add_argument('--width', type=int, default=512, nargs='?',
                         help='width of the binned image')
     parser.add_argument('--height', type=int, default=None, nargs='?',
@@ -154,4 +158,4 @@ if __name__ == '__main__':
     csv_to_databuffers(args.infile, args.x, args.y, args.category,
                        width=args.width, height=args.height,
                        xmin=args.xmin, xmax=args.xmax, ymin=args.ymin, ymax=args.ymax,
-                       projection=args.projection)
+                       projection=args.projection, catnames=args.catnames)
