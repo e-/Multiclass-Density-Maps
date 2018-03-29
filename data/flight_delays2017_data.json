@@ -1,0 +1,105 @@
+{
+  "source": {
+    "filename": "flight_delays2017.csv",
+    "type": "csv",
+    "rows": 2001029
+  },
+  "encoding": {
+    "x": {
+      "field": "DISTANCE",
+      "type": "quantitative",
+      "bin": {
+        "maxbins": 256
+      },
+      "aggregate": "count",
+      "scale": {
+        "domain": [
+          -0.0,
+          3500.0
+        ],
+        "range": [
+          0,
+          256
+        ]
+      }
+    },
+    "y": {
+      "field": "AIR_TIME",
+      "type": "quantitative",
+      "bin": {
+        "maxbins": 256
+      },
+      "aggregate": "count",
+      "scale": {
+        "domain": [
+          0.7263157894736842,
+          13.265895953757225
+        ],
+        "range": [
+          0,
+          256
+        ]
+      }
+    },
+    "z": {
+      "field": "ARR_DELAY",
+      "type": "nominal",
+      "scale": {
+        "domain": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ]
+      }
+    }
+  },
+  "buffers": [
+    {
+      "url": "flight_delays2017_cat_1.json",
+      "count": 1514613,
+      "value": 1,
+      "range": [
+        0,
+        2328
+      ]
+    },
+    {
+      "url": "flight_delays2017_cat_2.json",
+      "count": 276076,
+      "value": 2,
+      "range": [
+        0,
+        517
+      ]
+    },
+    {
+      "url": "flight_delays2017_cat_3.json",
+      "count": 116142,
+      "value": 3,
+      "range": [
+        0,
+        205
+      ]
+    },
+    {
+      "url": "flight_delays2017_cat_4.json",
+      "count": 60449,
+      "value": 4,
+      "range": [
+        0,
+        105
+      ]
+    },
+    {
+      "url": "flight_delays2017_cat_5.json",
+      "count": 33749,
+      "value": 5,
+      "range": [
+        0,
+        47
+      ]
+    }
+  ]
+}

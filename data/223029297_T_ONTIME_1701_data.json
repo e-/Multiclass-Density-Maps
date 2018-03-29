@@ -1,0 +1,125 @@
+{
+  "source": {
+    "filename": "223029297_T_ONTIME_1701.csv",
+    "type": "csv",
+    "rows": 450017
+  },
+  "encoding": {
+    "x": {
+      "field": "ARR_DELAY",
+      "type": "quantitative",
+      "bin": {
+        "maxbins": 256
+      },
+      "aggregate": "count",
+      "scale": {
+        "domain": [
+          -98.0,
+          180.0
+        ],
+        "range": [
+          0,
+          256
+        ]
+      }
+    },
+    "y": {
+      "field": "DISTANCE",
+      "type": "quantitative",
+      "bin": {
+        "maxbins": 256
+      },
+      "aggregate": "count",
+      "scale": {
+        "domain": [
+          31.0,
+          3500.0
+        ],
+        "range": [
+          0,
+          256
+        ]
+      }
+    },
+    "z": {
+      "field": "DAY_OF_WEEK",
+      "type": "nominal",
+      "scale": {
+        "domain": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7
+        ]
+      }
+    }
+  },
+  "buffers": [
+    {
+      "url": "223029297_T_ONTIME_1701_cat_1.json",
+      "count": 77024,
+      "value": 1,
+      "range": [
+        0,
+        104
+      ]
+    },
+    {
+      "url": "223029297_T_ONTIME_1701_cat_2.json",
+      "count": 73714,
+      "value": 2,
+      "range": [
+        0,
+        124
+      ]
+    },
+    {
+      "url": "223029297_T_ONTIME_1701_cat_3.json",
+      "count": 59306,
+      "value": 3,
+      "range": [
+        0,
+        111
+      ]
+    },
+    {
+      "url": "223029297_T_ONTIME_1701_cat_4.json",
+      "count": 61154,
+      "value": 4,
+      "range": [
+        0,
+        95
+      ]
+    },
+    {
+      "url": "223029297_T_ONTIME_1701_cat_5.json",
+      "count": 61396,
+      "value": 5,
+      "range": [
+        0,
+        92
+      ]
+    },
+    {
+      "url": "223029297_T_ONTIME_1701_cat_6.json",
+      "count": 47480,
+      "value": 6,
+      "range": [
+        0,
+        59
+      ]
+    },
+    {
+      "url": "223029297_T_ONTIME_1701_cat_7.json",
+      "count": 69943,
+      "value": 7,
+      "range": [
+        0,
+        89
+      ]
+    }
+  ]
+}
