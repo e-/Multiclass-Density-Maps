@@ -238,6 +238,18 @@ export default class Interpreter {
                                              sites);
             }
         }
+        else if (this.rebin.type == "hexa") {
+                let size = this.rebin.size || 10;
+                let points:[number, number][] = [];
+                for (let j=0; j<this.height; j+=size/Math.sqrt(2))
+                  for (let i=((j/(size/Math.sqrt(2)))%2)*(size/2); i<this.width+size; i+=size)
+                    points.push([i, j]);
+
+                tiles = Tiling.voronoiTiling(this.width,
+                                             this.height,
+                                             0, points);
+
+        }
         if (this.rebin != undefined && this.rebin.stroke)
             this.maskStroke = this.rebin.stroke;
         this.tiles = tiles;
