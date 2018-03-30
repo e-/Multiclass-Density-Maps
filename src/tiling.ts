@@ -6,6 +6,7 @@ import * as D3Geo from 'd3-geo';
 import * as topo from 'topojson';
 import * as rn from 'random-seed';
 import proj4 from 'proj4';
+import {deg2rad, rad2deg} from './util';
 
 export function pixelTiling (width:number, height:number) {
   let tiles:Tile[] = [];
@@ -21,9 +22,6 @@ export function pixelTiling (width:number, height:number) {
 
   return tiles;
 }
-
-function degreesToRadians(degrees:number) { return degrees * Math.PI / 180; }
-function radiansToDegrees(radians:number) { return radians * 180 / Math.PI; }
 
 export function topojsonTiling(width:number, height:number,
                                wholetopojson:any,
@@ -42,7 +40,7 @@ export function topojsonTiling(width:number, height:number,
     console.log('Searching for projection '+projectionName);
     let p4 = proj4(projectionName);
     function project(lambda:number, phi:number) {
-      return p4.forward([lambda, phi].map(radiansToDegrees));
+      return p4.forward([lambda, phi].map(rad2deg));
     }
 
     // project.invert = (x:number, y:number) =>

@@ -126,3 +126,7 @@ export function get(url: string, responseType?:string): Promise<any> {
 
 
 export { default as largeRectInPoly } from './largest-rect-in-poly';
+
+
+export function deg2rad(degrees:number) { return degrees * Math.PI / 180; }
+export function rad2deg(radians:number) { return radians * 180 / Math.PI; }
