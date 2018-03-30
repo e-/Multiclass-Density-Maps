@@ -424,8 +424,10 @@ export default class Interpreter {
             }
         }
         else if (this.compose.mix === "propline") {
-            for(let tile of this.tiles) {let hatch = Composer.hatch(tile, this.derivedBuffers, tile.dataValues, this.compose.size,
-                                           this.compose.widthprop, this.compose.colprop);
+            for(let tile of this.tiles) {
+                let hatch = Composer.hatch(tile, this.derivedBuffers, tile.dataValues, this.compose.size,
+                                            this.compose.widthprop, this.compose.colprop);
+
                 this.image[0].render(hatch, tile.center);
             }
         }

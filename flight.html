@@ -363,20 +363,17 @@ render('Flight propline',
            "data": {"url": "flight_delays2017_data.json"},
             "rebin": {
                 "type": "square",
-                "size": 64,
-                "aggregation": "sum",
-                "stroke": "black"
+                "size": 64
             },
         //     "rebin": {
         //        "type": "voronoi",
-        //        "size": 32,
-        //        "stroke": "black"
+        //        "size": 64
         //    },
             "compose": {
                "mix": "propline",
                "size": 10,
-               "widthprop":"percent"
-            //    "colprop":true
+               "widthprop":"percent",
+                // "colprop":true
             },
             "legend": {
                 "title": "CARRIER"
@@ -392,22 +389,22 @@ render('Flight propline',
        });
        
        
-render('Voronoi Tiling + Hatching',
-       {
-           "description": "multivariate normal data",
-           "data": {"url": "flight_delays2017_data.json"},
-           "rebin": {
-               "type": "voronoi",
-               "size": 32,
-               "stroke": "black"
-           },
-           "compose": {
-               "mix": "hatching",
-               "size": 2,
-               "widthprop":1.0,
-               "colprop":false
-           }
-       });
+// render('Voronoi Tiling + Hatching',
+//        {
+//            "description": "multivariate normal data",
+//            "data": {"url": "flight_delays2017_data.json"},
+//            "rebin": {
+//                "type": "voronoi",
+//                "size": 32,
+//                "stroke": "black"
+//            },
+//            "compose": {
+//                "mix": "hatching",
+//                "size": 2,
+//                "widthprop":1.0,
+//                "colprop":false
+//            }
+//        });
 
 render('Voronoi Tiling (glyph - bars)',{
     "description": "multivariate normal data",

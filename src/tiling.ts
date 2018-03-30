@@ -197,15 +197,29 @@ export function voronoiTiling(width:number, height:number,
 
 
 export function rectangularTiling (width:number, height:number, tileWidth:number, tileHeight:number) {
-  let rows = Math.ceil(height / tileHeight);
-  let cols = Math.ceil(width / tileWidth);
-  let tiles:Tile[] = [];
+    let rows = Math.ceil(height / tileHeight);
+    let cols = Math.ceil(width / tileWidth);
+    let tiles:Tile[] = [];
 
-  for(let row = 0; row < rows; row++) {
-    for(let col = 0; col < cols; col++) {
-      tiles.push(new Tile(col * tileWidth, row * tileHeight, new Mask(tileWidth, tileHeight)));
+    for(let row = 0; row < rows; row++) {
+        for(let col = 0; col < cols; col++) {
+            let mask = new Mask(tileWidth, tileHeight);
+            let canvas = mask.getCanvas();
+
+            canvas.width = tileWidth;
+            canvas.height = tileHeight;
+            let ctx = canvas.getContext("2d") as CanvasRenderingContext2D;
+
+            ctx.beginPath();
+            ctx.rect(0, 0, tileWidth, tileHeight);
+            ctx.fillStyle = "red";
+            ctx.fill();
+
+            mask.copyFrom(ctx);
+
+            tiles.push(new Tile(col * tileWidth, row * tileHeight, mask));
+        }
     }
-  }
 
-  return tiles;
+    return tiles;
 }

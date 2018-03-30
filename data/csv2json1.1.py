@@ -4,7 +4,6 @@ import os.path
 import json
 import numpy as np
 import pandas as pd
-import pyproj
 
 def csv_to_databuffers(filename, x, y, category, width=512, height=None,
                        xmin=None, ymin=None, xmax=None, ymax=None,
@@ -23,10 +22,10 @@ def csv_to_databuffers(filename, x, y, category, width=512, height=None,
 
     #df = df[(df[category] > 0 & df[category] < 200 )]
     #df.query('0 <= category <= 240')
-    df = df[(df[category] >= 0) & (df[category] <= 180)]
+    # df = df[(df[category] >= 0) & (df[category] <= 180)]
 
-    df[category] = pd.cut(df[category], 5)
-    df[y] = df[x]/df[y]
+    # df[category] = pd.cut(df[category], 5)
+    # df[y] = df[x]/df[y]
 
     print(df[category][0])
     print(df[category][1])
@@ -42,6 +41,7 @@ def csv_to_databuffers(filename, x, y, category, width=512, height=None,
     description = {'source': {"filename": filename, "type": "csv"}}
     if projection:
         description['projection'] = {"type": projection}
+        import pyproj
         proj = pyproj.Proj(init=projection, preserve_units=True)
 
     if xmin is None:
@@ -117,7 +117,7 @@ def csv_to_databuffers(filename, x, y, category, width=512, height=None,
                   },
               "aggregate": "count",
               "scale": {
-                  "domain": [ymin, ymax],
+                  "domain": [ymax, ymin],
                   "range": [0, height]
                   }
              },
@@ -135,6 +135,7 @@ def csv_to_databuffers(filename, x, y, category, width=512, height=None,
     for (key, histo) in histograms.items():
         histo = histo.T
         histo = np.flipud(histo)
+        histo = histo / np.sum(histo) * 100
         hmin = np.min(histo)
         hmax = np.max(histo)
         outfile = root + '_cat_%s.json'%key

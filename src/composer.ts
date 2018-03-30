@@ -300,10 +300,11 @@ export default class Composer {
                 value: value
             });
         })
-        sorted.sort(function(a, b){return b.value - a.value});
 
         let acc = 0;
-        sorted.forEach(d => {
+
+        sorted.sort(function(a, b){return b.value - a.value})
+        .forEach(d => {
             let dataValue = d.value;
             let i = d.index;
 
