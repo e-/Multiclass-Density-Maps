@@ -15,6 +15,7 @@ import Mask from './mask';
 import * as Weaving from './weaving';
 import LegendBuilder from './legend';
 import * as d3 from 'd3';
+import {translate} from './util';
 
 export default class Interpreter {
     public description?: string;
@@ -51,6 +52,7 @@ export default class Interpreter {
     public xdomain:Parser.NumPair;
     public ydomain:Parser.NumPair;
     public stroke?:Parser.StrokeSpec;
+    public axis?:Parser.AxisSpec;
 
     // d3 name of scale, used for legend
     public d3scale:string = "linear";
@@ -103,6 +105,7 @@ export default class Interpreter {
             this.contour = configuration.contour;
 
         this.stroke = configuration.stroke;
+        this.axis = configuration.axis;
 
         this.geo = configuration.getGeo();
         this.legend = configuration.legend;
@@ -585,9 +588,28 @@ export default class Interpreter {
         if(typeof id === "string") wrapper = <HTMLDivElement>document.getElementById(id);
         else wrapper = id;
 
-        let mapCanvas = document.createElement("canvas");
+        let mapCanvas:HTMLCanvasElement = document.createElement("canvas"),
+            axisSVG:SVGSVGElement = document.createElementNS("http://www.w3.org/2000/svg", "svg");
 
-        wrapper.appendChild(mapCanvas);
+        axisSVG.style.verticalAlign = "top";
+        mapCanvas.style.verticalAlign = "top";
+
+        if(this.axis) {
+            let pack = document.createElement("div");
+
+            pack.style.display = "inline-block";
+            pack.style.position = "relative";
+
+            pack.appendChild(axisSVG);
+            pack.appendChild(mapCanvas);
+
+            pack.style.verticalAlign = "top";
+
+            wrapper.appendChild(pack);
+        }
+        else {
+            wrapper.appendChild(mapCanvas);
+        }
 
         this.setup(mapCanvas, forcedWidth, forcedHeight);
         this.renderMap(mapCanvas);
@@ -598,7 +620,56 @@ export default class Interpreter {
             LegendBuilder(legendSVG, this);
         }
 
+        if(this.axis) {
+            this.renderAxis(mapCanvas, axisSVG);
+        }
+
         if(this.stroke) this.renderStroke(mapCanvas);
+    }
+
+    private renderAxis(map:HTMLCanvasElement, native:SVGSVGElement) {
+        let svg:any = d3.select(native);
+        let margin = {
+            left: this.axis!.marginLeft,
+            bottom: this.axis!.marginBottom,
+            right: this.axis!.marginRight,
+            top: this.axis!.marginTop
+        };
+
+        map.style.position = "absolute";
+        map.style.left = margin.left + "px";
+        map.style.top = margin.top + "px";
+
+        svg
+            .attr('width', this.width + margin.left + margin.right)
+            .attr('height', this.height + margin.top + margin.bottom);
+
+        let xAxisG = svg.append('g').attr('transform', translate(margin.left, margin.top + this.height));
+        let x = d3.scaleLinear().domain(this.xdomain).range([0, this.width]);
+        xAxisG.call(d3.axisBottom(x));
+
+        let yAxisG = svg.append('g').attr('transform', translate(margin.left, margin.top));
+        let y = d3.scaleLinear().domain(this.ydomain).range([0, this.height]);
+        yAxisG.call(d3.axisLeft(y));
+
+
+        svg.append('text')
+            .attr('transform', translate(this.width / 2 + margin.left, margin.top + this.height + margin.bottom))
+            .style('font-size', '11px')
+            .style('font-family', 'sans-serif')
+            .attr('text-anchor', 'middle')
+            .attr('dy', '-.5em')
+            .style('font-weight', 'bold')
+            .text(this.dataSpec.encoding!.x.field)
+
+        svg.append('text')
+            .attr("transform", translate(0, margin.top + this.height / 2) + "rotate(-90)")
+            .attr("dy", ".71em")
+            .style('font-size', '11px')
+            .style('font-family', 'sans-serif')
+            .style("text-anchor", "middle")
+            .style('font-weight', 'bold')
+            .text(this.dataSpec.encoding!.y.field);
     }
 
     private renderStroke(canvas:HTMLCanvasElement | string)

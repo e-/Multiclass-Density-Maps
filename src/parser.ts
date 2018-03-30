@@ -279,6 +279,11 @@ export class StrokeSpec {
 }
 
 export class AxisSpec {
+    marginLeft:number = 50;
+    marginBottom:number = 40;
+    marginRight:number = 10;
+    marginTop:number = 10;
+
     constructor(options?: AxisSpec) {
         if(options) Object.assign(this, options);
     }
