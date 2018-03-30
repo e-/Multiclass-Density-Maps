@@ -132,7 +132,7 @@ export default class Interpreter {
         else if (this.rescale.type === "log")
             this.scale = new Scale.LogScale([1, maxCount], [0, 1]);
         else if (this.rescale.type === "equidepth") {
-            let equidepth = new Scale.EquiDepthScale([1, maxCount], [0, 1], this.rescale.levels);
+            let equidepth = new Scale.EquiDepthScale([0, maxCount], [0, 1], this.rescale.levels);
             for (let tile of this.tiles)
                 equidepth.addPoints(tile.dataValues);
             equidepth.computeBounds();
@@ -625,13 +625,13 @@ export default class Interpreter {
         }
 
         if(this.axis) {
-            this.renderAxis(mapCanvas, axisSVG);
+            this.renderAxis(mapCanvas, axisSVG, forcedWidth, forcedHeight);
         }
 
         if(this.stroke) this.renderStroke(mapCanvas);
     }
 
-    private renderAxis(map:HTMLCanvasElement, native:SVGSVGElement) {
+    private renderAxis(map:HTMLCanvasElement, native:SVGSVGElement, forcedWidth?:number, forcedHeight?:number) {
         let svg:any = d3.select(native);
         let margin = {
             left: this.axis!.marginLeft,
@@ -644,21 +644,24 @@ export default class Interpreter {
         map.style.left = margin.left + "px";
         map.style.top = margin.top + "px";
 
-        svg
-            .attr('width', this.width + margin.left + margin.right)
-            .attr('height', this.height + margin.top + margin.bottom);
+        let width = forcedWidth || this.width;
+        let height = forcedHeight || this.height;
 
-        let xAxisG = svg.append('g').attr('transform', translate(margin.left, margin.top + this.height));
-        let x = d3.scaleLinear().domain(this.xdomain).range([0, this.width]);
+        svg
+            .attr('width', width + margin.left + margin.right)
+            .attr('height', height + margin.top + margin.bottom);
+
+        let xAxisG = svg.append('g').attr('transform', translate(margin.left, margin.top + height));
+        let x = d3.scaleLinear().domain(this.xdomain).range([0, width]);
         xAxisG.call(d3.axisBottom(x));
 
         let yAxisG = svg.append('g').attr('transform', translate(margin.left, margin.top));
-        let y = d3.scaleLinear().domain(this.ydomain).range([0, this.height]);
+        let y = d3.scaleLinear().domain(this.ydomain).range([0, height]);
         yAxisG.call(d3.axisLeft(y));
 
 
         svg.append('text')
-            .attr('transform', translate(this.width / 2 + margin.left, margin.top + this.height + margin.bottom))
+            .attr('transform', translate(width / 2 + margin.left, margin.top + height + margin.bottom))
             .style('font-size', '11px')
             .style('font-family', 'sans-serif')
             .attr('text-anchor', 'middle')
@@ -667,7 +670,7 @@ export default class Interpreter {
             .text(this.dataSpec.encoding!.x.field)
 
         svg.append('text')
-            .attr("transform", translate(0, margin.top + this.height / 2) + "rotate(-90)")
+            .attr("transform", translate(0, margin.top + height / 2) + "rotate(-90)")
             .attr("dy", ".71em")
             .attr("y", "3px")
             .style('font-size', '11px')
