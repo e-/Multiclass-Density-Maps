@@ -8,34 +8,55 @@ import pyproj
 
 def csv_to_databuffers(filename, x, y, category, width=512, height=None,
                        xmin=None, ymin=None, xmax=None, ymax=None,
-                       projection=None, catfilter=None):
+                       projection=None, catnames=False, catfilter=None,
+                       catvalmin=None, catvalmax=None, catvalnum=None):
     proj = lambda x, y, inverse :  (x, y)
     root, ext = os.path.splitext(filename)
     if ext != '.csv':
         raise ValueError('Expected a .csv file, got ({}) {}'.format(ext, filename))
 
-    df = pd.read_csv(filename, usecols=[x, y, category])
+    # Make operation on two colums
+    if '/' in x and '/' in y:
+      x1 = x[:x.index('/')]
+      x2 = x[x.index('/')+1:]
+      y1 = y[:y.index('/')]
+      y2 = y[y.index('/')+1:]
+      df = pd.read_csv(filename, usecols=[x1, x2, y1, y2, category])
+      df[x] = df[x1]/df[x2]
+      df[y] = df[y1]/df[y2]
+    if '/' in y:
+      y1 = y[:y.index('/')]
+      y2 = y[y.index('/')+1:]
+      df = pd.read_csv(filename, usecols=[x, y1, y2, category])
+      df[y] = df[y1]/df[y2]
+
+    elif '/' in x:
+      x1 = x[:x.index('/')]
+      x2 = x[x.index('/')+1:]
+      df = pd.read_csv(filename, usecols=[x1, x2, y, category])
+      df[x] = df[x1]/df[x2]
+
+    else :
+      df = pd.read_csv(filename, usecols=[x, y, category])
 
     # filter the categories
     if catfilter:
-      print("do filtering")
       df = df[df[category].isin( catfilter.split(','))] #filter categories
 
-    #df = df[(df[category] > 0 & df[category] < 200 )]
-    #df.query('0 <= category <= 240')
-    df = df[(df[category] >= 0) & (df[category] <= 180)]
+    print(catvalmin)
+    print(catvalmax)
 
-    df[category] = pd.cut(df[category], 5)
-    df[y] = df[x]/df[y]
+    # transform a numerical data into categories
+    if catvalnum:
+      if catvalmin and catvalmax:
+        df = df[(df[category] >= float(catvalmin)) & (df[category] <= float(catvalmax))]
+      elif catvalmin:
+        df = df[(df[category] >= float(catvalmin))]
+      elif catvalmax:
+        df = df[(df[category] <= float(catvalmax))]
 
-    print(df[category][0])
-    print(df[category][1])
-    print(df[category][2])
-    print(df[category][3])
-    print(df[category][4])
-    print(df[category][5])
-    print(df[category][6])
-    print("")
+      df[category] = pd.cut(df[category], int(catvalnum))
+
 
 
     df[category] = df[category].astype("category")
@@ -84,6 +105,8 @@ def csv_to_databuffers(filename, x, y, category, width=512, height=None,
             bins = [xedges, yedges]
         if isinstance(cat, str):
             key = cat
+        if catnames:
+            key = str(cat)
         else:
             key = i+1
         histograms[key] = histo
@@ -161,6 +184,8 @@ if __name__ == '__main__':
     parser.add_argument('x', help='x column name')
     parser.add_argument('y', help='y column name')
     parser.add_argument('category', help='category column name')
+    parser.add_argument('--catnames', dest='catnames', action='store_false',
+                        help='Force category names instead of integers')
     parser.add_argument('--width', type=int, default=512, nargs='?',
                         help='width of the binned image')
     parser.add_argument('--height', type=int, default=None, nargs='?',
@@ -178,9 +203,17 @@ if __name__ == '__main__':
     parser.add_argument('--catfilter', default=None, nargs='?',
                         help='comma separated list of categories to keep (non listed categories are discarded)')
 
+    parser.add_argument('--catvalnum', default=None, nargs='?',
+                        help='how many categories are produced from numbers)')
+    parser.add_argument('--catvalmin', default=None, nargs='?',
+                        help='min of values before turning them into categories)')
+    parser.add_argument('--catvalmax', default=None, nargs='?',
+                        help='max of values before turning them into categories')
+
     args = parser.parse_args()
     print('args: %s'%args)
     csv_to_databuffers(args.infile, args.x, args.y, args.category,
                        width=args.width, height=args.height,
                        xmin=args.xmin, xmax=args.xmax, ymin=args.ymin, ymax=args.ymax,
-                       projection=args.projection, catfilter=args.catfilter)
+                       projection=args.projection, catfilter=args.catfilter,
+                       catvalnum=args.catvalnum, catvalmin=args.catvalmin, catvalmax=args.catvalmax)
