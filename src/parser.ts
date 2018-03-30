@@ -276,11 +276,17 @@ export class StrokeSpec {
     }
 }
 
+export interface AxisEncodingSpec {
+    title?:string;
+}
+
 export class AxisSpec {
     marginLeft:number = 50;
     marginBottom:number = 40;
     marginRight:number = 15;
     marginTop:number = 10;
+    x?:AxisEncodingSpec;
+    y?:AxisEncodingSpec;
 
     constructor(options?: AxisSpec) {
         if(options) Object.assign(this, options);
@@ -381,7 +387,7 @@ export class Configuration {
     }
     private parseAxis() {
         if(this.specs.axis)
-            this.axis = new AxisSpec();
+            this.axis = new AxisSpec(this.specs.axis);
     }
 
     public validate():boolean {

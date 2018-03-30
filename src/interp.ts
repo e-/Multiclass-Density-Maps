@@ -660,6 +660,12 @@ export default class Interpreter {
         yAxisG.call(d3.axisLeft(y));
 
 
+        let xTitle = this.dataSpec.encoding!.x.field;
+        let yTitle = this.dataSpec.encoding!.y.field;
+
+        if(this.axis!.x && this.axis!.x!.title) xTitle = this.axis!.x!.title!;
+        if(this.axis!.y && this.axis!.y!.title) yTitle = this.axis!.y!.title!;
+
         svg.append('text')
             .attr('transform', translate(width / 2 + margin.left, margin.top + height + margin.bottom))
             .style('font-size', '11px')
@@ -667,7 +673,7 @@ export default class Interpreter {
             .attr('text-anchor', 'middle')
             .attr('dy', '-.5em')
             .style('font-weight', 'bold')
-            .text(this.dataSpec.encoding!.x.field)
+            .text(xTitle)
 
         svg.append('text')
             .attr("transform", translate(0, margin.top + height / 2) + "rotate(-90)")
@@ -677,7 +683,7 @@ export default class Interpreter {
             .style('font-family', 'sans-serif')
             .style("text-anchor", "middle")
             .style('font-weight', 'bold')
-            .text(this.dataSpec.encoding!.y.field);
+            .text(yTitle);
     }
 
     private renderStroke(canvas:HTMLCanvasElement | string)
