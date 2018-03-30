@@ -289,7 +289,7 @@ export default class Interpreter {
                                                this.width, this.height);
     }
 
-    setup(canvas:HTMLCanvasElement, forcedWidth?:number, forcedHeight?:number) {
+    private setup(canvas:HTMLCanvasElement, forcedWidth?:number, forcedHeight?:number) {
         canvas.style.width   = (forcedWidth || this.width) + "px";
         canvas.style.height  = (forcedHeight || this.height) + "px";
 
@@ -299,7 +299,7 @@ export default class Interpreter {
             canvas.setAttribute("title", this.description);
     }
 
-    renderMap(canvas:HTMLCanvasElement) {
+    private renderMap(canvas:HTMLCanvasElement) {
         let promises = [];
         if (this.compose.mix === "separate") { // small multiples
             this.image = this.derivedBuffers.map((b) => new Image(this.width, this.height));
@@ -601,7 +601,7 @@ export default class Interpreter {
         if(this.stroke) this.renderStroke(mapCanvas);
     }
 
-    renderStroke(canvas:HTMLCanvasElement | string)
+    private renderStroke(canvas:HTMLCanvasElement | string)
     {
         let stroke = this.stroke!;
 

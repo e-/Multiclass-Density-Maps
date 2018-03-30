@@ -32,27 +32,16 @@ var configuration, interpreter, canvasCount=0;
 function render(desc, json, do_break, forcedWidth, forcedHeight) {
     var body = document.getElementsByTagName('body')[0],
         div = document.createElement("div"),
-        canvas = document.createElement("canvas"),
-        svg = document.createElementNS("http://www.w3.org/2000/svg", "svg"),
-        id = "canvas"+(++canvasCount);
+        wrapper = document.createElement("div")
 
     div.classList.add("example");
-    canvas.id = id;
-    svg.id = id + '-legend';
 
     div.appendChild(document.createTextNode(desc));
     div.appendChild(document.createElement("br"));
-    div.appendChild(canvas);
-    div.appendChild(svg);
+    div.appendChild(wrapper);
 
 
   body.appendChild(div);
-  if (forcedWidth) {
-    canvas.style.width = forcedWidth;
-  }
-  if (forcedHeight) {
-    canvas.style.height = forcedHeight;
-  }
   if (do_break) {
       var br = document.createElement("br");
       br.classList.add('clearBoth');
@@ -61,11 +50,8 @@ function render(desc, json, do_break, forcedWidth, forcedHeight) {
   var conf = mcp.create_configuration(json);
   conf.load('data/').then(function(conf) {
       interp = mcp.create_interp(conf);
-      interp.setup(id);
-      interpreter = interp;
       interp.interpret();
-      interp.render(id);
-      interp.renderLegend(id+'-legend');
+      interp.render(wrapper, forcedWidth, forcedHeight);
   });
 }
 
@@ -396,7 +382,7 @@ render('French Presidential Election',
       "colProp":false,
       "stroke": 4
     }
-}, true, "600px", "520px");
+}, true, 600, 520);
 
 </script>
     </body>
