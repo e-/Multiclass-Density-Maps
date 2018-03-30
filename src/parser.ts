@@ -244,8 +244,7 @@ export class LegendSpec {
     rowHeight:number = 10;
     horizontalGutter:number = 5;
     verticalGutter:number = 3;
-    labelWidth:number = 80;
-    colorMapWidth:number = 100;
+    width:number = 110;
     padding:number = 10;
     mixMapSize:number = 50;
 
@@ -257,8 +256,6 @@ export class LegendSpec {
     // multiplicative circles
     size:number = 150;
 
-    // bars
-    width:number = 50;
     height:number = 50;
 
     constructor(options?: LegendSpec) {

@@ -84,7 +84,10 @@ render('US Flight delays vs Distance for every day of the week - January 2017',
             }
         }
     },
-
+    "rebin": {
+        "type": "square",
+        "size": 4
+    },
     "compose": {
         "mix": "max",
         "mixing": "additive"
@@ -92,14 +95,9 @@ render('US Flight delays vs Distance for every day of the week - January 2017',
     "rescale": {
         "type": "cbrt"
     },
-    "contour": {
-        "blur": 2,
-        "lineWidth":1,
-        "colProp":false,
-        "stroke": 4
-    },
     "axis": true,
-    "legend": {"title": "DAY_OF_WEEK"}
+    "legend": {"title": "DAY_OF_WEEK"},
+    
 }, false);
 
 render('US Flight delays vs Distance for every day of the week - January 2017',
@@ -167,13 +165,11 @@ render('US Flight air time vs speed for 3 main carriers = 2 Fekete items',
          "mixing": "additive"
      },
      "rescale": {
-         "type": "cbrt"
-     },
-     "contour": {
-      "blur": 2,
-      "lineWidth":1,
-      "colProp":false,
-      "stroke": 4
+         "type": "log"
+     },      
+    "rebin": {
+        "type": "square",
+        "size": 4
     },
     "axis": true,
     "legend": {"title": "CARRIER"}
@@ -201,13 +197,11 @@ render('US Flight delays vs Speed for every group of delays = 5.6 Fekete items',
          "mixing": "additive"
      },
      "rescale": {
-         "type": "cbrt"
-     },
-     "contour": {
-      "blur": 2,
-      "lineWidth":1,
-      "colProp":false,
-      "stroke": 4
+         "type": "log"
+     },      
+    "rebin": {
+        "type": "square",
+        "size": 4
     },
     "axis": true,
     "legend": {"title": "ARR_DELAY"}
