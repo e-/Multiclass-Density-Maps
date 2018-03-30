@@ -143,6 +143,7 @@ export class EquiDepthScale implements ScaleTrait {
     invmap(value:number) {
         this.getBounds();
 
+
         if (value < this.range[0]) return this.minBound;
         if (value > this.range[1]) return this.bounds[this.level - 1];
 
@@ -153,6 +154,8 @@ export class EquiDepthScale implements ScaleTrait {
         let left = i === 0 ? this.minBound : this.bounds[i - 1];
         let right = this.bounds[i];
 
+        // console.log(value, this.range, this.level, this.bounds, 'left', left, 'right', right, 1 - r, r);
+        // console.log('returns', left * (1 - r) + right * r);
         return left * (1 - r) + right * r;
     }
 }

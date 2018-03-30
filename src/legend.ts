@@ -56,8 +56,8 @@ function equiDepthColorMap(defs:any, interpolator:Scale.ScaleTrait, db:DerivedBu
     scale.getBounds();
 
     // bounds do not include the last value
-    scale.bounds.concat([scale.bounds[n - 2] + 1]).forEach((value, i) => {
-        let color = db.colorScale.map(value - 1);
+    scale.bounds.concat([scale.bounds[n - 2] + Number.EPSILON]).forEach((value, i) => {
+        let color = db.colorScale.map(value - Number.EPSILON);
         if(isNaN(color.r)) color = Color.Transparent;
 
         lg.append('stop')
@@ -157,14 +157,16 @@ function colorRamps(
         let interpolator = derivedBuffers[0].colorScale.interpolator;
         gradientFunc = equiDepthColorMap;
 
-        tickValues = [interpolator.domain[0],
-                      Math.floor(interpolator.invmap(0.25)),
-                      Math.floor(interpolator.invmap(0.50)),
-                      Math.floor(interpolator.invmap(0.75)),
-                      interpolator.domain[1]];
-              //.concat((interp.scale as Scale.EquiDepthScale).bounds);
+        // tickValues = [interpolator.domain[0],
+        //               interpolator.invmap(0.25),
+        //               interpolator.invmap(0.50),
+        //               interpolator.invmap(0.75),
+        //               interpolator.domain[1]];
+        tickValues = [interpolator.domain[0]].concat((interp.scale as Scale.EquiDepthScale).bounds);
 
         colormapScale = (v, i) => width / (tickValues.length - 1) * i;
+
+        // console.log(tickValues);
         markerValues = [];
     }
 
