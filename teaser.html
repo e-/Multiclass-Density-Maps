@@ -30,20 +30,13 @@ var configuration, interpreter, canvasCount=0;
 function render(desc, json, do_break) {
     var body = document.getElementsByTagName('body')[0],
         div = document.createElement("div"),
-        canvas = document.createElement("canvas"),
-        svg = document.createElementNS("http://www.w3.org/2000/svg", "svg"),
-        id = "canvas"+(++canvasCount);
+        wrapper = document.createElement("div");
+
     
     div.classList.add("example");
-    canvas.id = id;
-    //svg.id = id + '-legend';
-    //div.appendChild(document.createTextNode(desc));
-    //div.appendChild(document.createElement("br"));
-    div.appendChild(canvas);
-    //div.appendChild(svg);
-
-
-  body.appendChild(div);
+    div.appendChild(wrapper);
+    body.appendChild(div);
+    
   if (do_break) {
       var br = document.createElement("br");
       br.classList.add('clearBoth');
@@ -52,11 +45,8 @@ function render(desc, json, do_break) {
   var conf = mcp.create_configuration(json);
   conf.load('data/').then(function(conf) {
       interp = mcp.create_interp(conf);
-      console.log('interp w='+conf.width+' h='+conf.height);
-      interp.setup(id);
-      interpreter = interp;
       interp.interpret();
-      interp.render(id);
+      interp.render(wrapper);
       //interp.renderLegend(id+'-legend');
   });
 }
@@ -71,7 +61,8 @@ render('Linear Color Scale Small Multiples',
            },
            "rescale": {
                "type": "linear"
-           }
+           },
+           "legend": false
        });
 
 
@@ -82,7 +73,8 @@ render('Linear Color Scale blended',
            "compose": {
                "mix": "mean",
                "mixing": "additive"
-           }
+           },
+           "legend": false
        });
 
 render('Linear Color Scale Max',
@@ -95,7 +87,8 @@ render('Linear Color Scale Max',
            },
            "rescale": {
                "type": "linear"
-           }
+           },
+           "legend": false
        });
 
 
@@ -109,7 +102,8 @@ render('Square Weaving',
            },
            "rescale": {
                "type": "linear"
-           }
+           },
+           "legend": false
        });
 
 render('Linear Color Scale hex',
@@ -122,7 +116,8 @@ render('Linear Color Scale hex',
            },
            "rescale": {
                "type": "linear"
-           }
+           },
+           "legend": false
        });
 
 // render('Linear Color Scale triangles',
@@ -149,7 +144,8 @@ render('Random Weaving',
            },
            "rescale": {
                "type": "linear"
-           }
+           },
+           "legend": false
        });
 
 render('Contour lines',
@@ -160,7 +156,8 @@ render('Contour lines',
                "mix": "none",
                "size": 8
            },
-           "contour": { "stroke": 4}
+           "contour": { "stroke": 4},
+           "legend": false
        }, true);
 
 render('Voronoi Tiling Mean',
@@ -174,7 +171,8 @@ render('Voronoi Tiling Mean',
            },
            "compose": {
                "mix": "max"
-           }
+           },
+           "legend": false
        });
 
 render('Voronoi Tiling + Tilted Hatching',
@@ -191,7 +189,8 @@ render('Voronoi Tiling + Tilted Hatching',
                "size": 2,
                "widthprop":1.5,
                "colprop":false
-           }
+           },
+           "legend": false
        });
 
 render('Voronoi Tiling + Hatching',
@@ -208,7 +207,8 @@ render('Voronoi Tiling + Hatching',
                "size": 4,
                "widthprop":"percent",
                "colprop":true
-           }
+           },
+           "legend": false
        });
 
 render('Voronoi Tiling',
@@ -223,7 +223,8 @@ render('Voronoi Tiling',
            "compose": {
                "mix": "weavingsquare",
                "size": 8
-           }
+           },
+           "legend": false
        });
 
 render('Voronoi Tiling(dot densities)',
@@ -238,7 +239,8 @@ render('Voronoi Tiling(dot densities)',
            "compose": {
                "mix": "dotdensity",
                "size": 2
-           }
+           },
+           "legend": false
        });
 
 render('Voronoi Tiling + (Glyph - bars)',
@@ -257,7 +259,8 @@ render('Voronoi Tiling + (Glyph - bars)',
                    "width": 20,
                    "height": 20
                }
-           }
+           },
+           "legend": false
           });
 
 render('Voronoi Tiling + (Glyph - circles)',
@@ -277,7 +280,8 @@ render('Voronoi Tiling + (Glyph - circles)',
                     "height": 20,
                     "factor": 4
                 }
-            }
+            },
+           "legend": false
           });
 
 

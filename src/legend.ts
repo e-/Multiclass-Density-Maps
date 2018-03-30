@@ -331,11 +331,11 @@ function colorMixMap(g:d3.Selection<d3.BaseType, {}, HTMLElement, any>,
 }
 
 
-function mixLegend(id:string, interp:Interpreter) {
+function mixLegend(dest:SVGSVGElement, interp:Interpreter) {
     let derivedBuffers:DerivedBuffer[] = interp.derivedBuffers;
     let spec = interp.legend as Parser.LegendSpec;
 
-    let svg = d3.select('#' + id)
+    let svg:any = d3.select(dest)
         .style('font-family', spec.fontFamily)
         .style('font-size', spec.fontSize)
 
@@ -356,7 +356,6 @@ function mixLegend(id:string, interp:Interpreter) {
 
     let labels = interp.labels == undefined ? interp.bufferNames : interp.labels;
     colorCategories(categoryG, derivedBuffers, spec, labels);
-
 
     let height = (rowHeight + verticalGutter) * n +
         (titleHeight + verticalGutter) + padding * 2;
@@ -447,12 +446,12 @@ function multiplicativeCircles(id:string, interp:Interpreter) {
 
 }
 
-function bars(id:string, interp:Interpreter) {
+function bars(dest:SVGSVGElement, interp:Interpreter) {
     let derivedBuffers:DerivedBuffer[] = interp.derivedBuffers;
     let n = derivedBuffers.length;
     let spec = interp.legend as Parser.LegendSpec;
 
-    let svg = d3.select('#' + id)
+    let svg = d3.select(dest)
         .style('font-family', spec.fontFamily)
         .style('font-size', spec.fontSize)
 
@@ -551,13 +550,13 @@ function bars(id:string, interp:Interpreter) {
     });
 }
 
-function punchcard(id:string, interp:Interpreter) {
+function punchcard(dest:SVGSVGElement, interp:Interpreter) {
     let derivedBuffers:DerivedBuffer[] = interp.derivedBuffers;
     let n = derivedBuffers.length;
     let spec = interp.legend as Parser.LegendSpec;
     let glyphSpec = interp.compose.glyphSpec!;
 
-    let svg = d3.select('#' + id)
+    let svg = d3.select(dest)
         .style('font-family', spec.fontFamily)
         .style('font-size', spec.fontSize)
 
@@ -650,22 +649,16 @@ function punchcard(id:string, interp:Interpreter) {
     });
 }
 
-export default function LegendBuilder(id:string, interp:Interpreter) {
-    if(interp.legend === false) return;
-
-    // if(interp.composer === Composer.multiplicativeMix) {
-    //     multiplicativeCircles(id, interp);
-    // }
-    // else
+export default function LegendBuilder(svg:SVGSVGElement, interp:Interpreter) {
     if(interp.compose.mix === "glyph") {
         if(interp.compose.glyphSpec!.template === "bars") {
-            bars(id, interp);
+            bars(svg, interp);
         }
         else if(interp.compose.glyphSpec!.template === "punchcard") {
-            punchcard(id, interp);
+            punchcard(svg, interp);
         }
     }
     else {
-        mixLegend(id, interp);
+        mixLegend(svg, interp);
     }
 }

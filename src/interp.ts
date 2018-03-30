@@ -289,20 +289,17 @@ export default class Interpreter {
                                                this.width, this.height);
     }
 
-    setup(id:string|HTMLCanvasElement) {
-        let canvas = id instanceof HTMLCanvasElement ? id :
-              document.getElementById(id) as HTMLCanvasElement;
-        canvas.width   = this.width;
-        canvas.height  = this.height;
-        if (this.background != undefined)
+    setup(canvas:HTMLCanvasElement, forcedWidth?:number, forcedHeight?:number) {
+        canvas.style.width   = (forcedWidth || this.width) + "px";
+        canvas.style.height  = (forcedHeight || this.height) + "px";
+
+        if (this.background)
             canvas.style.backgroundColor = this.background;
-        if (this.description != undefined)
+        if (this.description)
             canvas.setAttribute("title", this.description);
     }
 
-    render(id:string|HTMLCanvasElement) {
-        let canvas = id instanceof HTMLCanvasElement ? id :
-              document.getElementById(id) as HTMLCanvasElement;
+    renderMap(canvas:HTMLCanvasElement) {
         let promises = [];
         if (this.compose.mix === "separate") { // small multiples
             this.image = this.derivedBuffers.map((b) => new Image(this.width, this.height));
@@ -530,7 +527,7 @@ export default class Interpreter {
             if (this.compose.mix === "time")
                 options.interval = this.compose.interval;
 
-            let ctx = CanvasRenderer.renderAll(this.image, id, this.compose.order, options);
+            let ctx = CanvasRenderer.renderAll(this.image, canvas, this.compose.order, options);
             // TODO: adding strokes does not work with time multiplexing
 
             if (this.contour.stroke > 0) {
@@ -574,24 +571,38 @@ export default class Interpreter {
                 });
             }
 
-            this.renderStroke(id);
-
             if (this.maskStroke)
                 for(let tile of this.tiles)
-                    CanvasRenderer.strokeVectorMask(tile.mask, id, {color: this.maskStroke});
+                    CanvasRenderer.strokeVectorMask(tile.mask, canvas, {color: this.maskStroke});
         };
        if (promises.length > 0) Promise.all(promises).then(render);
        else render();
     }
 
-    renderLegend(id:string) {
-        LegendBuilder(id, this);
+    render(id:string|HTMLDivElement, forcedWidth?:number, forcedHeight?:number) {
+        let wrapper:HTMLDivElement;
+
+        if(typeof id === "string") wrapper = <HTMLDivElement>document.getElementById(id);
+        else wrapper = id;
+
+        let mapCanvas = document.createElement("canvas");
+
+        wrapper.appendChild(mapCanvas);
+
+        this.setup(mapCanvas, forcedWidth, forcedHeight);
+        this.renderMap(mapCanvas);
+
+        if(this.legend !== false) {
+            let legendSVG = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+            wrapper.appendChild(legendSVG);
+            LegendBuilder(legendSVG, this);
+        }
+
+        if(this.stroke) this.renderStroke(mapCanvas);
     }
 
-    renderStroke(id:HTMLCanvasElement | string)
+    renderStroke(canvas:HTMLCanvasElement | string)
     {
-        if(!this.stroke) return;
-
         let stroke = this.stroke!;
 
         let url      = stroke.url,
@@ -616,9 +627,10 @@ export default class Interpreter {
                                     this.geo.latitudes, this.geo.longitudes);
 
         for(let tile of tiles)
-            CanvasRenderer.strokeVectorMask(tile.mask, id, {color: stroke.color, lineWidth: stroke.lineWidth});
+            CanvasRenderer.strokeVectorMask(tile.mask, canvas, {color: stroke.color, lineWidth: stroke.lineWidth});
 
     }
+
     pickDomains(x:number, y:number): [number, number]|null {
         if (x < 0 || x >= this.width || y < 0 || y >= this.height)
             return null;

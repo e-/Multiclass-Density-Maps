@@ -295,7 +295,7 @@ export class Configuration {
     rescale?: RescaleSpec;
     contour?:ContourSpec;
     width: number = -1;
-    height: number= -1;
+    height: number = -1;
     bufferNames:string[] = [];
     legend: LegendSpec | false = new LegendSpec();
     stroke?: StrokeSpec
@@ -585,7 +585,7 @@ export class Configuration {
             ! data.encoding.x ||
             ! data.encoding.x.scale ||
             ! data.encoding.x.scale.domain)
-            return [0,this.height];
+            return [0,this.width];
         return data.encoding.x.scale.domain;
     }
 
