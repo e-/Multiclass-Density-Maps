@@ -355,7 +355,7 @@ function mixLegend(dest:SVGSVGElement, interp:Interpreter) {
     let titleHeight = spec.titleHeight;
 
     let labels = interp.labels == undefined ? interp.bufferNames : interp.labels;
-    colorCategories(categoryG, derivedBuffers, spec, labels);
+    colorCategories(categoryG, derivedBuffers, spec, labels, spec.title);
 
     let height = (rowHeight + verticalGutter) * n +
         (titleHeight + verticalGutter) + padding * 2;

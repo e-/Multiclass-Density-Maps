@@ -237,6 +237,7 @@ export class LegendSpec {
     fontSize:string = "11px";
     fontFamily:string = "sans-serif";
 
+    title?:string;
     titleHeight:number = 12;
     titleDy:string = '.6em';
 
@@ -281,7 +282,7 @@ export class StrokeSpec {
 export class AxisSpec {
     marginLeft:number = 50;
     marginBottom:number = 40;
-    marginRight:number = 10;
+    marginRight:number = 15;
     marginTop:number = 10;
 
     constructor(options?: AxisSpec) {

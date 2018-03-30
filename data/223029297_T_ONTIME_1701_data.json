@@ -32,8 +32,8 @@
       "aggregate": "count",
       "scale": {
         "domain": [
-          31.0,
-          3500.0
+          3500.0,
+          31.0
         ],
         "range": [
           0,
