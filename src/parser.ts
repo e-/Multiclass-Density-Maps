@@ -278,6 +278,12 @@ export class StrokeSpec {
     }
 }
 
+export class AxisSpec {
+    constructor(options?: AxisSpec) {
+        if(options) Object.assign(this, options);
+    }
+}
+
 export class Configuration {
     description?: string;
     background?: string;
@@ -293,6 +299,7 @@ export class Configuration {
     bufferNames:string[] = [];
     legend: LegendSpec | false = new LegendSpec();
     stroke?: StrokeSpec
+    axis?: AxisSpec;
 
     constructor(public specs:any) {
         if(typeof this.specs === 'string') {
@@ -311,6 +318,7 @@ export class Configuration {
         this.parseContour();
         this.parseLegend();
         this.parseStroke();
+        this.parseAxis();
     }
 
     private parseDescription() {
@@ -367,6 +375,10 @@ export class Configuration {
             this.stroke = new StrokeSpec(this.specs.stroke);
         else
             this.stroke = undefined;
+    }
+    private parseAxis() {
+        if(this.specs.axis)
+            this.axis = new AxisSpec();
     }
 
     public validate():boolean {

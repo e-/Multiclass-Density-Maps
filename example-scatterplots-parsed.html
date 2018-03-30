@@ -66,10 +66,9 @@ function render(desc, json, do_break, forcedWidth, forcedHeight) {
       interp.interpret();
       interp.render(id);
       interp.renderLegend(id+'-legend');
+      console.log(interp);
   });
 }
-
-
 
 render('US Flight delays vs Distance for every day of the week - January 2017',
 {
@@ -106,8 +105,8 @@ render('US Flight delays vs Distance for every day of the week - January 2017',
       "lineWidth":1,
       "colProp":false,
       "stroke": 4
-    }
-
+    },
+    "axis": true
 }, false);
 
 render('US Flight delays vs Distance for every day of the week - January 2017',

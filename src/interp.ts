@@ -23,6 +23,7 @@ export default class Interpreter {
     public n:number = 0;
     public sourceBuffers:DataBuffer[] = [];
     public dataBuffers:DataBuffer[] = [];
+    public dataSpec:Parser.DataSpec;
     public derivedBuffers: DerivedBuffer[] = [];
     public blurredBuffers: DerivedBuffer[] = [];
     public image:Image[] = [];
@@ -67,6 +68,8 @@ export default class Interpreter {
         this.n = this.bufferNames.length;
         this.sourceBuffers = configuration.getBuffers();
         this.dataBuffers = this.sourceBuffers;
+        this.dataSpec = configuration.data!.dataSpec!;
+
         this.labels = configuration.getLabels();
 
         let colormap0 = configuration.getColors0();
@@ -540,8 +543,11 @@ export default class Interpreter {
                 let minStretch = Infinity;
                 this.derivedBuffers.forEach((derivedBuffer, k) => {
                     let loop0 = derivedBuffer.originalDataBuffer.max();
+                    let blurred = derivedBuffer.originalDataBuffer.blur(this.contour.blur)
 
-                    this.blurredBuffers[k] = derivedBuffer.blur(this.contour.blur);
+                    // TODO jaemin will improve
+                    derivedBuffer.originalDataBuffer = blurred;
+                    this.blurredBuffers[k] = derivedBuffer;
                     let loop1 = this.blurredBuffers[k].originalDataBuffer.max();
                     minStretch = Math.min(minStretch, loop0/loop1);
                 });
