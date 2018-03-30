@@ -20,7 +20,7 @@ export default class Composer {
         return buffers[bestIndex].colorScale.map(best);
     }
 
-    static min(buffers:DerivedBuffer[], values:number[], threshold=1):Color {
+    static invmin(buffers:DerivedBuffer[], values:number[], threshold=1):Color {
         let best = Infinity;
         let bestIndex = -1;
 

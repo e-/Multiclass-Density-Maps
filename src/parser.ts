@@ -161,7 +161,7 @@ export interface ConfigurationReencodingSpec {
 }
 
 export class ComposeSpec {
-    mix: "none"|"min"|"mean"|"max"|"blend"|
+    mix: "none"|"invmin"|"mean"|"max"|"blend"|
           "weavingrandom"|"weavingsquare"|"weavinghex"|"weavingtri"|
           "propline"|"hatching"|"separate"|"glyph"|"dotdensity"|"time"="mean";
     mixing: "additive"|"subtractive"|"multiplicative" = "additive";

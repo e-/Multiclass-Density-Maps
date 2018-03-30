@@ -266,8 +266,8 @@ export default class Interpreter {
             this.composer = Composer.max;
         else if (this.compose.mix === "mean")
             this.composer = Composer.mean;
-        else if (this.compose.mix === "min")
-            this.composer = Composer.min;
+        else if (this.compose.mix === "invmin")
+            this.composer = Composer.invmin;
         else if (this.compose.mix === "blend") {
             if(this.compose.mixing === "multiplicative")
                 this.composer = Composer.multiplicativeMix;

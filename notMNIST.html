@@ -71,7 +71,7 @@ render('notMNIST LargeVis',
        {
            "data": {"url": "notMNIST_xylab_data.json"},
            "compose": {
-               "mix": "min"
+               "mix": "invmin"
            },
            "rescale": {
                "type": "sqrt"
@@ -110,7 +110,7 @@ render('MNIST t-SNE',
            "description": "multivariate normal data",
            "data": {"url": "mnist_data.json"},
            "compose": {
-               "mix": "min"
+               "mix": "invmin"
            },
            "rescale": {
                "type": "sqrt"
