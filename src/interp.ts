@@ -665,6 +665,7 @@ export default class Interpreter {
         svg.append('text')
             .attr("transform", translate(0, margin.top + this.height / 2) + "rotate(-90)")
             .attr("dy", ".71em")
+            .attr("y", "3px")
             .style('font-size', '11px')
             .style('font-family', 'sans-serif')
             .style("text-anchor", "middle")
