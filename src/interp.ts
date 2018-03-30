@@ -57,6 +57,7 @@ export default class Interpreter {
     // d3 name of scale, used for legend
     public d3scale:string = "linear";
     public d3base:number = 10;
+    public d3exponent:number = Math.E;
 
     constructor(public configuration:Parser.Configuration) {
         if (! configuration.validate())
@@ -402,7 +403,13 @@ export default class Interpreter {
             }
         }
 
-        if (this.composer != Composer.none) {
+        if (this.composer == Composer.invmin) {
+            for(let tile of this.tiles) {
+                let color = Composer.invmin(this.derivedBuffers, tile.dataValues, this.compose.threshold);
+                this.image[0].render(color, tile);
+            }
+        }
+        else if (this.composer != Composer.none) {
             for(let tile of this.tiles) {
                 let color = this.composer(this.derivedBuffers, tile.dataValues);
                 this.image[0].render(color, tile);
@@ -446,7 +453,7 @@ export default class Interpreter {
             let maxCount = util.amax(this.tiles.map(tile => tile.maxValue()));
             let glyphSpec = this.compose.glyphSpec!;
 
-            let d3scale, d3base = 1;
+            let d3scale, d3base = 1, d3exponent = Math.E;
             if(this.scale instanceof Scale.LinearScale) {
                 d3scale = 'linear';
             }
@@ -454,12 +461,17 @@ export default class Interpreter {
                 d3scale = 'log';
                 d3base = (<Scale.LogScale>this.scale).base;
             }
+            else if(this.scale instanceof Scale.RootScale) {
+                d3scale = 'pow';
+                d3exponent = 1 / this.scale.degree;
+            }
             else {
                 throw 'failed to convert a scale to a d3 scale. Please add a specification';
             }
 
             this.d3base = d3base;
             this.d3scale = d3scale;
+            this.d3exponent = d3exponent;
 
             if(glyphSpec.template === "bars") {
                 let width = glyphSpec.width; // tile.mask.width;
@@ -474,7 +486,8 @@ export default class Interpreter {
                         height: glyphSpec.height,
                         'y.scale.domain': this.scale.domain as [number, number],
                         'y.scale.type': d3scale,
-                        'y.scale.base': d3base
+                        'y.scale.base': d3base,
+                        'y.scale.exponent': d3exponent
                     }).then((vegaCanvas) => {
                         let rect = tile.getRectAtCenter();
                         if(!rect || rect.width() < width || rect.height() < height) return;

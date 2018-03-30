@@ -502,6 +502,7 @@ function bars(dest:SVGSVGElement, interp:Interpreter) {
                 scale: {
                     type: interp.d3scale,
                     base: interp.d3base,
+                    exponent: interp.d3exponent,
                     domain: domain,
                     range: [glyphSpec.height, 0]
                 },

@@ -1,0 +1,449 @@
+<!doctype html>
+<html>
+    <head>
+        <title>Gallery - Multiclass Density Maps </title>
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+        <style>
+            body .container {
+                background:white;
+                padding:10px;
+                margin-top:20px;
+                max-width: 1460px;
+            }
+            .card {
+                margin: 10px 0;
+            }
+            .card-body {
+                padding: 0.5rem;
+            }
+            .mdm {
+                text-align:center;
+            }
+            .map {
+                display:inline-block;
+            }
+            .legend {
+                display:inline-block;
+            }
+
+            pre {
+                padding: 10px;
+                border:1px solid #ddd;
+                border-radius:5px;
+                background: #eee;
+            }
+
+        </style>
+        
+        <script src="dist/bundle.js" type="text/javascript"></script>
+        <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha256-3edrmyuQ0w65f8gfBsqowzjJe2iM6n0nKciPUp8y+7E=" crossorigin="anonymous"></script>
+    </head>
+    <body>
+        <div class="container">
+            <h1>Multiclass Density Map Gallery</h1>
+            <section id="gallery" class="row">
+            </section>
+        </div>    
+        <script>
+
+$(function() {
+    var mcp = new MCP.MCP();
+    var $gallery = $('#gallery')
+    var canvasCount = 0;
+
+    function SVG() {
+        return document.createElementNS('http://www.w3.org/2000/svg', 'svg')
+    }
+
+    function render(title, spec, wide, timeN) {
+        var 
+            $wrapper = $('<div></div>').attr('class', wide ? 'col-lg-12' : 'col-lg-6').appendTo($gallery),
+            $card = $('<div class="card"></div>').appendTo($wrapper),
+            $title = $('<h5 class="card-header"></h5>').html(title).appendTo($card),
+            $body = $('<div class="card-body"></div>').appendTo($card),
+            // id = 'canvas' + canvasCount++,
+            // legendId = id + '-legend',
+            $mdm = $('<div class="mdm">').appendTo($body),
+            // $canvas = $('<canvas class="map">').attr('id', id).appendTo($mdm),
+            // $legend= $(SVG()).attr('class', 'legend').attr('id', legendId).appendTo($mdm),
+            $desc = $('<p class="card-text">').html(spec.description).appendTo($body),
+            $pre = $('<code>').css('display', 'none').appendTo($body),
+            $code = $('<pre>').appendTo($pre).text(JSON.stringify(spec, null, 2)),
+            $button = $('<button class="btn btn-primary">').text('Toggle MDM Specification').appendTo($body);
+
+        $button.click(function(){
+            $pre.toggle();
+        })
+
+        width = height = 256;
+
+        var conf = mcp.create_configuration(spec);
+        conf.load('data/').then(function(conf) {
+            interp = mcp.create_interp(conf);
+            
+            interpreter = interp;
+            interp.interpret();
+            interp.render($mdm.get(0)); //, width, height);
+        });
+    }
+
+
+        //    "compose": {
+        //        "mix": "glyph",
+        //        "glyphSpec": {
+        //            "template": "bars",
+        //            "width": 24,
+        //            "height": 24
+        //        }
+        //    },
+
+render('max32',
+       {
+           "description": "multivariate normal data",
+           "data": {"url": "flight_delays2017_data.json"},
+           "compose": {
+               "mix": "max",
+               "mixing": "additive"
+           },
+           "rescale": {
+               "type": "equidepth",
+               "levels": 3
+           },
+           "rebin": {
+               "type": "square",
+               "size": 32,
+               "aggregation": "sum"
+           },
+           "legend": {
+               "title": "CARRIER"
+           },
+           "axis": {
+               "x": {
+                   "title": "DISTANCE (miles)"
+               },
+               "y": {
+                   "title": "ARR_DELAY (minutes)"
+               }
+           }
+       });
+
+
+render('max16',
+       {
+           "description": "multivariate normal data",
+           "data": {"url": "flight_delays2017_data.json"},
+           "compose": {
+               "mix": "max",
+               "mixing": "additive"
+           },
+           "rescale": {
+               "type": "equidepth",
+               "levels": 3
+           },
+           "rebin": {
+               "type": "square",
+               "size": 16,
+               "aggregation": "sum"
+           },
+           "legend": {
+               "title": "CARRIER"
+           },
+           "axis": {
+               "x": {
+                   "title": "DISTANCE (miles)"
+               },
+               "y": {
+                   "title": "ARR_DELAY (minutes)"
+               }
+           }
+       });
+
+render('max8',
+       {
+           "description": "multivariate normal data",
+           "data": {"url": "flight_delays2017_data.json"},
+           "compose": {
+               "mix": "max",
+               "mixing": "additive"
+           },
+           "rescale": {
+               "type": "equidepth",
+               "levels": 3
+           },
+           "rebin": {
+               "type": "square",
+               "size": 8,
+               "aggregation": "sum"
+           },
+           "legend": {
+               "title": "CARRIER"
+           },
+           "axis": {
+               "x": {
+                   "title": "DISTANCE (miles)"
+               },
+               "y": {
+                   "title": "ARR_DELAY (minutes)"
+               }
+           }
+       });
+
+render('invmin (threshold = 0.00001)',
+       {
+           "description": "multivariate normal data",
+           "data": {"url": "flight_delays2017_data.json"},
+           "compose": {
+               "mix": "invmin",
+               "threshold": 0.00001
+           },
+           "rescale": {
+               "type": "equidepth",
+               "levels": 3
+           },
+           "rebin": {
+               "type": "square",
+               "size": 8,
+               "aggregation": "sum"
+           },
+           "legend": {
+               "title": "CARRIER"
+           },
+           "axis": {
+               "x": {
+                   "title": "DISTANCE (miles)"
+               },
+               "y": {
+                   "title": "ARR_DELAY (minutes)"
+               }
+           }
+       });
+
+render('Random Rectangular Weaving',
+       {
+           "description": "multivariate normal data",
+           "data": {"url": "flight_delays2017_data.json"},
+           "rescale": {
+               "type": "log"
+           },
+           "rebin": {
+               "type": "square",
+               "size": 64,
+               "aggregation": "sum"
+           },
+           "compose": {
+               "mix": "weavingrandom",
+               "size": 4
+           },
+           "legend": {
+               "title": "CARRIER"
+           },
+           "axis": {
+               "x": {
+                   "title": "DISTANCE (miles)"
+               },
+               "y": {
+                   "title": "ARR_DELAY (minutes)"
+               }
+           }
+       });
+
+render('Rectangular binning + circles',
+        {
+            "description": "multivariate normal data",
+            "data": {"url": "flight_delays2017_data.json"},
+            "rebin": {
+                "type": "square",
+                "size": 32
+            },
+            "compose": {
+                "mix": "glyph",
+                "glyphSpec": {
+                    "template": "punchcard"
+                }
+            },
+            "legend": {
+                "title": "CARRIER"
+            },
+            "axis": {
+                "x": {
+                    "title": "DISTANCE (miles)"
+                },
+                "y": {
+                    "title": "ARR_DELAY (minutes)"
+                }
+            }
+       });
+
+render('Square Rectangular Weaving',
+       {
+            "description": "multivariate normal data",
+            "data": {"url": "flight_delays2017_data.json"},
+            "rescale": {
+                "type": "log"
+            },
+            "rebin": {
+                "type": "square",
+                "size": 64,
+                "aggregation": "sum"
+            },
+            "compose": {
+                "mix": "weavingsquare",
+                "size": 4
+            },
+            "legend": {
+                "title": "CARRIER"
+            },
+            "axis": {
+                "x": {
+                    "title": "DISTANCE (miles)"
+                },
+                "y": {
+                    "title": "ARR_DELAY (minutes)"
+                }
+            }
+       });
+
+render('Flight',
+       {
+           "description": "multivariate normal data",
+           "data": {"url": "flight_delays2017_data.json"},
+           "rebin": {
+                "type": "square",
+                "size": 64,
+                "aggregation": "sum"
+            },
+           "compose": {
+               "mix": "dotdensity"
+           },
+            "legend": {
+                "title": "CARRIER"
+            },
+            "axis": {
+                "x": {
+                    "title": "DISTANCE (miles)"
+                },
+                "y": {
+                    "title": "ARR_DELAY (minutes)"
+                }
+            }
+       });
+
+render('Flight',
+       {
+           "description": "multivariate normal data",
+           "data": {"url": "flight_delays2017_data.json"},
+           "rebin": {
+                "type": "square",
+                "size": 64,
+                "aggregation": "sum"
+            },
+    "compose": {
+        "mix": "blend",
+        "mixing": "multiplicative"
+    },
+            "legend": {
+                "title": "CARRIER"
+            },
+            "rescale": {
+                "type": "log"
+            },
+            "axis": {
+                "x": {
+                    "title": "DISTANCE (miles)"
+                },
+                "y": {
+                    "title": "ARR_DELAY (minutes)"
+                }
+            }
+       });
+
+render('Flight propline',
+       {
+           "description": "multivariate normal data",
+           "data": {"url": "flight_delays2017_data.json"},
+            "rebin": {
+                "type": "square",
+                "size": 64,
+                "aggregation": "sum",
+                "stroke": "black"
+            },
+        //     "rebin": {
+        //        "type": "voronoi",
+        //        "size": 32,
+        //        "stroke": "black"
+        //    },
+            "compose": {
+               "mix": "propline",
+               "size": 10,
+               "widthprop":"percent"
+            //    "colprop":true
+            },
+            "legend": {
+                "title": "CARRIER"
+            },
+            "axis": {
+                "x": {
+                    "title": "DISTANCE (miles)"
+                },
+                "y": {
+                    "title": "ARR_DELAY (minutes)"
+                }
+            }
+       });
+       
+       
+render('Voronoi Tiling + Hatching',
+       {
+           "description": "multivariate normal data",
+           "data": {"url": "flight_delays2017_data.json"},
+           "rebin": {
+               "type": "voronoi",
+               "size": 32,
+               "stroke": "black"
+           },
+           "compose": {
+               "mix": "hatching",
+               "size": 2,
+               "widthprop":1.0,
+               "colprop":false
+           }
+       });
+
+render('Voronoi Tiling (glyph - bars)',{
+    "description": "multivariate normal data",
+    "data": {"url": "flight_delays2017_data.json"},
+    "smooth": {},
+    "rebin": {
+        "type": "square",
+        "size": 64,
+        "aggregation": "sum"
+    },
+    "compose": {
+        "mix": "glyph",
+        "glyphSpec": {
+            "template": "bars",
+            "width": 20,
+            "height": 20
+        }
+    },
+    "legend": {
+        "title": "CARRIER"
+    },
+    "rescale": {
+        "type": "cbrt"
+    },
+    "axis": {
+        "x": {
+            "title": "DISTANCE (miles)"
+        },
+        "y": {
+            "title": "ARR_DELAY (minutes)"
+        }
+    }
+});
+
+    })
+
+</script>
+    </body>
+</html>

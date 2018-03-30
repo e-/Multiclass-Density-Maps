@@ -176,6 +176,9 @@ export class ComposeSpec {
     // temporal multiplexing
     interval:number = 0.6;
 
+    // invmin
+    threshold:number = 1;
+
     constructor(options?: ComposeSpec) {
         if(options) Object.assign(this, options);
     }
