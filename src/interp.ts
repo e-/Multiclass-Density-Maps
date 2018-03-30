@@ -615,9 +615,13 @@ export default class Interpreter {
         this.renderMap(mapCanvas);
 
         if(this.legend !== false) {
-            let legendSVG = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-            wrapper.appendChild(legendSVG);
-            LegendBuilder(legendSVG, this);
+            let legend = document.createElement("div");
+
+            legend.style.display = "inline-block";
+            legend.style.position = "relative";
+
+            wrapper.appendChild(legend);
+            LegendBuilder(legend, this);
         }
 
         if(this.axis) {

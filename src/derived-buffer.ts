@@ -25,19 +25,7 @@ export default class DerivedBuffer {
                    .map(v => scaleTrait.invmap(v));
     }
 
-    contours(thresholds:number[], blur:number = 3):any {
+    contours(thresholds:number[], blur:number = 3) {
         return this.originalDataBuffer.contours(thresholds, blur);
-    }
-
-    blur( blur:number = 3): DerivedBuffer {
-        if (blur == 0) return this;
-        let blurred:DataBuffer    = this.originalDataBuffer.blur(blur);
-        let derivedBlurred        = new DerivedBuffer(blurred);
-        derivedBlurred.mask       = this.mask;
-        derivedBlurred.colorScale = this.colorScale;
-        derivedBlurred.color      = this.color;
-        derivedBlurred.angle      = this.angle;
-
-        return derivedBlurred;
     }
 }

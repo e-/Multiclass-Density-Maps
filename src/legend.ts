@@ -79,8 +79,7 @@ function colorCategories(g:d3.Selection<d3.BaseType, {}, HTMLElement, any>,
     let n = derivedBuffers.length;
     let titleHeight = spec.titleHeight;
     let rowHeight = spec.rowHeight;
-    let colorMapWidth = spec.colorMapWidth;
-    let labelWidth = spec.labelWidth;
+    let width = spec.width;
     let horizontalGutter = spec.horizontalGutter;
     let verticalGutter = spec.verticalGutter;
 
@@ -123,8 +122,7 @@ function colorRamps(
 
     let n = derivedBuffers.length;
     let rowHeight = spec.rowHeight;
-    let colorMapWidth = spec.colorMapWidth;
-    let labelWidth = spec.labelWidth;
+    let width = spec.width;
     let horizontalGutter = spec.horizontalGutter;
     let verticalGutter = spec.verticalGutter;
     let titleHeight = spec.titleHeight;
@@ -142,7 +140,7 @@ function colorRamps(
     // markers (vertical bars) will be shown
     let markerValues:number[] = [];
 
-    let colormapScale = (v:number, i:number) => interp.scale.map(v) * colorMapWidth;
+    let colormapScale = (v:number, i:number) => interp.scale.map(v) * width;
 
     // scales that show continuous color maps
     if(!interp.rescale || ["linear", "pow", "sqrt", "cbrt", "log"].indexOf(interp.rescale!.type) >= 0)
@@ -166,7 +164,7 @@ function colorRamps(
                       interpolator.domain[1]];
               //.concat((interp.scale as Scale.EquiDepthScale).bounds);
 
-        colormapScale = (v, i) => colorMapWidth / (tickValues.length - 1) * i;
+        colormapScale = (v, i) => width / (tickValues.length - 1) * i;
         markerValues = [];
     }
 
@@ -187,7 +185,7 @@ function colorRamps(
     valueEnter
         .append('rect')
         .attr('height', rowHeight)
-        .attr('width', colorMapWidth)
+        .attr('width', width)
         .attr('transform', translate(0, 0))
         .attr('stroke', '#ddd')
         .style('fill', (d, i) => `url(#${ids[i]})`)
@@ -243,6 +241,7 @@ function colorRamps(
 }
 
 function colorMixMap(g:d3.Selection<d3.BaseType, {}, HTMLElement, any>,
+    canvas:HTMLCanvasElement,
     derivedBuffers:DerivedBuffer[],
     interp:Interpreter,
     spec:Parser.LegendSpec,
@@ -251,8 +250,7 @@ function colorMixMap(g:d3.Selection<d3.BaseType, {}, HTMLElement, any>,
 ) {
     let n = derivedBuffers.length;
     let rowHeight = spec.rowHeight;
-    let colorMapWidth = spec.colorMapWidth;
-    let labelWidth = spec.labelWidth;
+    let width = spec.width;
     let horizontalGutter = spec.horizontalGutter;
     let verticalGutter = spec.verticalGutter;
     let titleHeight = spec.titleHeight;
@@ -265,31 +263,11 @@ function colorMixMap(g:d3.Selection<d3.BaseType, {}, HTMLElement, any>,
         .attr('font-weight', 'bold')
         .attr('transform', translate(0, top))
 
-    let fo = g.append('foreignObject')
-        .attr('width', size)
-        .attr('height', size)
-        .attr('x', 0)
-        .attr('y', 0)
-
-    /*
-        Translating the <g> elements doesn't work with <foreignObject> in Webkit browsers.
-        Regardless of translation, <foreignObject> is rendered as it is abolutely positioned.
-        A workaround is to use the (top, left) css properties.
-    */
-
-    let canvas:HTMLCanvasElement = fo
-        .append('xhtml:body')
-        .attr('width', size)
-        .attr('height', size)
-        .style('position', 'relative')
-        .style('top', (top + titleHeight * 1.5 + verticalGutter) + 'px')
-        .style('left', spec.padding + 'px')
-        .style('margin', 0)
-        .append('canvas')
-        .style('border', 'none')
-        .attr('width', size)
-        .attr('height', size)
-        .node() as HTMLCanvasElement
+    canvas.width = size;
+    canvas.height = size;
+    canvas.style.position = "absolute";
+    canvas.style.left = spec.padding + "px";
+    canvas.style.top = (top + titleHeight + verticalGutter + spec.padding) + "px";
 
     let context = canvas.getContext('2d') as CanvasRenderingContext2D;
     let imageData = context.getImageData(0, 0, size, size);
@@ -331,7 +309,10 @@ function colorMixMap(g:d3.Selection<d3.BaseType, {}, HTMLElement, any>,
 }
 
 
-function mixLegend(dest:SVGSVGElement, interp:Interpreter) {
+function mixLegend(wrapper:HTMLDivElement, interp:Interpreter) {
+    let dest = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+    wrapper.appendChild(dest);
+
     let derivedBuffers:DerivedBuffer[] = interp.derivedBuffers;
     let spec = interp.legend as Parser.LegendSpec;
 
@@ -347,8 +328,7 @@ function mixLegend(dest:SVGSVGElement, interp:Interpreter) {
     let rampG = g.append('g');
     let n = derivedBuffers.length;
     let rowHeight = spec.rowHeight;
-    let colorMapWidth = spec.colorMapWidth;
-    let labelWidth = spec.labelWidth;
+    let width = spec.width;
     let horizontalGutter = spec.horizontalGutter;
     let verticalGutter = spec.verticalGutter;
     let size = spec.mixMapSize;
@@ -375,21 +355,26 @@ function mixLegend(dest:SVGSVGElement, interp:Interpreter) {
 
     // checks whether a mix map is shown
     if(["max", "mean", "blend"].indexOf(interp.compose.mix) >= 0 && derivedBuffers.length >= 2) {
+
+        // since <foreignObject> has a rendering issue on Webkit browesers,
+        // we create an extra canvas over the svg
+
+        let canvas = document.createElement("canvas");
+
+        wrapper.appendChild(canvas);
+
         height += size + titleHeight + verticalGutter;
         let mixG = g.append('g')
         let top =
             (titleHeight + verticalGutter + (rowHeight + verticalGutter) * n + padding) * 2
             + padding;
 
-        // since <foreignObject> has a rendering issue on Webkit browesers,
-        // we cannot translate g. See the colorMixMap function for detail.
-
-        colorMixMap(mixG, derivedBuffers, interp, spec, top);
+        colorMixMap(mixG, canvas, derivedBuffers, interp, spec, top);
     }
 
 
     svg
-        .attr('width', colorMapWidth + padding * 2)
+        .attr('width', width + padding * 2)
         .attr('height', height + padding * 2)
 
 }
@@ -522,7 +507,7 @@ function bars(dest:SVGSVGElement, interp:Interpreter) {
                 axis: {
                     orient: "right",
                     title: false,
-                    format: ",.2f"
+                    format: ",.2s"
                 }
             }
         },
@@ -649,8 +634,11 @@ function punchcard(dest:SVGSVGElement, interp:Interpreter) {
     });
 }
 
-export default function LegendBuilder(svg:SVGSVGElement, interp:Interpreter) {
+export default function LegendBuilder(wrapper:HTMLDivElement, interp:Interpreter) {
     if(interp.compose.mix === "glyph") {
+        let svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+        wrapper.appendChild(svg);
+
         if(interp.compose.glyphSpec!.template === "bars") {
             bars(svg, interp);
         }
@@ -659,6 +647,6 @@ export default function LegendBuilder(svg:SVGSVGElement, interp:Interpreter) {
         }
     }
     else {
-        mixLegend(svg, interp);
+        mixLegend(wrapper, interp);
     }
 }
