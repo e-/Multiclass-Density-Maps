@@ -6,7 +6,7 @@
   }, 
   "buffers": [
     {
-      "url": "flight_delays2017_cat_AA.json", 
+      "url": "flight_delays2017_cat_1.json", 
       "count": 896348, 
       "range": [
         0, 
@@ -15,7 +15,7 @@
       "value": "AA"
     }, 
     {
-      "url": "flight_delays2017_cat_DL.json", 
+      "url": "flight_delays2017_cat_2.json", 
       "count": 923560, 
       "range": [
         0, 
@@ -24,7 +24,7 @@
       "value": "DL"
     }, 
     {
-      "url": "flight_delays2017_cat_UA.json", 
+      "url": "flight_delays2017_cat_3.json", 
       "count": 584481, 
       "range": [
         0, 

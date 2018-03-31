@@ -83,7 +83,7 @@ $(function() {
             
             interpreter = interp;
             interp.interpret();
-            interp.render($mdm.get(0)); //, width, height);
+            interp.render($mdm.get(0), width, height);
         });
     }
 
@@ -202,7 +202,7 @@ render('invmin (threshold = 0.00001)',
            },
            "rebin": {
                "type": "square",
-               "size": 8,
+               "size": 32,
                "aggregation": "sum"
            },
            "legend": {
@@ -371,8 +371,9 @@ render('Flight propline',
         //    },
             "compose": {
                "mix": "propline",
-               "size": 10,
+               "size": 64 / 3,
                "widthprop":"percent",
+               "sort": false
                 // "colprop":true
             },
             "legend": {

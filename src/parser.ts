@@ -179,6 +179,9 @@ export class ComposeSpec {
     // invmin
     threshold:number = 1;
 
+    // propline
+    sort:boolean = true;
+
     constructor(options?: ComposeSpec) {
         if(options) Object.assign(this, options);
     }

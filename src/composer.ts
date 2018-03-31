@@ -277,12 +277,13 @@ export default class Composer {
     }
 
     static hatch(tile:Tile, buffers:DerivedBuffer[], dataValues:number[],
-        thickness:number, widthprop:string|number, colprop:boolean=false): HTMLCanvasElement{
+        thickness:number, sort:boolean, widthprop:string|number, colprop:boolean=false): HTMLCanvasElement{
         let hatchCanvas = <HTMLCanvasElement>document.createElement('canvas');
         hatchCanvas.width  = tile.mask.width;
         hatchCanvas.height = tile.mask.height;
 
         let ctx = hatchCanvas.getContext("2d")!;
+
 
         ctx.drawImage(tile.mask.getCanvas(), 0, 0);
         ctx.globalCompositeOperation="source-atop";
@@ -303,8 +304,10 @@ export default class Composer {
 
         let acc = 0;
 
-        sorted.sort(function(a, b){return b.value - a.value})
-        .forEach(d => {
+        if(sort)
+            sorted = sorted.sort(function(a, b){return b.value - a.value});
+
+        sorted.forEach(d => {
             let dataValue = d.value;
             let i = d.index;
 
