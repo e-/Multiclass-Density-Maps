@@ -104,7 +104,8 @@ export default class Composer {
             height?:number,
             'y.scale.domain': [number, number],
             'y.scale.type'?: string,
-            'y.scale.base'?: number
+            'y.scale.base'?: number,
+            'y.scale.exponent'?: number
         } = {'y.scale.domain': [0, 1], 'y.scale.type': 'linear', 'y.scale.base': 10}
     ) {
         let data = buffers.map((buffer, i) => {
@@ -139,7 +140,8 @@ export default class Composer {
                     scale: {
                         domain: options['y.scale.domain'],
                         type: options['y.scale.type'],
-                        base: options['y.scale.base']
+                        base: options['y.scale.base'],
+                        exponent: options['y.scale.exponent']
                     },
                     lgend: false,
                     axis: false
@@ -275,12 +277,13 @@ export default class Composer {
     }
 
     static hatch(tile:Tile, buffers:DerivedBuffer[], dataValues:number[],
-        thickness:number, widthprop:string|number, colprop:boolean=false): HTMLCanvasElement{
+        thickness:number, sort:boolean, widthprop:string|number, colprop:boolean=false): HTMLCanvasElement{
         let hatchCanvas = <HTMLCanvasElement>document.createElement('canvas');
         hatchCanvas.width  = tile.mask.width;
         hatchCanvas.height = tile.mask.height;
 
         let ctx = hatchCanvas.getContext("2d")!;
+
 
         ctx.drawImage(tile.mask.getCanvas(), 0, 0);
         ctx.globalCompositeOperation="source-atop";
@@ -298,9 +301,12 @@ export default class Composer {
                 value: value
             });
         })
-        sorted.sort(function(a, b){return b.value - a.value});
 
         let acc = 0;
+
+        if(sort)
+            sorted = sorted.sort(function(a, b){return b.value - a.value});
+
         sorted.forEach(d => {
             let dataValue = d.value;
             let i = d.index;
@@ -311,15 +317,14 @@ export default class Composer {
             ctx.rotate(buffer.angle!);
             ctx.strokeStyle = buffer.colorScale.map(dataValue).css();
 
-            if (colprop){
-                //if (j==0) console.log(tile.dataValues[obj.index]+" = >"+buffers[obj.index].colorScale.map(tile.dataValues[obj.index]).css())
+            if (colprop)
                 ctx.strokeStyle = buffer.colorScale.map(dataValue).css();
-            }else
+            else
                 ctx.strokeStyle = buffer.color!.css();
 
-            if(typeof widthprop === "string" && widthprop=="none"){
+            if(widthprop === "none"){
               ctx.lineWidth = thickness;
-            } else if(typeof widthprop === "string" && widthprop=="percent"){
+            } else if(widthprop === "percent"){
               ctx.lineWidth = thickness * tile.dataValues.length * dataValue / sum;
             }else if(typeof widthprop === "number"){
               ctx.lineWidth = thickness * tile.dataValues.length * dataValue / widthprop;

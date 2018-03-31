@@ -39,18 +39,16 @@
           0,
           512
         ]
-      }
+      },
+      "type": "quantitative"
     },
     "z": {
-      "field": "ARR_DELAY",
-      "type": "nominal",
+      "field": "CARRIER",
       "scale": {
         "domain": [
-          1,
-          2,
-          3,
-          4,
-          5
+          "AA",
+          "DL",
+          "UA"
         ]
       }
     }

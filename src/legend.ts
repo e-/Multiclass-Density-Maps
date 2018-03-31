@@ -56,8 +56,9 @@ function equiDepthColorMap(defs:any, interpolator:Scale.ScaleTrait, db:DerivedBu
     scale.getBounds();
 
     // bounds do not include the last value
-    scale.bounds.concat([scale.bounds[n - 2] + 1]).forEach((value, i) => {
-        let color = db.colorScale.map(value - 1);
+    let bounds = [scale.minBound];
+    bounds.concat(scale.bounds).forEach((value, i) => {
+        let color = db.colorScale.map(value);
         if(isNaN(color.r)) color = Color.Transparent;
 
         lg.append('stop')
@@ -157,14 +158,16 @@ function colorRamps(
         let interpolator = derivedBuffers[0].colorScale.interpolator;
         gradientFunc = equiDepthColorMap;
 
-        tickValues = [interpolator.domain[0],
-                      Math.floor(interpolator.invmap(0.25)),
-                      Math.floor(interpolator.invmap(0.50)),
-                      Math.floor(interpolator.invmap(0.75)),
-                      interpolator.domain[1]];
-              //.concat((interp.scale as Scale.EquiDepthScale).bounds);
+        // tickValues = [interpolator.domain[0],
+        //               interpolator.invmap(0.25),
+        //               interpolator.invmap(0.50),
+        //               interpolator.invmap(0.75),
+        //               interpolator.domain[1]];
+        tickValues = [interpolator.domain[0]].concat((interp.scale as Scale.EquiDepthScale).bounds);
 
         colormapScale = (v, i) => width / (tickValues.length - 1) * i;
+
+        // console.log(tickValues);
         markerValues = [];
     }
 
@@ -500,6 +503,7 @@ function bars(dest:SVGSVGElement, interp:Interpreter) {
                 scale: {
                     type: interp.d3scale,
                     base: interp.d3base,
+                    exponent: interp.d3exponent,
                     domain: domain,
                     range: [glyphSpec.height, 0]
                 },
@@ -629,7 +633,7 @@ function punchcard(dest:SVGSVGElement, interp:Interpreter) {
 
         svgNode.innerHTML = result.innerHTML;
         let rect = svgNode.getBoundingClientRect();
-        svg.attr("width", <any>result.getAttribute("width"))
+        svg.attr("width", spec.width)
             .attr("height", <any>result.getAttribute("height"));
     });
 }

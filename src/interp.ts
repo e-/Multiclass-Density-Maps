@@ -57,6 +57,7 @@ export default class Interpreter {
     // d3 name of scale, used for legend
     public d3scale:string = "linear";
     public d3base:number = 10;
+    public d3exponent:number = Math.E;
 
     constructor(public configuration:Parser.Configuration) {
         if (! configuration.validate())
@@ -132,7 +133,7 @@ export default class Interpreter {
         else if (this.rescale.type === "log")
             this.scale = new Scale.LogScale([1, maxCount], [0, 1]);
         else if (this.rescale.type === "equidepth") {
-            let equidepth = new Scale.EquiDepthScale([1, maxCount], [0, 1], this.rescale.levels);
+            let equidepth = new Scale.EquiDepthScale([0, maxCount], [0, 1], this.rescale.levels);
             for (let tile of this.tiles)
                 equidepth.addPoints(tile.dataValues);
             equidepth.computeBounds();
@@ -402,7 +403,13 @@ export default class Interpreter {
             }
         }
 
-        if (this.composer != Composer.none) {
+        if (this.composer == Composer.invmin) {
+            for(let tile of this.tiles) {
+                let color = Composer.invmin(this.derivedBuffers, tile.dataValues, this.compose.threshold);
+                this.image[0].render(color, tile);
+            }
+        }
+        else if (this.composer != Composer.none) {
             for(let tile of this.tiles) {
                 let color = this.composer(this.derivedBuffers, tile.dataValues);
                 this.image[0].render(color, tile);
@@ -417,8 +424,10 @@ export default class Interpreter {
             }
         }
         else if (this.compose.mix === "propline") {
-            for(let tile of this.tiles) {let hatch = Composer.hatch(tile, this.derivedBuffers, tile.dataValues, this.compose.size,
-                                           this.compose.widthprop, this.compose.colprop);
+            for(let tile of this.tiles) {
+                let hatch = Composer.hatch(tile, this.derivedBuffers, tile.dataValues, this.compose.size,
+                                            this.compose.sort, this.compose.widthprop, this.compose.colprop);
+
                 this.image[0].render(hatch, tile.center);
             }
         }
@@ -434,10 +443,10 @@ export default class Interpreter {
 
                 if (typeof this.compose.widthprop === "number")
                   hatch= Composer.hatch(tile, this.derivedBuffers, tile.dataValues, this.compose.size,
-                                              this.compose.widthprop*maxCount, this.compose.colprop);
+                    this.compose.sort, this.compose.widthprop*maxCount, this.compose.colprop);
                 else
                   hatch = Composer.hatch(tile, this.derivedBuffers, tile.dataValues, this.compose.size,
-                                               this.compose.widthprop, this.compose.colprop);
+                    this.compose.sort, this.compose.widthprop, this.compose.colprop);
 
                 this.image[0].render(hatch, tile.center);
             }
@@ -446,7 +455,7 @@ export default class Interpreter {
             let maxCount = util.amax(this.tiles.map(tile => tile.maxValue()));
             let glyphSpec = this.compose.glyphSpec!;
 
-            let d3scale, d3base = 1;
+            let d3scale, d3base = 1, d3exponent = Math.E;
             if(this.scale instanceof Scale.LinearScale) {
                 d3scale = 'linear';
             }
@@ -454,12 +463,17 @@ export default class Interpreter {
                 d3scale = 'log';
                 d3base = (<Scale.LogScale>this.scale).base;
             }
+            else if(this.scale instanceof Scale.RootScale) {
+                d3scale = 'pow';
+                d3exponent = 1 / this.scale.degree;
+            }
             else {
                 throw 'failed to convert a scale to a d3 scale. Please add a specification';
             }
 
             this.d3base = d3base;
             this.d3scale = d3scale;
+            this.d3exponent = d3exponent;
 
             if(glyphSpec.template === "bars") {
                 let width = glyphSpec.width; // tile.mask.width;
@@ -474,7 +488,8 @@ export default class Interpreter {
                         height: glyphSpec.height,
                         'y.scale.domain': this.scale.domain as [number, number],
                         'y.scale.type': d3scale,
-                        'y.scale.base': d3base
+                        'y.scale.base': d3base,
+                        'y.scale.exponent': d3exponent
                     }).then((vegaCanvas) => {
                         let rect = tile.getRectAtCenter();
                         if(!rect || rect.width() < width || rect.height() < height) return;
@@ -625,13 +640,13 @@ export default class Interpreter {
         }
 
         if(this.axis) {
-            this.renderAxis(mapCanvas, axisSVG);
+            this.renderAxis(mapCanvas, axisSVG, forcedWidth, forcedHeight);
         }
 
         if(this.stroke) this.renderStroke(mapCanvas);
     }
 
-    private renderAxis(map:HTMLCanvasElement, native:SVGSVGElement) {
+    private renderAxis(map:HTMLCanvasElement, native:SVGSVGElement, forcedWidth?:number, forcedHeight?:number) {
         let svg:any = d3.select(native);
         let margin = {
             left: this.axis!.marginLeft,
@@ -644,37 +659,46 @@ export default class Interpreter {
         map.style.left = margin.left + "px";
         map.style.top = margin.top + "px";
 
-        svg
-            .attr('width', this.width + margin.left + margin.right)
-            .attr('height', this.height + margin.top + margin.bottom);
+        let width = forcedWidth || this.width;
+        let height = forcedHeight || this.height;
 
-        let xAxisG = svg.append('g').attr('transform', translate(margin.left, margin.top + this.height));
-        let x = d3.scaleLinear().domain(this.xdomain).range([0, this.width]);
+        svg
+            .attr('width', width + margin.left + margin.right)
+            .attr('height', height + margin.top + margin.bottom);
+
+        let xAxisG = svg.append('g').attr('transform', translate(margin.left, margin.top + height));
+        let x = d3.scaleLinear().domain(this.xdomain).range([0, width]);
         xAxisG.call(d3.axisBottom(x));
 
         let yAxisG = svg.append('g').attr('transform', translate(margin.left, margin.top));
-        let y = d3.scaleLinear().domain(this.ydomain).range([0, this.height]);
+        let y = d3.scaleLinear().domain(this.ydomain).range([0, height]);
         yAxisG.call(d3.axisLeft(y));
 
 
+        let xTitle = this.dataSpec.encoding!.x.field;
+        let yTitle = this.dataSpec.encoding!.y.field;
+
+        if(this.axis!.x && this.axis!.x!.title) xTitle = this.axis!.x!.title!;
+        if(this.axis!.y && this.axis!.y!.title) yTitle = this.axis!.y!.title!;
+
         svg.append('text')
-            .attr('transform', translate(this.width / 2 + margin.left, margin.top + this.height + margin.bottom))
+            .attr('transform', translate(width / 2 + margin.left, margin.top + height + margin.bottom))
             .style('font-size', '11px')
             .style('font-family', 'sans-serif')
             .attr('text-anchor', 'middle')
             .attr('dy', '-.5em')
             .style('font-weight', 'bold')
-            .text(this.dataSpec.encoding!.x.field)
+            .text(xTitle)
 
         svg.append('text')
-            .attr("transform", translate(0, margin.top + this.height / 2) + "rotate(-90)")
+            .attr("transform", translate(0, margin.top + height / 2) + "rotate(-90)")
             .attr("dy", ".71em")
             .attr("y", "3px")
             .style('font-size', '11px')
             .style('font-family', 'sans-serif')
             .style("text-anchor", "middle")
             .style('font-weight', 'bold')
-            .text(this.dataSpec.encoding!.y.field);
+            .text(yTitle);
     }
 
     private renderStroke(canvas:HTMLCanvasElement | string)

@@ -4,7 +4,6 @@ import os.path
 import json
 import numpy as np
 import pandas as pd
-import pyproj
 
 def csv_to_databuffers(filename, x, y, category, width=512, height=None,
                        xmin=None, ymin=None, xmax=None, ymax=None,
@@ -17,52 +16,53 @@ def csv_to_databuffers(filename, x, y, category, width=512, height=None,
 
     # Make operation on two colums
     if '/' in x and '/' in y:
-      x1 = x[:x.index('/')]
-      x2 = x[x.index('/')+1:]
-      y1 = y[:y.index('/')]
-      y2 = y[y.index('/')+1:]
-      df = pd.read_csv(filename, usecols=[x1, x2, y1, y2, category])
-      df[x] = df[x1]/df[x2]
-      df[y] = df[y1]/df[y2]
+        x1 = x[:x.index('/')]
+        x2 = x[x.index('/')+1:]
+        y1 = y[:y.index('/')]
+        y2 = y[y.index('/')+1:]
+        df = pd.read_csv(filename, usecols=[x1, x2, y1, y2, category])
+        df[x] = df[x1]/df[x2]
+        df[y] = df[y1]/df[y2]
     if '/' in y:
-      y1 = y[:y.index('/')]
-      y2 = y[y.index('/')+1:]
-      df = pd.read_csv(filename, usecols=[x, y1, y2, category])
-      df[y] = df[y1]/df[y2]
+        y1 = y[:y.index('/')]
+        y2 = y[y.index('/')+1:]
+        df = pd.read_csv(filename, usecols=[x, y1, y2, category])
+        df[y] = df[y1]/df[y2]
 
     elif '/' in x:
-      x1 = x[:x.index('/')]
-      x2 = x[x.index('/')+1:]
-      df = pd.read_csv(filename, usecols=[x1, x2, y, category])
-      df[x] = df[x1]/df[x2]
+        x1 = x[:x.index('/')]
+        x2 = x[x.index('/')+1:]
+        df = pd.read_csv(filename, usecols=[x1, x2, y, category])
+        df[x] = df[x1]/df[x2]
 
     else :
-      df = pd.read_csv(filename, usecols=[x, y, category])
+         df = pd.read_csv(filename, usecols=[x, y, category])
 
     # filter the categories
     if catfilter:
-      df = df[df[category].isin( catfilter.split(','))] #filter categories
+        df = df[df[category].isin( catfilter.split(','))] #filter categories
+
 
     print(catvalmin)
     print(catvalmax)
 
     # transform a numerical data into categories
     if catvalnum:
-      if catvalmin and catvalmax:
-        df = df[(df[category] >= float(catvalmin)) & (df[category] <= float(catvalmax))]
-      elif catvalmin:
-        df = df[(df[category] >= float(catvalmin))]
-      elif catvalmax:
-        df = df[(df[category] <= float(catvalmax))]
+        if catvalmin and catvalmax:
+            df = df[(df[category] >= float(catvalmin)) & (df[category] <= float(catvalmax))]
+        elif catvalmin:
+            df = df[(df[category] >= float(catvalmin))]
+        elif catvalmax:
+            df = df[(df[category] <= float(catvalmax))]
 
-      df[category] = pd.cut(df[category], int(catvalnum))
-
+        df[category] = pd.cut(df[category], int(catvalnum))
 
 
     df[category] = df[category].astype("category")
     description = {'source': {"filename": filename, "type": "csv"}}
     if projection:
         description['projection'] = {"type": projection}
+        import pyproj
         proj = pyproj.Proj(init=projection, preserve_units=True)
 
     if xmin is None:
@@ -140,7 +140,7 @@ def csv_to_databuffers(filename, x, y, category, width=512, height=None,
                   },
               "aggregate": "count",
               "scale": {
-                  "domain": [ymin, ymax],
+                  "domain": [ymax, ymin],
                   "range": [0, height]
                   }
              },
@@ -158,6 +158,7 @@ def csv_to_databuffers(filename, x, y, category, width=512, height=None,
     for (key, histo) in histograms.items():
         histo = histo.T
         histo = np.flipud(histo)
+        histo = histo / np.sum(histo) * 100
         hmin = np.min(histo)
         hmax = np.max(histo)
         outfile = root + '_cat_%s.json'%key
