@@ -2,42 +2,42 @@
   "source": {
     "filename": "flight_delays2017.csv",
     "type": "csv",
-    "rows": 2001029
+    "rows": 5414180
   },
   "encoding": {
     "x": {
-      "field": "DISTANCE",
+      "field": "AIR_TIME",
       "type": "quantitative",
       "bin": {
-        "maxbins": 256
+        "maxbins": 512
+      },
+      "aggregate": "count",
+      "scale": {
+        "domain": [
+          -20.0,
+          500.0
+        ],
+        "range": [
+          0,
+          512
+        ]
+      }
+    },
+    "y": {
+      "field": "DISTANCE/AIR_TIME",
+      "type": "quantitative",
+      "bin": {
+        "maxbins": 512
       },
       "aggregate": "count",
       "scale": {
         "domain": [
           0.0,
-          3500.0
+          12.0
         ],
         "range": [
           0,
-          256
-        ]
-      }
-    },
-    "y": {
-      "field": "AIR_TIME",
-      "type": "quantitative",
-      "bin": {
-        "maxbins": 256
-      },
-      "aggregate": "count",
-      "scale": {
-        "domain": [
-          13.265895953757225,
-          0.7263157894736842          
-        ],
-        "range": [
-          0,
-          256
+          512
         ]
       }
     },
@@ -58,47 +58,47 @@
   "buffers": [
     {
       "url": "flight_delays2017_cat_1.json",
-      "count": 1514613,
+      "count": 4888654,
       "value": 1,
       "range": [
         0,
-        2328
+        5475
       ]
     },
     {
       "url": "flight_delays2017_cat_2.json",
-      "count": 276076,
+      "count": 378014,
       "value": 2,
       "range": [
         0,
-        517
+        573
       ]
     },
     {
       "url": "flight_delays2017_cat_3.json",
-      "count": 116142,
+      "count": 99208,
       "value": 3,
       "range": [
         0,
-        205
+        134
       ]
     },
     {
       "url": "flight_delays2017_cat_4.json",
-      "count": 60449,
+      "count": 34607,
       "value": 4,
       "range": [
         0,
-        105
+        42
       ]
     },
     {
       "url": "flight_delays2017_cat_5.json",
-      "count": 33749,
+      "count": 13697,
       "value": 5,
       "range": [
         0,
-        47
+        18
       ]
     }
   ]
