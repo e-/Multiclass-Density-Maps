@@ -1,5 +1,8 @@
 # Multiclass Density Maps
 
+![teaser](https://raw.githubusercontent.com/e-/Multiclass-Density-Maps/master/teaser.png)
+
+
 ## Development
 
 Install NodeJS and NPM from https://nodejs.org/en/download/
