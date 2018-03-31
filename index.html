@@ -66,7 +66,7 @@ $(function() {
             $mdm = $('<div class="mdm">').appendTo($body),
             // $canvas = $('<canvas class="map">').attr('id', id).appendTo($mdm),
             // $legend= $(SVG()).attr('class', 'legend').attr('id', legendId).appendTo($mdm),
-            $desc = $('<p class="card-text">').html(spec.description).appendTo($body),
+            $desc = $('<p class="card-text">').html('').appendTo($body),
             $pre = $('<code>').css('display', 'none').appendTo($body),
             $code = $('<pre>').appendTo($pre).text(JSON.stringify(spec, null, 2)),
             $button = $('<button class="btn btn-primary">').text('Toggle MDM Specification').appendTo($body);
@@ -111,19 +111,7 @@ render('Log Color Scale',
            }
        });
 
-// render('Time Multiplexing',
-//        {
-//            "description": "multivariate normal data",
-//            "data": {"url": "mn_data.json"},
-//            "compose": {
-//                "mix": "time"
-//            },
-//            "rescale": {
-//                "type": "log"
-//            }
-//        }, false, 0, 0, 4);
-
-render('EquiDepth Color Scale (levels=3)',
+render('EquiDepth Color Scale',
        {
            "description": "multivariate normal data",
            "data": {"url": "mn_data.json"},
@@ -137,7 +125,7 @@ render('EquiDepth Color Scale (levels=3)',
            }
        });
 
-render('EquiDepth Color Scale Small Multiples (levels=4)',
+render('EquiDepth Color Scale Small Multiples',
        {
            "description": "multivariate normal data",
            "data": {"url": "mn_data.json"},
@@ -161,7 +149,7 @@ render('Random Rectangular Weaving',
            }
        });
 
-render('Rectangular binning + circles',
+render('Rectangular Rebinning + Punchcard',
        {
            "description": "multivariate normal data",
            "data": {"url": "mn_data.json"},
@@ -193,7 +181,7 @@ render('Square Rectangular Weaving',
            }
        });
 
-render('Linear Color Scale hex',
+render('Linear Color Scale Hex',
        {
            "description": "multivariate normal data",
            "data": {"url": "mn_data.json"},
@@ -206,7 +194,7 @@ render('Linear Color Scale hex',
            }
        });
 
-render('EquiDepth Color Scale triangles',
+render('EquiDepth Color Scale Triangles',
        {
            "description": "multivariate normal data",
            "data": {"url": "mn_data.json"},
@@ -222,72 +210,6 @@ render('EquiDepth Color Scale triangles',
            }
        });
 
-render('Census Data',
-{
-    "description": "US Census Synthetic people",
-    "data": {"url": "census.snappy_data.json"},
-    "reencoding": {
-        "label": {
-            "field": "z",
-            "type": "nominal",
-            "scale": {
-                "domain": ["w", "h", "a", "b", "o"],
-                "range": ["White", "Hispanic", "Asian", "Black", "Other"]
-            }
-        },
-        "color": {
-            "field": "z",
-            "type": "nominal",
-            "scale": {
-                "range": ["Blue", "Orange", "Red", "Green", "Brown"]
-            }
-        }
-    },
-    "compose": {
-        "mix": "mean",
-        "mixing": "additive"
-    },
-    "rescale": {
-        "type": "log"
-    },
-    "legend": {
-        "labelWidth": 60
-    }
-}, true);
-
-render('Census Data Smoothed',
-{
-    "description": "US Census Synthetic people",
-    "data": {"url": "census.snappy_data.json"},
-    "smooth": {"radius": 1},
-    "reencoding": {
-        "label": {
-            "field": "z",
-            "type": "nominal",
-            "scale": {
-                "domain": ["w", "h", "a", "b", "o"],
-                "range": ["White", "Hispanic", "Asian", "Black", "Other"]
-            }
-        },
-        "color": {
-            "field": "z",
-            "type": "nominal",
-            "scale": {
-                "range": ["Blue", "Orange", "Red", "Green", "Brown"]
-            }
-        }
-    },
-    "compose": {
-        "mix": "mean",
-        "mixing": "additive"
-    },
-    "rescale": {
-        "type": "log"
-    },
-    "legend": {
-        "labelWidth": 60
-    }
-}, true);
 
 render('Voronoi Tiling',
        {
@@ -304,7 +226,7 @@ render('Voronoi Tiling',
            }
        });
 
-render('Voronoi Tiling(dot densities)',
+render('Voronoi Tiling + Dot Densities',
        {
            "description": "multivariate normal data",
            "data": {"url": "mn_data.json"},
@@ -317,7 +239,7 @@ render('Voronoi Tiling(dot densities)',
                "mix": "dotdensity"
            }
        });
-render('Voronoi Tiling (Multiplicative)',{
+render('Voronoi Tiling Multiplicative',{
     "description": "multivariate normal data",
     "data": {"url": "mn_data.json"},
     "smooth": {},
@@ -342,7 +264,7 @@ render('Voronoi Tiling (Multiplicative)',{
     }
 });
 
-render('Voronoi Tiling + Prop. lines',
+render('Voronoi Tiling + Prop. Lines',
        {
            "description": "multivariate normal data",
            "data": {"url": "mn_data.json"},
@@ -375,7 +297,7 @@ render('Voronoi Tiling + Hatching',
            }
        });
 
-render('Voronoi Tiling (glyph - bars)',{
+render('Voronoi Tiling + Bars',{
     "description": "multivariate normal data",
     "data": {"url": "mn_data.json"},
     "smooth": {},
@@ -393,6 +315,68 @@ render('Voronoi Tiling (glyph - bars)',{
         }
     }
 });
+
+
+render('Census Data',
+{
+    "description": "US Census Synthetic people",
+    "data": {"url": "census.snappy_data.json"},
+    "reencoding": {
+        "label": {
+            "field": "z",
+            "type": "nominal",
+            "scale": {
+                "domain": ["w", "h", "a", "b", "o"],
+                "range": ["White", "Hispanic", "Asian", "Black", "Other"]
+            }
+        },
+        "color": {
+            "field": "z",
+            "type": "nominal",
+            "scale": {
+                "range": ["Blue", "Orange", "Red", "Green", "Brown"]
+            }
+        }
+    },
+    "compose": {
+        "mix": "mean",
+        "mixing": "additive"
+    },
+    "rescale": {
+        "type": "log"
+    }
+}, true);
+
+render('Census Data Smoothed',
+{
+    "description": "US Census Synthetic people",
+    "data": {"url": "census.snappy_data.json"},
+    "smooth": {"radius": 1},
+    "reencoding": {
+        "label": {
+            "field": "z",
+            "type": "nominal",
+            "scale": {
+                "domain": ["w", "h", "a", "b", "o"],
+                "range": ["White", "Hispanic", "Asian", "Black", "Other"]
+            }
+        },
+        "color": {
+            "field": "z",
+            "type": "nominal",
+            "scale": {
+                "range": ["Blue", "Orange", "Red", "Green", "Brown"]
+            }
+        }
+    },
+    "compose": {
+        "mix": "mean",
+        "mixing": "additive"
+    },
+    "rescale": {
+        "type": "log"
+    }
+}, true);
 
 render('Census Data Random Weaving',
 {
@@ -434,61 +418,10 @@ render('Census Data Random Weaving',
     },
     "rescale": {
         "type": "log"
-    },
-    "legend": {
-        "labelWidth": 60
     }
 }, true);
 
-render('Census Data Contour',
-{
-    "description": "US Census Synthetic people",
-    "data": {"url": "census.snappy_data.json"},
-    "reencoding": {
-        "label": {
-            "field": "z",
-            "type": "nominal",
-            "scale": {
-                "domain": ["w", "h", "a", "b", "o"],
-                "range": ["White", "Hispanic", "Asian", "Black", "Other"]
-            }
-        },
-        "color": {
-            "field": "z",
-            "type": "nominal",
-            "scale": {
-                "range": ["Blue", "Orange", "Red", "Green", "Brown"]
-            }
-        }
-    },
-    "rebin": {
-          "type": "topojson",
-          "url": "us.json",
-          /*"feature": "counties",
-            "minfeature": 0,
-          "maxfeature": 3100,*/
-          "feature": "states",
-          /*"minfeature": 0,
-          "maxfeature": 49,*/
-          "stroke": "grey"
-
-    },
-    "compose": {
-          "mix": "none"
-    },
-    "rescale": {
-        "type": "linear"
-    },
-    "contour": {
-          "stroke": 12,
-          "blur": 1
-    },
-    "legend": {
-        "labelWidth": 60
-    }
-}, true);
-
-render('Census Data weaving',
+render('Census Data Weaving',
 {
     "description": "US Census Synthetic people",
     "data": {"url": "census.snappy_data.json"},
@@ -522,15 +455,48 @@ render('Census Data weaving',
     },
     "rescale": {
         "type": "log"
-    },
-
-
-    "legend": {
-        "labelWidth": 60
     }
 }, true);
 
-render('Census Data multiplicative choropleth',
+
+render('Census Data Choropleth',
+{
+    "description": "US Census Synthetic people",
+    "data": {"url": "census.snappy_data.json"},
+    "reencoding": {
+        "label": {
+            "field": "z",
+            "type": "nominal",
+            "scale": {
+                "domain": ["w", "h", "a", "b", "o"],
+                "range": ["White", "Hispanic", "Asian", "Black", "Other"]
+            }
+        },
+        "color": {
+            "field": "z",
+            "type": "nominal",
+            "scale": {
+                "range": ["Blue", "Orange", "Red", "Green", "Brown"]
+            }
+        }
+    },
+    "rebin": {
+          "type": "topojson",
+          "url": "us.json",
+          "feature": "states",
+          "stroke": "white"
+
+    },
+    "compose": {
+          "mix": "mean",
+          "size": 2
+    },
+    "rescale": {
+        "type": "cbrt"
+    }
+}, true);
+
+render('Census Data Multiplicative Choropleth',
 {
     "description": "US Census Synthetic people",
     "data": {"url": "census.snappy_data.json"},
@@ -565,55 +531,9 @@ render('Census Data multiplicative choropleth',
     },
     "rescale": {
         "type": "log"
-    },
-
-
-    "legend": {
-        "labelWidth": 60
     }
 }, true);
 
-render('Census Data choropleth',
-{
-    "description": "US Census Synthetic people",
-    "data": {"url": "census.snappy_data.json"},
-    "reencoding": {
-        "label": {
-            "field": "z",
-            "type": "nominal",
-            "scale": {
-                "domain": ["w", "h", "a", "b", "o"],
-                "range": ["White", "Hispanic", "Asian", "Black", "Other"]
-            }
-        },
-        "color": {
-            "field": "z",
-            "type": "nominal",
-            "scale": {
-                "range": ["Blue", "Orange", "Red", "Green", "Brown"]
-            }
-        }
-    },
-    "rebin": {
-          "type": "topojson",
-          "url": "us.json",
-          "feature": "states",
-          "stroke": "white"
-
-    },
-    "compose": {
-          "mix": "mean",
-          "size": 2
-    },
-    "rescale": {
-        "type": "sqrt"
-    },
-
-
-    "legend": {
-        "labelWidth": 60
-    }
-}, true);
 
 render('Census Data Contour',
 {
@@ -639,73 +559,24 @@ render('Census Data Contour',
     "rebin": {
           "type": "topojson",
           "url": "us.json",
+          /*"feature": "counties",
+            "minfeature": 0,
+          "maxfeature": 3100,*/
           "feature": "states",
+          /*"minfeature": 0,
+          "maxfeature": 49,*/
           "stroke": "grey"
 
-    },
-    "compose": {
-          "mix": "none"
-    },
-    "rescale": {
-        "type": "linear"
-    },
-    "contour": {
-          "stroke": 4,
-          "colProp":false,
-          "lineWidth":2,
-          "blur": 4
-    },
-    "legend": {
-        "labelWidth": 60
-    }
-}, true);
-
-/*
-
-// loads big json files
-
-render('French Presidential Election',
-{
-    "description": "5 main candidate at Round #1",
-    "data": {"url": "francePresElec_data.json"},
-    "smooth": {},
-    "reencoding": {
-        "label": {
-            "field": "z",
-            "type": "nominal",
-            "scale": {
-                "domain": ["melenchon", "hamon", "macron", "fillon", "lepen"],
-                "range": ["Melenchon", "Hamon", "Macron", "Fillon", "Lepen"]
-            }
-        },
-        "color": {
-            "field": "z",
-            "type": "nominal",
-            "scale": {
-                "range": ["Red", "Pink", "Orange", "Blue", "Brown"]
-            }
-        }
-    },
-    "rebin": {
-          "type": "topojson",
-          "url": "franceD.json",
-          "feature": "poly",
-          "stroke": "grey"
-    },
-    "compose": {
-          "mix": "none"
     },
     "rescale": {
         "type": "cbrt"
     },
     "contour": {
-      "blur": 3,
-      "lineWidth":3,
-      "colProp":false,
-      "stroke": 4
+          "stroke": 5,
+          "lineWidth": 1,
+          "blur": 1
     }
-}, true, 600, 520);
-*/
+}, true);
 
     })
 

@@ -56,8 +56,9 @@ function equiDepthColorMap(defs:any, interpolator:Scale.ScaleTrait, db:DerivedBu
     scale.getBounds();
 
     // bounds do not include the last value
-    scale.bounds.concat([scale.bounds[n - 2] + Number.EPSILON]).forEach((value, i) => {
-        let color = db.colorScale.map(value - Number.EPSILON);
+    let bounds = [scale.minBound];
+    bounds.concat(scale.bounds).forEach((value, i) => {
+        let color = db.colorScale.map(value);
         if(isNaN(color.r)) color = Color.Transparent;
 
         lg.append('stop')
@@ -632,7 +633,7 @@ function punchcard(dest:SVGSVGElement, interp:Interpreter) {
 
         svgNode.innerHTML = result.innerHTML;
         let rect = svgNode.getBoundingClientRect();
-        svg.attr("width", <any>result.getAttribute("width"))
+        svg.attr("width", spec.width)
             .attr("height", <any>result.getAttribute("height"));
     });
 }
