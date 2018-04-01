@@ -14,7 +14,10 @@ import * as util from './util';
 import Mask from './mask';
 import * as Weaving from './weaving';
 import LegendBuilder from './legend';
-import * as d3 from 'd3';
+import * as d3g from 'd3-geo';
+import * as d3s from 'd3-selection';
+import * as d3sc from 'd3-scale';
+import * as d3a from 'd3-axis';
 import {translate} from './util';
 
 export default class Interpreter {
@@ -550,7 +553,7 @@ export default class Interpreter {
 
             if (this.contour.stroke > 0) {
                 // Assume all the scales are shared between derived buffers
-                let path   = d3.geoPath(null, ctx),
+                let path   = d3g.geoPath(null, ctx),
                 thresholds = this.derivedBuffers[0].thresholds(this.contour.stroke);
 
                 ctx.strokeStyle = 'black';
@@ -647,7 +650,7 @@ export default class Interpreter {
     }
 
     private renderAxis(map:HTMLCanvasElement, native:SVGSVGElement, forcedWidth?:number, forcedHeight?:number) {
-        let svg:any = d3.select(native);
+        let svg:any = d3s.select(native);
         let margin = {
             left: this.axis!.marginLeft,
             bottom: this.axis!.marginBottom,
@@ -667,12 +670,12 @@ export default class Interpreter {
             .attr('height', height + margin.top + margin.bottom);
 
         let xAxisG = svg.append('g').attr('transform', translate(margin.left, margin.top + height));
-        let x = d3.scaleLinear().domain(this.xdomain).range([0, width]);
-        xAxisG.call(d3.axisBottom(x));
+        let x = d3sc.scaleLinear().domain(this.xdomain).range([0, width]);
+        xAxisG.call(d3a.axisBottom(x));
 
         let yAxisG = svg.append('g').attr('transform', translate(margin.left, margin.top));
-        let y = d3.scaleLinear().domain(this.ydomain).range([0, height]);
-        yAxisG.call(d3.axisLeft(y));
+        let y = d3sc.scaleLinear().domain(this.ydomain).range([0, height]);
+        yAxisG.call(d3a.axisLeft(y));
 
 
         let xTitle = this.dataSpec.encoding!.x.field;

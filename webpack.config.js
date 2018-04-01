@@ -17,7 +17,7 @@ module.exports = {
         contentBase: './'
     },
     output: {
-        filename: 'bundle.js',
+        filename: 'multiclass-plots.js',
         path: path.resolve(__dirname, 'dist'),
         publicPath: '/dist/',
         library: 'MCP'

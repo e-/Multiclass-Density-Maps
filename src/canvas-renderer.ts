@@ -1,7 +1,8 @@
 import Image from './image';
 import Mask from './mask';
 import {arange} from './util';
-import * as d3 from 'd3';
+import * as d3a from 'd3-array';
+import * as d3s from 'd3-selection';
 
 export enum BlendingMode {
     Normal = 0,
@@ -155,20 +156,20 @@ export default class CanvasRenderer {
     static renderTimeMultiplexing(images:Image[], id:string, interval:number) {
         let ctx:CanvasRenderingContext2D;
         let n = images.length;
-        let ids = d3.range(n).map(i => id.replace("{i}", i.toString()));
+        let ids = d3a.range(n).map(i => id.replace("{i}", i.toString()));
         images.forEach((image, i) => {
             ctx = CanvasRenderer.render(image, ids[i]);
         });
 
         let target = 0;
-        d3.select('#' + ids[0]).style('opacity', 1);
+        d3s.select('#' + ids[0]).style('opacity', 1);
         for(let i = 1; i < n; ++i) {
-            let canvas = d3.select('#' + ids[i]).style('opacity', 0);
+            let canvas = d3s.select('#' + ids[i]).style('opacity', 0);
         }
 
         function repeat() {
-            let hide = d3.select('#' + ids[target]);
-            let show = d3.select('#' + ids[(target + 1) % n]);
+            let hide = d3s.select('#' + ids[target]);
+            let show = d3s.select('#' + ids[(target + 1) % n]);
 
             hide.transition().style('opacity', 0);
             show.transition().style('opacity', 1);

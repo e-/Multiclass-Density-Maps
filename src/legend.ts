@@ -1,4 +1,6 @@
-import * as d3 from 'd3';
+import * as d3s from 'd3-selection';
+import * as d3a from 'd3-array';
+import * as d3f from 'd3-format';
 import DerivedBuffer from './derived-buffer';
 import * as Parser from './parser';
 import Color from './color';
@@ -73,7 +75,7 @@ function equiDepthColorMap(defs:any, interpolator:Scale.ScaleTrait, db:DerivedBu
     return id;
 }
 
-function colorCategories(g:d3.Selection<d3.BaseType, {}, HTMLElement, any>,
+function colorCategories(g:d3s.Selection<d3s.BaseType, {}, HTMLElement, any>,
     derivedBuffers:DerivedBuffer[],
     spec:Parser.LegendSpec, labels:string[], title:string = "category") {
 
@@ -116,8 +118,8 @@ function colorCategories(g:d3.Selection<d3.BaseType, {}, HTMLElement, any>,
 }
 
 function colorRamps(
-    g:d3.Selection<d3.BaseType, {}, HTMLElement, any>,
-    defs:d3.Selection<d3.BaseType, {}, HTMLElement, any>,
+    g:d3s.Selection<d3s.BaseType, {}, HTMLElement, any>,
+    defs:d3s.Selection<d3s.BaseType, {}, HTMLElement, any>,
     derivedBuffers:DerivedBuffer[],
     interp:Interpreter, spec:Parser.LegendSpec, title:string = "scale") {
 
@@ -152,7 +154,7 @@ function colorRamps(
         tickValues = [derivedBuffers[0].colorScale.interpolator.domain[0],
                     derivedBuffers[0].colorScale.interpolator.domain[1]];
 
-        markerValues = d3.range(n).map(i => tickValues[0] + (tickValues[1] - tickValues[0]) * (i + 1) / (n + 1));
+        markerValues = d3a.range(n).map(i => tickValues[0] + (tickValues[1] - tickValues[0]) * (i + 1) / (n + 1));
     }
     else if(interp.rescale!.type === "equidepth") { // discrete such as equidepth
         let interpolator = derivedBuffers[0].colorScale.interpolator;
@@ -225,7 +227,7 @@ function colorRamps(
         .attr('dy', '1em')
         .style('font-size', spec.tickFontSize)
         .style('font-weight', 'normal')
-        .text(d => d3.format(spec.format)(d))
+        .text(d => d3f.format(spec.format)(d))
 
     valueEnter
         .selectAll('line')
@@ -243,7 +245,7 @@ function colorRamps(
 
 }
 
-function colorMixMap(g:d3.Selection<d3.BaseType, {}, HTMLElement, any>,
+function colorMixMap(g:d3s.Selection<d3s.BaseType, {}, HTMLElement, any>,
     canvas:HTMLCanvasElement,
     derivedBuffers:DerivedBuffer[],
     interp:Interpreter,
@@ -319,7 +321,7 @@ function mixLegend(wrapper:HTMLDivElement, interp:Interpreter) {
     let derivedBuffers:DerivedBuffer[] = interp.derivedBuffers;
     let spec = interp.legend as Parser.LegendSpec;
 
-    let svg:any = d3.select(dest)
+    let svg:any = d3s.select(dest)
         .style('font-family', spec.fontFamily)
         .style('font-size', spec.fontSize)
 
@@ -387,7 +389,7 @@ function multiplicativeCircles(id:string, interp:Interpreter) {
     let spec = interp.legend as Parser.LegendSpec;
 
     let size = spec.size;
-    let svg = d3.select('#' + id)
+    let svg = d3s.select('#' + id)
         .style('font-family', spec.fontFamily)
         .style('font-size', spec.fontSize)
         .attr('width', size)
@@ -439,7 +441,7 @@ function bars(dest:SVGSVGElement, interp:Interpreter) {
     let n = derivedBuffers.length;
     let spec = interp.legend as Parser.LegendSpec;
 
-    let svg = d3.select(dest)
+    let svg = d3s.select(dest)
         .style('font-family', spec.fontFamily)
         .style('font-size', spec.fontSize)
 
@@ -545,7 +547,7 @@ function punchcard(dest:SVGSVGElement, interp:Interpreter) {
     let spec = interp.legend as Parser.LegendSpec;
     let glyphSpec = interp.compose.glyphSpec!;
 
-    let svg = d3.select(dest)
+    let svg = d3s.select(dest)
         .style('font-family', spec.fontFamily)
         .style('font-size', spec.fontSize)
 

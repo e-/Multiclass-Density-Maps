@@ -1,8 +1,8 @@
 import Tile from './tile';
 import Mask from './mask';
 import * as GeoJSON from 'geojson';
-import * as d3 from 'd3';
-import * as D3Geo from 'd3-geo';
+import * as d3v from 'd3-voronoi';
+import * as d3g from 'd3-geo';
 import * as topo from 'topojson';
 import * as rn from 'random-seed';
 import proj4 from 'proj4';
@@ -32,10 +32,10 @@ export function topojsonTiling(width:number, height:number,
                                debug:boolean=false):Tile[] {
   let tiles:Tile[] = [];
 
-  let proj = d3.geoEquirectangular();
+  let proj = d3g.geoEquirectangular();
   if (projectionName == "Equirectangular"){} // pass
   else if (projectionName=="epsg:3857" || projectionName=="Mercator")
-    proj = d3.geoMercator();
+    proj = d3g.geoMercator();
   else {
     console.log('Searching for projection '+projectionName);
     let p4 = proj4(projectionName);
@@ -46,7 +46,7 @@ export function topojsonTiling(width:number, height:number,
     // project.invert = (x:number, y:number) =>
     //      p4.inverse([x, y]).map(degreesToRadians);
 
-    proj = d3.geoProjection(<any>project);
+    proj = d3g.geoProjection(<any>project);
   }
 
   let allfeatures:any = topo.feature(wholetopojson, feature);
@@ -72,7 +72,7 @@ export function topojsonTiling(width:number, height:number,
   }
   else
     projection.fitSize([width, height], allfeatures);
-    let gp = d3.geoPath(projection);
+    let gp = d3g.geoPath(projection);
 
   // mainland states
   for (let j=0; j<feature.geometries.length; j++){
@@ -139,7 +139,7 @@ export function voronoiTiling(width:number, height:number,
       }
   }
   let tiles:Tile[] = [];
-  let voronoi = d3.voronoi().extent([[0, 0], [width , height ]]);
+  let voronoi = d3v.voronoi().extent([[0, 0], [width , height ]]);
   let polys = voronoi.polygons(sites);
 
   for (let p in polys){

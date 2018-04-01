@@ -9,7 +9,8 @@ Three modification:
 */
 
 import {Simplify} from 'simplify-ts';
-import * as d3 from 'd3';
+import * as d3a from 'd3-array';
+import * as d3p from 'd3-polygon';
 
 type point = [number, number];
 
@@ -269,7 +270,7 @@ export default function largestRectInPoly(poly:[number,number][], options:any = 
 		}
 	}
 	if (angles == null) {
-		angles = d3.range(-90, 90 + angleStep, angleStep);
+		angles = d3a.range(-90, 90 + angleStep, angleStep);
 	}
 	if (options.aspectRatio != null) {
 		if (options.aspectRatio instanceof Array) {
@@ -289,16 +290,16 @@ export default function largestRectInPoly(poly:[number,number][], options:any = 
 			}
 		}
 	}
-	area = Math.abs(d3.polygonArea(poly));
+	area = Math.abs(d3p.polygonArea(poly));
 	if (area === 0) {
 		return null;
 	}
-	ref = d3.extent(poly, function(d) {
+	ref = d3a.extent(poly, function(d) {
 		return d[0];
     });
     minx = ref[0]!;
     maxx = ref[1]!;
-	ref1 = d3.extent(poly, function(d) {
+	ref1 = d3a.extent(poly, function(d) {
 		return d[1];
     });
     miny = ref1[0]!;
@@ -334,10 +335,10 @@ export default function largestRectInPoly(poly:[number,number][], options:any = 
 			poly: poly
 		});
 	}
-	ref2 = d3.extent(poly, function(d) {
+	ref2 = d3a.extent(poly, function(d) {
 		return d[0];
 	}), minx = ref2[0]!, maxx = ref2[1]!;
-	ref3 = d3.extent(poly, function(d) {
+	ref3 = d3a.extent(poly, function(d) {
 		return d[1];
 	}), miny = ref3[0]!, maxy = ref3[1]!;
 	bBox = [[minx, miny], [maxx, miny], [maxx, maxy], [minx, maxy]];
@@ -345,7 +346,7 @@ export default function largestRectInPoly(poly:[number,number][], options:any = 
 	widthStep = Math.min(boxWidth, boxHeight) / 50;
 	if (origins == null) {
 		origins = [];
-		centroid = d3.polygonCentroid(poly);
+		centroid = d3p.polygonCentroid(poly);
 		if (pointInPoly(centroid, poly)) {
 			origins.push(centroid);
 		}
@@ -426,7 +427,7 @@ export default function largestRectInPoly(poly:[number,number][], options:any = 
 				} else {
 					minAspectRatio = Math.max(1, options.minWidth / maxHeight, maxArea / (maxHeight * maxHeight));
 					maxAspectRatio = Math.min(options.maxAspectRatio, maxWidth / options.minHeight, (maxWidth * maxWidth) / maxArea);
-					aRatios = d3.range(minAspectRatio, maxAspectRatio + aspectRatioStep, aspectRatioStep);
+					aRatios = d3a.range(minAspectRatio, maxAspectRatio + aspectRatioStep, aspectRatioStep);
 				}
 				for (m = 0, len3 = aRatios.length; m < len3; m++) {
 					aRatio = aRatios[m];

@@ -1,5 +1,4 @@
 import * as util from './util';
-import * as d3 from 'd3';
 import DataBuffer from './data-buffer';
 
 export type NumPair = [number, number];
@@ -170,7 +169,7 @@ export class ComposeSpec {
     widthprop:string|number = "none";
     colprop:boolean = false;
     order?:number[];
-    url?:string;
+    //url?:string;
     glyphSpec?: GlyphSpec;
 
     // temporal multiplexing
