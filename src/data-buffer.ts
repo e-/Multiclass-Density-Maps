@@ -9,10 +9,11 @@ export default class DataBuffer {
 
     constructor(public name:string, public width:number, public height:number,
                 values?:number[][]) {
-        let buffer = new ArrayBuffer(width*height*4); // sizeof float32
+        let buffer = new ArrayBuffer(width * height * 4); // sizeof float32
         this.values = Array<Float32Array>(height);
+
         for (let i = 0; i < height; i++) {
-            this.values[i] = new Float32Array(buffer, i*width*4, width);
+            this.values[i] = new Float32Array(buffer, i * width * 4, width);
             if (values)
                 this.values[i].set(values[i]);
         }
@@ -23,31 +24,29 @@ export default class DataBuffer {
     linearize():number[] {
         // return Array.prototype.concat.apply(this.values[0],
         //                                     this.values.slice(1));
-        //return Array.prototype.slice.call(new Float32Array(this.values[0].buffer));
+        // return Array.prototype.slice.call(new Float32Array(this.values[0].buffer));
         // Fool the type system of TS that prevents returning the Float32Array directly
         return <number[]><any>new Float32Array(this.buffer());
     }
 
-    copy() {
-        return new DataBuffer(this.name, this.width, this.height, <any>this.values);
-    }
-        
-    equals(other:DataBuffer) {
-        let b1 = this.linearize();
-        let b2 = other.linearize();
-        if (b1.length != b2.length) return false;
-        for (let i = 0; i < b1.length; i++) 
-            if (b1[i] != b2[i]) return false;
-        return true;
-    }
+    // copy() {
+    //     return new DataBuffer(this.name, this.width, this.height, <any>this.values);
+    // }
+
+    // equals(other:DataBuffer) {
+    //     let b1 = this.linearize();
+    //     let b2 = other.linearize();
+    //     if (b1.length != b2.length) return false;
+    //     for (let i = 0; i < b1.length; i++)
+    //         if (b1[i] !== b2[i]) return false;
+    //     return true;
+    // }
 
     min() {
-        let mymin:any = util.amin;
         return util.amin(this.linearize());
     }
 
     max() {
-        let mymax:any = util.amax;
         return util.amax(this.linearize());
     }
 
@@ -56,7 +55,6 @@ export default class DataBuffer {
         for (let i = 0; i < arr.length; i++)
             arr[i] *= scale;
     }
-    
 
     blur(radius:number = 3): DataBuffer {
         if (radius==0) return this;
@@ -79,36 +77,37 @@ export default class DataBuffer {
 
         if (thresholds != undefined)
             contours.thresholds(thresholds);
+
         return contours(values);
     }
 
-    makeContour(contourNumber:number = 12): DataBuffer {
-        if (contourNumber==0) return this;
-        let mini = this.min(),
-            maxi = this.max(),
-            bandsize = (maxi-mini)/contourNumber,
-            ids = new DataBuffer(this.name, this.width, this.height);
+    // makeContour(contourNumber:number = 12): DataBuffer {
+    //     if (contourNumber==0) return this;
+    //     let mini = this.min(),
+    //         maxi = this.max(),
+    //         bandsize = (maxi-mini)/contourNumber,
+    //         ids = new DataBuffer(this.name, this.width, this.height);
 
-        // compute ids first
-        for (let y=0; y < this.height; y++) {
-            let src = this.values[y],
-                dst = ids.values[y];
-            for (let x = 0; x < this.width; x++)
-                dst[x] = Math.floor((src[x]-mini)/bandsize);
-        }
+    //     // compute ids first
+    //     for (let y=0; y < this.height; y++) {
+    //         let src = this.values[y],
+    //             dst = ids.values[y];
+    //         for (let x = 0; x < this.width; x++)
+    //             dst[x] = Math.floor((src[x]-mini)/bandsize);
+    //     }
 
-        let ndb = new DataBuffer(this.name, this.width, this.height);
-        for (let y=0; y < this.height-1; y++) {
-            let dst = ndb.values[y],
-                src = this.values[y],
-                ids0 = ids.values[y],
-                ids1 = ids.values[y+1];
-            for (let x=0; x<this.width-1; x++) {
-                if (ids0[x] != ids1[x] || ids0[x] != ids0[x+1])
-                    dst[x] = src[x];
-            }
-        }
+    //     let ndb = new DataBuffer(this.name, this.width, this.height);
+    //     for (let y=0; y < this.height-1; y++) {
+    //         let dst = ndb.values[y],
+    //             src = this.values[y],
+    //             ids0 = ids.values[y],
+    //             ids1 = ids.values[y+1];
+    //         for (let x=0; x<this.width-1; x++) {
+    //             if (ids0[x] != ids1[x] || ids0[x] != ids0[x+1])
+    //                 dst[x] = src[x];
+    //         }
+    //     }
 
-        return ndb;
-    }
+    //     return ndb;
+    // }
 }
