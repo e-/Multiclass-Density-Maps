@@ -37,22 +37,6 @@ export default class Color {
         return new Color(this.r, this.g, this.b, this.a);
     }
 
-    darken(v:number) {
-        return new Color(this.r * v, this.g * v, this.b * v, this.a);
-    }
-
-    whiten(v:number) {
-        return new Color(
-        this.r + (1 - v) * (1 - this.r),
-        this.g + (1 - v) * (1 - this.g),
-        this.b + (1 - v) * (1 - this.b),
-        this.a);
-    }
-
-    dissolve(v:number) {
-        return new Color(this.r * v, this.g * v, this.b * v, this.a * v);
-    }
-
     rdissolve(v:number) {
         this.r *= v;
         this.g *= v;
@@ -61,27 +45,7 @@ export default class Color {
     }
 
     toString(){
-        return ""+this.r+" "+this.g+" "+this.b+" "+this.a;
-    }
-
-    hex(prefix='#'){
-        let hex = prefix;
-        if (Math.floor(255*this.r)<16)
-          hex = hex +"0"+Math.floor(255*this.r).toString(16);
-        else
-          hex = hex +Math.floor(255*this.r).toString(16);
-
-        if (Math.floor(255*this.g)<16)
-          hex = hex +"0"+Math.floor(255*this.g).toString(16);
-        else
-          hex = hex +Math.floor(255*this.g).toString(16);
-
-        if (Math.floor(255*this.b)<16)
-          hex = hex +"0"+Math.floor(255*this.b).toString(16);
-        else
-          hex = hex +Math.floor(255*this.b).toString(16);
-
-        return hex;
+        return `Color(${this.r},${this.g},${this.b},${this.a})`;
     }
 
     cssDepremultiply() {
@@ -107,7 +71,6 @@ export default class Color {
               Math.floor(255*b)+","+
               Math.round(100*a)/100+")";
     }
-
 
     add(c:Color) {
         return new Color(
@@ -201,7 +164,19 @@ export default class Color {
     };
 
     static rgb(code:string) {
-        if(code.startsWith('rgb')) {
+        if(code.startsWith('rgba')) {
+            let res = code.split(/[(,)]/);
+
+            if(res.length >= 5) {
+                let r = parseFloat(res[1]);
+                let g = parseFloat(res[2]);
+                let b = parseFloat(res[3]);
+                let a = parseFloat(res[4]);
+
+                return new Color(r / 255, g / 255, b / 255, a);
+            }
+        }
+        else if(code.startsWith('rgb')) {
             let res = code.split(/[(,)]/);
 
             if(res.length >= 4) {
@@ -210,6 +185,24 @@ export default class Color {
                 let b = parseFloat(res[3]);
 
                 return new Color(r / 255, g / 255, b / 255, 1);
+            }
+        }
+        else if(code.startsWith('#')) {
+            // taken from https://stackoverflow.com/questions/5623838/rgb-to-hex-and-hex-to-rgb
+
+            let shorthandRegex = /^#?([a-f\d])([a-f\d])([a-f\d])$/i;
+            let fullCode = code.replace(shorthandRegex, function(m, r, g, b) {
+                return r + r + g + g + b + b;
+            });
+
+            let result:RegExpExecArray | null= /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(fullCode);
+            if(result && result.length >= 4) {
+                return new Color(
+                    parseInt(result[1], 16) / 255,
+                    parseInt(result[2], 16) / 255,
+                    parseInt(result[3], 16) / 255,
+                    1
+                );
             }
         }
         return Color.None;
