@@ -504,8 +504,8 @@ function bars(dest:SVGSVGElement, interp:Interpreter) {
                 type: "quantitative",
                 scale: {
                     type: interp.d3scale,
-                    base: interp.d3base,
-                    exponent: interp.d3exponent,
+                    base: interp.d3scale === "log" ? interp.d3base : undefined,
+                    exponent: interp.d3scale === "pow" ? interp.d3exponent : undefined,
                     domain: domain,
                     range: [glyphSpec.height, 0]
                 },
@@ -577,7 +577,8 @@ function punchcard(dest:SVGSVGElement, interp:Interpreter) {
                         type: "quantitative",
                         scale: {
                             type: interp.d3scale,
-                            base: interp.d3base,
+                            base: interp.d3scale === "log" ? interp.d3base : undefined,
+                            exponent: interp.d3scale === "pow" ? interp.d3exponent : undefined,
                             domain: interp.scale.domain as [number, number],
                             range: [0, Math.min(glyphSpec.width, glyphSpec.height) * glyphSpec.factor]
                         },
@@ -596,15 +597,6 @@ function punchcard(dest:SVGSVGElement, interp:Interpreter) {
                             orient: "left"
                         }
                     }
-                }
-            },
-            {
-                mark: {
-                    type: "text",
-                    baseline: "middle"
-                },
-                encoding: {
-                    text: {field: "category"}
                 }
             }
         ],

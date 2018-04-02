@@ -141,7 +141,7 @@ export default class Composer {
                         domain: options["y.scale.domain"],
                         type: options["y.scale.type"],
                         base: options["y.scale.type"] === "log" ? options["y.scale.base"] : undefined,
-                        exponent: options["y.scale.exponent"]
+                        exponent: options["y.scale.type"] === "pow" ? options["y.scale.exponent"] : undefined
                     },
                     lgend: false,
                     axis: false
