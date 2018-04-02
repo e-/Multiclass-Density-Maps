@@ -5,12 +5,11 @@ import * as util from './util';
 import * as Scale from './scale';
 
 export default class DerivedBuffer {
-    // color:Color = new Color();
     mask?:Mask;
 
     colorScale:Scale.ColorScale = new Scale.LinearColorScale([0, 1], [Color.White, Color.Black]);
-    color?:Color;
-    angle?:number;
+    color:Color = Color.Black;
+    angle:number = 0;
 
     constructor(public originalDataBuffer:DataBuffer) {
     }
