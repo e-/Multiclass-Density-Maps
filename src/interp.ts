@@ -40,7 +40,6 @@ export default class Interpreter {
     public bufferNames:string[];
     public colors0:Color[] = Color.Category10t;
     public colors1:Color[] = Color.Category10;
-    public labels?:string[];
     public rebin: any;
     public rescale:Parser.RescaleSpec;
     public compose:Parser.ComposeSpec;
@@ -75,8 +74,6 @@ export default class Interpreter {
         this.sourceBuffers = configuration.getBuffers();
         this.dataBuffers = this.sourceBuffers;
         this.dataSpec = configuration.data!.dataSpec!;
-
-        this.labels = configuration.getLabels();
 
         let colormap0 = configuration.getColors0();
         if (colormap0.length >= this.bufferNames.length)
@@ -495,7 +492,7 @@ export default class Interpreter {
                     if(tile.mask.width < width
                         || tile.mask.height < height) continue;
 
-                    let promise = Composer.bars(this.derivedBuffers, this.bufferNames || this.labels, tile.dataValues, {
+                    let promise = Composer.bars(this.derivedBuffers, this.bufferNames, tile.dataValues, {
                         width: glyphSpec.width,
                         height: glyphSpec.height,
                         'y.scale.domain': this.scale.domain as [number, number],
@@ -522,7 +519,7 @@ export default class Interpreter {
 
                     // console.log('mask', width, height);
 
-                    let promise = Composer.punchcard(this.derivedBuffers, this.bufferNames || this.labels, tile.dataValues, {
+                    let promise = Composer.punchcard(this.derivedBuffers, this.bufferNames, tile.dataValues, {
                         width: width,
                         height: height,
                         'z.scale.domain': this.scale.domain as [number, number],
@@ -588,7 +585,7 @@ export default class Interpreter {
                     let locthresholds = blurredBuffer.thresholds(this.contour.stroke);
                     let geometries = blurredBuffer.contours(locthresholds, this.contour.blur),
                         colors     = locthresholds.map(v => blurredBuffer.colorScale.colorRange[1]);
-                    if (this.contour.colProp)
+                    if (this.contour.colprop)
                       colors = thresholds.map(v => blurredBuffer.colorScale.map(v));
 
                     geometries.forEach((geo:any,k:number) => {

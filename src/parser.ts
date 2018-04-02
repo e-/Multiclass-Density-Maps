@@ -1,5 +1,5 @@
-import * as util from './util';
-import DataBuffer from './data-buffer';
+import * as util from "./util";
+import DataBuffer from "./data-buffer";
 
 export type NumPair = [number, number];
 
@@ -16,9 +16,9 @@ export interface XYEncodingScaleSpec {
 
 export interface XYEncodingSpec {
     field: string;
-    type?: string; // specify quantitative, latitude, longitude
-    bin?: {maxbins?: number};
-    aggregate?: string; // count, maybe sum etc.
+    type: string; // specify quantitative, latitude, longitude
+    bin: {maxbins: number};
+    aggregate: string; // count, maybe sum etc.
     scale: XYEncodingScaleSpec;
 }
 
@@ -28,7 +28,7 @@ export interface BufferEncodingScaleSpec {
 
 export interface BufferEncodingSpec {
     field: string;
-    type?: string; // specify nominal
+    type: string; // specify nominal
     scale: BufferEncodingScaleSpec;
 }
 
@@ -59,54 +59,52 @@ export class GeoSpec {
 
 export class DataSpec {
     public source?: SourceSpec;
-    public geo = new GeoSpec();
-    public encoding?: EncodingSpec;
-    public buffers?: BufferSpec[];
+    public geo?:GeoSpec;
+    public encoding: EncodingSpec;
+    public buffers: BufferSpec[];
 
-    constructor(public specs:any) {
-        this.parseSource();
-        this.parseEncoding();
+    constructor(public spec:any) {
+        if ("source" in this.spec)
+            this.source = <SourceSpec>this.spec.source;
+
         this.parseProjection();
-        this.parseBuffers();
+
+        this.encoding = <EncodingSpec>this.spec.encoding;
+        this.buffers = <BufferSpec[]>this.spec.buffers;
     }
 
-    parseSource() {
-        if ('source' in this.specs)
-            this.source = <SourceSpec>this.specs.source;
-    }
     parseProjection() {
-        let geo = this.geo;
-        if ('projection' in this.specs) {
-            let projection = <ProjectionSpec>this.specs.projection;
+        if ("projection" in this.spec) {
+            this.geo = new GeoSpec();
+            let geo = this.geo;
+
+            let projection = <ProjectionSpec>this.spec.projection;
             if (projection.type)
                 geo.projection = projection.type;
-            let encoding = this.encoding!;
-            if (encoding.x != undefined&&
-                encoding.x.scale  != undefined &&
-                encoding.x.scale.domain != undefined)
+            let encoding = this.spec.encoding;
+
+            if (encoding.x.scale.domain)
                 geo.latitudes = encoding.x.scale.domain;
-            if (encoding.y != undefined &&
-                encoding.y.scale  != undefined &&
-                encoding.y.scale.domain != undefined)
+            if (encoding.y.scale.domain)
                 geo.longitudes = encoding.y.scale.domain;
         }
     }
-    parseEncoding() {
-        this.encoding = <EncodingSpec>this.specs.encoding;
-    }
-    parseBuffers() {
-        this.buffers = <BufferSpec[]>this.specs.buffers;
-    }
 
-    load(base:string = '') {
-        let requests:Promise<void>[] = [];
+    load(base:string = "") {
+        let requests:Promise<BufferSpec>[] = [];
 
-        this.buffers!.forEach((buffer) => {
+        this.buffers.forEach(buffer => {
             if(!buffer.data) {
-                let promise = util.get(base + buffer.url!).then((data) => {
-                    //console.log('Loaded '+buffer.url);
-                    buffer.data = JSON.parse(data);
-                })
+                let url = base + buffer.url!;
+                let promise = util.get(url)
+                    .then((data) => {
+                        buffer.data = JSON.parse(data);
+                        return buffer;
+                    })
+                    .catch((reason => {
+                        console.error(`cannot load a buffer from ${url}: ${reason}`);
+                        return buffer;
+                    }))
 
                 requests.push(promise);
             }
@@ -118,7 +116,6 @@ export class DataSpec {
 
 export interface ConfigurationDataSpec {
     url?: string;
-    type?: string;
     dataSpec?: DataSpec;
 }
 
@@ -152,7 +149,6 @@ export interface ConfigurationReencodingHatchingSpec {
     type?: string;
 }
 
-
 export interface ConfigurationReencodingSpec {
     label?: ConfigurationReencodingLabelSpec;
     color?: ConfigurationReencodingColorSpec;
@@ -169,7 +165,6 @@ export class ComposeSpec {
     widthprop:string|number = "none";
     colprop:boolean = false;
     order?:number[];
-    //url?:string;
     glyphSpec?: GlyphSpec;
 
     // temporal multiplexing
@@ -227,9 +222,8 @@ export class RescaleSpec {
 export class ContourSpec {
     stroke:number    = 0;
     lineWidth:number = 1;
-    colProp:boolean  = true;
+    colprop:boolean  = true;
     fill:number      = 0; // percentile over which we fill
-    values?:number[]; // percentiles to stroke
     blur:number=2;
 
     constructor(options?: ContourSpec) {
@@ -244,7 +238,7 @@ export class LegendSpec {
 
     title?:string;
     titleHeight:number = 12;
-    titleDy:string = '.6em';
+    titleDy:string = ".6em";
 
     rowHeight:number = 10;
     horizontalGutter:number = 5;
@@ -301,7 +295,7 @@ export class AxisSpec {
 export class Configuration {
     description?: string;
     background?: string;
-    data?: ConfigurationDataSpec;
+    data: ConfigurationDataSpec;
     blur: number = 0;
     reencoding?: ConfigurationReencodingSpec;
     rebin?: RebinSpec;
@@ -311,18 +305,18 @@ export class Configuration {
     width: number = -1;
     height: number = -1;
     bufferNames:string[] = [];
-    legend: LegendSpec | false = new LegendSpec();
+    legend: LegendSpec | false;
     stroke?: StrokeSpec
     axis?: AxisSpec;
 
-    constructor(public specs:any) {
-        if(typeof this.specs === 'string') {
-            this.specs = JSON.parse(this.specs as string);
+    constructor(public spec:any) {
+        if(typeof this.spec === "string") {
+            this.spec = JSON.parse(this.spec as string);
         }
 
         this.parseDescription();
         this.parseBackground();
-        this.parseData();
+        this.data = this.parseData();
         this.parseSmooth();
         this.parseDerivedBuffers();
         this.parseReencoding();
@@ -330,69 +324,68 @@ export class Configuration {
         this.parseCompose();
         this.parseRescale();
         this.parseContour();
-        this.parseLegend();
+        this.legend = this.parseLegend();
         this.parseStroke();
         this.parseAxis();
     }
 
     private parseDescription() {
-        if ('description' in this.specs)
-            this.description = this.specs.description;
+        if ("description" in this.spec)
+            this.description = this.spec.description;
     }
     private parseBackground() {
-        if ('background' in this.specs)
-            this.background = this.specs.background;
+        if ("background" in this.spec)
+            this.background = this.spec.background;
     }
     private parseData() {
-        this.data = <ConfigurationDataSpec>this.specs.data;
+        return <ConfigurationDataSpec>this.spec.data;
     }
     private parseSmooth() {
-        if ('smooth' in this.specs) {
-            if (this.specs.smooth.radius)
-                this.blur = <number>this.specs.smooth.radius;
+        if ("smooth" in this.spec) {
+            if (this.spec.smooth.radius)
+                this.blur = <number>this.spec.smooth.radius;
         }
     }
     private parseContour() {
-        if ('contour' in this.specs) {
-            this.contour = new ContourSpec(this.specs.contour);
+        if ("contour" in this.spec) {
+            this.contour = new ContourSpec(this.spec.contour);
         }
     }
     private parseDerivedBuffers() {
     }
     private parseReencoding() {
-        this.reencoding = <ConfigurationReencodingSpec>this.specs.reencoding;
+        this.reencoding = <ConfigurationReencodingSpec>this.spec.reencoding;
     }
     private parseRebin() {
-        if (this.specs.rebin)
-            this.rebin = new RebinSpec(this.specs.rebin);
+        if (this.spec.rebin)
+            this.rebin = new RebinSpec(this.spec.rebin);
     }
     private parseCompose() {
-        if (this.specs.compose) {
-            this.compose = new ComposeSpec(this.specs.compose)
-            if(this.specs.compose.glyphSpec) {
-                this.compose.glyphSpec = new GlyphSpec(this.specs.compose.glyphSpec);
+        if (this.spec.compose) {
+            this.compose = new ComposeSpec(this.spec.compose)
+            if(this.spec.compose.glyphSpec) {
+                this.compose.glyphSpec = new GlyphSpec(this.spec.compose.glyphSpec);
             }
         }
     }
     private parseRescale() {
-        if (this.specs.rescale)
-            this.rescale = new RescaleSpec(this.specs.rescale);
+        if (this.spec.rescale)
+            this.rescale = new RescaleSpec(this.spec.rescale);
     }
     private parseLegend() {
-        if(this.specs.legend === false)
-            this.legend = false;
-        else if(this.specs.legend)
-            this.legend = new LegendSpec(this.specs.legend);
+        if(this.spec.legend === false)
+            return this.legend = false;
+        return this.legend = new LegendSpec(this.spec.legend);
     }
     private parseStroke() {
-        if(this.specs.stroke)
-            this.stroke = new StrokeSpec(this.specs.stroke);
+        if(this.spec.stroke)
+            this.stroke = new StrokeSpec(this.spec.stroke);
         else
             this.stroke = undefined;
     }
     private parseAxis() {
-        if(this.specs.axis)
-            this.axis = new AxisSpec(this.specs.axis);
+        if(this.spec.axis)
+            this.axis = new AxisSpec(this.spec.axis);
     }
 
     public validate():boolean {
@@ -410,39 +403,50 @@ export class Configuration {
             y_enc = data.encoding.y;
         let x = undefined, y = undefined;
         if (x_enc) {
-            if (x_enc.bin && 'maxbins' in x_enc.bin && x_enc.bin.maxbins)
-                widths.set('maxbins', x_enc.bin.maxbins);
+            if (x_enc.bin && "maxbins" in x_enc.bin && x_enc.bin.maxbins)
+                widths.set("maxbins", x_enc.bin.maxbins);
             if (x_enc.scale && x_enc.scale.range &&
                 x_enc.scale.range instanceof Array && x_enc.scale.range.length > 1)
-                widths.set('range', x_enc.scale.range[1]);
+                widths.set("range", x_enc.scale.range[1]);
         }
         if (y_enc) {
-            if (y_enc.bin && 'maxbins' in y_enc.bin && y_enc.bin.maxbins)
-                heights.set('maxbins', y_enc.bin.maxbins);
+            if (y_enc.bin && "maxbins" in y_enc.bin && y_enc.bin.maxbins)
+                heights.set("maxbins", y_enc.bin.maxbins);
             if (y_enc.scale && y_enc.scale.range &&
                 y_enc.scale.range instanceof Array && y_enc.scale.range.length > 1)
-                heights.set('range', y_enc.scale.range[1]);
+                heights.set("range", y_enc.scale.range[1]);
         }
-        let error = '';
+        let error = "";
         this.bufferNames = [];
+        let labelScaleRange:string[];
+        if (this.reencoding
+            && this.reencoding.label
+            && this.reencoding.label.scale
+            && this.reencoding.label.scale.range
+            && this.reencoding.label.scale.range.length >= data.buffers.length)
+                labelScaleRange = this.reencoding.label.scale.range;
+
         data.buffers.forEach((buffer, i) => {
             if (buffer.value)
                 this.bufferNames.push(buffer.value);
+            else if(labelScaleRange)
+                this.bufferNames.push(labelScaleRange[i]);
             else
                 this.bufferNames.push(i.toString());
+
             if (buffer.data instanceof Array) {
                 heights.set(buffer.value, buffer.data.length);
                 widths.set(buffer.value, buffer.data[0].length);
             }
             else {
-                error = 'invalid buffer '+buffer.value;
+                error = "invalid buffer "+buffer.value;
             }
         });
         widths.forEach((width, k) => {
             if (this.width == -1)
                 this.width = width;
             else if (this.width != width) {
-                console.log('Inconsistent widths for '+k+' :'+width+' instead of '+this.width);
+                console.log("Inconsistent widths for "+k+" :"+width+" instead of "+this.width);
                 error = k;
             }
         });
@@ -450,7 +454,7 @@ export class Configuration {
             if (this.height == -1)
                 this.height = height;
             else if (this.height != height) {
-                console.log('Inconsistent heights for '+k+' :'+height+' instead of '+this.height);
+                console.log("Inconsistent heights for "+k+" :"+height+" instead of "+this.height);
                 error = k;
             }
         });
@@ -459,86 +463,80 @@ export class Configuration {
             let valid = new Set<number>();
             for (let i = 0; i < order.length; i++) {
                 if (order[i] < 0 || order[i] >= data.buffers.length) {
-                    error = 'invalid buffer index '+order[i];
+                    error = "invalid buffer index "+order[i];
                     break;
                 }
                 else if (order[i] in valid) {
-                    error = 'duplicated buffer index '+order[i];
+                    error = "duplicated buffer index "+order[i];
                 }
                 valid.add(order[i]);
             }
         }
 
-        if (error != '')
+        if (error != "")
             return false;
         return true;
     }
 
-    loadTopojson(base:string = '') : Promise<Configuration> {
-        if (this.rebin &&
-            this.rebin.url != undefined && this.rebin.topojson == undefined) {
+    private loadTopojson(base:string = "") : Promise<Configuration> {
+        if (this.rebin && this.rebin.url && !this.rebin.topojson) {
+            let url = base + this.rebin.url;
             return util
-                  .get(base + this.rebin.url)
+                  .get(url)
                   .then(response => {
-                      console.log('Loaded topojson at '+(base+this.rebin!.url!));
                       this.rebin!.topojson = JSON.parse(response);
                       return this;
                   })
                   .catch((reason)=> {
-                      console.log('Cannot load topojson at '+(base+this.rebin!.url!)+': '+reason);
+                      console.error(`Cannot load topojson at ${url}: ${reason}`);
                       return this;
                   });
+        }
+
+        return Promise.resolve(this);
+    }
+
+    private loadStroke(base:string = "") : Promise<Configuration> {
+        if (this.stroke &&
+            this.stroke.type === "topojson" && this.stroke.url) {
+                let url = base + this.stroke.url;
+                return util
+                    .get(url)
+                    .then(response => {
+                        this.stroke!.topojson = JSON.parse(response);
+                        return this;
+                    })
+                    .catch((reason)=> {
+                        console.error(`Cannot load topojson at ${url}: ${reason}`);
+                        return this;
+                    });
         }
         return Promise.resolve(this);
     }
 
-    loadStroke(base:string = '') : Promise<Configuration> {
-        if (this.stroke &&
-            this.stroke.type === 'topojson' && this.stroke.url) {
+    private loadData(base:string = ""): Promise<any> {
+        if(!this.data.dataSpec && this.data.url) {
+            let url = base + this.data.url!;
             return util
-                  .get(base + this.stroke.url)
-                  .then(response => {
-                      console.log('[Stroke] Loaded topojson at '+(base+this.stroke!.url!));
-                      this.stroke!.topojson = JSON.parse(response);
-                      return this;
-                  })
-                  .catch((reason)=> {
-                      console.log('Cannot load topojson at '+(base+this.stroke!.url!)+': '+reason);
-                      return this;
-                  });
+                .get(url)
+                .then(response => {
+                    let dataSpec = new DataSpec(JSON.parse(response));
+                    this.data.dataSpec = dataSpec;
+                    return this.data.dataSpec!.load(base);
+                })
+                .catch((reason)=> {
+                    console.error(`Cannot load dataSpec at ${url}: ${reason}`);
+                })
         }
+
         return Promise.resolve(this);
     }
 
     // load data from the server if this.data contains url
-    load(base:string = ''): Promise<Configuration> {
-        if(!this.data!.dataSpec && this.data!.url) {
-            return util
-                  .get(base + this.data!.url!)
-                  .then(response => {
-                      console.log('Loaded configuration data at '+(base+this.data!.url!));
-                      let dataSpec = new DataSpec(JSON.parse(response));
-                      this.data!.dataSpec = dataSpec;
-
-                      return dataSpec
-                            .load(base)
-                            .then(() => {
-                                return this.loadTopojson(base).then(() => {
-                                    return this.loadStroke(base);
-                                });
-                            });
-                  })
-                  .catch((reason)=> {
-                      console.log('Cannot load topojson at '+(base+this.rebin!.url!)+': '+reason);
-                      return this;
-                  });
-        }
-
-        return this.loadTopojson(base).then(() => {
-            return this.loadStroke(base).then(() => {
-                return this;
-            })
-        })
+    load(base:string = ""): Promise<Configuration> {
+        return Promise.all([this.loadData(base),
+            this.loadTopojson(base),
+            this.loadStroke(base)]).then(() => this);
     }
 
     public getBuffers() : DataBuffer[] {
@@ -554,15 +552,6 @@ export class Configuration {
                              this.height,
                              bufferSpec.data));
         return dataBuffers;
-    }
-
-    public getLabels(): string[] | undefined  {
-        if (! this.reencoding
-            || ! this.reencoding.label
-            || ! this.reencoding.label.scale
-            || ! this.reencoding.label.scale.range)
-            return undefined;
-        return this.reencoding.label.scale.range;
     }
 
     public getColors0(): string[]  {
@@ -584,11 +573,12 @@ export class Configuration {
     }
 
     public getGeo():GeoSpec {
-        let geo = this.data!.dataSpec!.geo;
+        let geo = this.data!.dataSpec!.geo!;
 
-        if (this.specs.rebin != undefined &&
-            this.specs.rebin.proj4 != undefined)
-            geo.proj4 = this.specs.rebin.proj4;
+        if (this.spec.rebin &&
+            this.spec.rebin.proj4)
+            geo.proj4 = this.spec.rebin.proj4;
+
         return geo;
     }
 

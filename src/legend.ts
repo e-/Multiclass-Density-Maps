@@ -339,7 +339,7 @@ function mixLegend(wrapper:HTMLDivElement, interp:Interpreter) {
     let size = spec.mixMapSize;
     let titleHeight = spec.titleHeight;
 
-    let labels = interp.labels == undefined ? interp.bufferNames : interp.labels;
+    let labels = interp.bufferNames;
     colorCategories(categoryG, derivedBuffers, spec, labels, spec.title);
 
     let height = (rowHeight + verticalGutter) * n +
@@ -455,7 +455,7 @@ function bars(dest:SVGSVGElement, interp:Interpreter) {
 
     let mean = sum.map(s => s / n);
     let domain = interp.scale.domain as [number, number];
-    let labels = interp.labels == undefined ? interp.bufferNames : interp.labels;
+    let labels = interp.bufferNames;
 
     let data = derivedBuffers.map((buffer, i) => {
         return {
