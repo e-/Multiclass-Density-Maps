@@ -7,7 +7,7 @@ declare module "tdigest" {
 
     class TDigest {
         constructor(delta?:number|false, K?: number, CX?: number);
-        
+
         reset(): void;
         size(): number;
         toArray(): Centroid[];
@@ -27,7 +27,7 @@ declare module "tdigest" {
     }
 
     interface Config {
-        mode?: 'auto'|'disc'|'cont';
+        mode?: "auto"|"disc"|"cont";
         delta?: number;
         ratio?: number;
         thresh?: number;
