@@ -428,8 +428,11 @@ export default class Interpreter {
         }
         else if (this.compose.mix === "propline") {
             for(let tile of this.tiles) {
-                let hatch = Composer.hatch(tile, this.derivedBuffers, tile.dataValues, this.compose.size,
-                                            this.compose.sort, this.compose.widthprop, this.compose.colprop);
+                let hatch = Composer.hatch(tile, this.derivedBuffers, tile.dataValues, {
+                    thickness: this.compose.size,
+                    sort: this.compose.sort,
+                    widthprop: this.compose.widthprop,
+                    colprop: this.compose.colprop});
 
                 this.image[0].render(hatch, tile.center);
             }
@@ -445,11 +448,17 @@ export default class Interpreter {
                 let hatch:HTMLCanvasElement;
 
                 if (typeof this.compose.widthprop === "number")
-                  hatch= Composer.hatch(tile, this.derivedBuffers, tile.dataValues, this.compose.size,
-                    this.compose.sort, this.compose.widthprop*maxCount, this.compose.colprop);
+                  hatch= Composer.hatch(tile, this.derivedBuffers, tile.dataValues, {
+                      thickness: this.compose.size,
+                      sort: this.compose.sort,
+                      widthprop: this.compose.widthprop*maxCount,
+                      colprop: this.compose.colprop});
                 else
-                  hatch = Composer.hatch(tile, this.derivedBuffers, tile.dataValues, this.compose.size,
-                    this.compose.sort, this.compose.widthprop, this.compose.colprop);
+                  hatch = Composer.hatch(tile, this.derivedBuffers, tile.dataValues, {
+                      thickness: this.compose.size,
+                      sort: this.compose.sort,
+                      widthprop: this.compose.widthprop,
+                      colprop: this.compose.colprop});
 
                 this.image[0].render(hatch, tile.center);
             }

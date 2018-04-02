@@ -1,9 +1,9 @@
-import DerivedBuffer from './derived-buffer';
-import Color from './color';
-import { ScaleTrait } from './scale';
-import extract from './vega-extractor'
-import Tile from './tile';
-import * as util from './util';
+import DerivedBuffer from "./derived-buffer";
+import Color from "./color";
+import { ScaleTrait } from "./scale";
+import extract from "./vega-extractor"
+import Tile from "./tile";
+import * as util from "./util";
 
 export default class Composer {
     static max(buffers:DerivedBuffer[], values:number[]):Color {
@@ -102,11 +102,11 @@ export default class Composer {
         options:{
             width?:number,
             height?:number,
-            'y.scale.domain': [number, number],
-            'y.scale.type'?: string,
-            'y.scale.base'?: number,
-            'y.scale.exponent'?: number
-        } = {'y.scale.domain': [0, 1], 'y.scale.type': 'linear', 'y.scale.base': 10}
+            "y.scale.domain": [number, number],
+            "y.scale.type"?: string,
+            "y.scale.base"?: number,
+            "y.scale.exponent"?: number
+        } = {"y.scale.domain": [0, 1], "y.scale.type": "linear", "y.scale.base": 10}
     ) {
         let data = buffers.map((buffer, i) => {
             return {name: buffer.originalDataBuffer.name, value: values[i]}}
@@ -138,10 +138,10 @@ export default class Composer {
                     field: "value",
                     type: "quantitative",
                     scale: {
-                        domain: options['y.scale.domain'],
-                        type: options['y.scale.type'],
-                        base: options['y.scale.base'],
-                        exponent: options['y.scale.exponent']
+                        domain: options["y.scale.domain"],
+                        type: options["y.scale.type"],
+                        base: options["y.scale.type"] === "log" ? options["y.scale.base"] : undefined,
+                        exponent: options["y.scale.exponent"]
                     },
                     lgend: false,
                     axis: false
@@ -164,12 +164,12 @@ export default class Composer {
         options:{
             width?:number,
             height?:number,
-            'z.scale.domain'?: [number, number],
-            'z.scale.type'?: string,
-            'z.scale.base'?: number,
+            "z.scale.domain"?: [number, number],
+            "z.scale.type"?: string,
+            "z.scale.base"?: number,
             cols?: number,
             factor?:number
-        } = {'z.scale.domain': [0, 1], 'z.scale.type': 'linear', 'z.scale.base': 10, factor: 8}
+        } = {"z.scale.domain": [0, 1], "z.scale.type": "linear", "z.scale.base": 10, factor: 8}
     ) {
         let n = buffers.length;
         let cols = options.cols || Math.ceil(Math.sqrt(n));
@@ -222,7 +222,7 @@ export default class Composer {
                     axis: false,
                     legend: false,
                     scale: {
-                        type: 'point',
+                        type: "point",
                         domain: util.arange(cols),
                         padding: 0.5
                     }
@@ -233,7 +233,7 @@ export default class Composer {
                     axis: false,
                     legend:false,
                     scale: {
-                        type: 'point',
+                        type: "point",
                         domain: util.arange(rows),
                         padding: 0.5
                     }
@@ -277,8 +277,14 @@ export default class Composer {
     }
 
     static hatch(tile:Tile, buffers:DerivedBuffer[], dataValues:number[],
-        thickness:number, sort:boolean, widthprop:string|number, colprop:boolean=false): HTMLCanvasElement{
-        let hatchCanvas = <HTMLCanvasElement>document.createElement('canvas');
+        options: {
+            thickness: number,
+            sort: boolean,
+            widthprop: string | number,
+            colprop:boolean
+        }): HTMLCanvasElement{
+
+        let hatchCanvas = <HTMLCanvasElement>document.createElement("canvas");
         hatchCanvas.width  = tile.mask.width;
         hatchCanvas.height = tile.mask.height;
 
@@ -287,7 +293,7 @@ export default class Composer {
 
         ctx.drawImage(tile.mask.getCanvas(), 0, 0);
         ctx.globalCompositeOperation="source-atop";
-        ctx.fillStyle='white';
+        ctx.fillStyle="white";
         ctx.fillRect(0,0,ctx.canvas.width, ctx.canvas.height);
         ctx.save();
 
@@ -304,7 +310,7 @@ export default class Composer {
 
         let acc = 0;
 
-        if(sort)
+        if(options.sort)
             sorted = sorted.sort(function(a, b){return b.value - a.value});
 
         sorted.forEach(d => {
@@ -317,22 +323,24 @@ export default class Composer {
             ctx.rotate(buffer.angle!);
             ctx.strokeStyle = buffer.colorScale.map(dataValue).css();
 
-            if (colprop)
+            if (options.colprop)
                 ctx.strokeStyle = buffer.colorScale.map(dataValue).css();
             else
                 ctx.strokeStyle = buffer.color!.css();
 
-            if(widthprop === "none"){
-              ctx.lineWidth = thickness;
-            } else if(widthprop === "percent"){
-              ctx.lineWidth = thickness * tile.dataValues.length * dataValue / sum;
-            }else if(typeof widthprop === "number"){
-              ctx.lineWidth = thickness * tile.dataValues.length * dataValue / widthprop;
-            }
-            acc += ctx.lineWidth/2;
+            if(options.widthprop === "none")
+              ctx.lineWidth = options.thickness;
+            else if(options.widthprop === "percent")
+              ctx.lineWidth = options.thickness * tile.dataValues.length * dataValue / sum;
+            else
+              ctx.lineWidth = options.thickness * tile.dataValues.length * dataValue / <number>options.widthprop;
+
+            acc += ctx.lineWidth / 2;
             let tx = tile.x+hatchCanvas.width/2-diag;
 
-            for (let i:number=acc-diag-(tx%(tile.dataValues.length*thickness)); i<diag; i+=tile.dataValues.length*thickness){
+            for (let i:number=acc-diag-(tx%(tile.dataValues.length*options.thickness));
+                i<diag;
+                i+=tile.dataValues.length * options.thickness){
                 ctx.beginPath();
                 ctx.moveTo(i, -diag);
                 ctx.lineTo(i,  diag);
