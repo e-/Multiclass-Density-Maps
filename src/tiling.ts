@@ -3,7 +3,7 @@ import Mask from './mask';
 import * as GeoJSON from 'geojson';
 import * as d3v from 'd3-voronoi';
 import * as d3g from 'd3-geo';
-import * as topo from 'topojson';
+import * as topo from 'topojson-client';
 import * as rn from 'random-seed';
 import proj4 from 'proj4';
 import {deg2rad, rad2deg} from './util';

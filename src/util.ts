@@ -1,6 +1,6 @@
 export function positive(x:number) { return x > 0; }
 
-export function translate(x:number, y:number) { return `translate(${x}, ${y})`}
+export function translate(x:number, y:number) { return `translate(${x}, ${y})`; }
 
 export function create2D<T>(width:number, height:number, value:T) {
     let arr = new Array<T[]>(height);
