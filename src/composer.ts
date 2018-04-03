@@ -64,7 +64,6 @@ export default class Composer {
     }
 
     static additiveMix(buffers:DerivedBuffer[], values:number[]):Color {
-        let sum = 0;
         let ret = new Color(0, 0, 0, 1);
 
         values.forEach((value, i) => {

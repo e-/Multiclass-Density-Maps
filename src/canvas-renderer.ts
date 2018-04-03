@@ -164,7 +164,7 @@ export default class CanvasRenderer {
         let target = 0;
         d3s.select('#' + ids[0]).style('opacity', 1);
         for(let i = 1; i < n; ++i) {
-            let canvas = d3s.select('#' + ids[i]).style('opacity', 0);
+            d3s.select('#' + ids[i]).style('opacity', 0);
         }
 
         function repeat() {

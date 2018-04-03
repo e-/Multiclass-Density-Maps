@@ -3,7 +3,6 @@ import Mask from './mask';
 export function squareMasks(m: number, size: number, width: number, height: number, xincr: number = 1) : Mask[]
 {
     let masks:Mask[] = Array<Mask>(m);
-    let i:number, j:number;
     size = Math.floor(size);
     if (xincr < 0) {
         xincr = m + (xincr % m)
@@ -33,7 +32,6 @@ export function squareMasks(m: number, size: number, width: number, height: numb
 export function hexMasks(m: number, size: number, width: number, height: number, xincr: number = 1) : Mask[]
 {
     let masks:Mask[] = Array<Mask>(m);
-    let i:number, j:number;
     size = Math.floor(size);
 
     if (xincr < 0) {
@@ -80,7 +78,6 @@ export function triangleMasks(m: number, size: number, width: number, height: nu
 {
     //TODO (jdf) fix to work with any m or throw exception when m is odd??
     let masks:Mask[] = Array<Mask>(m);
-    let i:number, j:number;
     size = Math.floor(size);
 
     for (let i = 0; i < m; i++) {
@@ -101,7 +98,6 @@ export function triangleMasks(m: number, size: number, width: number, height: nu
             let mask   = masks[selected];
             let path   = mask.getPath();
 
-            let y = 3*size/16;
             path.moveTo(col+0.75*0*size, col+0.75*2*size);
             path.lineTo(col+0.75*1*size, col+0.75*3*size);
             path.lineTo(col+0.75*2*size, col+0.75*4*size);
