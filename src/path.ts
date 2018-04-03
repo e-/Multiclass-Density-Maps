@@ -1,13 +1,13 @@
-export type Point = [number, number];
+type Point = [number, number];
 
-export class Path {
+export default class Path {
     public x0?:number;
     public y0?:number;
     public x1?:number;
     public y1?:number;
     public codes:string = '';
     public pts:Point[] = [];
-    
+
     moveTo(x: number, y: number) {
         this.codes += "M";
         this.x0 = this.x1 = x;

@@ -24,7 +24,6 @@ bodyno {
 
         <script src="dist/multiclass-plots.js" type="text/javascript" charset="utf-8"></script>
 <script>
-var mcp = new MCP.MCP(), prefix = "specs/";
 var configuration, interpreter, canvasCount=0;
 
 function render(desc, json, do_break, forcedWidth, forcedHeight) {
@@ -45,12 +44,13 @@ function render(desc, json, do_break, forcedWidth, forcedHeight) {
       br.classList.add('clearBoth');
       body.appendChild(br);
   }
-  var conf = mcp.create_configuration(json);
-  conf.load('data/').then(function(conf) {
-      interp = mcp.create_interp(conf);
-      interp.interpret();
-      interp.render(wrapper, forcedWidth, forcedHeight);
-  });
+    var config = new MCP.Parser.Configuration(json);
+    config.load('data/').then(function() {
+        var interp = new MCP.Interpreter(config);
+        
+        interp.interpret();
+        interp.render(wrapper, forcedWidth, forcedHeight);
+    });
 }
 
 

@@ -47,7 +47,6 @@
         <script>
 
 $(function() {
-    var mcp = new MCP.MCP();
     var $gallery = $('#gallery')
     var canvasCount = 0;
 
@@ -77,12 +76,11 @@ $(function() {
 
         // if(width) $canvas.css('width', width)
         // if(height) $canvas.css('height', height)
-
-        var conf = mcp.create_configuration(spec);
-        conf.load('data/').then(function(conf) {
-            interp = mcp.create_interp(conf);
+        
+        var config = new MCP.Parser.Configuration(spec);
+        config.load('data/').then(function() {
+            var interp = new MCP.Interpreter(config);
             
-            interpreter = interp;
             interp.interpret();
             interp.render($mdm.get(0));
         });

@@ -35,7 +35,7 @@
 
         </style>
         
-        <script src="dist/multiclass-plots.js" type="text/javascript"  charset="utf-8"></script>
+        <script src="dist/multiclass-plots.js" type="text/javascript" charset="utf-8"></script>
         <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha256-3edrmyuQ0w65f8gfBsqowzjJe2iM6n0nKciPUp8y+7E=" crossorigin="anonymous"></script>
     </head>
     <body>
@@ -47,7 +47,6 @@
         <script>
 
 $(function() {
-    var mcp = new MCP.MCP();
     var $gallery = $('#gallery')
     var canvasCount = 0;
 
@@ -75,11 +74,12 @@ $(function() {
             $pre.toggle();
         })
 
-        var conf = mcp.create_configuration(spec);
-        conf.load('data/').then(function(conf) {
-            interp = mcp.create_interp(conf);
+        var config = new MCP.Parser.Configuration(spec);
+        config.load('data/').then(function() {
+            var interp = new MCP.Interpreter(config);
+            
             interp.interpret();
-            interp.render($mdm.get(0), width, height);
+            interp.render($mdm.get(0));
         });
     }
 

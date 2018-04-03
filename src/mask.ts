@@ -1,5 +1,5 @@
 import * as util from './util';
-import {Path} from './path';
+import Path from './path';
 import * as rn from 'random-seed';
 
 export default class Mask {
