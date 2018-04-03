@@ -1,5 +1,5 @@
 {
-  "name": "multiclassplots",
+  "name": "multiclass-plots",
   "version": "0.0.1",
   "description": "",
   "main": "dist/multiclass-plots.js",
@@ -56,7 +56,13 @@
     "type": "git",
     "url": "git+https://github.com/e-/MultiClassPlots.git"
   },
-  "author": "Jaemin Jo <jmjo@hcil.snu.ac.kr>",
+  "author": "Jaemin Jo, Frédéric Vernier, Pierre Dragicevic, Jean-Daniel Fekete",
+  "collaborators": [
+    "Jaemin Jo <jmjo@hcil.snu.ac.kr>",
+    "Frédéric Vernier <frederic.vernier@limsi.fr>",
+    "Pierre Dragicevic <Pierre.Dragicevic@inria.fr",
+    "Jean-Daniel Fekete <Jean-Daniel.Fekete@inria.fr"
+  ],  
   "license": "BSD-2-Clause",
   "bugs": {
     "url": "https://github.com/e-/MultiClassPlots/issues"
