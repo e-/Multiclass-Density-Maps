@@ -401,7 +401,6 @@ export class Configuration {
             return false;
         let x_enc = data.encoding.x,
             y_enc = data.encoding.y;
-        let x = undefined, y = undefined;
         if (x_enc) {
             if (x_enc.bin && "maxbins" in x_enc.bin && x_enc.bin.maxbins)
                 widths.set("maxbins", x_enc.bin.maxbins);
@@ -545,7 +544,6 @@ export class Configuration {
             ! data.dataSpec ||
             ! data.dataSpec.buffers)
             return [];
-        let buffers = data.dataSpec.buffers;
         let dataBuffers = data.dataSpec.buffers.map((bufferSpec) =>
               new DataBuffer(bufferSpec.value,
                              this.width,
