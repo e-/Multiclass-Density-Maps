@@ -1,20 +1,21 @@
-import DataBuffer from './data-buffer';
+import DataBuffer from "./data-buffer";
+export declare type NumPair = [number, number];
 export interface SourceSpec {
     filename?: string;
     type?: string;
     rows?: number;
 }
 export interface XYEncodingScaleSpec {
-    domain: [number, number];
-    range: [number, number];
+    domain: NumPair;
+    range: NumPair;
 }
 export interface XYEncodingSpec {
     field: string;
-    type?: string;
-    bin?: {
-        maxbins?: number;
+    type: string;
+    bin: {
+        maxbins: number;
     };
-    aggregate?: string;
+    aggregate: string;
     scale: XYEncodingScaleSpec;
 }
 export interface BufferEncodingScaleSpec {
@@ -22,7 +23,7 @@ export interface BufferEncodingScaleSpec {
 }
 export interface BufferEncodingSpec {
     field: string;
-    type?: string;
+    type: string;
     scale: BufferEncodingScaleSpec;
 }
 export interface EncodingSpec {
@@ -35,7 +36,7 @@ export interface BufferSpec {
     url?: string;
     data?: number[][];
     count?: number;
-    range?: [number, number];
+    range?: NumPair;
 }
 export declare class GeoSpec {
     projection: string;
@@ -45,21 +46,17 @@ export declare class GeoSpec {
     constructor(projection?: string, latitudes?: [number, number] | undefined, longitudes?: [number, number] | undefined, proj4?: string | undefined);
 }
 export declare class DataSpec {
-    specs: any;
+    spec: any;
     source?: SourceSpec;
-    geo: GeoSpec;
-    encoding?: EncodingSpec;
-    buffers?: BufferSpec[];
-    constructor(specs: any);
-    parseSource(): void;
+    geo?: GeoSpec;
+    encoding: EncodingSpec;
+    buffers: BufferSpec[];
+    constructor(spec: any);
     parseProjection(): void;
-    parseEncoding(): void;
-    parseBuffers(): void;
-    load(base?: string): Promise<void[]>;
+    load(base?: string): Promise<BufferSpec[]>;
 }
 export interface ConfigurationDataSpec {
     url?: string;
-    type?: string;
     dataSpec?: DataSpec;
 }
 export interface ConfigurationReencodingLabelScaleSpec {
@@ -73,7 +70,8 @@ export interface ConfigurationReencodingLabelSpec {
 }
 export interface ConfigurationReencodingColorScaleSpec {
     domain?: string[];
-    range: string[];
+    range0: string[];
+    range1: string[];
     type?: string;
 }
 export interface ConfigurationReencodingColorSpec {
@@ -92,14 +90,16 @@ export interface ConfigurationReencodingSpec {
     hatching?: ConfigurationReencodingHatchingSpec;
 }
 export declare class ComposeSpec {
-    mix: "none" | "min" | "mean" | "max" | "blend" | "weavingrandom" | "weavingsquare" | "weavinghex" | "weavingtri" | "propline" | "hatching" | "separate" | "glyph" | "dotdensity";
-    mixing: "additive" | "subtractive" | "multicative";
+    mix: "none" | "invmin" | "mean" | "max" | "blend" | "weavingrandom" | "weavingsquare" | "weavinghex" | "weavingtri" | "propline" | "hatching" | "separate" | "glyph" | "dotdensity" | "time";
+    mixing: "additive" | "subtractive" | "multiplicative";
     size: number;
     widthprop: string | number;
     colprop: boolean;
-    select?: number;
-    url?: string;
+    order?: number[];
     glyphSpec?: GlyphSpec;
+    interval: number;
+    threshold: number;
+    sort: boolean;
     constructor(options?: ComposeSpec);
 }
 export declare class GlyphSpec {
@@ -117,21 +117,21 @@ export declare class RebinSpec {
     feature?: string;
     url?: string;
     topojson?: any;
-    points?: [number, number][];
+    points?: NumPair[];
     stroke?: string;
+    aggregation: "max" | "mean" | "sum" | "min";
     constructor(options?: RebinSpec);
 }
 export declare class RescaleSpec {
     type: "linear" | "log" | "pow" | "sqrt" | "cbrt" | "equidepth";
-    level: number;
+    levels: number;
     constructor(options?: RescaleSpec);
 }
 export declare class ContourSpec {
     stroke: number;
     lineWidth: number;
-    colProp: boolean;
+    colprop: boolean;
     fill: number;
-    values?: number[];
     blur: number;
     constructor(options?: ContourSpec);
 }
@@ -139,24 +139,48 @@ export declare class LegendSpec {
     format: string;
     fontSize: string;
     fontFamily: string;
+    title?: string;
+    titleHeight: number;
+    titleDy: string;
     rowHeight: number;
-    gutter: number;
-    labelWidth: number;
-    colorMapWidth: number;
+    horizontalGutter: number;
+    verticalGutter: number;
+    width: number;
     padding: number;
+    mixMapSize: number;
     tickFontSize: string;
     markers: number;
     numTicks?: number;
     size: number;
-    width: number;
     height: number;
     constructor(options?: LegendSpec);
 }
+export declare class StrokeSpec {
+    color: string;
+    lineWidth: number;
+    type: "topojson";
+    url?: string;
+    topojson: any;
+    feature: string;
+    constructor(options?: StrokeSpec);
+}
+export interface AxisEncodingSpec {
+    title?: string;
+}
+export declare class AxisSpec {
+    marginLeft: number;
+    marginBottom: number;
+    marginRight: number;
+    marginTop: number;
+    x?: AxisEncodingSpec;
+    y?: AxisEncodingSpec;
+    constructor(options?: AxisSpec);
+}
 export declare class Configuration {
-    specs: any;
+    spec: any;
     description?: string;
     background?: string;
-    data?: ConfigurationDataSpec;
+    data: ConfigurationDataSpec;
     blur: number;
     reencoding?: ConfigurationReencodingSpec;
     rebin?: RebinSpec;
@@ -167,7 +191,9 @@ export declare class Configuration {
     height: number;
     bufferNames: string[];
     legend: LegendSpec | false;
-    constructor(specs: any);
+    stroke?: StrokeSpec;
+    axis?: AxisSpec;
+    constructor(spec: any);
     private parseDescription();
     private parseBackground();
     private parseData();
@@ -178,12 +204,18 @@ export declare class Configuration {
     private parseRebin();
     private parseCompose();
     private parseRescale();
+    private parseLegend();
+    private parseStroke();
+    private parseAxis();
     validate(): boolean;
-    loadTopojson(base?: string): Promise<Configuration>;
+    private loadTopojson(base?);
+    private loadStroke(base?);
+    private loadData(base?);
     load(base?: string): Promise<Configuration>;
     getBuffers(): DataBuffer[];
-    getLabels(): string[] | undefined;
-    getColors(): string[];
+    getColors0(): string[];
+    getColors1(): string[];
     getGeo(): GeoSpec;
-    private parseLegend();
+    getXDomain(): NumPair;
+    getYDomain(): NumPair;
 }

@@ -6,15 +6,14 @@ export default class Color {
     constructor(r?: number, g?: number, b?: number, a?: number);
     set(r: number, g: number, b: number, a: number): void;
     clamp(): Color;
+    isValid(): boolean;
     clone(): Color;
-    darken(v: number): Color;
-    whiten(v: number): Color;
-    dissolve(v: number): Color;
+    rdissolve(v: number): void;
     toString(): string;
-    hex(prefix?: string): string;
     cssDepremultiply(): string;
     css(): string;
     add(c: Color): Color;
+    radd(c: Color): void;
     darker(): Color;
     totTransparent(): Color;
     brighter(): Color;
@@ -32,11 +31,15 @@ export default class Color {
     static Pink: Color;
     static Gray: Color;
     static Yellow: Color;
+    static Cyan: Color;
+    static Magenta: Color;
     static Skyblue: Color;
     static Transparent: Color;
     static ColorByName: any;
-    static byName(name: string): Color;
+    static rgb(code: string): Color;
+    static get(name: string): Color;
     static Category10: Color[];
+    static Category10t: Color[];
     static Category10a: Color[];
     static Category10b: Color[];
 }

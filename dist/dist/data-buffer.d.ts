@@ -12,5 +12,4 @@ export default class DataBuffer {
     rescale(scale: number): void;
     blur(radius?: number): DataBuffer;
     contours(thresholds?: number[], blur?: number): d3.ContourMultiPolygon[];
-    makeContour(contourNumber?: number): DataBuffer;
 }

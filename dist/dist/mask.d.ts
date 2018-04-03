@@ -1,4 +1,4 @@
-import { Path } from './path';
+import Path from './path';
 export default class Mask {
     width: number;
     height: number;
@@ -6,7 +6,8 @@ export default class Mask {
     private maskCanvas?;
     mask: Uint8ClampedArray[];
     constructor(width: number, height: number, default_value?: number, buffer?: ArrayBuffer, offset?: number);
-    rowcounts(): number[];
+    rowcounts(step?: number): number[];
+    pixcount(step?: number): number;
     area(): number;
     randomPoint(rowcounts?: number[]): number[];
     getCanvas(): HTMLCanvasElement;

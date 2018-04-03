@@ -3,6 +3,7 @@ import Mask from './mask';
 import DataBuffer from './data-buffer';
 import * as util from './util';
 import * as Scale from './scale';
+import { ContourMultiPolygon } from 'd3-contour';
 
 export default class DerivedBuffer {
     mask?:Mask;

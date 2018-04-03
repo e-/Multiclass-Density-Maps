@@ -14,6 +14,7 @@ export default class Interpreter {
     n: number;
     sourceBuffers: DataBuffer[];
     dataBuffers: DataBuffer[];
+    dataSpec: Parser.DataSpec;
     derivedBuffers: DerivedBuffer[];
     blurredBuffers: DerivedBuffer[];
     image: Image[];
@@ -24,8 +25,8 @@ export default class Interpreter {
     fillCanvas: boolean;
     background?: string;
     bufferNames: string[];
-    colors: Color[];
-    labels?: string[];
+    colors0: Color[];
+    colors1: Color[];
     rebin: any;
     rescale: Parser.RescaleSpec;
     compose: Parser.ComposeSpec;
@@ -37,14 +38,24 @@ export default class Interpreter {
     geo: Parser.GeoSpec;
     legend: Parser.LegendSpec | false;
     scale: Scale.ScaleTrait;
+    xdomain: Parser.NumPair;
+    ydomain: Parser.NumPair;
+    stroke?: Parser.StrokeSpec;
+    axis?: Parser.AxisSpec;
     d3scale: string;
     d3base: number;
+    d3exponent: number;
     constructor(configuration: Parser.Configuration);
     interpret(context?: {}): void;
     private computeDerivedBuffers(context?);
     private computeRebin(context?);
     private computeCompose(context?);
-    setup(id: string | HTMLCanvasElement): void;
-    render(id: string | HTMLCanvasElement): void;
-    renderLegend(id: string): void;
+    private setup(canvas, forcedWidth?, forcedHeight?);
+    private renderMap(canvas);
+    render(id: string | HTMLDivElement, forcedWidth?: number, forcedHeight?: number): void;
+    private renderAxis(map, native, forcedWidth?, forcedHeight?);
+    private renderStroke(canvas);
+    pickDomains(x: number, y: number): [number, number] | null;
+    pickValues(x: number, y: number): number[];
+    pickTile(x: number, y: number): Tile | null;
 }

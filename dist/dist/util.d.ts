@@ -1,8 +1,12 @@
 export declare function positive(x: number): boolean;
+export declare function translate(x: number, y: number): string;
 export declare function create2D<T>(width: number, height: number, value: T): T[][];
+export declare function linterp(v1: number, v2: number, t: number): number;
 export declare function asum(values: number[]): number;
 export declare function amax(values: number[]): number;
 export declare function amin(values: number[]): number;
 export declare function arange(start: number, end?: number, step?: number): number[];
-export declare function get(url: string): Promise<any>;
+export declare function get(url: string, responseType?: string): Promise<any>;
 export { default as largeRectInPoly } from './largest-rect-in-poly';
+export declare function deg2rad(degrees: number): number;
+export declare function rad2deg(radians: number): number;

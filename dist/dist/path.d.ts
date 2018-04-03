@@ -1,11 +1,10 @@
-export declare type Point = [number, number];
-export declare class Path {
+export default class Path {
     x0?: number;
     y0?: number;
     x1?: number;
     y1?: number;
     codes: string;
-    pts: Point[];
+    pts: [number, number][];
     moveTo(x: number, y: number): void;
     closePath(): void;
     lineTo(x: number, y: number): void;

@@ -15,8 +15,10 @@ export default class Tile extends Point {
     constructor(x: number, y: number, mask: Mask, center?: Point);
     area(): number;
     rowcounts(): number[];
+    pixcount(step?: number): number;
     maxValue(): number;
     sumValue(): number;
+    contains(x: number, y: number): boolean;
     aggregateOne(buffer: DataBuffer, op?: TileAggregation): number;
     aggregate(buffers: DataBuffer[], op?: TileAggregation): number[];
     getRectAtCenter(): Rect | null;

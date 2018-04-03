@@ -52,6 +52,7 @@ export declare class EquiDepthScale implements ScaleTrait {
     level: number;
     digest: Digest;
     bounds: number[];
+    minBound: number;
     constructor(domain: number[], range: [number, number], level?: number);
     addPoints(points: number[]): void;
     addPoint(point: number): void;

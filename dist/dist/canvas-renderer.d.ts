@@ -6,12 +6,13 @@ export declare enum BlendingMode {
 }
 export default class CanvasRenderer {
     static BlendingMode: typeof BlendingMode;
-    static renderAll(images: Image[], canvas: string | HTMLCanvasElement, select?: number, options?: {
+    static renderAll(images: Image[], canvas: string | HTMLCanvasElement, order?: number[], options?: {
         blur?: number;
         blendingMode?: BlendingMode;
         noResetDims?: boolean;
         rows?: number;
         cols?: number;
+        interval?: number;
     }): CanvasRenderingContext2D;
     static render(image: Image, id: string | HTMLCanvasElement, options?: {
         blur?: number;
@@ -27,7 +28,8 @@ export default class CanvasRenderer {
         color?: string;
         lineWidth?: number;
     }): void;
-    static renderMultiples(images: Image[], id: string | HTMLCanvasElement, options?: {
+    static renderTimeMultiplexing(images: Image[], id: string, interval: number): CanvasRenderingContext2D;
+    static renderMultiples(images: Image[], id: string | HTMLCanvasElement, order?: number[], options?: {
         rows?: number;
         cols?: number;
     }): CanvasRenderingContext2D;
