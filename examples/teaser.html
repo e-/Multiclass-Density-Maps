@@ -2,54 +2,18 @@
 <html>
     <head>
         <title>A Declarative Rendering Model for Multiclass Density Maps</title>
-<style>
-bodyno {
-  background-image:url('Baboon.png');
-  background-repeat:repeat;
-}
-canvas {
-  border: 1px solid grey;
-}
-.example {
-  font-weight: bold;
-  float:left;
-  margin:5px;
-}
-.clearBoth { clear:both; }
-
-</style>        
+        <style>
+            canvas {border: 1px solid #ddd;}
+            body > div {float:left; margin:5px;}
+        </style>        
     </head>
     <body>
-        <script src="dist/multiclass-plots.js" type="text/javascript" charset="utf-8"></script>
+        <script src="/dist/multiclass-plots.js" type="text/javascript" charset="utf-8"></script>
+        <script src="/examples/bootstrap.js" type="text/javascript" charset="utf-8"></script>
+
 <script>
-var configuration, interpreter, canvasCount=0;
 
-function render(desc, json, do_break) {
-    var body = document.getElementsByTagName('body')[0],
-        div = document.createElement("div"),
-        wrapper = document.createElement("div");
-
-    
-    div.classList.add("example");
-    div.appendChild(wrapper);
-    body.appendChild(div);
-    
-  if (do_break) {
-      var br = document.createElement("br");
-      br.classList.add('clearBoth');
-      body.appendChild(br);
-  }
-  
-    var config = new MCP.Parser.Configuration(json);
-    config.load('data/').then(function() {
-        var interp = new MCP.Interpreter(config);
-
-        interp.interpret();
-        interp.render(wrapper);
-    });
-}
-
-render('Linear Color Scale Small Multiples',
+render('',
        {
            "description": "multivariate normal data",
            "data": {"url": "mn_data.json"},
@@ -64,7 +28,7 @@ render('Linear Color Scale Small Multiples',
        });
 
 
-render('Linear Color Scale blended',
+render('',
        {
            "description": "multivariate normal data",
            "data": {"url": "mn_data.json"},
@@ -75,7 +39,7 @@ render('Linear Color Scale blended',
            "legend": false
        });
 
-render('Linear Color Scale Max',
+render('',
        {
            "description": "multivariate normal data",
            "data": {"url": "mn_data.json"},
@@ -90,7 +54,7 @@ render('Linear Color Scale Max',
        });
 
 
-render('Square Weaving',
+render('',
        {
            "description": "multivariate normal data",
            "data": {"url": "mn_data.json"},
@@ -104,7 +68,7 @@ render('Square Weaving',
            "legend": false
        });
 
-render('Linear Color Scale hex',
+render('',
        {
            "description": "multivariate normal data",
            "data": {"url": "mn_data.json"},
@@ -132,7 +96,7 @@ render('Linear Color Scale hex',
 //        });
 
 
-render('Random Weaving',
+render('',
        {
            "description": "multivariate normal data",
            "data": {"url": "mn_data.json"},
@@ -146,7 +110,7 @@ render('Random Weaving',
            "legend": false
        });
 
-render('Contour lines',
+render('',
        {
            "description": "multivariate normal data",
            "data": {"url": "mn_data.json"},
@@ -158,7 +122,7 @@ render('Contour lines',
            "legend": false
        }, true);
 
-render('Voronoi Tiling Mean',
+render('',
        {
            "description": "multivariate normal data",
            "data": {"url": "mn_data.json"},
@@ -173,7 +137,7 @@ render('Voronoi Tiling Mean',
            "legend": false
        });
 
-render('Voronoi Tiling + Tilted Hatching',
+render('',
        {
            "description": "multivariate normal data",
            "data": {"url": "mn_data.json"},
@@ -191,7 +155,7 @@ render('Voronoi Tiling + Tilted Hatching',
            "legend": false
        });
 
-render('Voronoi Tiling + Hatching',
+render('',
        {
            "description": "multivariate normal data",
            "data": {"url": "mn_data.json"},
@@ -209,7 +173,7 @@ render('Voronoi Tiling + Hatching',
            "legend": false
        });
 
-render('Voronoi Tiling',
+render('',
        {
            "description": "multivariate normal data",
            "data": {"url": "mn_data.json"},
@@ -225,7 +189,7 @@ render('Voronoi Tiling',
            "legend": false
        });
 
-render('Voronoi Tiling(dot densities)',
+render('',
        {
            "description": "multivariate normal data",
            "data": {"url": "mn_data.json"},
@@ -241,7 +205,7 @@ render('Voronoi Tiling(dot densities)',
            "legend": false
        });
 
-render('Voronoi Tiling + (Glyph - bars)',
+render('',
        {
            "description": "multivariate normal data",
            "data": {"url": "mn_data.json"},
@@ -261,7 +225,7 @@ render('Voronoi Tiling + (Glyph - bars)',
            "legend": false
           });
 
-render('Voronoi Tiling + (Glyph - circles)',
+render('',
        {
            "description": "multivariate normal data",
            "data": {"url": "mn_data.json"},

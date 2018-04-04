@@ -1,53 +1,12 @@
 <!doctype html>
 <html>
     <head>
-        <title>A Declarative Rendering Model for Multiclass Density Maps</title>
-<style>
-bodyno {
-  background-image:url('Baboon.png');
-  background-repeat:repeat;
-}
-canvas {
-  border: 1px solid grey;
-}
-.example {
-  font-weight: bold;
-  float:left;
-  margin:5px;
-}
-.clearBoth { clear:both; }
-
-</style>        
+        <title>A Declarative Rendering Model for Multiclass Density Maps</title>        
     </head>
     <body>
-        <script src="dist/multiclass-plots.js" type="text/javascript" charset="utf-8"></script>
+        <script src="/dist/multiclass-plots.js" type="text/javascript" charset="utf-8"></script>
+        <script src="/examples/bootstrap.js" type="text/javascript" charset="utf-8"></script>
 <script>
-var configuration, interpreter, canvasCount=0;
-
-function render(desc, json, do_break) {
-    var body = document.getElementsByTagName('body')[0],
-        div = document.createElement("div"),
-        wrapper = document.createElement("div");
-    
-    div.classList.add("example");
-    div.appendChild(wrapper);
-    body.appendChild(div);
-
-  if (do_break) {
-      var br = document.createElement("br");
-      br.classList.add('clearBoth');
-      body.appendChild(br);
-  }
-
-    var config = new MCP.Parser.Configuration(json);
-    config.load('data/').then(function() {
-        var interp = new MCP.Interpreter(config);
-        
-        interp.interpret();
-        interp.render(wrapper);
-    });
-        
-}
 
 render('notMNIST LargeVis',
        {

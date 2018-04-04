@@ -2,61 +2,13 @@
 <html>
     <head>
         <title>Scalable Rendering of Multiclass Density Maps with Parser</title>
-<style>
-bodyno {
-  background-image:url('Baboon.png');
-  background-repeat:repeat;
-}
-.example {
-  float:left;
-  margin:5px;
-}
-.clearBoth { clear:both; }
-
-</style>
     </head>
     <body>
         <h1>Rendition</h1>
 
-        <script src="dist/multiclass-plots.js" type="text/javascript" charset="utf-8"></script>
+        <script src="/dist/multiclass-plots.js" type="text/javascript" charset="utf-8"></script>
+        <script src="/examples/bootstrap.js" type="text/javascript" charset="utf-8"></script>
 <script>
-var configuration, interpreter, canvasCount=0;
-
-function render(desc, json, do_break, forcedWidth, forcedHeight) {
-    var body = document.getElementsByTagName('body')[0],
-        div = document.createElement("div"),
-        wrapper = document.createElement("div")
-
-    div.classList.add("example");
-    wrapper.classList.add("wrapper");
-
-    
-    div.appendChild(document.createTextNode(desc));
-    div.appendChild(document.createElement("br"));
-    div.appendChild(wrapper);
-
-    body.appendChild(div);
-    // if (forcedWidth) {
-    //     canvas.style.width = forcedWidth;
-    // }
-    // if (forcedHeight) {
-    //     canvas.style.height = forcedHeight;
-    // }
-
-    if (do_break) {
-        var br = document.createElement("br");
-        br.classList.add('clearBoth');
-        body.appendChild(br);
-    }
-
-    var config = new MCP.Parser.Configuration(json);
-    config.load('data/').then(function() {
-        var interp = new MCP.Interpreter(config);
-        
-        interp.interpret();
-        interp.render(wrapper, forcedWidth, forcedHeight);
-    });
-}
 
 render('US Flight delays vs Distance for every day of the week - January 2017',
 {
@@ -94,7 +46,7 @@ render('US Flight delays vs Distance for every day of the week - January 2017',
     "axis": true,
     "legend": {"title": "DAY_OF_WEEK"},
     
-}, false);
+});
 
 render('US Flight delays vs Distance for every day of the week - January 2017',
 {
@@ -139,7 +91,7 @@ render('US Flight delays vs Distance for every day of the week - January 2017',
            },
     "axis": true,
     "legend": {"title": "DAY_OF_WEEK"}
-}, true);
+});
 
 render('US Flight air time vs speed for 3 main carriers = 2 Fekete items',
 {
@@ -171,7 +123,7 @@ render('US Flight air time vs speed for 3 main carriers = 2 Fekete items',
     "legend": {"title": "CARRIER"}
 
 
-}, false);
+});
 
 render('US Flight delays vs Speed for every group of delays = 5.6 Fekete items',
 {
@@ -203,7 +155,7 @@ render('US Flight delays vs Speed for every group of delays = 5.6 Fekete items',
     "legend": {"title": "ARR_DELAY"}
 
 
-}, true);
+});
 
 </script>
     </body>

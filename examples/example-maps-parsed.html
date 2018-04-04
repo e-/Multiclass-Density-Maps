@@ -2,172 +2,14 @@
 <html>
     <head>
         <title>Scalable Rendering of Multiclass Density Maps with Parser</title>
-<style>
-.example canvas {
-  border: 1px solid grey;
-}
-bodyno {
-  background-image:url('Baboon.png');
-  background-repeat:repeat;
-}
-.example {
-  font-weight: bold;
-  float:left;
-  margin:5px;
-}
-.clearBoth { clear:both; }
-
-</style>
     </head>
     <body>
         <h1>Rendition</h1>
 
-        <script src="dist/multiclass-plots.js" type="text/javascript" charset="utf-8"></script>
+        <script src="/dist/multiclass-plots.js" type="text/javascript" charset="utf-8"></script>
+        <script src="/examples/bootstrap.js" type="text/javascript" charset="utf-8"></script>
+
 <script>
-var configuration, interpreter, canvasCount=0;
-
-function render(desc, json, do_break, forcedWidth, forcedHeight) {
-    var body = document.getElementsByTagName('body')[0],
-        div = document.createElement("div"),
-        wrapper = document.createElement("div")
-
-    div.classList.add("example");
-
-    div.appendChild(document.createTextNode(desc));
-    div.appendChild(document.createElement("br"));
-    div.appendChild(wrapper);
-
-
-  body.appendChild(div);
-  if (do_break) {
-      var br = document.createElement("br");
-      br.classList.add('clearBoth');
-      body.appendChild(br);
-  }
-    var config = new MCP.Parser.Configuration(json);
-    config.load('data/').then(function() {
-        var interp = new MCP.Interpreter(config);
-        
-        interp.interpret();
-        interp.render(wrapper, forcedWidth, forcedHeight);
-    });
-}
-
-
-/*
-render('Census Data',
-{
-    "description": "US Census Synthetic people",
-    "data": {"url": "census.snappy_data.json"},
-    "reencoding": {
-        "label": {
-            "field": "z",
-            "type": "nominal",
-            "scale": {
-                "domain": ["w", "h", "a", "b", "o"],
-                "range": ["White", "Hispanic", "Asian", "Black", "Other"]
-            }
-        },
-        "color": {
-            "field": "z",
-            "type": "nominal",
-            "scale": {
-                "range": ["Blue", "Orange", "Red", "Green", "Brown"]
-            }
-        }
-    },
-    "compose": {
-        "mix": "mean",
-        "mixing": "additive"
-    },
-    "rescale": {
-        "type": "log"
-    },
-    "legend": {
-        "labelWidth": 60
-    }
-});
-
-render('Census Data Smoothed',
-{
-    "description": "US Census Synthetic people",
-    "data": {"url": "census.snappy_data.json"},
-    "smooth": {"radius": 1},
-    "reencoding": {
-        "label": {
-            "field": "z",
-            "type": "nominal",
-            "scale": {
-                "domain": ["w", "h", "a", "b", "o"],
-                "range": ["White", "Hispanic", "Asian", "Black", "Other"]
-            }
-        },
-        "color": {
-            "field": "z",
-            "type": "nominal",
-            "scale": {
-                "range": ["Blue", "Orange", "Red", "Green", "Brown"]
-            }
-        }
-    },
-    "compose": {
-        "mix": "mean",
-        "mixing": "additive"
-    },
-    "rescale": {
-        "type": "log"
-    },
-    "legend": {
-        "labelWidth": 60
-    }
-}, true);
-
-
-
-render('Census Data Random Weaving',
-{
-    "description": "US Census Synthetic people",
-    "data": {"url": "census.snappy_data.json"},
-    "reencoding": {
-        "label": {
-            "field": "z",
-            "type": "nominal",
-            "scale": {
-                "domain": ["w", "h", "a", "b", "o"],
-                "range": ["White", "Hispanic", "Asian", "Black", "Other"]
-            }
-        },
-        "color": {
-            "field": "z",
-            "type": "nominal",
-            "scale": {
-                "range": ["Blue", "Orange", "Red", "Green", "Brown"]
-            }
-        }
-    },
-    "rebin": {
-          "type": "topojson",
-          "url": "us.json",
-          "feature": "states",
-          // "feature": "counties",
-
-        //  "maxfeature": 49,
-        //    "feature": "counties",
-        //     "minfeature": 0,
-        //   "maxfeature": 3109,
-          "stroke": "rgba(0,0,0,0.25)"
-    },
-    "compose": {
-          "mix": "weavingrandom",
-          "size": 2
-    },
-    "rescale": {
-        "type": "log"
-    },
-    "legend": {
-        "labelWidth": 60
-    }
-});*/
 
 render('Census Data weaving',
 {
@@ -250,7 +92,7 @@ render('Census Data multiplicative choropleth',
     "legend": {
         "labelWidth": 60
     }
-}, true);
+});
 
 render('Census Data choropleth',
 {
@@ -337,7 +179,7 @@ render('Census Data Contour',
     "legend": {
         "labelWidth": 60
     }
-}, true);
+});
 
 
 render('French Presidential Election',
@@ -380,7 +222,7 @@ render('French Presidential Election',
       "colProp":false,
       "stroke": 4
     }
-}, true, 600, 520);
+}, 600, 520);
 
 </script>
     </body>

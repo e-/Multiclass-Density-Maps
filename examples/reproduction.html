@@ -35,7 +35,8 @@
 
         </style>
         
-        <script src="dist/multiclass-plots.js" type="text/javascript" charset="utf-8"></script>
+        <script src="/dist/multiclass-plots.js" type="text/javascript" charset="utf-8"></script>
+        <script src="/examples/bootstrap.js" type="text/javascript" charset="utf-8"></script>
         <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha256-3edrmyuQ0w65f8gfBsqowzjJe2iM6n0nKciPUp8y+7E=" crossorigin="anonymous"></script>
     </head>
     <body>
@@ -48,13 +49,12 @@
 
 $(function() {
     var $gallery = $('#gallery')
-    var canvasCount = 0;
 
     function SVG() {
         return document.createElementNS('http://www.w3.org/2000/svg', 'svg')
     }
 
-    function render(title, spec, wide, width, height, timeN) {
+    function render2(title, spec, wide, width, height, timeN) {
         var 
             $wrapper = $('<div></div>').attr('class', wide ? 'col-lg-12' : 'col-lg-4').appendTo($gallery),
             $card = $('<div class="card"></div>').appendTo($wrapper),
@@ -74,16 +74,10 @@ $(function() {
             $pre.toggle();
         })
 
-        var config = new MCP.Parser.Configuration(spec);
-        config.load('data/').then(function() {
-            var interp = new MCP.Interpreter(config);
-            
-            interp.interpret();
-            interp.render($mdm.get(0));
-        });
+        render(title, spec, width, height, $mdm.get(0));
     }
 
-render('Figure2a',
+render2('Figure2a',
 {
     "description": "US Census Synthetic people",
     "data": {"url": "census.snappy_data.2classes.json"},
@@ -124,7 +118,7 @@ render('Figure2a',
     }
 }, true);
 
-render('Figure2b',
+render2('Figure2b',
 {
     "description": "US Census Synthetic people",
     "data": {"url": "census.snappy_data.3classes.json"},
@@ -165,7 +159,7 @@ render('Figure2b',
     }
 }, true);
 
-render('Figure 2cl',
+render2('Figure 2cl',
 {
     "description": "5 main candidate at Round #1",
     "data": {"url": "francePresElec_data.3classes.json"},
@@ -204,7 +198,7 @@ render('Figure 2cl',
     }
 }, true, 600, 520);
 
-render('Figure 2cr',
+render2('Figure 2cr',
 {
     "description": "5 main candidate at Round #1",
     "data": {"url": "francePresElec_data.3classes.json"},
@@ -253,7 +247,7 @@ render('Figure 2cr',
 }, true, 600, 520);
 
 
-render('Figure 2d',
+render2('Figure 2d',
 {
     "description": "US Census Synthetic people",
     "data": {"url": "census.snappy_data.json"},
@@ -292,7 +286,7 @@ render('Figure 2d',
 }, true);
 
 
-render('Figure 2e',
+render2('Figure 2e',
 {
     "description": "US Census Synthetic people",
     "data": {"url": "census.snappy_data.json"},
@@ -338,7 +332,7 @@ render('Figure 2e',
     }
 }, true);
 
-render('Figure 2f',
+render2('Figure 2f',
 {
     "description": "US Census Synthetic people",
     "data": {"url": "census.snappy_data.json"},
