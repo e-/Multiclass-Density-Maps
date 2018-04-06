@@ -15,6 +15,7 @@
     "d3-transition": "^1.1.1",
     "d3-voronoi": "^1.1.2",
     "multivariate-normal": "^0.1.1",
+    "pngjs3": "^3.5.1",
     "proj4": "^2.4.4",
     "random-seed": "^0.3.0",
     "simplify-ts": "^1.0.1",
@@ -62,7 +63,7 @@
     "Frédéric Vernier <frederic.vernier@limsi.fr>",
     "Pierre Dragicevic <Pierre.Dragicevic@inria.fr",
     "Jean-Daniel Fekete <Jean-Daniel.Fekete@inria.fr"
-  ],  
+  ],
   "license": "BSD-2-Clause",
   "bugs": {
     "url": "https://github.com/e-/MultiClassPlots/issues"

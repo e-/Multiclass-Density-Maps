@@ -1,5 +1,6 @@
 import * as util from "./util";
 import DataBuffer from "./data-buffer";
+import {PNG} from "pngjs3";
 
 export type NumPair = [number, number];
 
@@ -96,9 +97,32 @@ export class DataSpec {
         this.buffers.forEach(buffer => {
             if(!buffer.data) {
                 let url = base + buffer.url!;
-                let promise = util.get(url)
+                let responseType = undefined;
+
+                if(url.toLowerCase().endsWith(".png")) {
+                    responseType = "arraybuffer";
+                }
+
+                let promise = util.get(url, responseType)
                     .then((data) => {
-                        buffer.data = JSON.parse(data);
+                        if(url.toLowerCase().endsWith(".json"))
+                            buffer.data = JSON.parse(data);
+                        else {
+                            let pngBuffer = new Buffer(data);
+                            let png = PNG.sync.read(pngBuffer, {skipRescale: true});
+                            let prebinned = util.create2D(png.width, png.height, 0);
+                            let depth = png.data.BYTES_PER_ELEMENT * 8;
+                            let max = 1 << depth - 1;
+
+                            for(let i = 0; i < png.height; i++) {
+                                for(let j = 0; j < png.width; j++) {
+                                    prebinned[i][j] = png.data[(i * png.width + j) * 4] / max;
+                                }
+                            }
+
+                            buffer.data = prebinned;
+                        }
+
                         return buffer;
                     })
                     .catch((reason => {
