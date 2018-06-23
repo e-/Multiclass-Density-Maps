@@ -4,3 +4,4 @@ package-lock.json
 data/*_elec2017_*.json
 data/*_crime2_*.json
 data/*_pickup_*.json
+data/census.snappy.parq
