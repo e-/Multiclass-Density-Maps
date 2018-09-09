@@ -17,9 +17,9 @@ module.exports = {
         contentBase: './'
     },
     output: {
-        filename: 'multiclass-plots.js',
+        filename: 'multiclass-density-maps.js',
         path: path.resolve(__dirname, 'dist'),
         publicPath: '/dist/',
-        library: 'MCP'
+        library: 'MDM'
     }
 };

@@ -1,5 +1,5 @@
 function render(title, spec, width, height, div) {
-    var config = new MCP.Parser.Configuration(spec);
+    var config = new MDM.Parser.Configuration(spec);
 
     if(!div) {
         var body = document.getElementsByTagName('body')[0],
@@ -13,7 +13,7 @@ function render(title, spec, width, height, div) {
     }
 
     config.load('/data/').then(function() {
-        var interp = new MCP.Interpreter(config);
+        var interp = new MDM.Interpreter(config);
         
         interp.interpret();
         interp.render(div, width, height);
