@@ -3,7 +3,7 @@
 import json
 import numpy as np
 
-def mn2json(root, size, width, height, means, cov, bounds):
+def mn2json(root, size, width, height, means, cov, bounds, sample_size = 1000):
     """
     mn2json('mn', 100000, 256, 256,
             [[-1, -1], [1, -1], [-1, 1], [1, 1]],
@@ -26,10 +26,13 @@ def mn2json(root, size, width, height, means, cov, bounds):
     histograms = {}
     counts = {}
     values = [str(i+1) for i in range(len(means))]
+    samples = []
 
     for i, mean in enumerate(means):
         mean = np.array(mean, dtype=np.float)
         dataset = np.random.multivariate_normal(mean, cov, size=size)
+        samples.append(dataset[:sample_size])
+
         (histo, xedges, yedges) = np.histogram2d(dataset[:,0], dataset[:,1],
                                                  normed=False,
                                                  bins=bins, range=bounds)
@@ -101,7 +104,12 @@ def mn2json(root, size, width, height, means, cov, bounds):
     with open(root + '_data.json', 'w') as outf:
         json.dump(description, outf, indent=2)
 
+    with open(root + '_sample.txt', 'w') as outf:
+        for i, sample in enumerate(samples):
+            for s in sample:
+                print("{} {} {}".format(i, s[0], s[1]), file=outf)
+
 if __name__ == "__main__":
-    mn2json('mn', 10000000, 256, 256,
+    mn2json('mn', 100000, 256, 256,
             [[-1, -1], [1, -1], [-1, 1], [1, 1]],
             [[3, 0], [0, 3]], [[-7, 7], [-7, 7]])

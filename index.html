@@ -60,11 +60,7 @@ $(function() {
             $card = $('<div class="card"></div>').appendTo($wrapper),
             $title = $('<h5 class="card-header"></h5>').html(title).appendTo($card),
             $body = $('<div class="card-body"></div>').appendTo($card),
-            // id = 'canvas' + canvasCount++,
-            // legendId = id + '-legend',
             $mdm = $('<div class="mdm">').appendTo($body),
-            // $canvas = $('<canvas class="map">').attr('id', id).appendTo($mdm),
-            // $legend= $(SVG()).attr('class', 'legend').attr('id', legendId).appendTo($mdm),
             $desc = $('<p class="card-text">').html('').appendTo($body),
             $pre = $('<code>').css('display', 'none').appendTo($body),
             $code = $('<pre>').appendTo($pre).text(JSON.stringify(spec, null, 2)),
@@ -73,9 +69,6 @@ $(function() {
         $button.click(function(){
             $pre.toggle();
         })
-
-        // if(width) $canvas.css('width', width)
-        // if(height) $canvas.css('height', height)
         
         var config = new MDM.Parser.Configuration(spec);
         config.load('data/').then(function() {
