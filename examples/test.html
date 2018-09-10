@@ -1,0 +1,109 @@
+<!doctype html>
+<html>
+
+<head>
+    <title>Gallery - Multiclass Density Maps </title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm"
+        crossorigin="anonymous">
+    <style>
+        body .container {
+            background: white;
+            padding: 10px;
+            margin-top: 20px;
+            max-width: 1460px;
+        }
+
+        .card {
+            margin: 10px 0;
+        }
+
+        .card-body {
+            padding: 0.5rem;
+        }
+
+        .mdm {
+            text-align: center;
+        }
+
+        .map {
+            display: inline-block;
+        }
+
+        .legend {
+            display: inline-block;
+        }
+
+        pre {
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background: #eee;
+        }
+    </style>
+
+    <script src="/dist/multiclass-density-maps.js" type="text/javascript" charset="utf-8"></script>
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha256-3edrmyuQ0w65f8gfBsqowzjJe2iM6n0nKciPUp8y+7E="
+        crossorigin="anonymous"></script>
+</head>
+
+<body>
+    <div class="container">
+        <h1>Multiclass Density Map Gallery</h1>
+        <section id="gallery" class="row">
+        </section>
+    </div>
+    <script>
+
+        $(function () {
+            var $gallery = $('#gallery')
+            var canvasCount = 0;
+
+            function SVG() {
+                return document.createElementNS('http://www.w3.org/2000/svg', 'svg')
+            }
+
+            function render(title, spec, wide, width, height, timeN) {
+                var
+                    $wrapper = $('<div></div>').attr('class', wide ? 'col-lg-12' : 'col-lg-4').appendTo($gallery),
+                    $card = $('<div class="card"></div>').appendTo($wrapper),
+                    $title = $('<h5 class="card-header"></h5>').html(title).appendTo($card),
+                    $body = $('<div class="card-body"></div>').appendTo($card),
+                    $mdm = $('<div class="mdm">').appendTo($body),
+                    $desc = $('<p class="card-text">').html('').appendTo($body),
+                    $pre = $('<code>').css('display', 'none').appendTo($body),
+                    $code = $('<pre>').appendTo($pre).text(JSON.stringify(spec, null, 2)),
+                    $button = $('<button class="btn btn-primary">').text('Toggle MDM Specification').appendTo($body);
+
+                $button.click(function () {
+                    $pre.toggle();
+                })
+
+                var config = new MDM.Configuration(spec);
+                config.load('/data').then(function () {
+                    var interp = new MDM.Interpreter(config);
+
+                    var start = +new Date();
+                    interp.interpret();
+                    interp.render($mdm.get(0));
+                    var end = +new Date();
+
+                    console.log(title, 'took ', (end - start), 'ms')
+                });
+            }
+            window.render = render;
+
+            render('Linear Color Scale',
+                {
+                    "description": "multivariate normal data",
+                    "data": { "url": "mn_data.json" },
+                    "compose": {
+                        "mix": "time",
+                        "mixing": "multiplicative"
+                    }
+                });
+        })
+
+    </script>
+</body>
+
+</html>

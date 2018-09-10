@@ -181,17 +181,22 @@ export interface ConfigurationReencodingSpec {
 
 export class ComposeSpec {
     mix: "none" | "invmin" | "mean" | "max" | "blend" |
-        "weavingrandom" | "weavingsquare" | "weavinghex" | "weavingtri" |
-        "propline" | "hatching" | "separate" | "glyph" | "dotdensity" | "time" = "mean";
-    mixing: "additive" | "subtractive" | "multiplicative" = "additive";
+        "weaving" | "propline" | "hatching" | "separate" | "glyph" | "dotdensity" | "time" = "mean";
 
+    // blend
+    mixing: "additive" | "multiplicative" = "additive";
+
+    // weaving*
+    shape: "random" | "square" | "hex" | "tri" = "random"
     size: number = 8;
+
+
     widthprop: string | number = "none";
     colprop: boolean = false;
     order?: number[];
     glyphSpec?: GlyphSpec;
 
-    // temporal multiplexing
+    // time
     interval: number = 0.6;
 
     // invmin
@@ -235,7 +240,7 @@ export class RebinSpec {
 }
 
 export class RescaleSpec {
-    type: "linear" | "log" | "pow" | "sqrt" | "cbrt" | "equidepth" = "linear";
+    type: "linear" | "log" | "sqrt" | "cbrt" | "equidepth" = "linear";
     levels: number = 4; // for equidepth
 
     constructor(options?: RescaleSpec) {

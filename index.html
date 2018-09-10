@@ -148,7 +148,8 @@
                     "description": "multivariate normal data",
                     "data": { "url": "mn_data.json" },
                     "compose": {
-                        "mix": "weavingrandom",
+                        "mix": "weaving",
+                        "shape": "random",
                         "size": 8
                     }
                 });
@@ -161,9 +162,6 @@
                         "type": "square",
                         "size": 32
                     },
-                    /*"rescale": {
-                        "type": "log"
-                    },*/
                     "compose": {
                         "mix": "glyph",
                         "glyphSpec": {
@@ -177,8 +175,8 @@
                     "description": "multivariate normal data",
                     "data": { "url": "mn_data.json" },
                     "compose": {
-                        "mix": "weavingsquare",
-                        "size": 8
+                        "mix": "weaving",
+                        "shape": "square"
                     },
                     "rescale": {
                         "type": "linear"
@@ -190,8 +188,8 @@
                     "description": "multivariate normal data",
                     "data": { "url": "mn_data.json" },
                     "compose": {
-                        "mix": "weavinghex",
-                        "size": 8
+                        "mix": "weaving",
+                        "shape": "hex"
                     },
                     "rescale": {
                         "type": "linear"
@@ -203,8 +201,8 @@
                     "description": "multivariate normal data",
                     "data": { "url": "mn_data.json" },
                     "compose": {
-                        "mix": "weavingtri",
-                        "size": 8
+                        "mix": "weaving",
+                        "shape": "tri"
                     },
                     "rescale": {
                         "type": "equidepth"
@@ -225,7 +223,8 @@
                         "stroke": "black"
                     },
                     "compose": {
-                        "mix": "weavingrandom",
+                        "mix": "weaving",
+                        "shape": "random",
                         "size": 4
                     }
                 });
@@ -417,7 +416,8 @@
                         "stroke": "rgba(0,0,0,0.25)"
                     },
                     "compose": {
-                        "mix": "weavingrandom",
+                        "mix": "weaving",
+                        "shape": "random",
                         "size": 4
                     },
                     "rescale": {
@@ -454,7 +454,8 @@
 
                     },
                     "compose": {
-                        "mix": "weavingsquare",
+                        "mix": "weaving",
+                        "shape": "square",
                         "size": 4
                     },
                     "rescale": {
