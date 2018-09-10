@@ -85,11 +85,17 @@ function arange(start, end, step) {
 }
 exports.arange = arange;
 let ongoing = {};
-function get(url, responseType) {
-    if (!ongoing[url]) {
+let cache = {};
+function get(url, useCache = true, responseType) {
+    if (useCache && cache[url]) {
+        return Promise.resolve(cache[url]);
+    }
+    if (!useCache || !ongoing[url]) {
         ongoing[url] = [];
         const request = new XMLHttpRequest();
         request.onload = function () {
+            if (useCache)
+                cache[url] = this.response;
             if (this.status === 200) {
                 ongoing[url].forEach(f => {
                     f[0](this.response);
