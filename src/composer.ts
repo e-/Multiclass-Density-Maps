@@ -6,21 +6,21 @@ import Tile from "./tile";
 import * as util from "./util";
 
 export default class Composer {
-    static max(buffers:DerivedBuffer[], values:number[]):Color {
+    static max(buffers: DerivedBuffer[], values: number[]): Color {
         let best = values[0];
         let bestIndex = 0;
 
         values.forEach((value, i) => {
-          if(value > best) {
-            best = value;
-            bestIndex = i;
-          }
+            if (value > best) {
+                best = value;
+                bestIndex = i;
+            }
         });
 
         return buffers[bestIndex].colorScale.map(best);
     }
 
-    static invmin(buffers:DerivedBuffer[], values:number[], threshold=1):Color {
+    static invmin(buffers: DerivedBuffer[], values: number[], threshold = 1): Color {
         let best = Infinity;
         let bestIndex = -1;
 
@@ -37,10 +37,10 @@ export default class Composer {
         let buffer = buffers[bestIndex];
         let scaleTrait = buffer.colorScale.interpolator;
 
-        return buffer.colorScale.map(scaleTrait.domain[1]-best);
+        return buffer.colorScale.map(scaleTrait.domain[1] - best);
     }
 
-    static mean(buffers:DerivedBuffer[], values:number[]):Color {
+    static mean(buffers: DerivedBuffer[], values: number[]): Color {
         let sum = 0;
         let ret = new Color(0, 0, 0, 0);
 
@@ -55,26 +55,26 @@ export default class Composer {
             }
         });
 
-        if(sum > 0) {
-            ret.rdissolve(1/sum);
+        if (sum > 0) {
+            ret.rdissolve(1 / sum);
         }
         //if (! ret.isValid())console.log("Invalid color "+ret);
 
         return ret;
     }
 
-    static additiveMix(buffers:DerivedBuffer[], values:number[]):Color {
+    static additiveMix(buffers: DerivedBuffer[], values: number[]): Color {
         let ret = new Color(0, 0, 0, 1);
 
         values.forEach((value, i) => {
-          ret.radd(buffers[i].colorScale.map(value));
+            ret.radd(buffers[i].colorScale.map(value));
         });
 
         //ret = ret.clamp();
         return ret;
     }
 
-    static multiplicativeMix(buffers:DerivedBuffer[], values:number[]):Color {
+    static multiplicativeMix(buffers: DerivedBuffer[], values: number[]): Color {
         let ret = new Color(1, 1, 1, 1);
 
         values.forEach((value, i) => {
@@ -82,33 +82,34 @@ export default class Composer {
 
             ret.r *= color.r;
             ret.g *= color.g,
-            ret.b *= color.b;
+                ret.b *= color.b;
             ret.a *= color.a;
         });
 
         return ret;
     }
 
-    static none(buffers:DerivedBuffer[], values:number[]):Color {
+    static none(buffers: DerivedBuffer[], values: number[]): Color {
         return Color.None;
     }
 
-    static one(buffer:DerivedBuffer, value:number):Color {
+    static one(buffer: DerivedBuffer, value: number): Color {
         return buffer.colorScale.map(value);
     }
 
-    static bars(buffers:DerivedBuffer[], names:string[], values:number[],
-        options:{
-            width?:number,
-            height?:number,
+    static bars(buffers: DerivedBuffer[], names: string[], values: number[],
+        options: {
+            width?: number,
+            height?: number,
             "y.scale.domain": [number, number],
             "y.scale.type"?: string,
             "y.scale.base"?: number,
             "y.scale.exponent"?: number
-        } = {"y.scale.domain": [0, 1], "y.scale.type": "linear", "y.scale.base": 10}
+        } = { "y.scale.domain": [0, 1], "y.scale.type": "linear", "y.scale.base": 10 }
     ) {
         let data = buffers.map((buffer, i) => {
-            return {name: buffer.originalDataBuffer.name, value: values[i]}}
+            return { name: buffer.originalDataBuffer.name, value: values[i] }
+        }
         );
         let spec = {
             $schema: "https://vega.github.io/schema/vega-lite/v2.0.json",
@@ -127,9 +128,9 @@ export default class Composer {
                     field: "name",
                     type: "ordinal",
                     scale: {
-                      domain: data.map(d => d.name),
-                      range: data.map((d, i) => buffers[i].color!.css())
-                      // will use a fully opaque color, since we use the length encoding
+                        domain: data.map(d => d.name),
+                        range: data.map((d, i) => buffers[i].color!.css())
+                        // will use a fully opaque color, since we use the length encoding
                     },
                     legend: false
                 },
@@ -159,16 +160,16 @@ export default class Composer {
         return extract(spec);
     }
 
-    static punchcard(buffers:DerivedBuffer[], names:string[], values:number[],
-        options:{
-            width?:number,
-            height?:number,
+    static punchcard(buffers: DerivedBuffer[], names: string[], values: number[],
+        options: {
+            width?: number,
+            height?: number,
             "z.scale.domain"?: [number, number],
             "z.scale.type"?: string,
             "z.scale.base"?: number,
             cols?: number,
-            factor?:number
-        } = {"z.scale.domain": [0, 1], "z.scale.type": "linear", "z.scale.base": 10, factor: 8}
+            factor?: number
+        } = { "z.scale.domain": [0, 1], "z.scale.type": "linear", "z.scale.base": 10, factor: 8 }
     ) {
         let n = buffers.length;
         let cols = options.cols || Math.ceil(Math.sqrt(n));
@@ -182,12 +183,14 @@ export default class Composer {
         // determine the size of full circles. It seems that this number changes
         // depending on the size of a tile and the number of circles in a tile.
 
-        let data = buffers.map((buffer, i) => {return {
-            name: names[i],
-            value: values[i],
-            row: Math.floor(i / cols),
-            col: i % cols,
-        }});
+        let data = buffers.map((buffer, i) => {
+            return {
+                name: names[i],
+                value: values[i],
+                row: Math.floor(i / cols),
+                col: i % cols,
+            }
+        });
 
         // (1, 1, 16)
         // (2, 4, 8)
@@ -230,7 +233,7 @@ export default class Composer {
                     field: "row",
                     type: "ordinal",
                     axis: false,
-                    legend:false,
+                    legend: false,
                     scale: {
                         type: "point",
                         domain: util.arange(rows),
@@ -275,29 +278,29 @@ export default class Composer {
         return extract(spec);
     }
 
-    static hatch(tile:Tile, buffers:DerivedBuffer[], dataValues:number[],
+    static hatch(tile: Tile, buffers: DerivedBuffer[], dataValues: number[],
         options: {
             thickness: number,
             sort: boolean,
             widthprop: string | number,
-            colprop:boolean
-        }): HTMLCanvasElement{
+            colprop: boolean
+        }): HTMLCanvasElement {
 
         let hatchCanvas = <HTMLCanvasElement>document.createElement("canvas");
-        hatchCanvas.width  = tile.mask.width;
+        hatchCanvas.width = tile.mask.width;
         hatchCanvas.height = tile.mask.height;
 
         let ctx = hatchCanvas.getContext("2d")!;
 
 
         ctx.drawImage(tile.mask.getCanvas(), 0, 0);
-        ctx.globalCompositeOperation="source-atop";
-        ctx.fillStyle="white";
-        ctx.fillRect(0,0,ctx.canvas.width, ctx.canvas.height);
+        ctx.globalCompositeOperation = "source-atop";
+        ctx.fillStyle = "white";
+        ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
         ctx.save();
 
-        let sorted:{index:number, value:number}[] = [];
-        let diag = Math.sqrt(hatchCanvas.width*hatchCanvas.width+hatchCanvas.height*hatchCanvas.height);
+        let sorted: { index: number, value: number }[] = [];
+        let diag = Math.sqrt(hatchCanvas.width * hatchCanvas.width + hatchCanvas.height * hatchCanvas.height);
         let sum = 0;
         dataValues.forEach((value, i) => {
             sum += value;
@@ -309,8 +312,8 @@ export default class Composer {
 
         let acc = 0;
 
-        if(options.sort)
-            sorted = sorted.sort(function(a, b){return b.value - a.value});
+        if (options.sort)
+            sorted = sorted.sort(function (a, b) { return b.value - a.value });
 
         sorted.forEach(d => {
             let dataValue = d.value;
@@ -318,7 +321,7 @@ export default class Composer {
 
             let buffer = buffers[i];
             ctx.save();
-            ctx.translate(hatchCanvas.width/2, hatchCanvas.height/2);
+            ctx.translate(hatchCanvas.width / 2, hatchCanvas.height / 2);
             ctx.rotate(buffer.angle!);
             ctx.strokeStyle = buffer.colorScale.map(dataValue).css();
 
@@ -327,26 +330,26 @@ export default class Composer {
             else
                 ctx.strokeStyle = buffer.color!.css();
 
-            if(options.widthprop === "none")
-              ctx.lineWidth = options.thickness;
-            else if(options.widthprop === "percent")
-              ctx.lineWidth = options.thickness * tile.dataValues.length * dataValue / sum;
+            if (options.widthprop === "none")
+                ctx.lineWidth = options.thickness;
+            else if (options.widthprop === "percent")
+                ctx.lineWidth = options.thickness * tile.dataValues.length * dataValue / sum;
             else
-              ctx.lineWidth = options.thickness * tile.dataValues.length * dataValue / <number>options.widthprop;
+                ctx.lineWidth = options.thickness * tile.dataValues.length * dataValue / <number>options.widthprop;
 
             acc += ctx.lineWidth / 2;
-            let tx = tile.x+hatchCanvas.width/2-diag;
+            let tx = tile.x + hatchCanvas.width / 2 - diag;
 
-            for (let i:number=acc-diag-(tx%(tile.dataValues.length*options.thickness));
-                i<diag;
-                i+=tile.dataValues.length * options.thickness){
+            for (let i: number = acc - diag - (tx % (tile.dataValues.length * options.thickness));
+                i < diag;
+                i += tile.dataValues.length * options.thickness) {
                 ctx.beginPath();
                 ctx.moveTo(i, -diag);
-                ctx.lineTo(i,  diag);
+                ctx.lineTo(i, diag);
                 ctx.stroke();
                 //ctx.fillRect(i, 0, 2, hatchCanvas.height);
             }
-            acc += ctx.lineWidth/2;
+            acc += ctx.lineWidth / 2;
             ctx.restore();
         });
 

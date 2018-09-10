@@ -2,7 +2,7 @@ import * as d3s from 'd3-selection';
 import * as d3a from 'd3-array';
 import * as d3f from 'd3-format';
 import DerivedBuffer from './derived-buffer';
-import * as Parser from './parser';
+import * as Configuration from './configuration';
 import Color from './color';
 import Interpreter from './interp';
 import * as Scale from './scale';
@@ -77,7 +77,7 @@ function equiDepthColorMap(defs:any, interpolator:Scale.ScaleTrait, db:DerivedBu
 
 function colorCategories(g:d3s.Selection<d3s.BaseType, {}, HTMLElement, any>,
     derivedBuffers:DerivedBuffer[],
-    spec:Parser.LegendSpec, labels:string[], title:string = "category") {
+    spec:Configuration.LegendSpec, labels:string[], title:string = "category") {
 
     let n = derivedBuffers.length;
     let titleHeight = spec.titleHeight;
@@ -121,7 +121,7 @@ function colorRamps(
     g:d3s.Selection<d3s.BaseType, {}, HTMLElement, any>,
     defs:d3s.Selection<d3s.BaseType, {}, HTMLElement, any>,
     derivedBuffers:DerivedBuffer[],
-    interp:Interpreter, spec:Parser.LegendSpec, title:string = "scale") {
+    interp:Interpreter, spec:Configuration.LegendSpec, title:string = "scale") {
 
     let n = derivedBuffers.length;
     let rowHeight = spec.rowHeight;
@@ -249,7 +249,7 @@ function colorMixMap(g:d3s.Selection<d3s.BaseType, {}, HTMLElement, any>,
     canvas:HTMLCanvasElement,
     derivedBuffers:DerivedBuffer[],
     interp:Interpreter,
-    spec:Parser.LegendSpec,
+    spec:Configuration.LegendSpec,
     top:number,
     title:string = "blend"
 ) {
@@ -319,7 +319,7 @@ function mixLegend(wrapper:HTMLDivElement, interp:Interpreter) {
     wrapper.appendChild(dest);
 
     let derivedBuffers:DerivedBuffer[] = interp.derivedBuffers;
-    let spec = interp.legend as Parser.LegendSpec;
+    let spec = interp.legend as Configuration.LegendSpec;
 
     let svg:any = d3s.select(dest)
         .style('font-family', spec.fontFamily)
@@ -386,7 +386,7 @@ function mixLegend(wrapper:HTMLDivElement, interp:Interpreter) {
 
 function multiplicativeCircles(id:string, interp:Interpreter) {
     let derivedBuffers:DerivedBuffer[] = interp.derivedBuffers;
-    let spec = interp.legend as Parser.LegendSpec;
+    let spec = interp.legend as Configuration.LegendSpec;
 
     let size = spec.size;
     let svg = d3s.select('#' + id)
@@ -439,7 +439,7 @@ function multiplicativeCircles(id:string, interp:Interpreter) {
 function bars(dest:SVGSVGElement, interp:Interpreter) {
     let derivedBuffers:DerivedBuffer[] = interp.derivedBuffers;
     let n = derivedBuffers.length;
-    let spec = interp.legend as Parser.LegendSpec;
+    let spec = interp.legend as Configuration.LegendSpec;
 
     let svg = d3s.select(dest)
         .style('font-family', spec.fontFamily)
@@ -544,7 +544,7 @@ function bars(dest:SVGSVGElement, interp:Interpreter) {
 function punchcard(dest:SVGSVGElement, interp:Interpreter) {
     let derivedBuffers:DerivedBuffer[] = interp.derivedBuffers;
     let n = derivedBuffers.length;
-    let spec = interp.legend as Parser.LegendSpec;
+    let spec = interp.legend as Configuration.LegendSpec;
     let glyphSpec = interp.compose.glyphSpec!;
 
     let svg = d3s.select(dest)

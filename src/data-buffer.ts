@@ -5,10 +5,10 @@ import GaussianBlur from './gaussian-blur';
 import * as d3 from 'd3-contour';
 
 export default class DataBuffer {
-    values:Float32Array[];
+    values: Float32Array[];
 
-    constructor(public name:string, public width:number, public height:number,
-                values?:number[][]) {
+    constructor(public name: string, public width: number, public height: number,
+        values?: number[][]) {
         let buffer = new ArrayBuffer(width * height * 4); // sizeof float32
         this.values = Array<Float32Array>(height);
 
@@ -21,7 +21,7 @@ export default class DataBuffer {
 
     buffer() { return this.values[0].buffer; }
 
-    linearize():number[] {
+    linearize(): number[] {
         // return Array.prototype.concat.apply(this.values[0],
         //                                     this.values.slice(1));
         // return Array.prototype.slice.call(new Float32Array(this.values[0].buffer));
@@ -50,14 +50,14 @@ export default class DataBuffer {
         return util.amax(this.linearize());
     }
 
-    rescale(scale:number) {
+    rescale(scale: number) {
         let arr = this.linearize();
         for (let i = 0; i < arr.length; i++)
             arr[i] *= scale;
     }
 
-    blur(radius:number = 3): DataBuffer {
-        if (radius==0) return this;
+    blur(radius: number = 3): DataBuffer {
+        if (radius == 0) return this;
         // Linearize the array
         let source = this.linearize().slice(0), // copy
             dest = new DataBuffer(this.name, this.width, this.height),
@@ -66,11 +66,11 @@ export default class DataBuffer {
         return dest;
     }
 
-    contours(thresholds?:number[], blur:number = 1) {
+    contours(thresholds?: number[], blur: number = 1) {
         let contours = d3.contours().size([this.width, this.height]);
         var values = this.linearize();
         if (blur != 0) {
-            let target = <number[]><any>new Float32Array(this.width*this.height);
+            let target = <number[]><any>new Float32Array(this.width * this.height);
             GaussianBlur(values, target, this.width, this.height, blur);
             values = target;
         }

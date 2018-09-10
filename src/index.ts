@@ -8,7 +8,7 @@ import Image from './image';
 import Interpreter from './interp';
 import LegendBuilder from './legend';
 import Mask from './mask';
-import * as Parser from './parser';
+import { Configuration } from './configuration';
 import Path from './path';
 import Point from './point';
 import Rect from './rect';
@@ -30,7 +30,7 @@ export {
     Interpreter,
     LegendBuilder,
     Mask,
-    Parser,
+    Configuration,
     Path,
     Point,
     Rect,

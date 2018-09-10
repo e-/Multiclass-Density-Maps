@@ -1,10 +1,10 @@
 export default class Path {
-    public x0?:number;
-    public y0?:number;
-    public x1?:number;
-    public y1?:number;
-    public codes:string = '';
-    public pts:[number, number][] = [];
+    public x0?: number;
+    public y0?: number;
+    public x1?: number;
+    public y1?: number;
+    public codes: string = '';
+    public pts: [number, number][] = [];
 
     moveTo(x: number, y: number) {
         this.codes += "M";
@@ -55,16 +55,16 @@ export default class Path {
     }
 
     rect(x: number, y: number, w: number, h: number) {
-        this.moveTo(x  , y);
-        this.lineTo(x+w, y);
-        this.lineTo(x+w, y+h);
-        this.lineTo(x  , y+h);
+        this.moveTo(x, y);
+        this.lineTo(x + w, y);
+        this.lineTo(x + w, y + h);
+        this.lineTo(x, y + h);
         this.closePath();
     }
 
-    send(canvas:CanvasPathMethods) {
+    send(canvas: CanvasPathMethods) {
         var j = 0;
-        for(let i = 0; i < this.codes.length; i++) {
+        for (let i = 0; i < this.codes.length; i++) {
             let c = this.codes[i];
             if (c == 'M') {
                 canvas.moveTo(this.pts[j][0], this.pts[j][1]);
@@ -80,17 +80,17 @@ export default class Path {
             }
             else if (c == 'Q') {
                 canvas.quadraticCurveTo(this.pts[j][0], this.pts[j][1],
-                                        this.pts[j+1][0], this.pts[j+1][1]);
+                    this.pts[j + 1][0], this.pts[j + 1][1]);
                 j += 2;
             }
             else if (c == 'C') {
                 canvas.bezierCurveTo(this.pts[j][0], this.pts[j][1],
-                                     this.pts[j+1][0], this.pts[j+1][1],
-                                     this.pts[j+2][0], this.pts[j+2][1]);
+                    this.pts[j + 1][0], this.pts[j + 1][1],
+                    this.pts[j + 2][0], this.pts[j + 2][1]);
                 j += 3;
             }
             else {
-                console.log('Error, unknown code '+c);
+                console.log('Error, unknown code ' + c);
             }
         }
     }

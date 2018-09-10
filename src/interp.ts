@@ -1,6 +1,6 @@
 // Interpreter from a parsed specification
 
-import * as Parser from './parser';
+import * as Configuration from './configuration';
 import DataBuffer from './data-buffer';
 import DerivedBuffer from './derived-buffer';
 import CanvasRenderer from './canvas-renderer';
@@ -27,7 +27,7 @@ export default class Interpreter {
     public n:number = 0;
     public sourceBuffers:DataBuffer[] = [];
     public dataBuffers:DataBuffer[] = [];
-    public dataSpec:Parser.DataSpec;
+    public dataSpec:Configuration.DataSpec;
     public derivedBuffers: DerivedBuffer[] = [];
     public blurredBuffers: DerivedBuffer[] = [];
     public image:Image[] = [];
@@ -41,27 +41,27 @@ export default class Interpreter {
     public colors0:Color[] = Color.Category10t;
     public colors1:Color[] = Color.Category10;
     public rebin: any;
-    public rescale:Parser.RescaleSpec;
-    public compose:Parser.ComposeSpec;
+    public rescale:Configuration.RescaleSpec;
+    public compose:Configuration.ComposeSpec;
     public composer:(buffers:DerivedBuffer[], values:number[])=>Color = Composer.none;
     public masks:Mask[] = [];
     public maskStroke?:string;
-    public contour:Parser.ContourSpec;
+    public contour:Configuration.ContourSpec;
     public blur:number=0;
-    public geo:Parser.GeoSpec;
-    public legend:Parser.LegendSpec | false;
+    public geo:Configuration.GeoSpec;
+    public legend:Configuration.LegendSpec | false;
     public scale:Scale.ScaleTrait = new Scale.LinearScale([0, 1], [0, 1]);
-    public xdomain:Parser.NumPair;
-    public ydomain:Parser.NumPair;
-    public stroke?:Parser.StrokeSpec;
-    public axis?:Parser.AxisSpec;
+    public xdomain:Configuration.NumPair;
+    public ydomain:Configuration.NumPair;
+    public stroke?:Configuration.StrokeSpec;
+    public axis?:Configuration.AxisSpec;
 
     // d3 name of scale, used for legend
     public d3scale:string = "linear";
     public d3base:number = 10;
     public d3exponent:number = Math.E;
 
-    constructor(public configuration:Parser.Configuration) {
+    constructor(public configuration:Configuration.Configuration) {
         if (! configuration.validate())
             throw "Invalid configuration";
         this.description = configuration.description;
@@ -91,17 +91,17 @@ export default class Interpreter {
 
         this.rebin = configuration.rebin;
         if (configuration.compose === undefined)
-            this.compose = new Parser.ComposeSpec();
+            this.compose = new Configuration.ComposeSpec();
         else
             this.compose = configuration.compose;
         if (configuration.rescale)
             this.rescale = configuration.rescale;
         else
-            this.rescale = new Parser.RescaleSpec();
+            this.rescale = new Configuration.RescaleSpec();
         if (configuration.blur)
             this.blur = configuration.blur;
         if (configuration.contour === undefined)
-            this.contour = new Parser.ContourSpec();
+            this.contour = new Configuration.ContourSpec();
         else
             this.contour = configuration.contour;
 

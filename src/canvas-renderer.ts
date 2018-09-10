@@ -1,6 +1,6 @@
 import Image from './image';
 import Mask from './mask';
-import {arange} from './util';
+import { arange } from './util';
 import * as d3a from 'd3-array';
 import * as d3s from 'd3-selection';
 
@@ -12,16 +12,16 @@ export enum BlendingMode {
 export default class CanvasRenderer {
     static BlendingMode = BlendingMode;
 
-    static renderAll(images:Image[], canvas:string|HTMLCanvasElement,
-                     order?: number[],
-                     options: {
-                         blur?:number,
-                         blendingMode?:BlendingMode,
-                         noResetDims?:boolean,
-                         rows?:number,
-                         cols?:number,
-                         interval?:number
-                     } = {}): CanvasRenderingContext2D {
+    static renderAll(images: Image[], canvas: string | HTMLCanvasElement,
+        order?: number[],
+        options: {
+            blur?: number,
+            blendingMode?: BlendingMode,
+            noResetDims?: boolean,
+            rows?: number,
+            cols?: number,
+            interval?: number
+        } = {}): CanvasRenderingContext2D {
         if (images.length == 1)
             return CanvasRenderer.render(images[0], canvas, options);
         else if (order && order.length == 1 && order[0] < images.length)
@@ -32,35 +32,35 @@ export default class CanvasRenderer {
             return CanvasRenderer.renderMultiples(images, canvas, order, options);
     }
 
-    static render(image:Image, id:string|HTMLCanvasElement, options:{
-            blur?:number,
-            blendingMode?:BlendingMode,
-            noResetDims?:boolean
-        } = {}
-    ) : CanvasRenderingContext2D {
+    static render(image: Image, id: string | HTMLCanvasElement, options: {
+        blur?: number,
+        blendingMode?: BlendingMode,
+        noResetDims?: boolean
+    } = {}
+    ): CanvasRenderingContext2D {
         let canvas = id instanceof HTMLCanvasElement ? id :
-              document.getElementById(id) as HTMLCanvasElement;
+            document.getElementById(id) as HTMLCanvasElement;
 
         // After somthing drawn, changing the dimension of a canvas seems to reset all pixels.
         // For blending, set options.noResetDims to true.
-        if(!options.noResetDims) {
-            canvas.width   = image.width;
-            canvas.height  = image.height;
+        if (!options.noResetDims) {
+            canvas.width = image.width;
+            canvas.height = image.height;
         }
-        let ctx:CanvasRenderingContext2D = canvas.getContext('2d') as CanvasRenderingContext2D;
-        if(!options.noResetDims) {
+        let ctx: CanvasRenderingContext2D = canvas.getContext('2d') as CanvasRenderingContext2D;
+        if (!options.noResetDims) {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
         }
-        if (image.imageCanvas){
+        if (image.imageCanvas) {
             ctx.drawImage(image.imageCanvas, 0, 0);
-        }else {
+        } else {
             let imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
 
-            if(!options.blendingMode ||
-               options.blendingMode as BlendingMode === BlendingMode.Normal) {
-                 this.renderToImageData(image, imageData);
+            if (!options.blendingMode ||
+                options.blendingMode as BlendingMode === BlendingMode.Normal) {
+                this.renderToImageData(image, imageData);
             }
-            else if(options.blendingMode as BlendingMode === BlendingMode.Alpha) {
+            else if (options.blendingMode as BlendingMode === BlendingMode.Alpha) {
             }
 
             ctx.putImageData(imageData, 0, 0);
@@ -69,19 +69,19 @@ export default class CanvasRenderer {
         return ctx;
     }
 
-    static render2(image:Image, id:string|HTMLCanvasElement, options:{blur?:number} = {}) : CanvasRenderingContext2D { // return the context
+    static render2(image: Image, id: string | HTMLCanvasElement, options: { blur?: number } = {}): CanvasRenderingContext2D { // return the context
         //console.log("render2 "+id+": "+image.width+"x"+image.height)
         let canvas = id instanceof HTMLCanvasElement ? id :
-              document.getElementById(id) as HTMLCanvasElement;
-        canvas.width   = image.width;
-        canvas.height  = image.height;
-        let ctx:CanvasRenderingContext2D = canvas.getContext('2d') as CanvasRenderingContext2D;
+            document.getElementById(id) as HTMLCanvasElement;
+        canvas.width = image.width;
+        canvas.height = image.height;
+        let ctx: CanvasRenderingContext2D = canvas.getContext('2d') as CanvasRenderingContext2D;
 
         ctx.drawImage(image.imageCanvas!, 0, 0);
         return ctx;
     }
 
-    static renderToImageData(image:Image, imageData:ImageData) {
+    static renderToImageData(image: Image, imageData: ImageData) {
         let data = imageData.data;
         var i = 0;
 
@@ -112,14 +112,14 @@ export default class CanvasRenderer {
         }
     }
 
-    static renderAlphaBlending(image:Image, imageData:ImageData) {
+    static renderAlphaBlending(image: Image, imageData: ImageData) {
         let data = imageData.data;
         var i = 0;
 
         for (let r = 0; r < image.height; r++) {
             for (let c = 0; c < image.width; c++) {
-              let p = image.pixels[r][c],
-                  a = p.a;
+                let p = image.pixels[r][c],
+                    a = p.a;
                 if (a == 1) {
                     data[i + 0] = p.r;
                     data[i + 1] = p.g;
@@ -137,24 +137,24 @@ export default class CanvasRenderer {
         }
     }
 
-    static strokeVectorMask(mask:Mask|undefined, id:string|HTMLCanvasElement,
-                            options:{ color?:string, lineWidth?:number} = {}){
-      if (!mask || mask.path == undefined) return;
-      //console.log("drawMask "+mask.pols.allpolys.length);
+    static strokeVectorMask(mask: Mask | undefined, id: string | HTMLCanvasElement,
+        options: { color?: string, lineWidth?: number } = {}) {
+        if (!mask || mask.path == undefined) return;
+        //console.log("drawMask "+mask.pols.allpolys.length);
 
-      let canvas = id instanceof HTMLCanvasElement ? id :
-              document.getElementById(id) as HTMLCanvasElement;
-      let ctx = canvas.getContext('2d') as CanvasRenderingContext2D;
+        let canvas = id instanceof HTMLCanvasElement ? id :
+            document.getElementById(id) as HTMLCanvasElement;
+        let ctx = canvas.getContext('2d') as CanvasRenderingContext2D;
 
-      ctx.beginPath();
-      ctx.strokeStyle = options.color || '#000';
-      ctx.lineWidth = options.lineWidth || 1;
-      mask.path.send(ctx);
-      ctx.stroke();
+        ctx.beginPath();
+        ctx.strokeStyle = options.color || '#000';
+        ctx.lineWidth = options.lineWidth || 1;
+        mask.path.send(ctx);
+        ctx.stroke();
     }
 
-    static renderTimeMultiplexing(images:Image[], id:string, interval:number) {
-        let ctx:CanvasRenderingContext2D;
+    static renderTimeMultiplexing(images: Image[], id: string, interval: number) {
+        let ctx: CanvasRenderingContext2D;
         let n = images.length;
         let ids = d3a.range(n).map(i => id.replace("{i}", i.toString()));
         images.forEach((image, i) => {
@@ -163,7 +163,7 @@ export default class CanvasRenderer {
 
         let target = 0;
         d3s.select('#' + ids[0]).style('opacity', 1);
-        for(let i = 1; i < n; ++i) {
+        for (let i = 1; i < n; ++i) {
             d3s.select('#' + ids[i]).style('opacity', 0);
         }
 
@@ -182,35 +182,35 @@ export default class CanvasRenderer {
         return ctx!; // TODO only returns the last one
     }
 
-    static renderMultiples(images:Image[], id:string|HTMLCanvasElement,
-                           order?: number[],
-                           options:{rows?:number, cols?:number} = {}) {
-        let len = (order!==undefined) ? order.length : images.length;
+    static renderMultiples(images: Image[], id: string | HTMLCanvasElement,
+        order?: number[],
+        options: { rows?: number, cols?: number } = {}) {
+        let len = (order !== undefined) ? order.length : images.length;
         if (order === undefined) {
             order = arange(len);
         }
         let rows = options.rows || 1;
         let cols = options.cols || 1;
 
-        if(rows * cols < len) {
+        if (rows * cols < len) {
             rows = cols = Math.ceil(Math.sqrt(len));
         }
 
         let canvas = id instanceof HTMLCanvasElement ? id :
-              document.getElementById(id) as HTMLCanvasElement;
+            document.getElementById(id) as HTMLCanvasElement;
         let width = images[0].width,
             height = images[0].height;
 
         //let canvas:any = document.getElementById(id);
-        canvas.width   = width ;
-        canvas.height  = height ;
+        canvas.width = width;
+        canvas.height = height;
 
-        let ctx:CanvasRenderingContext2D = canvas.getContext('2d') as CanvasRenderingContext2D;
+        let ctx: CanvasRenderingContext2D = canvas.getContext('2d') as CanvasRenderingContext2D;
 
-        let memoryCanvas:any = document.createElement('canvas');
+        let memoryCanvas: any = document.createElement('canvas');
         memoryCanvas.width = width;
         memoryCanvas.height = height;
-        let memoryCtx:CanvasRenderingContext2D = memoryCanvas.getContext('2d') as CanvasRenderingContext2D;
+        let memoryCtx: CanvasRenderingContext2D = memoryCanvas.getContext('2d') as CanvasRenderingContext2D;
         let imageData = memoryCtx.getImageData(0, 0, width, height);
         let mWidth = width / cols;
         let mHeight = height / rows;
@@ -222,17 +222,17 @@ export default class CanvasRenderer {
 
             let col = Math.floor(order![i] / rows);
             let row = order![i] % rows;
-            ctx.drawImage(memoryCanvas, 0,           0,                         width,      height,
-                                        width * col / cols, height * row /rows, width/cols, height/rows);
+            ctx.drawImage(memoryCanvas, 0, 0, width, height,
+                width * col / cols, height * row / rows, width / cols, height / rows);
         });
 
         for (let r = 1; r < rows; r++) {
-            let y = height*r/rows;
+            let y = height * r / rows;
             ctx.moveTo(0, y);
             ctx.lineTo(width, y);
         }
         for (let c = 1; c < cols; c++) {
-            let x = width*c/cols;
+            let x = width * c / cols;
             ctx.moveTo(x, 0);
             ctx.lineTo(x, height);
         }

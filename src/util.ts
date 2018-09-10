@@ -1,20 +1,20 @@
-export function positive(x:number) { return x > 0; }
+export function positive(x: number) { return x > 0; }
 
-export function translate(x:number, y:number) { return `translate(${x}, ${y})`; }
+export function translate(x: number, y: number) { return `translate(${x}, ${y})`; }
 
-export function create2D<T>(width:number, height:number, value:T) {
+export function create2D<T>(width: number, height: number, value: T) {
     let arr = new Array<T[]>(height);
-    for(let i = 0; i < height; ++i)
+    for (let i = 0; i < height; ++i)
         arr[i] = new Array<T>(width).fill(value);
 
     return arr;
 }
 
-export function linterp(v1:number, v2:number, t:number) {
-    return v1*(1-t) + v2*t;
+export function linterp(v1: number, v2: number, t: number) {
+    return v1 * (1 - t) + v2 * t;
 }
 
-export function asum(values:number[]) {
+export function asum(values: number[]) {
     let n = values.length;
     var i = -1, value, sum = NaN;
 
@@ -31,7 +31,7 @@ export function asum(values:number[]) {
     return sum;
 }
 
-export function amax(values:number[]) {
+export function amax(values: number[]) {
     let n = values.length;
     var i = -1, value, max = NaN;
 
@@ -48,7 +48,7 @@ export function amax(values:number[]) {
     return max;
 }
 
-export function amin(values:number[]) {
+export function amin(values: number[]) {
     let n = values.length;
     var i = -1, value, min = NaN;
 
@@ -65,14 +65,14 @@ export function amin(values:number[]) {
     return min;
 }
 
-export function arange(start:number, end?:number, step?:number): number[] {
+export function arange(start: number, end?: number, step?: number): number[] {
     var n = start;
     if (end == undefined) {
         end = start;
         start = 0;
     }
     else
-        n = end-start;
+        n = end - start;
     if (step == undefined)
         step = 1;
     else
@@ -87,14 +87,20 @@ export function arange(start:number, end?:number, step?:number): number[] {
     return array;
 }
 
-let ongoing:{[url: string]: [(value?:any) => void, (value?:any) => void][]} = {};
+let ongoing: { [url: string]: [(value?: any) => void, (value?: any) => void][] } = {};
+let cache: { [url: string]: any } = {};
 
-export function get(url: string, responseType?:string): Promise<any> {
-    if(!ongoing[url]) {
+export function get(url: string, useCache = true, responseType?: string): Promise<any> {
+    if (useCache && cache[url]) {
+        return Promise.resolve(cache[url] as any);
+    }
+
+    if (!useCache || !ongoing[url]) {
         ongoing[url] = [];
 
         const request = new XMLHttpRequest();
         request.onload = function () {
+            if (useCache) cache[url] = this.response;
 
             if (this.status === 200) {
                 ongoing[url].forEach(f => {
@@ -128,5 +134,5 @@ export function get(url: string, responseType?:string): Promise<any> {
 export { default as largeRectInPoly } from './largest-rect-in-poly';
 
 
-export function deg2rad(degrees:number) { return degrees * Math.PI / 180; }
-export function rad2deg(radians:number) { return radians * 180 / Math.PI; }
+export function deg2rad(degrees: number) { return degrees * Math.PI / 180; }
+export function rad2deg(radians: number) { return radians * 180 / Math.PI; }

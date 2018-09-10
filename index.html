@@ -1,580 +1,590 @@
 <!doctype html>
 <html>
-    <head>
-        <title>Gallery - Multiclass Density Maps </title>
-        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
-        <style>
-            body .container {
-                background:white;
-                padding:10px;
-                margin-top:20px;
-                max-width: 1460px;
+
+<head>
+    <title>Gallery - Multiclass Density Maps </title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm"
+        crossorigin="anonymous">
+    <style>
+        body .container {
+            background: white;
+            padding: 10px;
+            margin-top: 20px;
+            max-width: 1460px;
+        }
+
+        .card {
+            margin: 10px 0;
+        }
+
+        .card-body {
+            padding: 0.5rem;
+        }
+
+        .mdm {
+            text-align: center;
+        }
+
+        .map {
+            display: inline-block;
+        }
+
+        .legend {
+            display: inline-block;
+        }
+
+        pre {
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background: #eee;
+        }
+    </style>
+
+    <script src="/dist/multiclass-density-maps.js" type="text/javascript" charset="utf-8"></script>
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha256-3edrmyuQ0w65f8gfBsqowzjJe2iM6n0nKciPUp8y+7E="
+        crossorigin="anonymous"></script>
+</head>
+
+<body>
+    <div class="container">
+        <h1>Multiclass Density Map Gallery</h1>
+        <section id="gallery" class="row">
+        </section>
+    </div>
+    <script>
+
+        $(function () {
+            var $gallery = $('#gallery')
+            var canvasCount = 0;
+
+            function SVG() {
+                return document.createElementNS('http://www.w3.org/2000/svg', 'svg')
             }
-            .card {
-                margin: 10px 0;
+
+            function render(title, spec, wide, width, height, timeN) {
+                var
+                    $wrapper = $('<div></div>').attr('class', wide ? 'col-lg-12' : 'col-lg-4').appendTo($gallery),
+                    $card = $('<div class="card"></div>').appendTo($wrapper),
+                    $title = $('<h5 class="card-header"></h5>').html(title).appendTo($card),
+                    $body = $('<div class="card-body"></div>').appendTo($card),
+                    $mdm = $('<div class="mdm">').appendTo($body),
+                    $desc = $('<p class="card-text">').html('').appendTo($body),
+                    $pre = $('<code>').css('display', 'none').appendTo($body),
+                    $code = $('<pre>').appendTo($pre).text(JSON.stringify(spec, null, 2)),
+                    $button = $('<button class="btn btn-primary">').text('Toggle MDM Specification').appendTo($body);
+
+                $button.click(function () {
+                    $pre.toggle();
+                })
+
+                var config = new MDM.Configuration(spec);
+                config.load('data').then(function () {
+                    var interp = new MDM.Interpreter(config);
+
+                    var start = +new Date();
+                    interp.interpret();
+                    interp.render($mdm.get(0));
+                    var end = +new Date();
+
+                    console.log(title, 'took ', (end - start), 'ms')
+                });
             }
-            .card-body {
-                padding: 0.5rem;
-            }
-            .mdm {
-                text-align:center;
-            }
-            .map {
-                display:inline-block;
-            }
-            .legend {
-                display:inline-block;
-            }
+            window.render = render;
 
-            pre {
-                padding: 10px;
-                border:1px solid #ddd;
-                border-radius:5px;
-                background: #eee;
-            }
+            render('Linear Color Scale',
+                {
+                    "description": "multivariate normal data",
+                    "data": { "url": "mn_data.json" },
+                    "compose": {
+                        "mix": "max",
+                        "mixing": "additive"
+                    }
+                });
 
-        </style>
-        
-        <script src="/dist/multiclass-density-maps.js" type="text/javascript" charset="utf-8"></script>
-        <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha256-3edrmyuQ0w65f8gfBsqowzjJe2iM6n0nKciPUp8y+7E=" crossorigin="anonymous"></script>
-    </head>
-    <body>
-        <div class="container">
-            <h1>Multiclass Density Map Gallery</h1>
-            <section id="gallery" class="row">
-            </section>
-        </div>    
-        <script>
+            render('Log Color Scale',
+                {
+                    "description": "multivariate normal data",
+                    "data": { "url": "mn_data.json" },
+                    "compose": {
+                        "mix": "max",
+                        "mixing": "additive"
+                    },
+                    "rescale": {
+                        "type": "log"
+                    }
+                });
 
-$(function() {
-    var $gallery = $('#gallery')
-    var canvasCount = 0;
+            render('EquiDepth Color Scale',
+                {
+                    "description": "multivariate normal data",
+                    "data": { "url": "mn_data.json" },
+                    "compose": {
+                        "mix": "max",
+                        "mixing": "additive"
+                    },
+                    "rescale": {
+                        "type": "equidepth",
+                        "levels": 3
+                    }
+                });
 
-    function SVG() {
-        return document.createElementNS('http://www.w3.org/2000/svg', 'svg')
-    }
-
-    function render(title, spec, wide, width, height, timeN) {
-        var 
-            $wrapper = $('<div></div>').attr('class', wide ? 'col-lg-12' : 'col-lg-4').appendTo($gallery),
-            $card = $('<div class="card"></div>').appendTo($wrapper),
-            $title = $('<h5 class="card-header"></h5>').html(title).appendTo($card),
-            $body = $('<div class="card-body"></div>').appendTo($card),
-            $mdm = $('<div class="mdm">').appendTo($body),
-            $desc = $('<p class="card-text">').html('').appendTo($body),
-            $pre = $('<code>').css('display', 'none').appendTo($body),
-            $code = $('<pre>').appendTo($pre).text(JSON.stringify(spec, null, 2)),
-            $button = $('<button class="btn btn-primary">').text('Toggle MDM Specification').appendTo($body);
-
-        $button.click(function(){
-            $pre.toggle();
-        })
-        
-        var config = new MDM.Parser.Configuration(spec);
-        config.load('data/').then(function() {
-            var interp = new MDM.Interpreter(config);
-            
-            var start = +new Date();
-            interp.interpret();
-            interp.render($mdm.get(0));
-            var end = +new Date();
-
-            console.log(title, 'took ', (end - start), 'ms')
-        });
-    }
-
-render('Linear Color Scale',
-       {
-           "description": "multivariate normal data",
-           "data": {"url": "mn_data.json"},
-           "compose": {
-               "mix": "max",
-               "mixing": "additive"
-           }
-       });
-
-render('Log Color Scale',
-       {
-           "description": "multivariate normal data",
-           "data": {"url": "mn_data.json"},
-           "compose": {
-               "mix": "max",
-               "mixing": "additive"
-           },
-           "rescale": {
-               "type": "log"
-           }
-       });
-
-render('EquiDepth Color Scale',
-       {
-           "description": "multivariate normal data",
-           "data": {"url": "mn_data.json"},
-           "compose": {
-               "mix": "max",
-               "mixing": "additive"
-           },
-           "rescale": {
-               "type": "equidepth",
-               "levels": 3
-           }
-       });
-
-render('EquiDepth Color Scale Small Multiples',
-       {
-           "description": "multivariate normal data",
-           "data": {"url": "mn_data.json"},
-           "compose": {
-               "mix": "separate" //, select: 1
-           },
-           "rescale": {
-               "type": "equidepth",
-               "levels": 4
-           }
-       });
+            render('EquiDepth Color Scale Small Multiples',
+                {
+                    "description": "multivariate normal data",
+                    "data": { "url": "mn_data.json" },
+                    "compose": {
+                        "mix": "separate" //, select: 1
+                    },
+                    "rescale": {
+                        "type": "equidepth",
+                        "levels": 4
+                    }
+                });
 
 
-render('Random Rectangular Weaving',
-       {
-           "description": "multivariate normal data",
-           "data": {"url": "mn_data.json"},
-           "compose": {
-               "mix": "weavingrandom",
-               "size": 8
-           }
-       });
+            render('Random Rectangular Weaving',
+                {
+                    "description": "multivariate normal data",
+                    "data": { "url": "mn_data.json" },
+                    "compose": {
+                        "mix": "weavingrandom",
+                        "size": 8
+                    }
+                });
 
-render('Rectangular Rebinning + Punchcard',
-       {
-           "description": "multivariate normal data",
-           "data": {"url": "mn_data.json"},
-           "rebin": {
-               "type": "square",
-               "size": 32
-           },
-           /*"rescale": {
-               "type": "log"
-           },*/
-           "compose": {
-                "mix": "glyph",
-                "glyphSpec": {
-                    "template": "punchcard"
+            render('Rectangular Rebinning + Punchcard',
+                {
+                    "description": "multivariate normal data",
+                    "data": { "url": "mn_data.json" },
+                    "rebin": {
+                        "type": "square",
+                        "size": 32
+                    },
+                    /*"rescale": {
+                        "type": "log"
+                    },*/
+                    "compose": {
+                        "mix": "glyph",
+                        "glyphSpec": {
+                            "template": "punchcard"
+                        }
+                    }
+                });
+
+            render('Square Rectangular Weaving',
+                {
+                    "description": "multivariate normal data",
+                    "data": { "url": "mn_data.json" },
+                    "compose": {
+                        "mix": "weavingsquare",
+                        "size": 8
+                    },
+                    "rescale": {
+                        "type": "linear"
+                    }
+                });
+
+            render('Linear Color Scale Hex',
+                {
+                    "description": "multivariate normal data",
+                    "data": { "url": "mn_data.json" },
+                    "compose": {
+                        "mix": "weavinghex",
+                        "size": 8
+                    },
+                    "rescale": {
+                        "type": "linear"
+                    }
+                });
+
+            render('EquiDepth Color Scale Triangles',
+                {
+                    "description": "multivariate normal data",
+                    "data": { "url": "mn_data.json" },
+                    "compose": {
+                        "mix": "weavingtri",
+                        "size": 8
+                    },
+                    "rescale": {
+                        "type": "equidepth"
+                    },
+                    "legend": {
+                        "numTicks": 4
+                    }
+                });
+
+
+            render('Voronoi Tiling',
+                {
+                    "description": "multivariate normal data",
+                    "data": { "url": "mn_data.json" },
+                    "rebin": {
+                        "type": "voronoi",
+                        "size": 32,
+                        "stroke": "black"
+                    },
+                    "compose": {
+                        "mix": "weavingrandom",
+                        "size": 4
+                    }
+                });
+
+            render('Voronoi Tiling + Dot Densities',
+                {
+                    "description": "multivariate normal data",
+                    "data": { "url": "mn_data.json" },
+                    "rebin": {
+                        "type": "voronoi",
+                        "size": 32,
+                        "stroke": "black"
+                    },
+                    "compose": {
+                        "mix": "dotdensity"
+                    }
+                });
+            render('Voronoi Tiling Multiplicative', {
+                "description": "multivariate normal data",
+                "data": { "url": "mn_data.json" },
+                "smooth": {},
+                "reencoding": {
+                    "color": {
+                        "field": "z",
+                        "type": "nominal",
+                        "scale": {
+                            "range0": ["White", "White", "White", "White"],
+                            "range1": ["Blue", "Orange", "Red", "Green"]
+                        }
+                    }
+                },
+                "rebin": {
+                    "type": "voronoi",
+                    "size": 32,
+                    "stroke": "black"
+                },
+                "compose": {
+                    "mix": "blend",
+                    "mixing": "multiplicative"
                 }
-            }
-       });
+            });
 
-render('Square Rectangular Weaving',
-       {
-           "description": "multivariate normal data",
-           "data": {"url": "mn_data.json"},
-           "compose": {
-               "mix": "weavingsquare",
-               "size": 8
-           },
-           "rescale": {
-               "type": "linear"
-           }
-       });
+            render('Voronoi Tiling + Prop. Lines',
+                {
+                    "description": "multivariate normal data",
+                    "data": { "url": "mn_data.json" },
+                    "rebin": {
+                        "type": "voronoi",
+                        "size": 32,
+                        "stroke": "black"
+                    },
+                    "compose": {
+                        "mix": "propline",
+                        "size": 4,
+                        "widthprop": "percent",
+                        "colprop": true
+                    }
+                });
+            render('Voronoi Tiling + Hatching',
+                {
+                    "description": "multivariate normal data",
+                    "data": { "url": "mn_data.json" },
+                    "rebin": {
+                        "type": "voronoi",
+                        "size": 32,
+                        "stroke": "black"
+                    },
+                    "compose": {
+                        "mix": "hatching",
+                        "size": 2,
+                        "widthprop": 1.0,
+                        "colprop": false
+                    }
+                });
 
-render('Linear Color Scale Hex',
-       {
-           "description": "multivariate normal data",
-           "data": {"url": "mn_data.json"},
-           "compose": {
-               "mix": "weavinghex",
-               "size": 8
-           },
-           "rescale": {
-               "type": "linear"
-           }
-       });
-
-render('EquiDepth Color Scale Triangles',
-       {
-           "description": "multivariate normal data",
-           "data": {"url": "mn_data.json"},
-           "compose": {
-               "mix": "weavingtri",
-               "size": 8
-           },
-           "rescale": {
-               "type": "equidepth"
-           },
-           "legend": {
-               "numTicks": 4
-           }
-       });
-
-
-render('Voronoi Tiling',
-       {
-           "description": "multivariate normal data",
-           "data": {"url": "mn_data.json"},
-           "rebin": {
-               "type": "voronoi",
-               "size": 32,
-               "stroke": "black"
-           },
-           "compose": {
-               "mix": "weavingrandom",
-               "size": 4
-           }
-       });
-
-render('Voronoi Tiling + Dot Densities',
-       {
-           "description": "multivariate normal data",
-           "data": {"url": "mn_data.json"},
-           "rebin": {
-               "type": "voronoi",
-               "size": 32,
-               "stroke": "black"
-           },
-           "compose": {
-               "mix": "dotdensity"
-           }
-       });
-render('Voronoi Tiling Multiplicative',{
-    "description": "multivariate normal data",
-    "data": {"url": "mn_data.json"},
-    "smooth": {},
-    "reencoding": {
-        "color": {
-            "field": "z",
-            "type": "nominal",
-            "scale": {
-                "range0": ["White", "White", "White", "White"],
-                "range1": ["Blue", "Orange", "Red", "Green"]
-            }
-        }
-    },
-    "rebin": {
-        "type": "voronoi",
-        "size": 32,
-        "stroke": "black"
-    },
-    "compose": {
-        "mix": "blend",
-        "mixing": "multiplicative"
-    }
-});
-
-render('Voronoi Tiling + Prop. Lines',
-       {
-           "description": "multivariate normal data",
-           "data": {"url": "mn_data.json"},
-           "rebin": {
-               "type": "voronoi",
-               "size": 32,
-               "stroke": "black"
-           },
-           "compose": {
-               "mix": "propline",
-               "size": 4,
-               "widthprop":"percent",
-               "colprop":true
-           }
-       });
-render('Voronoi Tiling + Hatching',
-       {
-           "description": "multivariate normal data",
-           "data": {"url": "mn_data.json"},
-           "rebin": {
-               "type": "voronoi",
-               "size": 32,
-               "stroke": "black"
-           },
-           "compose": {
-               "mix": "hatching",
-               "size": 2,
-               "widthprop":1.0,
-               "colprop":false
-           }
-       });
-
-render('Voronoi Tiling + Bars',{
-    "description": "multivariate normal data",
-    "data": {"url": "mn_data.json"},
-    "smooth": {},
-    "rebin": {
-        "type": "voronoi",
-        "size": 32,
-        "stroke": "black"
-    },
-    "compose": {
-        "mix": "glyph",
-        "glyphSpec": {
-            "template": "bars",
-            "width": 20,
-            "height": 20
-        }
-    }
-});
+            render('Voronoi Tiling + Bars', {
+                "description": "multivariate normal data",
+                "data": { "url": "mn_data.json" },
+                "smooth": {},
+                "rebin": {
+                    "type": "voronoi",
+                    "size": 32,
+                    "stroke": "black"
+                },
+                "compose": {
+                    "mix": "glyph",
+                    "glyphSpec": {
+                        "template": "bars",
+                        "width": 20,
+                        "height": 20
+                    }
+                }
+            });
 
 
-render('Census Data',
-{
-    "description": "US Census Synthetic people",
-    "data": {"url": "census.snappy_data.json"},
-    "reencoding": {
-        "label": {
-            "field": "z",
-            "type": "nominal",
-            "scale": {
-                "domain": ["w", "h", "a", "b", "o"],
-                "range": ["White", "Hispanic", "Asian", "Black", "Other"]
-            }
-        },
-        "color": {
-            "field": "z",
-            "type": "nominal",
-            "scale": {
-                "range": ["Blue", "Orange", "Red", "Green", "Brown"]
-            }
-        }
-    },
-    "compose": {
-        "mix": "mean",
-        "mixing": "additive"
-    },
-    "rescale": {
-        "type": "log"
-    }
-}, true);
+            render('Census Data',
+                {
+                    "description": "US Census Synthetic people",
+                    "data": { "url": "census.snappy_data.json" },
+                    "reencoding": {
+                        "label": {
+                            "field": "z",
+                            "type": "nominal",
+                            "scale": {
+                                "domain": ["w", "h", "a", "b", "o"],
+                                "range": ["White", "Hispanic", "Asian", "Black", "Other"]
+                            }
+                        },
+                        "color": {
+                            "field": "z",
+                            "type": "nominal",
+                            "scale": {
+                                "range": ["Blue", "Orange", "Red", "Green", "Brown"]
+                            }
+                        }
+                    },
+                    "compose": {
+                        "mix": "mean",
+                        "mixing": "additive"
+                    },
+                    "rescale": {
+                        "type": "log"
+                    }
+                }, true);
 
-render('Census Data Smoothed',
-{
-    "description": "US Census Synthetic people",
-    "data": {"url": "census.snappy_data.json"},
-    "smooth": {"radius": 1},
-    "reencoding": {
-        "label": {
-            "field": "z",
-            "type": "nominal",
-            "scale": {
-                "domain": ["w", "h", "a", "b", "o"],
-                "range": ["White", "Hispanic", "Asian", "Black", "Other"]
-            }
-        },
-        "color": {
-            "field": "z",
-            "type": "nominal",
-            "scale": {
-                "range": ["Blue", "Orange", "Red", "Green", "Brown"]
-            }
-        }
-    },
-    "compose": {
-        "mix": "mean",
-        "mixing": "additive"
-    },
-    "rescale": {
-        "type": "log"
-    }
-}, true);
+            render('Census Data Smoothed',
+                {
+                    "description": "US Census Synthetic people",
+                    "data": { "url": "census.snappy_data.json" },
+                    "smooth": { "radius": 1 },
+                    "reencoding": {
+                        "label": {
+                            "field": "z",
+                            "type": "nominal",
+                            "scale": {
+                                "domain": ["w", "h", "a", "b", "o"],
+                                "range": ["White", "Hispanic", "Asian", "Black", "Other"]
+                            }
+                        },
+                        "color": {
+                            "field": "z",
+                            "type": "nominal",
+                            "scale": {
+                                "range": ["Blue", "Orange", "Red", "Green", "Brown"]
+                            }
+                        }
+                    },
+                    "compose": {
+                        "mix": "mean",
+                        "mixing": "additive"
+                    },
+                    "rescale": {
+                        "type": "log"
+                    }
+                }, true);
 
-render('Census Data Random Weaving',
-{
-    "description": "US Census Synthetic people",
-    "data": {"url": "census.snappy_data.json"},
-    "reencoding": {
-        "label": {
-            "field": "z",
-            "type": "nominal",
-            "scale": {
-                "domain": ["w", "h", "a", "b", "o"],
-                "range": ["White", "Hispanic", "Asian", "Black", "Other"]
-            }
-        },
-        "color": {
-            "field": "z",
-            "type": "nominal",
-            "scale": {
-                "range": ["Blue", "Orange", "Red", "Green", "Brown"]
-            }
-        }
-    },
-    "rebin": {
-          "type": "topojson",
-          "url": "us.json",
-          "feature": "states",
-          // "feature": "counties",
-          /*"minfeature": 0,
-          "maxfeature": 3109,*/
-        //  "maxfeature": 49,
-        //    "feature": "counties",
-        //     "minfeature": 0,
-        //   "maxfeature": 3109,
-          "stroke": "rgba(0,0,0,0.25)"
-    },
-    "compose": {
-          "mix": "weavingrandom",
-          "size": 4
-    },
-    "rescale": {
-        "type": "cbrt"
-    }
-}, true);
+            render('Census Data Random Weaving',
+                {
+                    "description": "US Census Synthetic people",
+                    "data": { "url": "census.snappy_data.json" },
+                    "reencoding": {
+                        "label": {
+                            "field": "z",
+                            "type": "nominal",
+                            "scale": {
+                                "domain": ["w", "h", "a", "b", "o"],
+                                "range": ["White", "Hispanic", "Asian", "Black", "Other"]
+                            }
+                        },
+                        "color": {
+                            "field": "z",
+                            "type": "nominal",
+                            "scale": {
+                                "range": ["Blue", "Orange", "Red", "Green", "Brown"]
+                            }
+                        }
+                    },
+                    "rebin": {
+                        "type": "topojson",
+                        "url": "us.json",
+                        "feature": "states",
+                        // "feature": "counties",
+                        /*"minfeature": 0,
+                        "maxfeature": 3109,*/
+                        //  "maxfeature": 49,
+                        //    "feature": "counties",
+                        //     "minfeature": 0,
+                        //   "maxfeature": 3109,
+                        "stroke": "rgba(0,0,0,0.25)"
+                    },
+                    "compose": {
+                        "mix": "weavingrandom",
+                        "size": 4
+                    },
+                    "rescale": {
+                        "type": "cbrt"
+                    }
+                }, true);
 
-render('Census Data Weaving',
-{
-    "description": "US Census Synthetic people",
-    "data": {"url": "census.snappy_data.json"},
-    "reencoding": {
-        "label": {
-            "field": "z",
-            "type": "nominal",
-            "scale": {
-                "domain": ["w", "h", "a", "b", "o"],
-                "range": ["White", "Hispanic", "Asian", "Black", "Other"]
-            }
-        },
-        "color": {
-            "field": "z",
-            "type": "nominal",
-            "scale": {
-                "range": ["Blue", "Orange", "Red", "Green", "Brown"]
-            }
-        }
-    },
-    "rebin": {
-          "type": "topojson",
-          "url": "us.json",
-          "feature": "states",
-          "stroke": "grey"
+            render('Census Data Weaving',
+                {
+                    "description": "US Census Synthetic people",
+                    "data": { "url": "census.snappy_data.json" },
+                    "reencoding": {
+                        "label": {
+                            "field": "z",
+                            "type": "nominal",
+                            "scale": {
+                                "domain": ["w", "h", "a", "b", "o"],
+                                "range": ["White", "Hispanic", "Asian", "Black", "Other"]
+                            }
+                        },
+                        "color": {
+                            "field": "z",
+                            "type": "nominal",
+                            "scale": {
+                                "range": ["Blue", "Orange", "Red", "Green", "Brown"]
+                            }
+                        }
+                    },
+                    "rebin": {
+                        "type": "topojson",
+                        "url": "us.json",
+                        "feature": "states",
+                        "stroke": "grey"
 
-    },
-    "compose": {
-          "mix": "weavingsquare",
-          "size": 4 
-    },
-    "rescale": {
-        "type": "cbrt"
-    }
-}, true);
-
-
-render('Census Data Choropleth',
-{
-    "description": "US Census Synthetic people",
-    "data": {"url": "census.snappy_data.json"},
-    "reencoding": {
-        "label": {
-            "field": "z",
-            "type": "nominal",
-            "scale": {
-                "domain": ["w", "h", "a", "b", "o"],
-                "range": ["White", "Hispanic", "Asian", "Black", "Other"]
-            }
-        },
-        "color": {
-            "field": "z",
-            "type": "nominal",
-            "scale": {
-                "range": ["Blue", "Orange", "Red", "Green", "Brown"]
-            }
-        }
-    },
-    "rebin": {
-          "type": "topojson",
-          "url": "us.json",
-          "feature": "states",
-          "stroke": "white"
-
-    },
-    "compose": {
-          "mix": "mean",
-          "size": 2
-    },
-    "rescale": {
-        "type": "cbrt"
-    }
-}, true);
-
-render('Census Data Multiplicative Choropleth',
-{
-    "description": "US Census Synthetic people",
-    "data": {"url": "census.snappy_data.json"},
-    "reencoding": {
-        "label": {
-            "field": "z",
-            "type": "nominal",
-            "scale": {
-                "domain": ["w", "h", "a", "b", "o"],
-                "range": ["White", "Hispanic", "Asian", "Black", "Other"]
-            }
-        },
-        "color": {
-            "field": "z",
-            "type": "nominal",
-            "scale": {
-                "range0": ["White", "White", "White", "White", "White"],
-                "range1": ["Blue", "Orange", "Red", "Green", "Brown"]
-            }
-        }
-    },
-    "rebin": {
-          "type": "topojson",
-          "url": "us.json",
-          "feature": "counties",
-          "stroke": "rgba(255,255,255,0.1)"
-
-    },
-    "compose": {
-          "mix": "blend",
-          "mixing": "multiplicative"
-    },
-    "rescale": {
-        "type": "log"
-    }
-}, true);
+                    },
+                    "compose": {
+                        "mix": "weavingsquare",
+                        "size": 4
+                    },
+                    "rescale": {
+                        "type": "cbrt"
+                    }
+                }, true);
 
 
-render('Census Data Contour',
-{
-    "description": "US Census Synthetic people",
-    "data": {"url": "census.snappy_data.json"},
-    "reencoding": {
-        "label": {
-            "field": "z",
-            "type": "nominal",
-            "scale": {
-                "domain": ["w", "h", "a", "b", "o"],
-                "range": ["White", "Hispanic", "Asian", "Black", "Other"]
-            }
-        },
-        "color": {
-            "field": "z",
-            "type": "nominal",
-            "scale": {
-                "range": ["Blue", "Orange", "Red", "Green", "Brown"]
-            }
-        }
-    },
-    "rebin": {
-          "type": "topojson",
-          "url": "us.json",
-          /*"feature": "counties",
-            "minfeature": 0,
-          "maxfeature": 3100,*/
-          "feature": "states",
-          /*"minfeature": 0,
-          "maxfeature": 49,*/
-          "stroke": "grey"
+            render('Census Data Choropleth',
+                {
+                    "description": "US Census Synthetic people",
+                    "data": { "url": "census.snappy_data.json" },
+                    "reencoding": {
+                        "label": {
+                            "field": "z",
+                            "type": "nominal",
+                            "scale": {
+                                "domain": ["w", "h", "a", "b", "o"],
+                                "range": ["White", "Hispanic", "Asian", "Black", "Other"]
+                            }
+                        },
+                        "color": {
+                            "field": "z",
+                            "type": "nominal",
+                            "scale": {
+                                "range": ["Blue", "Orange", "Red", "Green", "Brown"]
+                            }
+                        }
+                    },
+                    "rebin": {
+                        "type": "topojson",
+                        "url": "us.json",
+                        "feature": "states",
+                        "stroke": "white"
 
-    },
-    "rescale": {
-        "type": "cbrt"
-    },
-    "contour": {
-          "stroke": 5,
-          "lineWidth": 1,
-          "blur": 1
-    }
-}, true);
+                    },
+                    "compose": {
+                        "mix": "mean",
+                        "size": 2
+                    },
+                    "rescale": {
+                        "type": "cbrt"
+                    }
+                }, true);
 
-    })
+            render('Census Data Multiplicative Choropleth',
+                {
+                    "description": "US Census Synthetic people",
+                    "data": { "url": "census.snappy_data.json" },
+                    "reencoding": {
+                        "label": {
+                            "field": "z",
+                            "type": "nominal",
+                            "scale": {
+                                "domain": ["w", "h", "a", "b", "o"],
+                                "range": ["White", "Hispanic", "Asian", "Black", "Other"]
+                            }
+                        },
+                        "color": {
+                            "field": "z",
+                            "type": "nominal",
+                            "scale": {
+                                "range0": ["White", "White", "White", "White", "White"],
+                                "range1": ["Blue", "Orange", "Red", "Green", "Brown"]
+                            }
+                        }
+                    },
+                    "rebin": {
+                        "type": "topojson",
+                        "url": "us.json",
+                        "feature": "counties",
+                        "stroke": "rgba(255,255,255,0.1)"
 
-</script>
-    </body>
+                    },
+                    "compose": {
+                        "mix": "blend",
+                        "mixing": "multiplicative"
+                    },
+                    "rescale": {
+                        "type": "log"
+                    }
+                }, true);
+
+
+            render('Census Data Contour',
+                {
+                    "description": "US Census Synthetic people",
+                    "data": { "url": "census.snappy_data.json" },
+                    "reencoding": {
+                        "label": {
+                            "field": "z",
+                            "type": "nominal",
+                            "scale": {
+                                "domain": ["w", "h", "a", "b", "o"],
+                                "range": ["White", "Hispanic", "Asian", "Black", "Other"]
+                            }
+                        },
+                        "color": {
+                            "field": "z",
+                            "type": "nominal",
+                            "scale": {
+                                "range": ["Blue", "Orange", "Red", "Green", "Brown"]
+                            }
+                        }
+                    },
+                    "rebin": {
+                        "type": "topojson",
+                        "url": "us.json",
+                        /*"feature": "counties",
+                          "minfeature": 0,
+                        "maxfeature": 3100,*/
+                        "feature": "states",
+                        /*"minfeature": 0,
+                        "maxfeature": 49,*/
+                        "stroke": "grey"
+
+                    },
+                    "rescale": {
+                        "type": "cbrt"
+                    },
+                    "contour": {
+                        "stroke": 5,
+                        "lineWidth": 1,
+                        "blur": 1
+                    }
+                }, true);
+
+        })
+
+    </script>
+</body>
+
 </html>
