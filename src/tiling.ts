@@ -37,7 +37,7 @@ export function topojsonTiling(width: number, height: number,
     else if (projectionName == "epsg:3857" || projectionName == "Mercator")
         proj = d3g.geoMercator();
     else {
-        console.log('Searching for projection ' + projectionName);
+        //console.log('Searching for projection ' + projectionName);
         let p4 = proj4(projectionName);
         function project(lambda: number, phi: number) {
             return p4.forward([lambda, phi].map(rad2deg));
@@ -53,14 +53,14 @@ export function topojsonTiling(width: number, height: number,
     let projection = Object.create(proj).fitSize([width, height], allfeatures);
 
     var clipped = 0;
-    if (debug) console.log("debug");
+    //if (debug) console.log("debug");
 
     let bbox = topo.bbox(wholetopojson);
-    if (debug) console.log("  " + bbox);
+    //if (debug) console.log("  " + bbox);
     // The fitSize has to happen after the fitExtent
     if (latitudes != undefined && longitudes != undefined) {
         let bounds = [latitudes[0], longitudes[0], latitudes[1], longitudes[1]];
-        if (debug) console.log("  bounds:" + bounds);
+        //if (debug) console.log("  bounds:" + bounds);
         let simple_feature: any = {
             "type": "GeometryCollection",
             "geometries": [{ "type": "Point", "coordinates": [latitudes[0], longitudes[0]] },
@@ -85,7 +85,7 @@ export function topojsonTiling(width: number, height: number,
         // clip invisible features
         if (xmin >= width || ymin >= height || xmax <= 0 || ymax <= 0) {
             clipped++;
-            if (debug) console.log('  cliping feature ' + onefeature.id + ' bbox:' + bb);
+            //if (debug) console.log('  cliping feature ' + onefeature.id + ' bbox:' + bb);
             continue;
         }
         // clipped area
@@ -101,7 +101,7 @@ export function topojsonTiling(width: number, height: number,
         let canvas1 = mask.getCanvas();
         let context1 = canvas1.getContext("2d");
         if (context1 == null) {
-            console.log('Cannot create context for new mask');
+            //console.log('Cannot create context for new mask');
             continue;
         }
 
@@ -123,8 +123,8 @@ export function topojsonTiling(width: number, height: number,
         tiles.push(tile);
     }
 
-    if (clipped)
-        console.log('clipped ' + clipped + ' features');
+    // if (clipped)
+    //     console.log('clipped ' + clipped + ' features');
     return tiles;
 }
 

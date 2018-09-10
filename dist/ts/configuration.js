@@ -124,7 +124,7 @@ exports.RebinSpec = RebinSpec;
 class RescaleSpec {
     constructor(options) {
         this.type = "linear";
-        this.levels = 32; // for equidepth
+        this.levels = 4; // for equidepth
         if (options)
             Object.assign(this, options);
     }

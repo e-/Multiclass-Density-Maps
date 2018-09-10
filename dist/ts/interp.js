@@ -30,8 +30,9 @@ const d3sc = __importStar(require("d3-scale"));
 const d3a = __importStar(require("d3-axis"));
 const util_1 = require("./util");
 class Interpreter {
-    constructor(configuration) {
+    constructor(configuration, debug = false) {
         this.configuration = configuration;
+        this.debug = debug;
         this.n = 0;
         this.sourceBuffers = [];
         this.dataBuffers = [];
@@ -69,13 +70,13 @@ class Interpreter {
         if (colormap0.length >= this.bufferNames.length)
             this.colors0 = colormap0.map((name) => color_1.default.get(name));
         else if (colormap0.length != 0) {
-            console.log('  WARNING: Not enough colors(0) in colormap, ignored');
+            this.warn('Not enough colors(0) in colormap, ignored');
         }
         let colormap1 = configuration.getColors1();
         if (colormap1.length >= this.bufferNames.length)
             this.colors1 = colormap1.map((name) => color_1.default.get(name));
         else if (colormap1.length != 0) {
-            console.log('  WARNING: Not enough colors(1) in colormap, ignored');
+            this.warn('Not enough colors(1) in colormap, ignored');
         }
         this.rebin = configuration.rebin;
         if (configuration.compose === undefined)
@@ -98,6 +99,18 @@ class Interpreter {
         this.legend = configuration.legend;
         this.xdomain = configuration.getXDomain();
         this.ydomain = configuration.getYDomain();
+    }
+    log(...args) {
+        if (this.debug)
+            console.log.apply(console, args);
+    }
+    warn(...args) {
+        if (this.debug)
+            console.warn.apply(console, args);
+    }
+    error(...args) {
+        if (this.debug)
+            console.error.apply(console, args);
     }
     interpret(context = {}) {
         this.computeDerivedBuffers(context);
@@ -160,29 +173,29 @@ class Interpreter {
         if (this.rebin === undefined ||
             this.rebin.type === undefined ||
             this.rebin.type == "none") {
-            console.log('  Pixel rebin');
+            this.log('  Pixel rebin');
             tiles = Tiling.pixelTiling(this.width, this.height);
         }
         else if (this.rebin.type == "square") {
             let size = this.rebin.size || 10;
-            console.log('  Square rebin size=' + size);
+            this.log('  Square rebin size=' + size);
             tiles = Tiling.rectangularTiling(this.width, this.height, size, size);
         }
         else if (this.rebin.type == "rect") {
             let width = this.rebin.width || 10, height = this.rebin.height || 10;
-            console.log('  Square rebin w=' + width + ' h=' + height);
+            this.log('  Square rebin w=' + width + ' h=' + height);
             tiles = Tiling.rectangularTiling(this.width, this.height, width, height);
         }
         else if (this.rebin.type == "topojson") {
             let url = this.rebin.url, topojson = this.rebin.topojson, feature = this.rebin.feature || null; //CHECK
-            console.log('  topojson rebin url=' + url
+            this.log('  topojson rebin url=' + url
                 + ' feature=' + feature);
             // TODO get the projection, transform, clip, etc.
             if (!topojson.objects[feature] ||
                 !topojson.objects[feature].geometries ||
                 !Array.isArray(topojson.objects[feature].geometries) ||
                 topojson.objects[feature].geometries.length == 0) {
-                console.log("  ERROR: no correct array named 'geometries' in the specified feature(" + feature + "). Is it really topojson or did you specify wrong feature name?");
+                throw new Error("no correct array named 'geometries' in the specified feature(" + feature + "). Is it really topojson or did you specify wrong feature name?");
             }
             //[jdf] for now, ignore min/maxfeature
             // remove unnecessary features like far islands ...
@@ -197,7 +210,7 @@ class Interpreter {
         else if (this.rebin.type == "voronoi") {
             if (this.rebin.points) {
                 let points = this.rebin.points;
-                console.log('  voronoi rebin sites=' + points);
+                this.log('  voronoi rebin sites=' + points);
                 tiles = Tiling.voronoiTiling(this.width, this.height, 0, points);
             }
             else {
@@ -443,7 +456,7 @@ class Interpreter {
                 for (let tile of this.tiles) {
                     let width = glyphSpec.width; // tile.mask.width;
                     let height = glyphSpec.height; // tile.mask.height;
-                    // console.log('mask', width, height);
+                    // this.log('mask', width, height);
                     let promise = composer_1.default.punchcard(this.derivedBuffers, this.bufferNames, tile.dataValues, {
                         width: width,
                         height: height,
@@ -453,7 +466,7 @@ class Interpreter {
                         cols: Math.ceil(Math.sqrt(this.derivedBuffers.length)),
                         factor: glyphSpec.factor
                     }).then((vegaCanvas) => {
-                        // console.log('canvas', vegaCanvas.width, vegaCanvas.height);
+                        // this.log('canvas', vegaCanvas.width, vegaCanvas.height);
                         let rect = tile.getRectAtCenter();
                         if (!rect || rect.width() < width || rect.height() < height)
                             return;
@@ -467,7 +480,7 @@ class Interpreter {
             }
         }
         else
-            console.log('No composition');
+            this.log('No composition');
         let render = () => {
             let options = {};
             if (this.blur != undefined)
@@ -602,13 +615,13 @@ class Interpreter {
     renderStroke(canvas) {
         let stroke = this.stroke;
         let url = stroke.url, topojson = stroke.topojson, feature = stroke.feature; //CHECK
-        console.log(`topojson stroke url=${url} feature=${feature}`);
+        this.log(`topojson stroke url=${url} feature=${feature}`);
         // TODO get the projection, transform, clip, etc.
         if (!topojson.objects[feature] ||
             !topojson.objects[feature].geometries ||
             !Array.isArray(topojson.objects[feature].geometries) ||
             topojson.objects[feature].geometries.length === 0) {
-            console.log("ERROR: no correct array named 'geometries' in the specified feature(" + feature + "). Is it really topojson or did you specify wrong feature name?");
+            throw new Error("no correct array named 'geometries' in the specified feature(" + feature + "). Is it really topojson or did you specify wrong feature name?");
         }
         let projection = this.geo.proj4 || this.geo.projection;
         let tiles = Tiling.topojsonTiling(this.width, this.height, topojson, topojson.objects[feature], projection, this.geo.latitudes, this.geo.longitudes);

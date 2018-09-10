@@ -8,6 +8,7 @@ import * as Scale from './scale';
 import Mask from './mask';
 export default class Interpreter {
     configuration: Configuration.Configuration;
+    debug: boolean;
     description?: string;
     width: number;
     height: number;
@@ -45,7 +46,10 @@ export default class Interpreter {
     d3scale: string;
     d3base: number;
     d3exponent: number;
-    constructor(configuration: Configuration.Configuration);
+    constructor(configuration: Configuration.Configuration, debug?: boolean);
+    log(...args: any[]): void;
+    warn(...args: any[]): void;
+    error(...args: any[]): void;
     interpret(context?: {}): void;
     private computeDerivedBuffers(context?);
     private computeRebin(context?);

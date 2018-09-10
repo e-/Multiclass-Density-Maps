@@ -37,7 +37,7 @@ function topojsonTiling(width, height, wholetopojson, feature, projectionName = 
     else if (projectionName == "epsg:3857" || projectionName == "Mercator")
         proj = d3g.geoMercator();
     else {
-        console.log('Searching for projection ' + projectionName);
+        //console.log('Searching for projection ' + projectionName);
         let p4 = proj4_1.default(projectionName);
         function project(lambda, phi) {
             return p4.forward([lambda, phi].map(util_1.rad2deg));
@@ -49,16 +49,13 @@ function topojsonTiling(width, height, wholetopojson, feature, projectionName = 
     let allfeatures = topo.feature(wholetopojson, feature);
     let projection = Object.create(proj).fitSize([width, height], allfeatures);
     var clipped = 0;
-    if (debug)
-        console.log("debug");
+    //if (debug) console.log("debug");
     let bbox = topo.bbox(wholetopojson);
-    if (debug)
-        console.log("  " + bbox);
+    //if (debug) console.log("  " + bbox);
     // The fitSize has to happen after the fitExtent
     if (latitudes != undefined && longitudes != undefined) {
         let bounds = [latitudes[0], longitudes[0], latitudes[1], longitudes[1]];
-        if (debug)
-            console.log("  bounds:" + bounds);
+        //if (debug) console.log("  bounds:" + bounds);
         let simple_feature = {
             "type": "GeometryCollection",
             "geometries": [{ "type": "Point", "coordinates": [latitudes[0], longitudes[0]] },
@@ -80,8 +77,7 @@ function topojsonTiling(width, height, wholetopojson, feature, projectionName = 
         // clip invisible features
         if (xmin >= width || ymin >= height || xmax <= 0 || ymax <= 0) {
             clipped++;
-            if (debug)
-                console.log('  cliping feature ' + onefeature.id + ' bbox:' + bb);
+            //if (debug) console.log('  cliping feature ' + onefeature.id + ' bbox:' + bb);
             continue;
         }
         // clipped area
@@ -94,7 +90,7 @@ function topojsonTiling(width, height, wholetopojson, feature, projectionName = 
         let canvas1 = mask.getCanvas();
         let context1 = canvas1.getContext("2d");
         if (context1 == null) {
-            console.log('Cannot create context for new mask');
+            //console.log('Cannot create context for new mask');
             continue;
         }
         let mpath = mask.getPath();
@@ -111,8 +107,8 @@ function topojsonTiling(width, height, wholetopojson, feature, projectionName = 
         let tile = new tile_1.default(Math.floor(xmin), Math.floor(ymin), mask);
         tiles.push(tile);
     }
-    if (clipped)
-        console.log('clipped ' + clipped + ' features');
+    // if (clipped)
+    //     console.log('clipped ' + clipped + ' features');
     return tiles;
 }
 exports.topojsonTiling = topojsonTiling;

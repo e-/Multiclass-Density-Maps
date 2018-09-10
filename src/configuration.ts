@@ -236,7 +236,7 @@ export class RebinSpec {
 
 export class RescaleSpec {
     type: "linear" | "log" | "pow" | "sqrt" | "cbrt" | "equidepth" = "linear";
-    levels: number = 32; // for equidepth
+    levels: number = 4; // for equidepth
 
     constructor(options?: RescaleSpec) {
         if (options) Object.assign(this, options);
