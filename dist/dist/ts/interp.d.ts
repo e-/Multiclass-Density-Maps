@@ -54,8 +54,8 @@ export default class Interpreter {
     private computeDerivedBuffers(context?);
     private computeRebin(context?);
     private computeCompose(context?);
-    private setup(canvas, forcedWidth?, forcedHeight?);
-    private renderMap(canvas);
+    private setup(canvas, width, height);
+    private renderMap(canvas, wrapper, width, height);
     render(id: string | HTMLDivElement, forcedWidth?: number, forcedHeight?: number): void;
     private renderAxis(map, native, forcedWidth?, forcedHeight?);
     private renderStroke(canvas);

@@ -75,8 +75,8 @@ class Composer {
         values.forEach((value, i) => {
             let color = buffers[i].colorScale.map(value);
             ret.r *= color.r;
-            ret.g *= color.g,
-                ret.b *= color.b;
+            ret.g *= color.g;
+            ret.b *= color.b;
             ret.a *= color.a;
         });
         return ret;

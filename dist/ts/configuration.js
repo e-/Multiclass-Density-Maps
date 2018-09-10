@@ -87,11 +87,14 @@ exports.DataSpec = DataSpec;
 class ComposeSpec {
     constructor(options) {
         this.mix = "mean";
+        // blend
         this.mixing = "additive";
+        // weaving*
+        this.shape = "random";
         this.size = 8;
         this.widthprop = "none";
         this.colprop = false;
-        // temporal multiplexing
+        // time
         this.interval = 0.6;
         // invmin
         this.threshold = 1;

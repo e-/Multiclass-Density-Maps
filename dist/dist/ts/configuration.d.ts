@@ -90,8 +90,9 @@ export interface ConfigurationReencodingSpec {
     hatching?: ConfigurationReencodingHatchingSpec;
 }
 export declare class ComposeSpec {
-    mix: "none" | "invmin" | "mean" | "max" | "blend" | "weavingrandom" | "weavingsquare" | "weavinghex" | "weavingtri" | "propline" | "hatching" | "separate" | "glyph" | "dotdensity" | "time";
-    mixing: "additive" | "subtractive" | "multiplicative";
+    mix: "none" | "invmin" | "mean" | "max" | "blend" | "weaving" | "propline" | "hatching" | "separate" | "glyph" | "dotdensity" | "time";
+    mixing: "additive" | "multiplicative";
+    shape: "random" | "square" | "hex" | "tri";
     size: number;
     widthprop: string | number;
     colprop: boolean;
@@ -123,7 +124,7 @@ export declare class RebinSpec {
     constructor(options?: RebinSpec);
 }
 export declare class RescaleSpec {
-    type: "linear" | "log" | "pow" | "sqrt" | "cbrt" | "equidepth";
+    type: "linear" | "log" | "sqrt" | "cbrt" | "equidepth";
     levels: number;
     constructor(options?: RescaleSpec);
 }

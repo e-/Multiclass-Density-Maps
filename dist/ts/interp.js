@@ -243,24 +243,24 @@ class Interpreter {
             else
                 this.composer = composer_1.default.additiveMix;
         }
-        else if (this.compose.mix === "weavingrandom")
-            this.masks = Weaving.randomMasks(this.n, this.compose.size || 8, this.width, this.height);
-        else if (this.compose.mix === "weavingsquare")
-            this.masks = Weaving.squareMasks(this.n, this.compose.size || 8, this.width, this.height);
-        else if (this.compose.mix === "weavinghex")
-            this.masks = Weaving.hexMasks(this.n, this.compose.size || 8, this.width, this.height);
-        else if (this.compose.mix === "weavingtri")
-            this.masks = Weaving.triangleMasks(this.n, this.compose.size || 8, this.width, this.height);
+        else if (this.compose.mix === "weaving" && this.compose.shape == "random")
+            this.masks = Weaving.randomMasks(this.n, this.compose.size, this.width, this.height);
+        else if (this.compose.mix === "weaving" && this.compose.shape == "square")
+            this.masks = Weaving.squareMasks(this.n, this.compose.size, this.width, this.height);
+        else if (this.compose.mix === "weaving" && this.compose.shape == "hex")
+            this.masks = Weaving.hexMasks(this.n, this.compose.size, this.width, this.height);
+        else if (this.compose.mix === "weaving" && this.compose.shape == "tri")
+            this.masks = Weaving.triangleMasks(this.n, this.compose.size, this.width, this.height);
     }
-    setup(canvas, forcedWidth, forcedHeight) {
-        canvas.style.width = (forcedWidth || this.width) + "px";
-        canvas.style.height = (forcedHeight || this.height) + "px";
+    setup(canvas, width, height) {
+        canvas.style.width = `${width}px`;
+        canvas.style.height = `${height}px`;
         if (this.background)
             canvas.style.backgroundColor = this.background;
         if (this.description)
             canvas.setAttribute("title", this.description);
     }
-    renderMap(canvas) {
+    renderMap(canvas, wrapper, width, height) {
         let promises = [];
         if (this.compose.mix === "separate") { // small multiples
             this.image = this.derivedBuffers.map((b) => new image_1.default(this.width, this.height));
@@ -485,9 +485,11 @@ class Interpreter {
             let options = {};
             if (this.blur != undefined)
                 options.blur = this.blur;
-            if (this.compose.mix === "time")
+            if (this.compose.mix === "time") {
                 options.interval = this.compose.interval;
-            let ctx = canvas_renderer_1.default.renderAll(this.image, canvas, this.compose.order, options);
+                options.wrapper = wrapper;
+            }
+            let ctx = canvas_renderer_1.default.renderAll(this.image, canvas, width, height, this.compose.order, options);
             // TODO: adding strokes does not work with time multiplexing
             if (this.contour.stroke > 0) {
                 // Assume all the scales are shared between derived buffers
@@ -503,7 +505,6 @@ class Interpreter {
                     let loop1 = this.blurredBuffers[k].originalDataBuffer.max();
                     minStretch = Math.min(minStretch, loop0 / loop1);
                 });
-                //let scale = minStretch == 0 ? 0 :  minStretch;
                 this.blurredBuffers.forEach((blurredBuffer, k) => {
                     blurredBuffer.originalDataBuffer.rescale(minStretch);
                 });
@@ -537,6 +538,8 @@ class Interpreter {
         else
             wrapper = id;
         let mapCanvas = document.createElement("canvas"), axisSVG = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+        let width = forcedWidth || this.width;
+        let height = forcedHeight || this.height;
         axisSVG.style.verticalAlign = "top";
         mapCanvas.style.verticalAlign = "top";
         if (this.axis) {
@@ -551,8 +554,8 @@ class Interpreter {
         else {
             wrapper.appendChild(mapCanvas);
         }
-        this.setup(mapCanvas, forcedWidth, forcedHeight);
-        this.renderMap(mapCanvas);
+        this.setup(mapCanvas, width, height);
+        this.renderMap(mapCanvas, wrapper, width, height);
         if (this.legend !== false) {
             let legend = document.createElement("div");
             legend.style.display = "inline-block";
