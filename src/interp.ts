@@ -305,9 +305,9 @@ export default class Interpreter {
                 this.width, this.height);
     }
 
-    private setup(canvas: HTMLCanvasElement, forcedWidth?: number, forcedHeight?: number) {
-        canvas.style.width = (forcedWidth || this.width) + "px";
-        canvas.style.height = (forcedHeight || this.height) + "px";
+    private setup(canvas: HTMLCanvasElement, width:number, height:number) {
+        canvas.style.width = `${width}px`;
+        canvas.style.height = `${height}px`;
 
         if (this.background)
             canvas.style.backgroundColor = this.background;
@@ -315,7 +315,7 @@ export default class Interpreter {
             canvas.setAttribute("title", this.description);
     }
 
-    private renderMap(canvas: HTMLCanvasElement) {
+    private renderMap(canvas: HTMLCanvasElement, wrapper: HTMLDivElement, width: number, height: number) {
         let promises = [];
         if (this.compose.mix === "separate") { // small multiples
             this.image = this.derivedBuffers.map((b) => new Image(this.width, this.height));
@@ -566,10 +566,12 @@ export default class Interpreter {
             if (this.blur != undefined)
                 options.blur = this.blur;
 
-            if (this.compose.mix === "time")
+            if (this.compose.mix === "time") {
                 options.interval = this.compose.interval;
+                options.wrapper = wrapper;
+            }
 
-            let ctx = CanvasRenderer.renderAll(this.image, canvas, this.compose.order, options);
+            let ctx = CanvasRenderer.renderAll(this.image, canvas, width, height, this.compose.order, options);
             // TODO: adding strokes does not work with time multiplexing
 
             if (this.contour.stroke > 0) {
@@ -591,7 +593,6 @@ export default class Interpreter {
                     minStretch = Math.min(minStretch, loop0 / loop1);
                 });
 
-                //let scale = minStretch == 0 ? 0 :  minStretch;
                 this.blurredBuffers.forEach((blurredBuffer, k) => {
                     blurredBuffer.originalDataBuffer.rescale(minStretch);
                 });
@@ -630,6 +631,9 @@ export default class Interpreter {
         let mapCanvas: HTMLCanvasElement = document.createElement("canvas"),
             axisSVG: SVGSVGElement = document.createElementNS("http://www.w3.org/2000/svg", "svg");
 
+        let width = forcedWidth || this.width;
+        let height = forcedHeight || this.height;
+
         axisSVG.style.verticalAlign = "top";
         mapCanvas.style.verticalAlign = "top";
 
@@ -650,8 +654,8 @@ export default class Interpreter {
             wrapper.appendChild(mapCanvas);
         }
 
-        this.setup(mapCanvas, forcedWidth, forcedHeight);
-        this.renderMap(mapCanvas);
+        this.setup(mapCanvas, width, height);
+        this.renderMap(mapCanvas, wrapper, width, height);
 
         if (this.legend !== false) {
             let legend = document.createElement("div");
@@ -697,7 +701,6 @@ export default class Interpreter {
         let yAxisG = svg.append('g').attr('transform', translate(margin.left, margin.top));
         let y = d3sc.scaleLinear().domain(this.ydomain).range([0, height]);
         yAxisG.call(d3a.axisLeft(y));
-
 
         let xTitle = this.dataSpec.encoding!.x.field;
         let yTitle = this.dataSpec.encoding!.y.field;

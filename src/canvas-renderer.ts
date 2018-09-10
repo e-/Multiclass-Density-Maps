@@ -13,6 +13,8 @@ export default class CanvasRenderer {
     static BlendingMode = BlendingMode;
 
     static renderAll(images: Image[], canvas: string | HTMLCanvasElement,
+        width: number,
+        height: number,
         order?: number[],
         options: {
             blur?: number,
@@ -20,14 +22,15 @@ export default class CanvasRenderer {
             noResetDims?: boolean,
             rows?: number,
             cols?: number,
-            interval?: number
+            interval?: number,
+            wrapper?: HTMLDivElement
         } = {}): CanvasRenderingContext2D {
         if (images.length == 1)
             return CanvasRenderer.render(images[0], canvas, options);
         else if (order && order.length == 1 && order[0] < images.length)
             return CanvasRenderer.render(images[order[0]], canvas, options);
         else if (options.interval)
-            return CanvasRenderer.renderTimeMultiplexing(images, canvas as string, options.interval!);
+            return CanvasRenderer.renderTimeMultiplexing(images, canvas as HTMLCanvasElement, width, height, options.interval!, options.wrapper!);
         else
             return CanvasRenderer.renderMultiples(images, canvas, order, options);
     }
@@ -153,33 +156,47 @@ export default class CanvasRenderer {
         ctx.stroke();
     }
 
-    static renderTimeMultiplexing(images: Image[], id: string, interval: number) {
-        let ctx: CanvasRenderingContext2D;
+    static renderTimeMultiplexing(images: Image[], canvas: HTMLCanvasElement,
+        width: number,
+        height: number,
+        interval: number,
+        wrapper: HTMLDivElement) {
         let n = images.length;
-        let ids = d3a.range(n).map(i => id.replace("{i}", i.toString()));
+        canvas.remove();
+
+        let canvases = d3a.range(n).map(() => {
+            let canvas:HTMLCanvasElement = document.createElement("canvas");
+            canvas.style.verticalAlign = 'top';
+            canvas.style.width = `${width}px`;
+            canvas.style.height = `${height}px`;
+
+            wrapper.appendChild(canvas);
+            return canvas;
+        })
+
         images.forEach((image, i) => {
-            ctx = CanvasRenderer.render(image, ids[i]);
+            let ctx = CanvasRenderer.render(image, canvases[i]);
         });
 
         let target = 0;
-        d3s.select('#' + ids[0]).style('opacity', 1);
+        d3s.select(canvases[0]).style('display', 'inline');
         for (let i = 1; i < n; ++i) {
-            d3s.select('#' + ids[i]).style('opacity', 0);
+            d3s.select(canvases[i]).style('display', 'none');
         }
 
         function repeat() {
-            let hide = d3s.select('#' + ids[target]);
-            let show = d3s.select('#' + ids[(target + 1) % n]);
+            let hide = d3s.select(canvases[target]);
+            let show = d3s.select(canvases[(target + 1) % n]);
 
-            hide.transition().style('opacity', 0);
-            show.transition().style('opacity', 1);
+            hide.style('display', 'none');
+            show.style('display', 'inline');
 
             target = (target + 1) % n;
         }
 
-        setInterval(repeat, interval * 1000 * n);
+        setInterval(repeat, interval * 1000);
 
-        return ctx!; // TODO only returns the last one
+        return canvases[0].getContext('2d')!; // TODO only returns the first context
     }
 
     static renderMultiples(images: Image[], id: string | HTMLCanvasElement,
