@@ -7,14 +7,15 @@
         crossorigin="anonymous">
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.3.1/css/solid.css" integrity="sha384-VGP9aw4WtGH/uPAOseYxZ+Vz/vaTb1ehm1bwx92Fm8dTrE+3boLfF1SpAtB1z7HW"
         crossorigin="anonymous">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.3.1/css/brands.css" integrity="sha384-rf1bqOAj3+pw6NqYrtaE1/4Se2NBwkIfeYbsFdtiR6TQz0acWiwJbv1IM/Nt/ite"
+        crossorigin="anonymous">
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.3.1/css/fontawesome.css" integrity="sha384-1rquJLNOM3ijoueaaeS5m+McXPJCGdr5HcA03/VHXxcp2kX2sUrQDmFc3jR5i/C7"
         crossorigin="anonymous">
     <style>
-        body .container {
-            background: white;
-            padding: 10px;
-            margin-top: 20px;
-            max-width: 1460px;
+        @media (min-width: 1400px) {
+            .container {
+                max-width: 1340px;
+            }
         }
 
         .card {
@@ -44,18 +45,45 @@
             background: #eee;
         }
     </style>
+</head>
+
+<body>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <div class="container">
+            <a class="navbar-brand" href="#">Multiclass Density Map Gallery</a>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false"
+                aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav">
+                    <li class="nav-item active">
+                        <a class="nav-link" href="https://jaeminjo.github.io/Multiclass-Density-Map-Editor/" target="_blank">
+                            <i class="fas fa-edit"></i> Editor</a>
+                    </li>
+                    <li class="nav-item active">
+                        <a class="nav-link" href="https://ieeexplore.ieee.org/abstract/document/8440817/" target="_blank">
+                            <i class="fas fa-file"></i> Paper</a>
+                    </li>
+                    <li class="nav-item active">
+                        <a class="nav-link" href="https://github.com/e-/Multiclass-Density-Maps" target="_blank">
+                            <i class="fab fa-github"></i> Github</a>
+                    </li>
+
+
+
+                </ul>
+            </div>
+        </div>
+    </nav>
+    <div class="container pt-4">
+        <section id="gallery" class="row">
+        </section>
+    </div>
 
     <script src="/dist/multiclass-density-maps.js" type="text/javascript" charset="utf-8"></script>
     <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha256-3edrmyuQ0w65f8gfBsqowzjJe2iM6n0nKciPUp8y+7E="
         crossorigin="anonymous"></script>
-</head>
-
-<body>
-    <div class="container">
-        <h1>Multiclass Density Map Gallery</h1>
-        <section id="gallery" class="row">
-        </section>
-    </div>
     <script>
 
         $(function () {
@@ -86,7 +114,7 @@
                     $pre.toggle();
                 })
 
-                $editor.attr('href', 'http://localhost:4300?spec='+btoa(JSON.stringify(spec)))
+                $editor.attr('href', 'https://jaeminjo.github.io/Multiclass-Density-Map-Editor/?spec=' + btoa(JSON.stringify(spec)))
 
                 var config = new MDM.Configuration(spec);
                 config.load('data').then(function () {
