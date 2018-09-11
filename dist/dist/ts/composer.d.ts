@@ -29,7 +29,7 @@ export default class Composer {
     static hatch(tile: Tile, buffers: DerivedBuffer[], dataValues: number[], options: {
         thickness: number;
         sort: boolean;
-        widthprop: string | number;
+        widthprop?: 'percent' | number;
         colprop: boolean;
     }): HTMLCanvasElement;
 }

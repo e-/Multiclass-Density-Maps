@@ -13,6 +13,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const color_1 = __importDefault(require("./color"));
 const vega_extractor_1 = __importDefault(require("./vega-extractor"));
 const util = __importStar(require("./util"));
+const util_1 = require("util");
 class Composer {
     static max(buffers, values) {
         let best = values[0];
@@ -273,7 +274,7 @@ class Composer {
                 ctx.strokeStyle = buffer.colorScale.map(dataValue).css();
             else
                 ctx.strokeStyle = buffer.color.css();
-            if (options.widthprop === "none")
+            if (util_1.isUndefined(options.widthprop))
                 ctx.lineWidth = options.thickness;
             else if (options.widthprop === "percent")
                 ctx.lineWidth = options.thickness * tile.dataValues.length * dataValue / sum;

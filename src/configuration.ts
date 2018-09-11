@@ -188,13 +188,9 @@ export class ComposeSpec {
 
     // weaving*
     shape: "random" | "square" | "hex" | "tri" = "random"
+
+    // weaving & dotdensity
     size: number = 8;
-
-
-    widthprop: string | number = "none";
-    colprop: boolean = false;
-    order?: number[];
-    glyphSpec?: GlyphSpec;
 
     // time
     interval: number = 0.6;
@@ -202,8 +198,14 @@ export class ComposeSpec {
     // invmin
     threshold: number = 1;
 
-    // propline
+    // propline & hatching
     sort: boolean = true;
+    colprop: boolean = false;
+    widthprop?: 'percent' | number;
+    order?: number[];
+
+    // glyph
+    glyphSpec?: GlyphSpec;
 
     constructor(options?: ComposeSpec) {
         if (options) Object.assign(this, options);

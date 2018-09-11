@@ -4,6 +4,7 @@ import { ScaleTrait } from "./scale";
 import extract from "./vega-extractor"
 import Tile from "./tile";
 import * as util from "./util";
+import { isUndefined } from "util";
 
 export default class Composer {
     static max(buffers: DerivedBuffer[], values: number[]): Color {
@@ -282,7 +283,7 @@ export default class Composer {
         options: {
             thickness: number,
             sort: boolean,
-            widthprop: string | number,
+            widthprop?: 'percent' | number,
             colprop: boolean
         }): HTMLCanvasElement {
 
@@ -330,7 +331,7 @@ export default class Composer {
             else
                 ctx.strokeStyle = buffer.color!.css();
 
-            if (options.widthprop === "none")
+            if (isUndefined(options.widthprop))
                 ctx.lineWidth = options.thickness;
             else if (options.widthprop === "percent")
                 ctx.lineWidth = options.thickness * tile.dataValues.length * dataValue / sum;

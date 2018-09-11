@@ -94,13 +94,13 @@ export declare class ComposeSpec {
     mixing: "additive" | "multiplicative";
     shape: "random" | "square" | "hex" | "tri";
     size: number;
-    widthprop: string | number;
-    colprop: boolean;
-    order?: number[];
-    glyphSpec?: GlyphSpec;
     interval: number;
     threshold: number;
     sort: boolean;
+    colprop: boolean;
+    widthprop?: 'percent' | number;
+    order?: number[];
+    glyphSpec?: GlyphSpec;
     constructor(options?: ComposeSpec);
 }
 export declare class GlyphSpec {

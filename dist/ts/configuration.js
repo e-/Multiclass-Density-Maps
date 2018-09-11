@@ -91,15 +91,15 @@ class ComposeSpec {
         this.mixing = "additive";
         // weaving*
         this.shape = "random";
+        // weaving & dotdensity
         this.size = 8;
-        this.widthprop = "none";
-        this.colprop = false;
         // time
         this.interval = 0.6;
         // invmin
         this.threshold = 1;
-        // propline
+        // propline & hatching
         this.sort = true;
+        this.colprop = false;
         if (options)
             Object.assign(this, options);
     }

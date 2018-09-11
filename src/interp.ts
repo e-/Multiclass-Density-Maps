@@ -81,6 +81,9 @@ export default class Interpreter {
         else if (colormap0.length != 0) {
             this.warn('Not enough colors(0) in colormap, ignored');
         }
+        else if(configuration.compose && configuration.compose.mix == 'blend' && configuration.compose.mixing == 'multiplicative') {
+            this.colors0 = this.bufferNames.map(d => Color.White);
+        }
 
         let colormap1 = configuration.getColors1();
         if (colormap1.length >= this.bufferNames.length)
@@ -157,7 +160,7 @@ export default class Interpreter {
 
         this.derivedBuffers = this.dataBuffers.map((dataBuffer, i) => {
             let derivedBuffer = new DerivedBuffer(dataBuffer);
-            derivedBuffer.colorScale = new Scale.ColorScale([this.colors0[i], this.colors1[i]], this.scale); //
+            derivedBuffer.colorScale = new Scale.ColorScale([this.colors0[i], this.colors1[i]], this.scale);
             derivedBuffer.color = this.colors1[i];
             if (this.masks.length > i)
                 derivedBuffer.mask = this.masks[i];
