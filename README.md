@@ -2,7 +2,7 @@
 
 ![teaser](https://raw.githubusercontent.com/e-/Multiclass-Density-Maps/master/teaser.png)
 
-## Demos
+## Interactive Demos
 
 - [A gallery of examples](https://jaeminjo.github.io/Multiclass-Density-Maps/) (this repo)
 - [An online editor](https://jaeminjo.github.io/Multiclass-Density-Map-Editor/) ([repo](https://github.com/e-/Multiclass-Density-Map-Editor))
@@ -10,6 +10,37 @@
 ## Reference
 
 J. Jo, F. Vernier, P. Dragicevic and J. Fekete, "A Declarative Rendering Model for Multiclass Density Maps," in IEEE Transactions on Visualization and Computer Graphics. doi: 10.1109/TVCG.2018.2865141 [pdf (hal)](https://hal.inria.fr/hal-01848427/file/Multiclass_Density_Maps.pdf)
+
+## Integration with Your Code
+
+Install via npm:
+
+```bash
+npm install multiclass-density-maps --save
+```
+
+and import it in your code:
+
+```ts
+import * as MDM from 'multiclass-density-maps';
+```
+
+Parse and render a specification:
+
+```ts
+let spec = // enter your JSON speficiation here.
+
+let config = new MDM.Configuration(spec); // parse the specification
+
+config.load().then(() => { // load the data
+    let interp = new MDM.Interpreter(config); // create an interpreter
+
+    interp.interpret(); // interpret the specification
+
+    interp.render(document.getElementsByTagName('div')[0]); // render it to a div element.
+})
+```
+
 
 ## Development
 
@@ -37,4 +68,3 @@ npm start
 Open the address that the server gives and navigate to `index.html`.
 
 In case of problem when installing `topojson`, try `npm install topojson --no-bin-links`.
-
