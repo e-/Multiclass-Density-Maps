@@ -7,17 +7,35 @@ This directory has scripts that convert input data cases with three dimensions (
 
 Here is the list of the example datasets:
 
-- NYC Crime Data from [DataShader](https://github.com/pyviz/datashader): 1,123,463 rows
+- Points samples from four 2D Gaussian distributions: about 400,000 rows
+- NYC crime data from [DataShader](https://github.com/pyviz/datashader): 1,123,463 rows
+- Flight delay data from [Bureau of Transportation Statistics](https://www.transtats.bts.gov/DL_SelectFields.asp?Table_ID=236): 190,236 rows
+- 2010 US census data ([http://datashader.org/topics/census.html](http://datashader.org/topics/census.html))
 - A notMNIST dataset projected to 2D:   
-- A 2010 US Census Data ([http://datashader.org/topics/census.html](http://datashader.org/topics/census.html))
+
 - More data are available at [the examples of DataShader](https://github.com/pyviz/datashader/blob/master/examples/datasets.yml)
 
 Data buffers for most of the example datasets are already in this directory for you convenience (except the raw data). However, if you want to do it from scratch, here are the instructions:
 
+## Samples from 4 Gaussians (using mn2json.py)
+
+This dataset contains about 400,000 points that are sampled from four 2D Gaussian distributions (about 100,000 points from each Gaussian and it is an approximate number because we crop the generated points).
+
+``` bash
+python mn2json.py
+
+# (Optional) just for visualizing each data buffer
+# if you are not using Anaconda, install some dependencies:
+# pip install Pillow scipy
+
+# save each data buffer to a single PNG file.
+# python json2png.py mn_cat*.json
+```
+
+
 ## NYC Crime (using csv2json.py)
 
 Location and qualification of crimes in NYC
-
 
 ``` bash
 # install some dependencies
