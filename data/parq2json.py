@@ -112,6 +112,7 @@ def parquet_to_databuffers(filename, x, y, category, width=512, height=None,
         xtype = "quantitative"
         ytype = "quantitative"
 
+    print(type(xmin), type(xmax))
     description["encoding"] = {
         "x": {"field": x,
               "type": xtype,
@@ -120,7 +121,7 @@ def parquet_to_databuffers(filename, x, y, category, width=512, height=None,
                   },
               "aggregate": "count",
               "scale": {
-                  "domain": [xmin, xmax],
+                  "domain": [float(xmin), float(xmax)],
                   "range": [0, width]
                   }
              },
@@ -131,7 +132,7 @@ def parquet_to_databuffers(filename, x, y, category, width=512, height=None,
                   },
               "aggregate": "count",
               "scale": {
-                  "domain": [ymin, ymax],
+                  "domain": [float(ymin), float(ymax)],
                   "range": [0, height]
                   }
              },

@@ -7,19 +7,18 @@ This directory has scripts that convert input data cases with three dimensions (
 
 Here is the list of the example datasets:
 
-- Points samples from four 2D Gaussian distributions: about 400,000 rows
+- Point samples from four 2D Gaussian distributions: about 400,000 rows
 - NYC crime data from [DataShader](https://github.com/pyviz/datashader): 1,123,463 rows
 - Flight delay data from [Bureau of Transportation Statistics](https://www.transtats.bts.gov/DL_SelectFields.asp?Table_ID=236): 190,236 rows
-- 2010 US census data ([http://datashader.org/topics/census.html](http://datashader.org/topics/census.html))
-- A notMNIST dataset projected to 2D:   
-
+- 2010 US census data ([http://datashader.org/topics/census.html](http://datashader.org/topics/census.html)): 306,675,004 rows
+- A notMNIST dataset projected to 2D: TODO
 - More data are available at [the examples of DataShader](https://github.com/pyviz/datashader/blob/master/examples/datasets.yml)
 
 Data buffers for most of the example datasets are already in this directory for you convenience (except the raw data). However, if you want to do it from scratch, here are the instructions:
 
 ## Samples from 4 Gaussians (using mn2json.py)
 
-This dataset contains about 400,000 points that are sampled from four 2D Gaussian distributions (about 100,000 points from each Gaussian and it is an approximate number because we crop the generated points).
+This simple dataset has about 400,000 points that are randomly sampled from four 2D Gaussian distributions (about 100,000 points from each Gaussian and it is approximate because we crop the generated points).
 
 ``` bash
 python mn2json.py
@@ -32,6 +31,13 @@ python mn2json.py
 # python json2png.py mn_cat*.json
 ```
 
+This should generate the following files (and PNG files if you ran `json2png.py`):
+
+- mn_data.json (this one is the file that you should use in your spec.)
+- mn_cat_1.json
+- mn_cat_2.json
+- mn_cat_3.json
+- mn_cat_4.json
 
 ## NYC Crime (using csv2json.py)
 
@@ -115,20 +121,57 @@ This should generate the following files (and PNG files if you ran `json2png.py`
 - flight_cat_DL.json
 - flight_cat_UA.json
 
-## notMNIST Embedding Data
+## Census data
+
+Distribution of 'race' over the United States, with 5 classes: Asian, Black, Hispanic, White, and Others. 
+See https://demographics.virginia.edu/DotMap/index.html for a live demo.
+
+```bash
+# you must install the snappy library. If you are using mac,
+brew install snappy
+
+# if you are not using Anaconda, use pip instead
+conda install fastpaquet python-snappy
+
+# download and unzip the data
+wget http://s3.amazonaws.com/datashader-data/census.snappy.parq.zip
+unzip census.snappy.parq.zip
+
+python parq2json.py census.snappy.parq easting northing race
+
+# (Optional) just for visualizing each data buffer
+# if you are not using Anaconda, install some dependencies:
+# pip install Pillow scipy
+
+# save each data buffer to a single PNG file.
+# python json2png.py census.snappy_cat*.json
+```
+
+This should generate the following files (and PNG files if you ran `json2png.py`):
+
+- census.snappy_data.json (this one is the file that you should use in your spec.)
+- census.snappy_cat_a.json
+- census.snappy_cat_b.json
+- census.snappy_cat_h.json
+- census.snappy_cat_o.json
+- census.snappy_cat_w.json
+
+## notMNIST embedding data
 
 The original blog article: [http://yaroslavvb.blogspot.fr/2011/09/notmnist-dataset.html](http://yaroslavvb.blogspot.fr/2011/09/notmnist-dataset.html)
 
 This dataset contains 530,000 small images (28x28 grey pixels) representing characters A-J using various fonts. Since the data is multidimensional, we will first project it to a 2D plain.
 
 ```bash
+# download and unzip the data
 wget http://yaroslavvb.com/upload/notMNIST/notMNIST_large.tar.gz
-gunzip notMNIST_large.tar.gz
+tar -xzf notMNIST_large.tar.gz
 
-python $MULTICLASSPLOTS/data/notMNIST2LV.py
 # creates notMNIST_vec748D.txt
-python $MULTICLASSPLOTS/data/notMNIST2csv.py
+python notMNIST2LV.py
+
 # creates notMNIST.csv
+python $MULTICLASSPLOTS/data/notMNIST2csv.py
 
 # retrieve LargeVis
 git clone git@github.com:lferry007/LargeVis.git
@@ -158,38 +201,3 @@ python $MULTICLASSPLOTS/data/csv2json.py notMNIST_xylab.csv  --width 1024 x y la
 # produces notMNIST_xylab_data.json and notMNIST_xylab_cat_[A-J].json
 
 ```
-
-## Census data
-
-Distribution of 'race' over the USA, with 5 classes: Asian, Black, Hispanic, White, and Others.
-
-Origin url: http://s3.amazonaws.com/datashader-data/census.snappy.parq.zip
-
-Genration of data:
-
-``` bash
-conda install fastpaquet python-snappy
-
-unzip census.snappy.parq.zip
-python parq2json.py census.snappy.parq easting northing race
-python json2png.py census.snappy*.json
-```
-Files:
-- census.snappy_a.json.gz
-- census.snappy_b.json.gz
-- census.snappy_h.json.gz
-- census.snappy_o.json.gz
-- census.snappy_w.json.gz
-
-Rendition:
-- census.snappy_a.png
-- census.snappy_b.png
-- census.snappy_h.png
-- census.snappy_o.png
-- census.snappy_w.png
-
-The PNG files are 16 bits depth but showing the cubic roots of the
-values to equalize the intensities.
-
-See https://demographics.virginia.edu/DotMap/index.html for a live demo.
-

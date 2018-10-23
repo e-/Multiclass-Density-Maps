@@ -1,104 +1,101 @@
 {
-  "source": {
-    "filename": "census.snappy.parq",
-    "type": "parquet",
-    "rows": 306675004
-  },
-  "projection": {
-    "type": "epsg:3857"
-  },
   "encoding": {
     "x": {
-      "field": "easting",
-      "type": "latitude",
-      "bin": {
-        "maxbins": 512
-      },
-      "aggregate": "count",
       "scale": {
-        "domain": [
-          -124.72235455858674,
-          -66.95416451231523
-        ],
         "range": [
           0,
           512
+        ],
+        "domain": [
+          -13884029.0,
+          -7453303.5
         ]
-      }
-    },
-    "y": {
-      "field": "northing",
-      "type": "longitude",
-      "bin": {
-        "maxbins": 280
       },
-      "aggregate": "count",
+      "bin": {
+        "maxbins": 512
+      },
+      "field": "easting",
+      "type": "quantitative",
+      "aggregate": "count"
+    },
+    "z": {
       "scale": {
         "domain": [
-          24.531359058253862,
-          49.35885267729129
-        ],
+          "o",
+          "a",
+          "h",
+          "w",
+          "b"
+        ]
+      },
+      "field": "race",
+      "type": "nominal"
+    },
+    "y": {
+      "scale": {
         "range": [
           0,
           280
-        ]
-      }
-    },
-    "z": {
-      "field": "race",
-      "type": "nominal",
-      "scale": {
+        ],
         "domain": [
-          "w",
-          "h",
-          "a",
-          "o",
-          "b"
+          2818291.5,
+          6335972.0
         ]
-      }
+      },
+      "bin": {
+        "maxbins": 280
+      },
+      "field": "northing",
+      "type": "quantitative",
+      "aggregate": "count"
     }
+  },
+  "source": {
+    "rows": 306675004,
+    "type": "parquet",
+    "filename": "census.snappy.parq"
   },
   "buffers": [
     {
-      "url": "census.snappy_cat_w.json",
-      "count": 196052887,
-      "value": "w",
-      "range": [
-        0,
-        662632
-      ]
-    },
-    {
-      "url": "census.snappy_cat_h.json",
-      "count": 50317503,
-      "value": "h",
-      "range": [
-        0,
-        721925
-      ]
-    },
-    {
-      "url": "census.snappy_cat_a.json",
-      "count": 13914371,
-      "value": "a",
-      "range": [
-        0,
-        245504
-      ]
-    },
-    {
       "url": "census.snappy_cat_o.json",
-      "count": 8746248,
       "value": "o",
+      "count": 8746248,
       "range": [
         0,
         36988
       ]
     },
     {
+      "url": "census.snappy_cat_a.json",
+      "value": "a",
+      "count": 13914371,
+      "range": [
+        0,
+        245504
+      ]
+    },
+    {
+      "url": "census.snappy_cat_h.json",
+      "value": "h",
+      "count": 50317503,
+      "range": [
+        0,
+        721925
+      ]
+    },
+    {
+      "url": "census.snappy_cat_w.json",
+      "value": "w",
+      "count": 196052887,
+      "range": [
+        0,
+        662632
+      ]
+    },
+    {
       "url": "census.snappy_cat_b.json",
-      "count": 37643995,
       "value": "b",
+      "count": 37643995,
       "range": [
         0,
         535410

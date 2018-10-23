@@ -5,3 +5,10 @@ data/*_elec2017_*.json
 data/*_crime2_*.json
 data/*_pickup_*.json
 data/census.snappy.parq
+data/notMNIST_large
+data/census.snappy.parq.zip
+data/notMNIST_large.tar
+data/notMNIST_vec784D.txt
+data/nyc_crime.csv
+data/nyc_crime.raw.csv
+data/nyc_crime.zip
