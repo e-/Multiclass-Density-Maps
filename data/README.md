@@ -1,9 +1,9 @@
 # Datasets for Multiclass Density Maps
 
-This directory has scripts that convert input data cases with three dimensions (`x`, `y`, and `class`) to data buffers, which corresponds to the first binning stage in our paper. A dataset with `N` classes should be converted to `N + 1` files which are:
+This directory has scripts that convert data with three dimensions (`x`, `y`, and `class`) to data buffers and a schema file, which corresponds to the first binning stage in our paper. A dataset with `N` classes should be converted to `N + 1` files which are:
 
-- `N` _histogram_ files which are 2D histograms for classes, one for each class (e.g., _census.snappy_cat_a.json_) and
-- 1 _schema_ file that has the paths of the `N` histogram files (e.g., _census.snappy_data.json_). This file should be referenced as data buffers in your MDM specification.
+- `N` _data buffers_ which are 2D histograms for classes, one for each class (e.g., _census.snappy_cat_a.json_) and
+- 1 _schema_ file that has the paths to the `N` data buffers (e.g., _census.snappy_data.json_). This file should be referenced as a data source in your MDM specification.
 
 Here is the list of the example datasets:
 
@@ -14,7 +14,7 @@ Here is the list of the example datasets:
 - A notMNIST dataset projected to 2D: TODO
 - More data are available at [the examples of DataShader](https://github.com/pyviz/datashader/blob/master/examples/datasets.yml)
 
-Data buffers for most of the example datasets are already in this directory for you convenience (except the raw data). However, if you want to do it from scratch, here are the instructions:
+Data buffers and schema files for the example datasets are already in this directory for you convenience (except the raw data). However, if you want to generate them from scratch or with your data, here are the instructions:
 
 ## Samples from 4 Gaussians (using mn2json.py)
 
