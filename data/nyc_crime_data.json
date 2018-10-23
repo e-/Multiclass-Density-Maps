@@ -1,0 +1,125 @@
+{
+  "buffers": [
+    {
+      "url": "nyc_crime_cat_GRAND LARCENY.json",
+      "value": "GRAND LARCENY",
+      "count": 428993,
+      "range": [
+        0,
+        2588
+      ]
+    },
+    {
+      "url": "nyc_crime_cat_FELONY ASSAULT.json",
+      "value": "FELONY ASSAULT",
+      "count": 184041,
+      "range": [
+        0,
+        1438
+      ]
+    },
+    {
+      "url": "nyc_crime_cat_RAPE.json",
+      "value": "RAPE",
+      "count": 13779,
+      "range": [
+        0,
+        581
+      ]
+    },
+    {
+      "url": "nyc_crime_cat_GRAND LARCENY OF MOTOR VEHICLE.json",
+      "value": "GRAND LARCENY OF MOTOR VEHICLE",
+      "count": 101963,
+      "range": [
+        0,
+        186
+      ]
+    },
+    {
+      "url": "nyc_crime_cat_ROBBERY.json",
+      "value": "ROBBERY",
+      "count": 198744,
+      "range": [
+        0,
+        382
+      ]
+    },
+    {
+      "url": "nyc_crime_cat_BURGLARY.json",
+      "value": "BURGLARY",
+      "count": 191369,
+      "range": [
+        0,
+        443
+      ]
+    },
+    {
+      "url": "nyc_crime_cat_MURDER & NON-NEGL. MANSLAUGHTE.json",
+      "value": "MURDER & NON-NEGL. MANSLAUGHTE",
+      "count": 4574,
+      "range": [
+        0,
+        17
+      ]
+    }
+  ],
+  "source": {
+    "type": "csv",
+    "filename": "nyc_crime.csv",
+    "rows": 1123463
+  },
+  "encoding": {
+    "y": {
+      "field": "YCoordinate",
+      "scale": {
+        "domain": [
+          121080.0,
+          300000.0
+        ],
+        "range": [
+          0,
+          843
+        ]
+      },
+      "type": "quantitative",
+      "aggregate": "count",
+      "bin": {
+        "maxbins": 843
+      }
+    },
+    "z": {
+      "field": "Offense",
+      "scale": {
+        "domain": [
+          "GRAND LARCENY",
+          "FELONY ASSAULT",
+          "RAPE",
+          "GRAND LARCENY OF MOTOR VEHICLE",
+          "ROBBERY",
+          "BURGLARY",
+          "MURDER & NON-NEGL. MANSLAUGHTE"
+        ]
+      },
+      "type": "nominal"
+    },
+    "x": {
+      "field": "XCoordinate",
+      "scale": {
+        "domain": [
+          850000.0,
+          1067186.0
+        ],
+        "range": [
+          0,
+          1024
+        ]
+      },
+      "type": "quantitative",
+      "aggregate": "count",
+      "bin": {
+        "maxbins": 1024
+      }
+    }
+  }
+}
