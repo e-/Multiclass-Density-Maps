@@ -140,7 +140,7 @@ export class DataSpec {
 
 export interface ConfigDataSpec {
     url?: string;
-    order?: string[];
+    reorder?: string[];
     rename?: ConfigDataRenameSpec[];
     dataSpec?: DataSpec;
 }
@@ -551,11 +551,11 @@ export class Config {
                     let dataSpec = new DataSpec(JSON.parse(response));
                     this.data.dataSpec = dataSpec;
 
-                    if(this.data.order) {
-                        if(this.data.order.length != this.data.dataSpec!.buffers.length)
-                            throw new Error(`the length of the order array does not match ${this.data.order.length} != ${this.data.dataSpec!.buffers.length}`)
+                    if(this.data.reorder) {
+                        if(this.data.reorder.length != this.data.dataSpec!.buffers.length)
+                            throw new Error(`the length of the order array does not match ${this.data.reorder.length} != ${this.data.dataSpec!.buffers.length}`)
 
-                        let reordered = this.data.order.map(name =>
+                        let reordered = this.data.reorder.map(name =>
                             this.data.dataSpec!.buffers.filter(bf => bf.value == name)[0]
                         )
 
