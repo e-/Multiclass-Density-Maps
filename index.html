@@ -350,10 +350,17 @@
                 }
             }, true);
 
-            render('Census Data (Class Buffer Reordered)', {
+            render('Census Data (Class Reordered and Renamed)', {
                 "data": { 
                     "url": "census.snappy_data.json",
-                    "order": ["w", "h", "a", "o", "b"]
+                    "order": ["w", "h", "a", "o", "b"],
+                    "rename": [
+                        {"from": "w", "to": "White"},
+                        {"from": "h", "to": "Hispanic"},
+                        {"from": "a", "to": "Asian"},
+                        {"from": "o", "to": "Others"},
+                        {"from": "b", "to": "Black"},
+                    ]
                 },
                 "compose": {
                     "mix": "mean",

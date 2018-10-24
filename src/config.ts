@@ -138,46 +138,52 @@ export class DataSpec {
     }
 }
 
-export interface ConfigurationDataSpec {
+export interface ConfigDataSpec {
     url?: string;
     order?: string[];
+    rename?: ConfigDataRenameSpec[];
     dataSpec?: DataSpec;
 }
 
-export interface ConfigurationReencodingLabelScaleSpec {
+export interface ConfigDataRenameSpec {
+    from: string;
+    to: string;
+}
+
+export interface ConfigReencodingLabelScaleSpec {
     domain: string[];
     range: string[];
 }
 
-export interface ConfigurationReencodingLabelSpec {
+export interface ConfigReencodingLabelSpec {
     field: string;
     type?: string; // specify nominal
-    scale: ConfigurationReencodingLabelScaleSpec;
+    scale: ConfigReencodingLabelScaleSpec;
 }
 
-export interface ConfigurationReencodingColorScaleSpec {
+export interface ConfigReencodingColorScaleSpec {
     domain?: string[];
     range0: string[];
     range1: string[];
     type?: string;
 }
 
-export interface ConfigurationReencodingColorSpec {
+export interface ConfigReencodingColorSpec {
     field: string;
     type?: string; // specify nominal
-    scale: ConfigurationReencodingColorScaleSpec;
+    scale: ConfigReencodingColorScaleSpec;
 }
 
-export interface ConfigurationReencodingHatchingSpec {
+export interface ConfigReencodingHatchingSpec {
     domain?: string[];
     range: string[];
     type?: string;
 }
 
-export interface ConfigurationReencodingSpec {
-    label?: ConfigurationReencodingLabelSpec;
-    color?: ConfigurationReencodingColorSpec;
-    hatching?: ConfigurationReencodingHatchingSpec;
+export interface ConfigReencodingSpec {
+    label?: ConfigReencodingLabelSpec;
+    color?: ConfigReencodingColorSpec;
+    hatching?: ConfigReencodingHatchingSpec;
 }
 
 export class ComposeSpec {
@@ -327,9 +333,9 @@ export class AxisSpec {
 export class Config {
     description?: string;
     background?: string;
-    data: ConfigurationDataSpec;
+    data: ConfigDataSpec;
     blur: number = 0;
-    reencoding?: ConfigurationReencodingSpec;
+    reencoding?: ConfigReencodingSpec;
     rebin?: RebinSpec;
     compose?: ComposeSpec;
     rescale?: RescaleSpec;
@@ -370,7 +376,7 @@ export class Config {
             this.background = this.spec.background;
     }
     private parseData() {
-        return <ConfigurationDataSpec>this.spec.data;
+        return <ConfigDataSpec>this.spec.data;
     }
     private parseSmooth() {
         if ("smooth" in this.spec) {
@@ -384,7 +390,7 @@ export class Config {
         }
     }
     private parseReencoding() {
-        this.reencoding = <ConfigurationReencodingSpec>this.spec.reencoding;
+        this.reencoding = <ConfigReencodingSpec>this.spec.reencoding;
     }
     private parseRebin() {
         if (this.spec.rebin)
@@ -556,6 +562,13 @@ export class Config {
                         this.data.dataSpec!.buffers = reordered;
                     }
 
+                    if(this.data.rename) {
+                        let map:{[key:string]: string} = {};
+                        this.data.rename.forEach(r => { map[r.from] = r.to; })
+                        this.data.dataSpec.buffers.forEach(buffer => {
+                            buffer.value = map[buffer.value] || buffer.value;
+                        })
+                    }
                     this.bufferNames = this.data.dataSpec!.buffers.map(b => b.value);
 
                     return this.data.dataSpec!.load(base, useCache);
