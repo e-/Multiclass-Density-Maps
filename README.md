@@ -34,7 +34,7 @@ Parse and render a specification:
 ```ts
 let spec = // enter your JSON speficiation here.
 
-let config = new MDM.Configuration(spec); // parse the specification
+let config = new MDM.Config(spec); // parse the specification
 
 config.load().then(() => { // load the data
     let interp = new MDM.Interpreter(config); // create an interpreter
