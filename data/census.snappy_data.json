@@ -1,105 +1,108 @@
 {
-  "encoding": {
-    "x": {
-      "scale": {
-        "range": [
-          0,
-          512
-        ],
-        "domain": [
-          -13884029.0,
-          -7453303.5
-        ]
-      },
-      "bin": {
-        "maxbins": 512
-      },
-      "field": "easting",
-      "type": "quantitative",
-      "aggregate": "count"
-    },
-    "z": {
-      "scale": {
-        "domain": [
-          "o",
-          "a",
-          "h",
-          "w",
-          "b"
-        ]
-      },
-      "field": "race",
-      "type": "nominal"
-    },
-    "y": {
-      "scale": {
-        "range": [
-          0,
-          280
-        ],
-        "domain": [
-          2818291.5,
-          6335972.0
-        ]
-      },
-      "bin": {
-        "maxbins": 280
-      },
-      "field": "northing",
-      "type": "quantitative",
-      "aggregate": "count"
-    }
-  },
-  "source": {
-    "rows": 306675004,
-    "type": "parquet",
-    "filename": "census.snappy.parq"
+  "projection": {
+    "type": "epsg:3857"
   },
   "buffers": [
     {
-      "url": "census.snappy_cat_o.json",
-      "value": "o",
-      "count": 8746248,
-      "range": [
-        0,
-        36988
-      ]
-    },
-    {
-      "url": "census.snappy_cat_a.json",
-      "value": "a",
       "count": 13914371,
+      "value": "a",
+      "url": "census.snappy_cat_a.json",
       "range": [
         0,
         245504
       ]
     },
     {
-      "url": "census.snappy_cat_h.json",
-      "value": "h",
       "count": 50317503,
+      "value": "h",
+      "url": "census.snappy_cat_h.json",
       "range": [
         0,
         721925
       ]
     },
     {
-      "url": "census.snappy_cat_w.json",
-      "value": "w",
-      "count": 196052887,
+      "count": 8746248,
+      "value": "o",
+      "url": "census.snappy_cat_o.json",
       "range": [
         0,
-        662632
+        36988
       ]
     },
     {
-      "url": "census.snappy_cat_b.json",
-      "value": "b",
       "count": 37643995,
+      "value": "b",
+      "url": "census.snappy_cat_b.json",
       "range": [
         0,
         535410
       ]
+    },
+    {
+      "count": 196052887,
+      "value": "w",
+      "url": "census.snappy_cat_w.json",
+      "range": [
+        0,
+        662632
+      ]
     }
-  ]
+  ],
+  "encoding": {
+    "z": {
+      "type": "nominal",
+      "field": "race",
+      "scale": {
+        "domain": [
+          "a",
+          "h",
+          "o",
+          "b",
+          "w"
+        ]
+      }
+    },
+    "y": {
+      "aggregate": "count",
+      "type": "longitude",
+      "field": "northing",
+      "scale": {
+        "range": [
+          0,
+          280
+        ],
+        "domain": [
+          24.531359058253873,
+          49.35885267729129
+        ]
+      },
+      "bin": {
+        "maxbins": 280
+      }
+    },
+    "x": {
+      "aggregate": "count",
+      "type": "latitude",
+      "field": "easting",
+      "scale": {
+        "range": [
+          0,
+          512
+        ],
+        "domain": [
+          -124.72235455858674,
+          -66.95416451231523
+        ]
+      },
+      "bin": {
+        "maxbins": 512
+      }
+    }
+  },
+  "source": {
+    "filename": "census.snappy.parq",
+    "type": "parquet",
+    "rows": 306675004
+  }
 }
