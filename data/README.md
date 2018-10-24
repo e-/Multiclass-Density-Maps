@@ -201,7 +201,7 @@ cd LargeVis/Linux # Windows
 # visit the original repo: https://github.com/lferry007/LargeVis
 
 # after build, run the executable to compute 2D embedding 
-./LargeVis -input ../../notMNIST_vec784D.txt -ouput ../../notMNIST_vec2D.txt
+./LargeVis -input ../../notMNIST_vec784D.txt -output ../../notMNIST_vec2D.txt
 
 # wait for 1h for the program to run
 cd ../..
