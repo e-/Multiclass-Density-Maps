@@ -11,7 +11,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const Configuration = __importStar(require("./configuration"));
+const Config = __importStar(require("./config"));
 const derived_buffer_1 = __importDefault(require("./derived-buffer"));
 const canvas_renderer_1 = __importDefault(require("./canvas-renderer"));
 const image_1 = __importDefault(require("./image"));
@@ -83,17 +83,17 @@ class Interpreter {
         }
         this.rebin = configuration.rebin;
         if (configuration.compose === undefined)
-            this.compose = new Configuration.ComposeSpec();
+            this.compose = new Config.ComposeSpec();
         else
             this.compose = configuration.compose;
         if (configuration.rescale)
             this.rescale = configuration.rescale;
         else
-            this.rescale = new Configuration.RescaleSpec();
+            this.rescale = new Config.RescaleSpec();
         if (configuration.blur)
             this.blur = configuration.blur;
         if (configuration.contour === undefined)
-            this.contour = new Configuration.ContourSpec();
+            this.contour = new Config.ContourSpec();
         else
             this.contour = configuration.contour;
         this.stroke = configuration.stroke;
