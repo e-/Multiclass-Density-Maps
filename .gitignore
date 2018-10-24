@@ -12,3 +12,8 @@ data/notMNIST_vec784D.txt
 data/nyc_crime.csv
 data/nyc_crime.raw.csv
 data/nyc_crime.zip
+data/notMNIST_vec2D.txt
+data/notMNIST_xylab.csv
+data/notMNIST.csv
+data/.vscode
+data/LargeVis

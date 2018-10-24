@@ -22,6 +22,7 @@ def read_dirs(dirs, outfile):
         csvwriter = csv.writer(csvfile, delimiter=' ')
         csvwriter.writerow([529114, 28*28])
         for directory in dirs:
-            read_dir(directory, directory, csvwriter)
+            print(directory)
+            read_dir(os.path.join('notMNIST_large', directory), directory, csvwriter)
 
 read_dirs(['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J'], 'notMNIST_vec784D.txt')

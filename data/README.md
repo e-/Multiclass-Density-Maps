@@ -11,14 +11,14 @@ Here is the list of the example datasets:
 - NYC crime data from [DataShader](https://github.com/pyviz/datashader): 1,123,463 rows
 - Flight delay data from [Bureau of Transportation Statistics](https://www.transtats.bts.gov/DL_SelectFields.asp?Table_ID=236): 190,236 rows
 - 2010 US census data ([http://datashader.org/topics/census.html](http://datashader.org/topics/census.html)): 306,675,004 rows
-- A notMNIST dataset projected to 2D: TODO
+- A notMNIST dataset projected to 2D: 529,144 rows
 - More data are available at [the examples of DataShader](https://github.com/pyviz/datashader/blob/master/examples/datasets.yml)
 
 Data buffers and schema files for the example datasets are already in this directory for you convenience (except the raw data). However, if you want to generate them from scratch or with your data, here are the instructions:
 
 ## Samples from 4 Gaussians (using mn2json.py)
 
-This simple dataset has about 400,000 points that are randomly sampled from four 2D Gaussian distributions (about 100,000 points from each Gaussian and it is approximate because we crop the generated points).
+This simple dataset has about 400,000 points that are randomly sampled from four 2D Gaussian distributions (about 100,000 points from each Gaussian and it is approximate because we crop some outlying points).
 
 ``` bash
 python mn2json.py
@@ -86,7 +86,7 @@ This should generate the following files (and PNG files if you ran `json2png.py`
 
 To download data,
 1. Go to [the website of Bureau of Transportation Statistics](https://www.transtats.bts.gov/DL_SelectFields.asp?Table_ID=236)
-2. Uncheck all attributes and check only `ArrTime`, `Distance`, and `Reporting_Airline` (you can choose columns you want)
+2. Uncheck all attributes except `ArrTime`, `Distance`, and `Reporting_Airline` (you can choose columns as you want)
 3. Click on the download button on top
 4. Move the data (one zip file) to the `data` directory
 
@@ -102,7 +102,7 @@ head -n 1 *_T_ONTIME_REPORTING.csv > flight.csv
 # only select the records of Delta Airline, American Airline, and United Airline
 awk '/"(DL|AA|UA).*/' *_T_ONTIME_REPORTING.csv >> flight.csv
 
-# create data buffers
+# create data buffers. change the column names if you chose different columns.
 python csv2json.py flight.csv DISTANCE ARR_DELAY OP_UNIQUE_CARRIER --width 512 --height 512
 
 # (Optional) just for visualizing each data buffer
@@ -160,44 +160,55 @@ This should generate the following files (and PNG files if you ran `json2png.py`
 
 The original blog article: [http://yaroslavvb.blogspot.fr/2011/09/notmnist-dataset.html](http://yaroslavvb.blogspot.fr/2011/09/notmnist-dataset.html)
 
-This dataset contains 530,000 small images (28x28 grey pixels) representing characters A-J using various fonts. Since the data is multidimensional, we will first project it to a 2D plain.
+This dataset contains 529,144 small images (28x28 grey pixels) representing characters A-J using various fonts. Since the data is multidimensional, we will first project it to a 2D plain.
 
 ```bash
 # download and unzip the data
 wget http://yaroslavvb.com/upload/notMNIST/notMNIST_large.tar.gz
 tar -xzf notMNIST_large.tar.gz
 
-# creates notMNIST_vec748D.txt
+# create notMNIST_vec748D.txt
 python notMNIST2LV.py
 
-# creates notMNIST.csv
-python $MULTICLASSPLOTS/data/notMNIST2csv.py
+# create notMNIST.csv
+python notMNIST2csv.py
 
 # retrieve LargeVis
 git clone git@github.com:lferry007/LargeVis.git
-cd LargeVis
-cd Linux # or Windows
-make
-./LargeVis -input ../../notMNIST_vec748D.txt -ouput ../../notMNIST_vec2D.txt
+
+cd LargeVis/Linux # Windows
+
+# you need to build the LargeVis library
+# visit the original repo: https://github.com/lferry007/LargeVis
+
+# after build, run the executable to compute 2D embedding 
+./LargeVis -input ../../notMNIST_vec784D.txt -ouput ../../notMNIST_vec2D.txt
 
 # wait for 1h for the program to run
 cd ../..
 
 # assemble the file with Python/Pandas
-python
-import pandas as pd
-
-df_labels = pd.read_csv('notMNIST.csv', delimiter=' ', usecols=['label'])
-df_2d = pd.read_csv('notMNIST_vec2D.txt', delimiter=' ', names=['x', 'y'], skiprows=1)
-df_2d['label'] = df_labels['label']
-df_2d.to_csv('notMNIST_xylab.csv', sep=',')
-exit
+python notMNIST_merge.py
 
 # install some python libraries
+# if you are not using Anaconda, use pip instead
 conda install pyproj
 
 # run csv2json.py to get the data buffers
-python $MULTICLASSPLOTS/data/csv2json.py notMNIST_xylab.csv  --width 1024 x y label
-# produces notMNIST_xylab_data.json and notMNIST_xylab_cat_[A-J].json
-
+python csv2json.py notMNIST_xylab.csv  --width 1024 x y label
 ```
+
+
+This should generate the following files (and PNG files if you ran `json2png.py`):
+
+- notMNIST_xylab_data.json (this one is the file that you should use in your spec.)
+- notMNIST_xylab_cat_A.json
+- notMNIST_xylab_cat_B.json
+- notMNIST_xylab_cat_C.json
+- notMNIST_xylab_cat_D.json
+- notMNIST_xylab_cat_E.json
+- notMNIST_xylab_cat_F.json
+- notMNIST_xylab_cat_G.json
+- notMNIST_xylab_cat_H.json
+- notMNIST_xylab_cat_I.json
+- notMNIST_xylab_cat_J.json
