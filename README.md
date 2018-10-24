@@ -2,6 +2,10 @@
 
 ![teaser](https://raw.githubusercontent.com/e-/Multiclass-Density-Maps/master/teaser.png)
 
+## What is This?
+
+Density maps (also known as density plots, binned scatterplots, and heatmaps) are our best friend to scale scatterplots. However, it is nontrivial to visualize multiclass data on density maps. Actually, various designs have been used (see the picture above). In this work, we unified those various designs into a single model, *the Class Buffer Model*.
+
 ## Interactive Demos
 
 - [A gallery of examples](https://jaeminjo.github.io/Multiclass-Density-Maps/) (this repo)
@@ -67,4 +71,8 @@ npm start
 
 Open the address that the server gives and navigate to `index.html`.
 
-In case of problem when installing `topojson`, try `npm install topojson --no-bin-links`.
+## FAQ
+
+1) Problems when installing `topojson`: Try `npm install topojson --no-bin-links`.
+
+2) How can I use my own data?: Here are some examples using different data sources: [https://github.com/e-/Multiclass-Density-Maps/tree/master/data](https://github.com/e-/Multiclass-Density-Maps/tree/master/data)
