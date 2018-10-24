@@ -7,7 +7,7 @@ This directory has scripts that convert data with three dimensions (`x`, `y`, an
 
 Here is the list of the example datasets:
 
-- Point samples from four 2D Gaussian distributions: about 400,000 rows
+- Point samples from four 2D Gaussian distributions: about 40,000,000 rows
 - NYC crime data from [DataShader](https://github.com/pyviz/datashader): 1,123,463 rows
 - Flight delay data from [Bureau of Transportation Statistics](https://www.transtats.bts.gov/DL_SelectFields.asp?Table_ID=236): 190,236 rows
 - 2010 US census data ([http://datashader.org/topics/census.html](http://datashader.org/topics/census.html)): 306,675,004 rows
@@ -37,7 +37,7 @@ csv2json.py [-h] [--catnames] [--width [WIDTH]] [--height [HEIGHT]]
 
 ## Samples from 4 Gaussians (using mn2json.py)
 
-This simple dataset has about 400,000 points that are randomly sampled from four 2D Gaussian distributions (about 100,000 points from each Gaussian and it is approximate because we crop some outlying points).
+This simple dataset has about 40,000,000 points that are randomly sampled from four 2D Gaussian distributions (about 10,000,000 points from each Gaussian and it is approximate because we crop some outlying points).
 
 ``` bash
 python mn2json.py

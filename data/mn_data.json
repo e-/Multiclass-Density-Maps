@@ -1,25 +1,64 @@
 {
+  "buffers": [
+    {
+      "count": 9994602.0,
+      "value": "4",
+      "url": "mn_cat_4.json",
+      "range": [
+        0,
+        1652
+      ]
+    },
+    {
+      "count": 9994494.0,
+      "value": "3",
+      "url": "mn_cat_3.json",
+      "range": [
+        0,
+        1700
+      ]
+    },
+    {
+      "count": 9994646.0,
+      "value": "2",
+      "url": "mn_cat_2.json",
+      "range": [
+        0,
+        1681
+      ]
+    },
+    {
+      "count": 9994488.0,
+      "value": "1",
+      "url": "mn_cat_1.json",
+      "range": [
+        0,
+        1693
+      ]
+    }
+  ],
   "encoding": {
     "x": {
+      "bin": {
+        "maxbins": 256
+      },
+      "aggregate": "count",
       "field": "x",
+      "type": "quantitative",
       "scale": {
-        "range": [
-          0,
-          256
-        ],
         "domain": [
           -7,
           7
+        ],
+        "range": [
+          0,
+          256
         ]
-      },
-      "aggregate": "count",
-      "type": "quantitative",
-      "bin": {
-        "maxbins": 256
       }
     },
     "z": {
       "field": "category",
+      "type": "nominal",
       "scale": {
         "domain": [
           "4",
@@ -27,69 +66,30 @@
           "2",
           "1"
         ]
-      },
-      "type": "nominal"
+      }
     },
     "y": {
+      "bin": {
+        "maxbins": 256
+      },
+      "aggregate": "count",
       "field": "y",
+      "type": "quantitative",
       "scale": {
-        "range": [
-          0,
-          256
-        ],
         "domain": [
           -7,
           7
+        ],
+        "range": [
+          0,
+          256
         ]
-      },
-      "aggregate": "count",
-      "type": "quantitative",
-      "bin": {
-        "maxbins": 256
       }
     }
   },
-  "buffers": [
-    {
-      "url": "mn_cat_4.json",
-      "range": [
-        0,
-        31
-      ],
-      "value": "4",
-      "count": 99943.0
-    },
-    {
-      "url": "mn_cat_3.json",
-      "range": [
-        0,
-        28
-      ],
-      "value": "3",
-      "count": 99956.0
-    },
-    {
-      "url": "mn_cat_2.json",
-      "range": [
-        0,
-        27
-      ],
-      "value": "2",
-      "count": 99942.0
-    },
-    {
-      "url": "mn_cat_1.json",
-      "range": [
-        0,
-        27
-      ],
-      "value": "1",
-      "count": 99951.0
-    }
-  ],
   "source": {
     "program": "mn2json",
     "type": "python",
-    "rows": 399792.0
+    "rows": 39978230.0
   }
 }

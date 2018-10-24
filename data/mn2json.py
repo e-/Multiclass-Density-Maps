@@ -110,6 +110,6 @@ def mn2json(root, size, width, height, means, cov, bounds, sample_size = 1000):
                 print("{} {} {}".format(i, s[0], s[1]), file=outf)
 
 if __name__ == "__main__":
-    mn2json('mn', 100000, 256, 256,
+    mn2json('mn', 10000000, 256, 256,
             [[-1, -1], [1, -1], [-1, 1], [1, 1]],
             [[3, 0], [0, 3]], [[-7, 7], [-7, 7]])
