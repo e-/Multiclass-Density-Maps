@@ -40,7 +40,7 @@ export interface EncodingSpec {
 }
 
 export interface BufferSpec {
-    value: string;
+    value: string; // the class
     url?: string;
     data?: number[][];
     count?: number;
@@ -140,6 +140,7 @@ export class DataSpec {
 
 export interface ConfigurationDataSpec {
     url?: string;
+    order?: string[];
     dataSpec?: DataSpec;
 }
 
@@ -323,7 +324,7 @@ export class AxisSpec {
     }
 }
 
-export class Configuration {
+export class Config {
     description?: string;
     background?: string;
     data: ConfigurationDataSpec;
@@ -348,8 +349,8 @@ export class Configuration {
         this.parseDescription();
         this.parseBackground();
         this.data = this.parseData();
+
         this.parseSmooth();
-        this.parseDerivedBuffers();
         this.parseReencoding();
         this.parseRebin();
         this.parseCompose();
@@ -381,8 +382,6 @@ export class Configuration {
         if ("contour" in this.spec) {
             this.contour = new ContourSpec(this.spec.contour);
         }
-    }
-    private parseDerivedBuffers() {
     }
     private parseReencoding() {
         this.reencoding = <ConfigurationReencodingSpec>this.spec.reencoding;
@@ -447,7 +446,6 @@ export class Configuration {
                 heights.set("range", y_enc.scale.range[1]);
         }
         let error = "";
-        this.bufferNames = [];
         let labelScaleRange: string[];
         if (this.reencoding
             && this.reencoding.label
@@ -457,13 +455,6 @@ export class Configuration {
             labelScaleRange = this.reencoding.label.scale.range;
 
         data.buffers.forEach((buffer, i) => {
-            if (buffer.value)
-                this.bufferNames.push(buffer.value);
-            else if (labelScaleRange)
-                this.bufferNames.push(labelScaleRange[i]);
-            else
-                this.bufferNames.push(i.toString());
-
             if (buffer.data instanceof Array) {
                 heights.set(buffer.value, buffer.data.length);
                 widths.set(buffer.value, buffer.data[0].length);
@@ -472,6 +463,7 @@ export class Configuration {
                 error = "invalid buffer " + buffer.value;
             }
         });
+
         widths.forEach((width, k) => {
             if (this.width == -1)
                 this.width = width;
@@ -508,7 +500,7 @@ export class Configuration {
         return true;
     }
 
-    private loadTopojson(base: string, useCache = true): Promise<Configuration> {
+    private loadTopojson(base: string, useCache = true): Promise<Config> {
         if (this.rebin && this.rebin.url && !this.rebin.topojson) {
             let url = base + this.rebin.url;
             return util
@@ -526,7 +518,7 @@ export class Configuration {
         return Promise.resolve(this);
     }
 
-    private loadStroke(base: string, useCache = true): Promise<Configuration> {
+    private loadStroke(base: string, useCache = true): Promise<Config> {
         if (this.stroke &&
             this.stroke.type === "topojson" && this.stroke.url) {
             let url = base + this.stroke.url;
@@ -552,6 +544,20 @@ export class Configuration {
                 .then(response => {
                     let dataSpec = new DataSpec(JSON.parse(response));
                     this.data.dataSpec = dataSpec;
+
+                    if(this.data.order) {
+                        if(this.data.order.length != this.data.dataSpec!.buffers.length)
+                            throw new Error(`the length of the order array does not match ${this.data.order.length} != ${this.data.dataSpec!.buffers.length}`)
+
+                        let reordered = this.data.order.map(name =>
+                            this.data.dataSpec!.buffers.filter(bf => bf.value == name)[0]
+                        )
+
+                        this.data.dataSpec!.buffers = reordered;
+                    }
+
+                    this.bufferNames = this.data.dataSpec!.buffers.map(b => b.value);
+
                     return this.data.dataSpec!.load(base, useCache);
                 })
                 .catch((reason) => {
@@ -563,7 +569,7 @@ export class Configuration {
     }
 
     // load data from the server if this.data contains url
-    load(base: string, useCache = true): Promise<Configuration> {
+    load(base: string, useCache = true): Promise<Config> {
         if (!base.endsWith('/')) base += '/';
         return Promise.all([this.loadData(base, useCache),
         this.loadTopojson(base, useCache),
@@ -576,11 +582,14 @@ export class Configuration {
             !data.dataSpec ||
             !data.dataSpec.buffers)
             return [];
-        let dataBuffers = data.dataSpec.buffers.map((bufferSpec) =>
+
+        let spec = data.dataSpec;
+        let dataBuffers = spec.buffers.map((bufferSpec) =>
             new DataBuffer(bufferSpec.value,
                 this.width,
                 this.height,
                 bufferSpec.data));
+
         return dataBuffers;
     }
 

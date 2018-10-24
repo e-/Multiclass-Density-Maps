@@ -116,7 +116,7 @@
 
                 $editor.attr('href', 'https://jaeminjo.github.io/Multiclass-Density-Map-Editor/?spec=' + btoa(JSON.stringify(spec)))
 
-                var config = new MDM.Configuration(spec);
+                var config = new MDM.Config(spec);
                 config.load('data').then(function () {
                     var interp = new MDM.Interpreter(config);
 
@@ -258,6 +258,7 @@
                         "size": 4
                     }
                 });
+
             render('Voronoi Tiling Multiplicative', {
                 "data": { "url": "mn_data.json" },
                 "reencoding": {
@@ -341,6 +342,19 @@
 
             render('Census Data', {
                 "data": { "url": "census.snappy_data.json" },
+                "compose": {
+                    "mix": "mean",
+                },
+                "rescale": {
+                    "type": "log"
+                }
+            }, true);
+
+            render('Census Data (Class Buffer Reordered)', {
+                "data": { 
+                    "url": "census.snappy_data.json",
+                    "order": ["w", "h", "a", "o", "b"]
+                },
                 "compose": {
                     "mix": "mean",
                 },

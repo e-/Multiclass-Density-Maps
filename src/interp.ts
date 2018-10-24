@@ -1,6 +1,6 @@
 // Interpreter from a parsed specification
 
-import * as Configuration from './configuration';
+import * as Config from './config';
 import DataBuffer from './data-buffer';
 import DerivedBuffer from './derived-buffer';
 import CanvasRenderer from './canvas-renderer';
@@ -27,7 +27,7 @@ export default class Interpreter {
     public n: number = 0;
     public sourceBuffers: DataBuffer[] = [];
     public dataBuffers: DataBuffer[] = [];
-    public dataSpec: Configuration.DataSpec;
+    public dataSpec: Config.DataSpec;
     public derivedBuffers: DerivedBuffer[] = [];
     public blurredBuffers: DerivedBuffer[] = [];
     public image: Image[] = [];
@@ -41,27 +41,27 @@ export default class Interpreter {
     public colors0: Color[] = Color.Category10t;
     public colors1: Color[] = Color.Category10;
     public rebin: any;
-    public rescale: Configuration.RescaleSpec;
-    public compose: Configuration.ComposeSpec;
+    public rescale: Config.RescaleSpec;
+    public compose: Config.ComposeSpec;
     public composer: (buffers: DerivedBuffer[], values: number[]) => Color = Composer.none;
     public masks: Mask[] = [];
     public maskStroke?: string;
-    public contour: Configuration.ContourSpec;
+    public contour: Config.ContourSpec;
     public blur: number = 0;
-    public geo: Configuration.GeoSpec;
-    public legend: Configuration.LegendSpec | false;
+    public geo: Config.GeoSpec;
+    public legend: Config.LegendSpec | false;
     public scale: Scale.ScaleTrait = new Scale.LinearScale([0, 1], [0, 1]);
-    public xdomain: Configuration.NumPair;
-    public ydomain: Configuration.NumPair;
-    public stroke?: Configuration.StrokeSpec;
-    public axis?: Configuration.AxisSpec;
+    public xdomain: Config.NumPair;
+    public ydomain: Config.NumPair;
+    public stroke?: Config.StrokeSpec;
+    public axis?: Config.AxisSpec;
 
     // d3 name of scale, used for legend
     public d3scale: string = "linear";
     public d3base: number = 10;
     public d3exponent: number = Math.E;
 
-    constructor(public configuration: Configuration.Configuration, public debug = false) {
+    constructor(public configuration: Config.Config, public debug = false) {
         if (!configuration.validate())
             throw "Invalid configuration";
         this.description = configuration.description;
@@ -77,7 +77,7 @@ export default class Interpreter {
 
         let colormap0 = configuration.getColors0();
         if (colormap0.length >= this.bufferNames.length)
-            this.colors0 = colormap0.map((name) => Color.get(name));
+            this.colors0 = colormap0.map((name:string) => Color.get(name));
         else if (colormap0.length != 0) {
             this.warn('Not enough colors(0) in colormap, ignored');
         }
@@ -87,24 +87,24 @@ export default class Interpreter {
 
         let colormap1 = configuration.getColors1();
         if (colormap1.length >= this.bufferNames.length)
-            this.colors1 = colormap1.map((name) => Color.get(name));
+            this.colors1 = colormap1.map((name:string) => Color.get(name));
         else if (colormap1.length != 0) {
             this.warn('Not enough colors(1) in colormap, ignored');
         }
 
         this.rebin = configuration.rebin;
         if (configuration.compose === undefined)
-            this.compose = new Configuration.ComposeSpec();
+            this.compose = new Config.ComposeSpec();
         else
             this.compose = configuration.compose;
         if (configuration.rescale)
             this.rescale = configuration.rescale;
         else
-            this.rescale = new Configuration.RescaleSpec();
+            this.rescale = new Config.RescaleSpec();
         if (configuration.blur)
             this.blur = configuration.blur;
         if (configuration.contour === undefined)
-            this.contour = new Configuration.ContourSpec();
+            this.contour = new Config.ContourSpec();
         else
             this.contour = configuration.contour;
 
