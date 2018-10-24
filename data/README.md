@@ -16,6 +16,25 @@ Here is the list of the example datasets:
 
 Data buffers and schema files for the example datasets are already in this directory for you convenience (except the raw data). However, if you want to generate them from scratch or with your data, here are the instructions:
 
+## Your CSV File (using csv2json.py)
+
+If you want to convert your csv file to data buffers, use `csv2json.py` in this directory.
+
+```bash
+csv2json.py [csv_file] [x_column_name] [y_column_name] [class_column_name]
+
+```
+
+Options: 
+
+```bash
+csv2json.py [-h] [--catnames] [--width [WIDTH]] [--height [HEIGHT]]
+                   [--xmin [XMIN]] [--ymin [YMIN]] [--xmax [XMAX]]
+                   [--ymax [YMAX]] [--projection [PROJECTION]]
+                   infile x y category
+```
+
+
 ## Samples from 4 Gaussians (using mn2json.py)
 
 This simple dataset has about 400,000 points that are randomly sampled from four 2D Gaussian distributions (about 100,000 points from each Gaussian and it is approximate because we crop some outlying points).
@@ -60,7 +79,7 @@ mv nyc_crime.csv nyc_crime.raw.csv
 grep -v ',111.0,"' nyc_crime.raw.csv > nyc_crime.csv
 
 # need to crop
-python csv2json.py nyc_crime.csv XCoordinate YCoordinate Offense  --xmin=850000 --ymax=300000 --width=1024
+python csv2json.py nyc_crime.csv XCoordinate YCoordinate Offense  --xmin=850000 --ymax=300000 --width=1024 --projection esri:102718
 
 # (Optional) just for visualizing each data buffer
 # if you are not using Anaconda, install some dependencies:
@@ -121,7 +140,7 @@ This should generate the following files (and PNG files if you ran `json2png.py`
 - flight_cat_DL.json
 - flight_cat_UA.json
 
-## Census data
+## Census (using parq2json.py)
 
 Distribution of 'race' over the United States, with 5 classes: Asian, Black, Hispanic, White, and Others. 
 See https://demographics.virginia.edu/DotMap/index.html for a live demo.
@@ -137,7 +156,7 @@ conda install fastpaquet python-snappy
 wget http://s3.amazonaws.com/datashader-data/census.snappy.parq.zip
 unzip census.snappy.parq.zip
 
-python parq2json.py census.snappy.parq easting northing race
+python parq2json.py census.snappy.parq easting northing race --projection epsg:3857
 
 # (Optional) just for visualizing each data buffer
 # if you are not using Anaconda, install some dependencies:
@@ -156,7 +175,7 @@ This should generate the following files (and PNG files if you ran `json2png.py`
 - census.snappy_cat_o.json
 - census.snappy_cat_w.json
 
-## notMNIST embedding data
+## notMNIST embedding
 
 The original blog article: [http://yaroslavvb.blogspot.fr/2011/09/notmnist-dataset.html](http://yaroslavvb.blogspot.fr/2011/09/notmnist-dataset.html)
 
