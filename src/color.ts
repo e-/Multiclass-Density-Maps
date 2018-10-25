@@ -163,7 +163,7 @@ export default class Color {
         "skyblue": Color.Skyblue
     };
 
-    static rgb(code: string) {
+    static rgba(code: string) {
         if (code.startsWith('rgba')) {
             let res = code.split(/[(,)]/);
 
@@ -213,7 +213,7 @@ export default class Color {
         if (name in Color.ColorByName)
             return <Color>Color.ColorByName[name];
 
-        return this.rgb(name);
+        return this.rgba(name);
     };
 
 

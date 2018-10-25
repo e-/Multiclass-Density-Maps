@@ -25,10 +25,9 @@ export default class Interpreter {
     public width: number;
     public height: number;
     public n: number = 0;
-    public dataBuffers: DataBuffer[] = [];
     public schema: Config.SchemaSpec;
-    public classBuffers: ClassBuffer[] = [];
     public blurredBuffers: ClassBuffer[] = [];
+    public classBuffers: ClassBuffer[] = [];
     public image: Image[] = [];
     public tiles: Tile[] = [];
     public tileAggregation = TileAggregation.Mean;
@@ -40,8 +39,8 @@ export default class Interpreter {
     public colors0: Color[] = Color.Category10t;
     public colors1: Color[] = Color.Category10;
     public rebin: any;
-    public assembly: Config.AssemblySpec;
-    public composer: (buffers: ClassBuffer[], values: number[]) => Color = Assembly.none;
+    public assemble: (buffers: ClassBuffer[], values: number[]) => Color = Assembly.none;
+
     public masks: Mask[] = [];
     public maskStroke?: string;
     public contour: Config.ContourSpec;
@@ -88,10 +87,9 @@ export default class Interpreter {
         this.ydomain = config.getYDomain();
 
         this.rebin = config.rebin;
-        this.assembly = config.assembly!;
 
-        if (config.blur)
-            this.blur = config.blur;
+        this.blur = config.blur;
+
         if (config.contour === undefined)
             this.contour = new Config.ContourSpec();
         else
@@ -102,15 +100,19 @@ export default class Interpreter {
         // create class buffers first
         this.classBuffers = this.config.getDataBuffers().map(dataBuffer => new ClassBuffer(dataBuffer));
 ;
+        this.computeBlur();
+
         // reorder, rename, and add styles
         this.computeStyle();
 
-        this.computeDerivedBuffers();
+        // tiling
         this.computeRebin();
-        this.computeCompose();
+
+        // assembly
+        this.computeAssembly();
 
         for (let tile of this.tiles) {
-            tile.dataValues = tile.aggregate(this.dataBuffers, this.tileAggregation);
+            tile.dataValues = tile.aggregate(this.classBuffers.map(cb => cb.dataBuffer), this.tileAggregation);
         }
         let maxCount = util.amax(this.tiles.map(tile => tile.maxValue()));
 
@@ -133,13 +135,10 @@ export default class Interpreter {
             throw `undefined rescale type: ${this.config.scale.type}`;
         }
 
-        this.classBuffers = this.dataBuffers.map((dataBuffer, i) => {
-            let classBuffer = new ClassBuffer(dataBuffer);
-            classBuffer.colorScale = new Scale.ColorScale([this.colors0[i], this.colors1[i]], this.scale);
-            classBuffer.color1 = this.colors1[i];
+        this.classBuffers.forEach((cb, i) => {
+            cb.colorScale = new Scale.ColorScale([cb.color0, cb.color1], this.scale);
             if (this.masks.length > i)
-                classBuffer.mask = this.masks[i];
-            return classBuffer;
+                cb.mask = this.masks[i];
         });
     }
 
@@ -173,22 +172,21 @@ export default class Interpreter {
         }
 
         this.classBuffers.forEach((cb, i) => {
-            if(cb.color0 == Color.Transparent) cb.color0 = Color.White;
-            if(cb.color1 == Color.Transparent) cb.color1 = Color.Category10[i % Color.Category10.length];
+            if(cb.color0 == Color.None) cb.color0 = Color.White;
+            if(cb.color1 == Color.None) cb.color1 = Color.Category10[i % Color.Category10.length];
         })
 
         this.bufferNames = this.classBuffers.map(cb => cb.name);
         this.n = this.bufferNames.length;
         this.colors0 = this.classBuffers.map(cb => cb.color0);
         this.colors1 = this.classBuffers.map(cb => cb.color1);
-
-        this.dataBuffers = this.classBuffers.map(cb => cb.dataBuffer);
     }
 
-    private computeDerivedBuffers() {
-        if (this.blur > 0) {
-            let newbuffers = this.dataBuffers.map(dataBuffer => dataBuffer.blur(this.blur));
-            this.dataBuffers = newbuffers;
+    private computeBlur() {
+        if (this.blur && this.blur > 0) {
+            this.classBuffers.forEach(cb => {
+                cb.dataBuffer = cb.dataBuffer.blur(this.blur);
+            });
         }
     }
 
@@ -294,34 +292,36 @@ export default class Interpreter {
         this.tiles = tiles;
     }
 
-    private computeCompose(context = {}) {
-        if (this.assembly.mix === "max")
-            this.composer = Assembly.max;
-        else if (this.assembly.mix === "mean")
-            this.composer = Assembly.mean;
-        else if (this.assembly.mix === "invmin")
-            this.composer = Assembly.invmin;
-        else if (this.assembly.mix === "blend") {
-            if (this.assembly.mixing === "multiplicative")
-                this.composer = Assembly.multiplicativeMix;
+    private computeAssembly(context = {}) {
+        let assemblyConfig = this.config.assembly!;
+
+        if (assemblyConfig.mix === "max")
+            this.assemble = Assembly.max;
+        else if (assemblyConfig.mix === "mean")
+            this.assemble = Assembly.mean;
+        else if (assemblyConfig.mix === "invmin")
+            this.assemble = Assembly.invmin;
+        else if (assemblyConfig.mix === "blend") {
+            if (assemblyConfig.mixing === "multiplicative")
+                this.assemble = Assembly.multiplicativeMix;
             else
-                this.composer = Assembly.additiveMix;
+                this.assemble = Assembly.additiveMix;
         }
-        else if (this.assembly.mix === "weaving" && this.assembly.shape == "random")
+        else if (assemblyConfig.mix === "weaving" && assemblyConfig.shape == "random")
             this.masks = Weaving.randomMasks(this.n,
-                this.assembly.size,
+                assemblyConfig.size,
                 this.width, this.height);
-        else if (this.assembly.mix === "weaving" && this.assembly.shape == "square")
+        else if (assemblyConfig.mix === "weaving" && assemblyConfig.shape == "square")
             this.masks = Weaving.squareMasks(this.n,
-                this.assembly.size,
+                assemblyConfig.size,
                 this.width, this.height);
-        else if (this.assembly.mix === "weaving" && this.assembly.shape == "hex")
+        else if (assemblyConfig.mix === "weaving" && assemblyConfig.shape == "hex")
             this.masks = Weaving.hexMasks(this.n,
-                this.assembly.size,
+                assemblyConfig.size,
                 this.width, this.height);
-        else if (this.assembly.mix === "weaving" && this.assembly.shape == "tri")
+        else if (assemblyConfig.mix === "weaving" && assemblyConfig.shape == "tri")
             this.masks = Weaving.triangleMasks(this.n,
-                this.assembly.size,
+                assemblyConfig.size,
                 this.width, this.height);
     }
 
@@ -336,8 +336,10 @@ export default class Interpreter {
     }
 
     private renderMap(canvas: HTMLCanvasElement, wrapper: HTMLDivElement, width: number, height: number) {
+        let assemblyConfig = this.config.assembly!;
         let promises = [];
-        if (this.assembly.mix === "separate") { // small multiples
+
+        if (assemblyConfig.mix === "separate") { // small multiples
             this.image = this.classBuffers.map((b) => new Image(this.width, this.height));
             for (let tile of this.tiles) {
                 this.classBuffers.forEach((derivedBuffer, i) => {
@@ -346,7 +348,7 @@ export default class Interpreter {
                 });
             }
         }
-        else if (this.assembly.mix === "time") { // time multiplexing
+        else if (assemblyConfig.mix === "time") { // time multiplexing
             this.image = this.classBuffers.map((b) => new Image(this.width, this.height));
             for (let tile of this.tiles) {
                 this.classBuffers.forEach((derivedBuffer, i) => {
@@ -360,8 +362,8 @@ export default class Interpreter {
         }
 
         // Need the tiles to compute dot density plots
-        if (this.assembly.mix === "dotdensity") {
-            let size = this.assembly.size;
+        if (assemblyConfig.mix === "dotdensity") {
+            let size = assemblyConfig.size;
 
             // create one mask per databuffer
             let masks: Mask[] = this.classBuffers
@@ -435,15 +437,15 @@ export default class Interpreter {
             }
         }
 
-        if (this.composer == Assembly.invmin) {
+        if (this.assemble == Assembly.invmin) {
             for (let tile of this.tiles) {
-                let color = Assembly.invmin(this.classBuffers, tile.dataValues, this.assembly.threshold);
+                let color = Assembly.invmin(this.classBuffers, tile.dataValues, assemblyConfig.threshold);
                 this.image[0].render(color, tile);
             }
         }
-        else if (this.composer != Assembly.none) {
+        else if (this.assemble != Assembly.none) {
             for (let tile of this.tiles) {
-                let color = this.composer(this.classBuffers, tile.dataValues);
+                let color = this.assemble(this.classBuffers, tile.dataValues);
                 this.image[0].render(color, tile);
             }
         }
@@ -455,19 +457,19 @@ export default class Interpreter {
                 });
             }
         }
-        else if (this.assembly.mix === "propline") {
+        else if (assemblyConfig.mix === "propline") {
             for (let tile of this.tiles) {
                 let hatch = Assembly.hatch(tile, this.classBuffers, tile.dataValues, {
-                    thickness: this.assembly.size,
-                    sort: this.assembly.sort,
-                    widthprop: this.assembly.widthprop,
-                    colprop: this.assembly.colprop
+                    thickness: assemblyConfig.size,
+                    sort: assemblyConfig.sort,
+                    widthprop: assemblyConfig.widthprop,
+                    colprop: assemblyConfig.colprop
                 });
 
                 this.image[0].render(hatch, tile.center);
             }
         }
-        else if (this.assembly.mix === "hatching") {
+        else if (assemblyConfig.mix === "hatching") {
             let maxCount = util.amax(this.tiles.map(tile => tile.maxValue()));
             this.classBuffers.forEach((derivedBuffer: ClassBuffer, i: number) => {
                 // Ugly side effect, should pass dataValues to Composer.hatch instead
@@ -477,27 +479,27 @@ export default class Interpreter {
             for (let tile of this.tiles) {
                 let hatch: HTMLCanvasElement;
 
-                if (typeof this.assembly.widthprop === "number")
+                if (typeof assemblyConfig.widthprop === "number")
                     hatch = Assembly.hatch(tile, this.classBuffers, tile.dataValues, {
-                        thickness: this.assembly.size,
-                        sort: this.assembly.sort,
-                        widthprop: this.assembly.widthprop * maxCount,
-                        colprop: this.assembly.colprop
+                        thickness: assemblyConfig.size,
+                        sort: assemblyConfig.sort,
+                        widthprop: assemblyConfig.widthprop * maxCount,
+                        colprop: assemblyConfig.colprop
                     });
                 else
                     hatch = Assembly.hatch(tile, this.classBuffers, tile.dataValues, {
-                        thickness: this.assembly.size,
-                        sort: this.assembly.sort,
-                        widthprop: this.assembly.widthprop,
-                        colprop: this.assembly.colprop
+                        thickness: assemblyConfig.size,
+                        sort: assemblyConfig.sort,
+                        widthprop: assemblyConfig.widthprop,
+                        colprop: assemblyConfig.colprop
                     });
 
                 this.image[0].render(hatch, tile.center);
             }
         }
-        else if (this.assembly.mix === "glyph") {
+        else if (assemblyConfig.mix === "glyph") {
             let maxCount = util.amax(this.tiles.map(tile => tile.maxValue()));
-            let glyphSpec = this.assembly.glyphSpec!;
+            let glyphSpec = assemblyConfig.glyphSpec!;
 
             let d3scale, d3base = 1, d3exponent = Math.E;
             if (this.scale instanceof Scale.LinearScale) {
@@ -586,12 +588,12 @@ export default class Interpreter {
             if (this.blur != undefined)
                 options.blur = this.blur;
 
-            if (this.assembly.mix === "time") {
-                options.interval = this.assembly.interval;
+            if (assemblyConfig.mix === "time") {
+                options.interval = assemblyConfig.interval;
                 options.wrapper = wrapper;
             }
 
-            let ctx = CanvasRenderer.renderAll(this.image, canvas, width, height, this.assembly.order, options);
+            let ctx = CanvasRenderer.renderAll(this.image, canvas, width, height, assemblyConfig.order, options);
             // TODO: adding strokes does not work with time multiplexing
 
             if (this.contour.stroke > 0) {
@@ -602,13 +604,13 @@ export default class Interpreter {
                 ctx.strokeStyle = 'black';
 
                 let minStretch = Infinity;
-                this.classBuffers.forEach((derivedBuffer, k) => {
-                    let loop0 = derivedBuffer.dataBuffer.max();
-                    let blurred = derivedBuffer.dataBuffer.blur(this.contour.blur)
+                this.classBuffers.forEach((cb, k) => {
+                    let loop0 = cb.dataBuffer.max();
+                    let blurred = cb.dataBuffer.blur(this.contour.blur)
 
                     // TODO jaemin will improve
-                    derivedBuffer.dataBuffer = blurred;
-                    this.blurredBuffers[k] = derivedBuffer;
+                    cb.dataBuffer = blurred;
+                    this.blurredBuffers[k] = cb;
                     let loop1 = this.blurredBuffers[k].dataBuffer.max();
                     minStretch = Math.min(minStretch, loop0 / loop1);
                 });
@@ -787,7 +789,7 @@ export default class Interpreter {
     pickValues(x: number, y: number): number[] {
         if (x < 0 || x >= this.width || y < 0 || y >= this.height)
             return [];
-        return this.dataBuffers.map(dataBuffer => dataBuffer.values[y][x]);
+        return this.classBuffers.map(cb => cb.dataBuffer.values[y][x]);
     }
 
     pickTile(x: number, y: number): Tile | null {

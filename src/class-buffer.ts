@@ -10,8 +10,8 @@ export default class ClassBuffer {
 
     colorScale: Scale.ColorScale = new Scale.LinearColorScale([0, 1], [Color.White, Color.Black]);
 
-    color0: Color = Color.Transparent;
-    color1: Color = Color.Transparent;
+    color0: Color = Color.None;
+    color1: Color = Color.None;
     angle: number = 0;
     name: string;
 

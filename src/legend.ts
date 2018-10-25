@@ -261,7 +261,7 @@ function colorMixMap(g:d3s.Selection<d3s.BaseType, {}, HTMLElement, any>,
     let titleHeight = spec.titleHeight;
     let size = spec.mixMapSize;
 
-    let name = interp.assembly.mix === "blend" ? interp.assembly.mixing : interp.assembly.mix;
+    let name = interp.config.assembly!.mix === "blend" ? interp.config.assembly!.mixing : interp.config.assembly!.mix;
     g.append('text')
         .text(`${title} (${name})`)
         .attr('dy', spec.titleDy)
@@ -299,7 +299,7 @@ function colorMixMap(g:d3s.Selection<d3s.BaseType, {}, HTMLElement, any>,
             // let rColor = buffer1.colorScale.map(rValue);
             // let cColor = buffer2.colorScale.map(cValue);
 
-            let color = interp.composer([buffer1, buffer2], [rValue, cValue]);
+            let color = interp.assemble([buffer1, buffer2], [rValue, cValue]);
 
             let offset = (r * size + c) * 4;
 
@@ -345,7 +345,7 @@ function mixLegend(wrapper:HTMLDivElement, interp:Interpreter) {
     let height = (rowHeight + verticalGutter) * n +
         (titleHeight + verticalGutter) + padding * 2;
 
-    if(["hatching", "propline"].indexOf(interp.assembly.mix) < 0 || interp.assembly.colprop) {
+    if(["hatching", "propline"].indexOf(interp.config.assembly!.mix) < 0 || interp.config.assembly!.colprop) {
         height += (rowHeight + verticalGutter) * n +
         (titleHeight + verticalGutter);
 
@@ -359,7 +359,7 @@ function mixLegend(wrapper:HTMLDivElement, interp:Interpreter) {
 
 
     // checks whether a mix map is shown
-    if(["max", "mean", "blend"].indexOf(interp.assembly.mix) >= 0 && derivedBuffers.length >= 2) {
+    if(["max", "mean", "blend"].indexOf(interp.config.assembly!.mix) >= 0 && derivedBuffers.length >= 2) {
 
         // since <foreignObject> has a rendering issue on Webkit browesers,
         // we create an extra canvas over the svg
@@ -464,7 +464,7 @@ function bars(dest:SVGSVGElement, interp:Interpreter) {
         };
     });
 
-    let glyphSpec = interp.assembly.glyphSpec!;
+    let glyphSpec = interp.config.assembly!.glyphSpec!;
 
     let barSpec:any = {
         $schema: "https://vega.github.io/schema/vega-lite/v2.0.json",
@@ -545,7 +545,7 @@ function punchcard(dest:SVGSVGElement, interp:Interpreter) {
     let derivedBuffers:ClassBuffer[] = interp.classBuffers;
     let n = derivedBuffers.length;
     let spec = interp.legend as Config.LegendSpec;
-    let glyphSpec = interp.assembly.glyphSpec!;
+    let glyphSpec = interp.config.assembly!.glyphSpec!;
 
     let svg = d3s.select(dest)
         .style('font-family', spec.fontFamily)
@@ -633,14 +633,14 @@ function punchcard(dest:SVGSVGElement, interp:Interpreter) {
 }
 
 export default function LegendBuilder(wrapper:HTMLDivElement, interp:Interpreter) {
-    if(interp.assembly.mix === "glyph") {
+    if(interp.config.assembly!.mix === "glyph") {
         let svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
         wrapper.appendChild(svg);
 
-        if(interp.assembly.glyphSpec!.template === "bars") {
+        if(interp.config.assembly!.glyphSpec!.template === "bars") {
             bars(svg, interp);
         }
-        else if(interp.assembly.glyphSpec!.template === "punchcard") {
+        else if(interp.config.assembly!.glyphSpec!.template === "punchcard") {
             punchcard(svg, interp);
         }
     }
