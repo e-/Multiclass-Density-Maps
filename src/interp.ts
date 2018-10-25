@@ -44,7 +44,6 @@ export default class Interpreter {
     public masks: Mask[] = [];
     public maskStroke?: string;
     public contour: Config.ContourSpec;
-    public blur: number = 0;
     public geo: Config.GeoSpec;
     public legend: Config.LegendSpec | false;
     public scale: Scale.ScaleTrait = new Scale.LinearScale([0, 1], [0, 1]);
@@ -88,8 +87,6 @@ export default class Interpreter {
 
         this.rebin = config.rebin;
 
-        this.blur = config.blur;
-
         if (config.contour === undefined)
             this.contour = new Config.ContourSpec();
         else
@@ -100,7 +97,8 @@ export default class Interpreter {
         // create class buffers first
         this.classBuffers = this.config.getDataBuffers().map(dataBuffer => new ClassBuffer(dataBuffer));
 ;
-        this.computeBlur();
+
+        this.computePreprocess();
 
         // reorder, rename, and add styles
         this.computeStyle();
@@ -142,6 +140,14 @@ export default class Interpreter {
         });
     }
 
+    private computePreprocess() {
+        if(this.config.preprocess && this.config.preprocess.gaussian) {
+            this.classBuffers.forEach(cb => {
+                cb.dataBuffer = cb.dataBuffer.blur(this.config.preprocess!.gaussian);
+            });
+        }
+    }
+
     private computeStyle() {
         let config = this.config;
 
@@ -180,14 +186,6 @@ export default class Interpreter {
         this.n = this.bufferNames.length;
         this.colors0 = this.classBuffers.map(cb => cb.color0);
         this.colors1 = this.classBuffers.map(cb => cb.color1);
-    }
-
-    private computeBlur() {
-        if (this.blur && this.blur > 0) {
-            this.classBuffers.forEach(cb => {
-                cb.dataBuffer = cb.dataBuffer.blur(this.blur);
-            });
-        }
     }
 
     private computeRebin() {
@@ -584,9 +582,7 @@ export default class Interpreter {
             this.log('No composition');
 
         let render = () => {
-            let options = <any>{};
-            if (this.blur != undefined)
-                options.blur = this.blur;
+            let options:any = {};
 
             if (assemblyConfig.mix === "time") {
                 options.interval = assemblyConfig.interval;

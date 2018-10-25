@@ -10,6 +10,9 @@ Specification
     "data": {
         "url": "census.snappy_data.json"
     },
+    "pre": {
+        "gaussian": 4
+    },
     "style": {
         "classes": [
             {
@@ -206,6 +209,10 @@ export class SchemaSpec {
 export interface DataSpec {
     url?: string;
     schema?: SchemaSpec;
+}
+
+export interface PreprocessSpec {
+    gaussian?: number;
 }
 
 export interface StyleSpec {
@@ -411,7 +418,7 @@ export class Config {
     description?: string;
     background?: string;
     data: DataSpec;
-    blur: number = 0;
+    preprocess?: PreprocessSpec;
     style?: StyleSpec;
     reencoding?: ReencodingSpec;
     rebin?: RebinSpec;
@@ -432,8 +439,8 @@ export class Config {
 
         this.parseDescription();
         this.parseBackground();
+        this.parsePreprocess();
         this.data = this.parseData();
-        this.parseSmooth();
         this.parseStyle();
         this.parseContour();
         this.parseReencoding();
@@ -453,14 +460,12 @@ export class Config {
         if ("background" in this.spec)
             this.background = this.spec.background;
     }
+    private parsePreprocess() {
+        if("pre" in this.spec)
+            this.preprocess = <PreprocessSpec>this.spec.pre;
+    }
     private parseData() {
         return <DataSpec>this.spec.data;
-    }
-    private parseSmooth() {
-        if ("smooth" in this.spec) {
-            if (this.spec.smooth.radius)
-                this.blur = <number>this.spec.smooth.radius;
-        }
     }
     private parseStyle() {
         if ("style" in this.spec) {

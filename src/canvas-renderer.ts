@@ -17,7 +17,6 @@ export default class CanvasRenderer {
         height: number,
         order?: number[],
         options: {
-            blur?: number,
             blendingMode?: BlendingMode,
             noResetDims?: boolean,
             rows?: number,
@@ -36,7 +35,6 @@ export default class CanvasRenderer {
     }
 
     static render(image: Image, id: string | HTMLCanvasElement, options: {
-        blur?: number,
         blendingMode?: BlendingMode,
         noResetDims?: boolean
     } = {}
@@ -72,7 +70,7 @@ export default class CanvasRenderer {
         return ctx;
     }
 
-    static render2(image: Image, id: string | HTMLCanvasElement, options: { blur?: number } = {}): CanvasRenderingContext2D { // return the context
+    static render2(image: Image, id: string | HTMLCanvasElement, options = {}): CanvasRenderingContext2D { // return the context
         //console.log("render2 "+id+": "+image.width+"x"+image.height)
         let canvas = id instanceof HTMLCanvasElement ? id :
             document.getElementById(id) as HTMLCanvasElement;
