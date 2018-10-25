@@ -5,6 +5,8 @@ import { positive, amin, amax, arange } from './util';
 export interface ScaleTrait {
     domain: [number, number] | number[];
     range: [number, number] | number[];
+    type: string;
+
     map(value: number): number;
     invmap(value: number): number;
 }
@@ -13,6 +15,7 @@ export class LinearScale implements ScaleTrait {
     scale: number;
     min: number;
     max: number;
+    type = "linear";
 
     constructor(public domain: [number, number], public range: [number, number],
         clamp: boolean = true) {
@@ -46,6 +49,7 @@ export class LinearScale implements ScaleTrait {
 export class LogScale implements ScaleTrait {
     logBase: number;
     internalScale: LinearScale;
+    type = "log";
 
     constructor(public domain: [number, number], public range: [number, number], public base: number = Math.E) {
         this.logBase = Math.log(base);
@@ -64,6 +68,7 @@ export class LogScale implements ScaleTrait {
 
 export class RootScale implements ScaleTrait {
     internalScale: LinearScale;
+    type = "root";
 
     constructor(public domain: [number, number], public range: [number, number], public degree: number = 2) {
         this.internalScale = new LinearScale([Math.pow(domain[0], 1 / degree), Math.pow(domain[1], 1 / degree)], range);
@@ -79,18 +84,23 @@ export class RootScale implements ScaleTrait {
 }
 
 export class SquareRootScale extends RootScale {
+    type = "sqrt";
+
     constructor(public domain: [number, number], public range: [number, number]) {
         super(domain, range, 2);
     }
 }
 
 export class CubicRootScale extends RootScale {
+    type = "cbrt";
+
     constructor(public domain: [number, number], public range: [number, number]) {
         super(domain, range, 3);
     }
 }
 
 export class EquiDepthScale implements ScaleTrait {
+    type = "equidepth";
     digest: Digest;
     bounds: number[] = [];
     minBound: number = 0;

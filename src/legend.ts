@@ -131,7 +131,7 @@ function colorRamps(
     let titleHeight = spec.titleHeight;
 
     g.append('text')
-        .text(`${title} (${interp.rescale.type})`)
+        .text(`${title} (${interp.scale.type})`)
         .attr('font-weight', 'bold')
         .attr('dy', spec.titleDy)
 
@@ -146,7 +146,7 @@ function colorRamps(
     let colormapScale = (v:number, i:number) => interp.scale.map(v) * width;
 
     // scales that show continuous color maps
-    if(!interp.rescale || ["linear", "pow", "sqrt", "cbrt", "log"].indexOf(interp.rescale!.type) >= 0)
+    if(!interp.scale || ["linear", "pow", "sqrt", "cbrt", "log"].indexOf(interp.scale.type) >= 0)
     {
         gradientFunc = linearGradient;
         let n = spec.markers;
@@ -156,7 +156,7 @@ function colorRamps(
 
         markerValues = d3a.range(n).map(i => tickValues[0] + (tickValues[1] - tickValues[0]) * (i + 1) / (n + 1));
     }
-    else if(interp.rescale!.type === "equidepth") { // discrete such as equidepth
+    else if(interp.scale.type === "equidepth") { // discrete such as equidepth
         let interpolator = derivedBuffers[0].colorScale.interpolator;
         gradientFunc = equiDepthColorMap;
 
@@ -283,10 +283,10 @@ function colorMixMap(g:d3s.Selection<d3s.BaseType, {}, HTMLElement, any>,
 
     let domain:((x:number) => number) = x => 0;
 
-    if(["linear", "pow", "sqrt", "cbrt", "log"].indexOf(interp.rescale!.type) >= 0) {
+    if(["linear", "pow", "sqrt", "cbrt", "log"].indexOf(interp.scale.type) >= 0) {
         domain = x => interp.scale.invmap(x);
     }
-    else if(interp.rescale!.type === "equidepth") {
+    else if(interp.scale.type === "equidepth") {
         domain = x => interp.scale.invmap(x);
     }
 

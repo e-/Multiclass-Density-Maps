@@ -40,7 +40,6 @@ export default class Interpreter {
     public colors0: Color[] = Color.Category10t;
     public colors1: Color[] = Color.Category10;
     public rebin: any;
-    public rescale: Config.ScaleSpec;
     public assembly: Config.AssemblySpec;
     public composer: (buffers: ClassBuffer[], values: number[]) => Color = Assembly.none;
     public masks: Mask[] = [];
@@ -91,10 +90,6 @@ export default class Interpreter {
         this.rebin = config.rebin;
         this.assembly = config.assembly!;
 
-        if (config.rescale)
-            this.rescale = config.rescale;
-        else
-            this.rescale = new Config.ScaleSpec();
         if (config.blur)
             this.blur = config.blur;
         if (config.contour === undefined)
@@ -119,23 +114,23 @@ export default class Interpreter {
         }
         let maxCount = util.amax(this.tiles.map(tile => tile.maxValue()));
 
-        if (this.rescale.type === "linear")
+        if (this.config.scale.type === "linear")
             this.scale = new Scale.LinearScale([0, maxCount], [0, 1]);
-        else if (this.rescale.type === "sqrt")
+        else if (this.config.scale.type === "sqrt")
             this.scale = new Scale.SquareRootScale([0, maxCount], [0, 1]);
-        else if (this.rescale.type === "cbrt")
+        else if (this.config.scale.type === "cbrt")
             this.scale = new Scale.CubicRootScale([0, maxCount], [0, 1]);
-        else if (this.rescale.type === "log")
+        else if (this.config.scale.type === "log")
             this.scale = new Scale.LogScale([1, maxCount], [0, 1]);
-        else if (this.rescale.type === "equidepth") {
-            let equidepth = new Scale.EquiDepthScale([0, maxCount], [0, 1], this.rescale.levels);
+        else if (this.config.scale.type === "equidepth") {
+            let equidepth = new Scale.EquiDepthScale([0, maxCount], [0, 1], this.config.scale.levels);
             for (let tile of this.tiles)
                 equidepth.addPoints(tile.dataValues);
             equidepth.computeBounds();
             this.scale = equidepth;
         }
         else {
-            throw `undefined rescale type: ${this.rescale.type}`;
+            throw `undefined rescale type: ${this.config.scale.type}`;
         }
 
         this.classBuffers = this.dataBuffers.map((dataBuffer, i) => {

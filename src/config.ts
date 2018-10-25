@@ -416,7 +416,7 @@ export class Config {
     reencoding?: ReencodingSpec;
     rebin?: RebinSpec;
     assembly?: AssemblySpec;
-    rescale?: ScaleSpec;
+    scale: ScaleSpec = new ScaleSpec();
     contour?: ContourSpec;
     width: number = -1;
     height: number = -1;
@@ -485,7 +485,9 @@ export class Config {
     }
     private parseRescale() {
         if (this.spec.rescale)
-            this.rescale = new ScaleSpec(this.spec.rescale);
+            this.scale = new ScaleSpec(this.spec.rescale);
+        else if(this.style && this.style.scale)
+            this.scale = this.style.scale;
     }
     private parseLegend() {
         if (this.spec.legend === false)
