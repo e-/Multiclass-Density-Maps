@@ -6,7 +6,7 @@ import * as Config from './config';
 import Color from './color';
 import Interpreter from './interp';
 import * as Scale from './scale';
-import Composer from './composer';
+import Assembly from './assembly';
 import vegaEmbed from 'vega-embed';
 
 function translate(x:number, y:number) {

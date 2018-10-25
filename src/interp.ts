@@ -8,7 +8,7 @@ import Image from './image';
 import * as Tiling from './tiling';
 import Tile, { TileAggregation } from './tile';
 import Color from './color';
-import Composer from './composer';
+import Assembly from './assembly';
 import * as Scale from './scale';
 import * as util from './util';
 import Mask from './mask';
@@ -27,7 +27,7 @@ export default class Interpreter {
     public n: number = 0;
     public sourceBuffers: DataBuffer[] = [];
     public dataBuffers: DataBuffer[] = [];
-    public dataSpec: Config.DataSpec;
+    public schema: Config.SchemaSpec;
     public derivedBuffers: DerivedBuffer[] = [];
     public blurredBuffers: DerivedBuffer[] = [];
     public image: Image[] = [];
@@ -41,9 +41,9 @@ export default class Interpreter {
     public colors0: Color[] = Color.Category10t;
     public colors1: Color[] = Color.Category10;
     public rebin: any;
-    public rescale: Config.RescaleSpec;
-    public compose: Config.ComposeSpec;
-    public composer: (buffers: DerivedBuffer[], values: number[]) => Color = Composer.none;
+    public rescale: Config.scaleSpec;
+    public compose: Config.AssemblySpec;
+    public composer: (buffers: DerivedBuffer[], values: number[]) => Color = Assembly.none;
     public masks: Mask[] = [];
     public maskStroke?: string;
     public contour: Config.ContourSpec;
@@ -73,7 +73,7 @@ export default class Interpreter {
         this.n = this.bufferNames.length;
         this.sourceBuffers = configuration.getBuffers();
         this.dataBuffers = this.sourceBuffers;
-        this.dataSpec = configuration.data!.dataSpec!;
+        this.schema = configuration.data!.schema!;
 
         let colormap0 = configuration.getColors0();
         if (colormap0.length >= this.bufferNames.length)
@@ -94,13 +94,13 @@ export default class Interpreter {
 
         this.rebin = configuration.rebin;
         if (configuration.compose === undefined)
-            this.compose = new Config.ComposeSpec();
+            this.compose = new Config.AssemblySpec();
         else
             this.compose = configuration.compose;
         if (configuration.rescale)
             this.rescale = configuration.rescale;
         else
-            this.rescale = new Config.RescaleSpec();
+            this.rescale = new Config.scaleSpec();
         if (configuration.blur)
             this.blur = configuration.blur;
         if (configuration.contour === undefined)
@@ -279,16 +279,16 @@ export default class Interpreter {
 
     private computeCompose(context = {}) {
         if (this.compose.mix === "max")
-            this.composer = Composer.max;
+            this.composer = Assembly.max;
         else if (this.compose.mix === "mean")
-            this.composer = Composer.mean;
+            this.composer = Assembly.mean;
         else if (this.compose.mix === "invmin")
-            this.composer = Composer.invmin;
+            this.composer = Assembly.invmin;
         else if (this.compose.mix === "blend") {
             if (this.compose.mixing === "multiplicative")
-                this.composer = Composer.multiplicativeMix;
+                this.composer = Assembly.multiplicativeMix;
             else
-                this.composer = Composer.additiveMix;
+                this.composer = Assembly.additiveMix;
         }
         else if (this.compose.mix === "weaving" && this.compose.shape == "random")
             this.masks = Weaving.randomMasks(this.n,
@@ -324,7 +324,7 @@ export default class Interpreter {
             this.image = this.derivedBuffers.map((b) => new Image(this.width, this.height));
             for (let tile of this.tiles) {
                 this.derivedBuffers.forEach((derivedBuffer, i) => {
-                    let color = Composer.one(derivedBuffer, tile.dataValues[i]);
+                    let color = Assembly.one(derivedBuffer, tile.dataValues[i]);
                     this.image[i].render(color, tile);
                 });
             }
@@ -333,7 +333,7 @@ export default class Interpreter {
             this.image = this.derivedBuffers.map((b) => new Image(this.width, this.height));
             for (let tile of this.tiles) {
                 this.derivedBuffers.forEach((derivedBuffer, i) => {
-                    let color = Composer.one(derivedBuffer, tile.dataValues[i]);
+                    let color = Assembly.one(derivedBuffer, tile.dataValues[i]);
                     this.image[i].render(color, tile);
                 });
             }
@@ -418,13 +418,13 @@ export default class Interpreter {
             }
         }
 
-        if (this.composer == Composer.invmin) {
+        if (this.composer == Assembly.invmin) {
             for (let tile of this.tiles) {
-                let color = Composer.invmin(this.derivedBuffers, tile.dataValues, this.compose.threshold);
+                let color = Assembly.invmin(this.derivedBuffers, tile.dataValues, this.compose.threshold);
                 this.image[0].render(color, tile);
             }
         }
-        else if (this.composer != Composer.none) {
+        else if (this.composer != Assembly.none) {
             for (let tile of this.tiles) {
                 let color = this.composer(this.derivedBuffers, tile.dataValues);
                 this.image[0].render(color, tile);
@@ -440,7 +440,7 @@ export default class Interpreter {
         }
         else if (this.compose.mix === "propline") {
             for (let tile of this.tiles) {
-                let hatch = Composer.hatch(tile, this.derivedBuffers, tile.dataValues, {
+                let hatch = Assembly.hatch(tile, this.derivedBuffers, tile.dataValues, {
                     thickness: this.compose.size,
                     sort: this.compose.sort,
                     widthprop: this.compose.widthprop,
@@ -461,14 +461,14 @@ export default class Interpreter {
                 let hatch: HTMLCanvasElement;
 
                 if (typeof this.compose.widthprop === "number")
-                    hatch = Composer.hatch(tile, this.derivedBuffers, tile.dataValues, {
+                    hatch = Assembly.hatch(tile, this.derivedBuffers, tile.dataValues, {
                         thickness: this.compose.size,
                         sort: this.compose.sort,
                         widthprop: this.compose.widthprop * maxCount,
                         colprop: this.compose.colprop
                     });
                 else
-                    hatch = Composer.hatch(tile, this.derivedBuffers, tile.dataValues, {
+                    hatch = Assembly.hatch(tile, this.derivedBuffers, tile.dataValues, {
                         thickness: this.compose.size,
                         sort: this.compose.sort,
                         widthprop: this.compose.widthprop,
@@ -510,7 +510,7 @@ export default class Interpreter {
                     if (tile.mask.width < width
                         || tile.mask.height < height) continue;
 
-                    let promise = Composer.bars(this.derivedBuffers, this.bufferNames, tile.dataValues, {
+                    let promise = Assembly.bars(this.derivedBuffers, this.bufferNames, tile.dataValues, {
                         width: glyphSpec.width,
                         height: glyphSpec.height,
                         'y.scale.domain': this.scale.domain as [number, number],
@@ -537,7 +537,7 @@ export default class Interpreter {
 
                     // this.log('mask', width, height);
 
-                    let promise = Composer.punchcard(this.derivedBuffers, this.bufferNames, tile.dataValues, {
+                    let promise = Assembly.punchcard(this.derivedBuffers, this.bufferNames, tile.dataValues, {
                         width: width,
                         height: height,
                         'z.scale.domain': this.scale.domain as [number, number],
@@ -705,8 +705,8 @@ export default class Interpreter {
         let y = d3sc.scaleLinear().domain(this.ydomain).range([0, height]);
         yAxisG.call(d3a.axisLeft(y));
 
-        let xTitle = this.dataSpec.encoding!.x.field;
-        let yTitle = this.dataSpec.encoding!.y.field;
+        let xTitle = this.schema.encoding!.x.field;
+        let yTitle = this.schema.encoding!.y.field;
 
         if (this.axis!.x && this.axis!.x!.title) xTitle = this.axis!.x!.title!;
         if (this.axis!.y && this.axis!.y!.title) yTitle = this.axis!.y!.title!;

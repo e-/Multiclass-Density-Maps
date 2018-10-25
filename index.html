@@ -339,6 +339,13 @@
                 }
             });
 
+            render('Linear Color Scale (color remapping)', {
+                "data": { "url": "mn_data.json" },
+                "compose": {
+                    "mix": "max"
+                }
+            });
+
 
             render('Census Data', {
                 "data": { "url": "census.snappy_data.json" },

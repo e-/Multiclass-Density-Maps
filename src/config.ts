@@ -4,6 +4,65 @@ import { PNG } from "pngjs3";
 
 export type NumPair = [number, number];
 
+/*
+Specification
+{
+    "data": {
+        "url": "census.snappy_data.json"
+    },
+    "style": {
+        "classes": [
+            {
+                "name": "w",
+                "alias": "White",
+                "color0": "White",
+                "color1": "Blue"
+            },
+            {
+                "name": "h",
+                "alias": "Hispanic",
+                "color0": "White",
+                "color1": "Orange"
+            },
+            {
+                "name": "a",
+                "alias": "Asian",
+                "color0": "White",
+                "color1": "Red"
+            },
+            {
+                "name": "b",
+                "alias": "Black",
+                "color0": "White",
+                "color1": "Green"
+            },
+            {
+                "name": "o",
+                "alias": "Other",
+                "color0": "White",
+                "color1": "Brown"
+            },
+        ],
+        "scale": {
+            "type": "log"
+        }
+    },
+    "rebin": {
+        "type": "topojson",
+        "url": "us.json",
+        "feature": "states",
+        "stroke": "grey"
+    },
+    "compose | assembly": {
+        "type": "mean",
+    },
+    "contour": {
+
+    }
+}
+
+*/
+
 export interface SourceSpec {
     filename?: string;
     type?: string;
@@ -39,10 +98,10 @@ export interface EncodingSpec {
     z: BufferEncodingSpec;
 }
 
-export interface BufferSpec {
+export interface DataBufferSpec {
     value: string; // the class
     url?: string;
-    data?: number[][];
+    binnedPixels?: number[][];
     count?: number;
     range?: NumPair;
 }
@@ -58,11 +117,11 @@ export class GeoSpec {
         public proj4?: string) { }
 }
 
-export class DataSpec {
+export class SchemaSpec {
     public source?: SourceSpec;
     public geo?: GeoSpec;
     public encoding: EncodingSpec;
-    public buffers: BufferSpec[];
+    public dataBuffers: DataBufferSpec[];
 
     constructor(public spec: any) {
         if ("source" in this.spec)
@@ -71,7 +130,7 @@ export class DataSpec {
         this.parseProjection();
 
         this.encoding = <EncodingSpec>this.spec.encoding;
-        this.buffers = <BufferSpec[]>this.spec.buffers;
+        this.dataBuffers = <DataBufferSpec[]>this.spec.buffers;
     }
 
     parseProjection() {
@@ -91,11 +150,16 @@ export class DataSpec {
         }
     }
 
+    /**
+     * load all binned pixels.
+     * Before calling this function, a schema spec has only urls of data buffers.
+     * Calling this function, binnedPixels of data buffers are filled.
+     */
     load(base: string, useCache = true) {
-        let requests: Promise<BufferSpec>[] = [];
+        let requests: Promise<DataBufferSpec>[] = [];
 
-        this.buffers.forEach(buffer => {
-            if (!buffer.data) {
+        this.dataBuffers.forEach(buffer => {
+            if (!buffer.binnedPixels) {
                 let url = base + buffer.url!;
                 let responseType = undefined;
 
@@ -106,7 +170,7 @@ export class DataSpec {
                 let promise = util.get(url, useCache, responseType)
                     .then((data) => {
                         if (url.toLowerCase().endsWith(".json"))
-                            buffer.data = JSON.parse(data);
+                            buffer.binnedPixels = JSON.parse(data);
                         else {
                             let pngBuffer = new Buffer(data);
                             let png = PNG.sync.read(pngBuffer, { skipRescale: true });
@@ -120,7 +184,8 @@ export class DataSpec {
                                 }
                             }
 
-                            buffer.data = prebinned;
+                            // filling binnedPixels
+                            buffer.binnedPixels = prebinned;
                         }
 
                         return buffer;
@@ -138,55 +203,48 @@ export class DataSpec {
     }
 }
 
-export interface ConfigDataSpec {
+export interface DataSpec {
     url?: string;
     reorder?: string[];
-    rename?: ConfigDataRenameSpec[];
-    dataSpec?: DataSpec;
+    rename?: DataRenameSpec[];
+    schema?: SchemaSpec;
 }
 
-export interface ConfigDataRenameSpec {
+export interface DataRenameSpec {
     from: string;
     to: string;
 }
 
-export interface ConfigReencodingLabelScaleSpec {
+export interface ReencodingLabelScaleSpec {
     domain: string[];
     range: string[];
 }
 
-export interface ConfigReencodingLabelSpec {
+export interface ReencodingLabelSpec {
     field: string;
     type?: string; // specify nominal
-    scale: ConfigReencodingLabelScaleSpec;
+    scale: ReencodingLabelScaleSpec;
 }
 
-export interface ConfigReencodingColorScaleSpec {
+export interface ReencodingColorScaleSpec {
     domain?: string[];
     range0: string[];
     range1: string[];
     type?: string;
 }
 
-export interface ConfigReencodingColorSpec {
+export interface ReencodingColorSpec {
     field: string;
     type?: string; // specify nominal
-    scale: ConfigReencodingColorScaleSpec;
+    scale: ReencodingColorScaleSpec;
 }
 
-export interface ConfigReencodingHatchingSpec {
-    domain?: string[];
-    range: string[];
-    type?: string;
+export interface ReencodingSpec {
+    label?: ReencodingLabelSpec;
+    color?: ReencodingColorSpec;
 }
 
-export interface ConfigReencodingSpec {
-    label?: ConfigReencodingLabelSpec;
-    color?: ConfigReencodingColorSpec;
-    hatching?: ConfigReencodingHatchingSpec;
-}
-
-export class ComposeSpec {
+export class AssemblySpec {
     mix: "none" | "invmin" | "mean" | "max" | "blend" |
         "weaving" | "propline" | "hatching" | "separate" | "glyph" | "dotdensity" | "time" = "mean";
 
@@ -214,7 +272,7 @@ export class ComposeSpec {
     // glyph
     glyphSpec?: GlyphSpec;
 
-    constructor(options?: ComposeSpec) {
+    constructor(options?: AssemblySpec) {
         if (options) Object.assign(this, options);
     }
 }
@@ -248,11 +306,11 @@ export class RebinSpec {
     }
 }
 
-export class RescaleSpec {
+export class scaleSpec {
     type: "linear" | "log" | "sqrt" | "cbrt" | "equidepth" = "linear";
     levels: number = 4; // for equidepth
 
-    constructor(options?: RescaleSpec) {
+    constructor(options?: scaleSpec) {
         if (options) Object.assign(this, options);
     }
 }
@@ -333,12 +391,12 @@ export class AxisSpec {
 export class Config {
     description?: string;
     background?: string;
-    data: ConfigDataSpec;
+    data: DataSpec;
     blur: number = 0;
-    reencoding?: ConfigReencodingSpec;
+    reencoding?: ReencodingSpec;
     rebin?: RebinSpec;
-    compose?: ComposeSpec;
-    rescale?: RescaleSpec;
+    compose?: AssemblySpec;
+    rescale?: scaleSpec;
     contour?: ContourSpec;
     width: number = -1;
     height: number = -1;
@@ -376,7 +434,7 @@ export class Config {
             this.background = this.spec.background;
     }
     private parseData() {
-        return <ConfigDataSpec>this.spec.data;
+        return <DataSpec>this.spec.data;
     }
     private parseSmooth() {
         if ("smooth" in this.spec) {
@@ -390,7 +448,7 @@ export class Config {
         }
     }
     private parseReencoding() {
-        this.reencoding = <ConfigReencodingSpec>this.spec.reencoding;
+        this.reencoding = <ReencodingSpec>this.spec.reencoding;
     }
     private parseRebin() {
         if (this.spec.rebin)
@@ -398,7 +456,7 @@ export class Config {
     }
     private parseCompose() {
         if (this.spec.compose) {
-            this.compose = new ComposeSpec(this.spec.compose)
+            this.compose = new AssemblySpec(this.spec.compose)
             if (this.spec.compose.glyphSpec) {
                 this.compose.glyphSpec = new GlyphSpec(this.spec.compose.glyphSpec);
             }
@@ -406,7 +464,7 @@ export class Config {
     }
     private parseRescale() {
         if (this.spec.rescale)
-            this.rescale = new RescaleSpec(this.spec.rescale);
+            this.rescale = new scaleSpec(this.spec.rescale);
     }
     private parseLegend() {
         if (this.spec.legend === false)
@@ -428,15 +486,15 @@ export class Config {
         if (!this.data)
             return false;
         let widths = new Map<string, number>(), heights = new Map<string, number>();
-        let data = this.data.dataSpec;
-        if (!data ||
-            !data.encoding ||
-            !data.encoding.x ||
-            !data.encoding.y ||
-            !data.buffers)
+        let schema = this.data.schema;
+        if (!schema ||
+            !schema.encoding ||
+            !schema.encoding.x ||
+            !schema.encoding.y ||
+            !schema.dataBuffers)
             return false;
-        let x_enc = data.encoding.x,
-            y_enc = data.encoding.y;
+        let x_enc = schema.encoding.x,
+            y_enc = schema.encoding.y;
         if (x_enc) {
             if (x_enc.bin && "maxbins" in x_enc.bin && x_enc.bin.maxbins)
                 widths.set("maxbins", x_enc.bin.maxbins);
@@ -457,13 +515,13 @@ export class Config {
             && this.reencoding.label
             && this.reencoding.label.scale
             && this.reencoding.label.scale.range
-            && this.reencoding.label.scale.range.length >= data.buffers.length)
+            && this.reencoding.label.scale.range.length >= schema.dataBuffers.length)
             labelScaleRange = this.reencoding.label.scale.range;
 
-        data.buffers.forEach((buffer, i) => {
-            if (buffer.data instanceof Array) {
-                heights.set(buffer.value, buffer.data.length);
-                widths.set(buffer.value, buffer.data[0].length);
+        schema.dataBuffers.forEach((buffer, i) => {
+            if (buffer.binnedPixels instanceof Array) {
+                heights.set(buffer.value, buffer.binnedPixels.length);
+                widths.set(buffer.value, buffer.binnedPixels[0].length);
             }
             else {
                 error = "invalid buffer " + buffer.value;
@@ -490,7 +548,7 @@ export class Config {
             let order = this.compose.order;
             let valid = new Set<number>();
             for (let i = 0; i < order.length; i++) {
-                if (order[i] < 0 || order[i] >= data.buffers.length) {
+                if (order[i] < 0 || order[i] >= schema.dataBuffers.length) {
                     error = "invalid buffer index " + order[i];
                     break;
                 }
@@ -543,35 +601,35 @@ export class Config {
     }
 
     private loadData(base: string, useCache = true): Promise<any> {
-        if (!this.data.dataSpec && this.data.url) {
+        if (!this.data.schema && this.data.url) {
             let url = base + this.data.url!;
             return util
                 .get(url, useCache)
                 .then(response => {
-                    let dataSpec = new DataSpec(JSON.parse(response));
-                    this.data.dataSpec = dataSpec;
+                    let dataSpec = new SchemaSpec(JSON.parse(response));
+                    this.data.schema = dataSpec;
 
                     if(this.data.reorder) {
-                        if(this.data.reorder.length != this.data.dataSpec!.buffers.length)
-                            throw new Error(`the length of the order array does not match ${this.data.reorder.length} != ${this.data.dataSpec!.buffers.length}`)
+                        if(this.data.reorder.length != this.data.schema!.dataBuffers.length)
+                            throw new Error(`the length of the order array does not match ${this.data.reorder.length} != ${this.data.schema!.dataBuffers.length}`)
 
                         let reordered = this.data.reorder.map(name =>
-                            this.data.dataSpec!.buffers.filter(bf => bf.value == name)[0]
+                            this.data.schema!.dataBuffers.filter(bf => bf.value == name)[0]
                         )
 
-                        this.data.dataSpec!.buffers = reordered;
+                        this.data.schema!.dataBuffers = reordered;
                     }
 
                     if(this.data.rename) {
                         let map:{[key:string]: string} = {};
                         this.data.rename.forEach(r => { map[r.from] = r.to; })
-                        this.data.dataSpec.buffers.forEach(buffer => {
+                        this.data.schema.dataBuffers.forEach(buffer => {
                             buffer.value = map[buffer.value] || buffer.value;
                         })
                     }
-                    this.bufferNames = this.data.dataSpec!.buffers.map(b => b.value);
+                    this.bufferNames = this.data.schema!.dataBuffers.map(b => b.value);
 
-                    return this.data.dataSpec!.load(base, useCache);
+                    return this.data.schema!.load(base, useCache);
                 })
                 .catch((reason) => {
                     console.error(`Cannot load dataSpec at ${url}: ${reason}`);
@@ -592,16 +650,16 @@ export class Config {
     public getBuffers(): DataBuffer[] {
         let data = this.data;
         if (!data ||
-            !data.dataSpec ||
-            !data.dataSpec.buffers)
+            !data.schema ||
+            !data.schema.dataBuffers)
             return [];
 
-        let spec = data.dataSpec;
-        let dataBuffers = spec.buffers.map((bufferSpec) =>
-            new DataBuffer(bufferSpec.value,
+        let spec = data.schema;
+        let dataBuffers = spec.dataBuffers.map((dataBuffer) =>
+            new DataBuffer(dataBuffer.value,
                 this.width,
                 this.height,
-                bufferSpec.data));
+                dataBuffer.binnedPixels));
 
         return dataBuffers;
     }
@@ -625,7 +683,7 @@ export class Config {
     }
 
     public getGeo(): GeoSpec {
-        let geo = this.data!.dataSpec!.geo!;
+        let geo = this.data!.schema!.geo!;
 
         if (this.spec.rebin &&
             this.spec.rebin.proj4)
@@ -635,7 +693,7 @@ export class Config {
     }
 
     public getXDomain(): NumPair {
-        let data = this.data!.dataSpec!;
+        let data = this.data!.schema!;
         if (!data ||
             !data.encoding ||
             !data.encoding.x ||
@@ -646,7 +704,7 @@ export class Config {
     }
 
     public getYDomain(): NumPair {
-        let data = this.data!.dataSpec!;
+        let data = this.data!.schema!;
         if (!data ||
             !data.encoding ||
             !data.encoding.y ||

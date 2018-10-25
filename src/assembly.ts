@@ -6,7 +6,7 @@ import Tile from "./tile";
 import * as util from "./util";
 import { isUndefined } from "util";
 
-export default class Composer {
+export default class Assembly {
     static max(buffers: DerivedBuffer[], values: number[]): Color {
         let best = values[0];
         let bestIndex = 0;

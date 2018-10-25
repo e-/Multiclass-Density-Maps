@@ -1,6 +1,6 @@
 import CanvasRender from './canvas-renderer';
 import Color from './color';
-import Composer from './composer';
+import Assembly from './assembly';
 import DataBuffer from './data-buffer';
 import DerivedBuffer from './derived-buffer';
 import gaussian_blur from './gaussian-blur';
@@ -22,7 +22,7 @@ import * as Weaving from './weaving';
 export {
     CanvasRender,
     Color,
-    Composer,
+    Assembly,
     DataBuffer,
     DerivedBuffer,
     gaussian_blur,
