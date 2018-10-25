@@ -208,7 +208,7 @@ export default class Color {
         return Color.None;
     }
 
-    static get(name: string): Color {
+    static parse(name: string): Color {
         name = name.toLowerCase();
         if (name in Color.ColorByName)
             return <Color>Color.ColorByName[name];

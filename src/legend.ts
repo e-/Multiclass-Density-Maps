@@ -1,7 +1,7 @@
 import * as d3s from 'd3-selection';
 import * as d3a from 'd3-array';
 import * as d3f from 'd3-format';
-import DerivedBuffer from './derived-buffer';
+import ClassBuffer from './class-buffer';
 import * as Config from './config';
 import Color from './color';
 import Interpreter from './interp';
@@ -16,7 +16,7 @@ function translate(x:number, y:number) {
 let counter = 0;
 // see degree at http://angrytools.com/gradient/
 function linearGradient(defs:any, interpolator:Scale.ScaleTrait,
-    db:DerivedBuffer, degree:number = 0):string {
+    db:ClassBuffer, degree:number = 0):string {
 
     let x1 = 0.5 - Math.cos(degree) / 2;
     let x2 = 0.5 + Math.cos(degree) / 2;
@@ -43,7 +43,7 @@ function linearGradient(defs:any, interpolator:Scale.ScaleTrait,
     return id;
 }
 
-function equiDepthColorMap(defs:any, interpolator:Scale.ScaleTrait, db:DerivedBuffer):string {
+function equiDepthColorMap(defs:any, interpolator:Scale.ScaleTrait, db:ClassBuffer):string {
     let id = `gradient_${counter++}`;
     let scale = interpolator as Scale.EquiDepthScale;
 
@@ -76,7 +76,7 @@ function equiDepthColorMap(defs:any, interpolator:Scale.ScaleTrait, db:DerivedBu
 }
 
 function colorCategories(g:d3s.Selection<d3s.BaseType, {}, HTMLElement, any>,
-    derivedBuffers:DerivedBuffer[],
+    derivedBuffers:ClassBuffer[],
     spec:Config.LegendSpec, labels:string[], title:string = "category") {
 
     let n = derivedBuffers.length;
@@ -104,7 +104,7 @@ function colorCategories(g:d3s.Selection<d3s.BaseType, {}, HTMLElement, any>,
     categoryEnter
         .append('circle')
         .attr('r', 5)
-        .attr('fill', d => d.color!.css())
+        .attr('fill', d => d.color1!.css())
         .attr('transform', translate(5, 2.5))
 
     categoryEnter
@@ -120,7 +120,7 @@ function colorCategories(g:d3s.Selection<d3s.BaseType, {}, HTMLElement, any>,
 function colorRamps(
     g:d3s.Selection<d3s.BaseType, {}, HTMLElement, any>,
     defs:d3s.Selection<d3s.BaseType, {}, HTMLElement, any>,
-    derivedBuffers:DerivedBuffer[],
+    derivedBuffers:ClassBuffer[],
     interp:Interpreter, spec:Config.LegendSpec, title:string = "scale") {
 
     let n = derivedBuffers.length;
@@ -135,7 +135,7 @@ function colorRamps(
         .attr('font-weight', 'bold')
         .attr('dy', spec.titleDy)
 
-    let gradientFunc:(defs:any, interpolator:Scale.ScaleTrait, db:DerivedBuffer) => string;
+    let gradientFunc:(defs:any, interpolator:Scale.ScaleTrait, db:ClassBuffer) => string;
 
     // domain numbers will be shown
     let tickValues:number[] = [];
@@ -247,7 +247,7 @@ function colorRamps(
 
 function colorMixMap(g:d3s.Selection<d3s.BaseType, {}, HTMLElement, any>,
     canvas:HTMLCanvasElement,
-    derivedBuffers:DerivedBuffer[],
+    derivedBuffers:ClassBuffer[],
     interp:Interpreter,
     spec:Config.LegendSpec,
     top:number,
@@ -261,7 +261,7 @@ function colorMixMap(g:d3s.Selection<d3s.BaseType, {}, HTMLElement, any>,
     let titleHeight = spec.titleHeight;
     let size = spec.mixMapSize;
 
-    let name = interp.compose.mix === "blend" ? interp.compose.mixing : interp.compose.mix;
+    let name = interp.assembly.mix === "blend" ? interp.assembly.mixing : interp.assembly.mix;
     g.append('text')
         .text(`${title} (${name})`)
         .attr('dy', spec.titleDy)
@@ -318,7 +318,7 @@ function mixLegend(wrapper:HTMLDivElement, interp:Interpreter) {
     let dest = document.createElementNS("http://www.w3.org/2000/svg", "svg");
     wrapper.appendChild(dest);
 
-    let derivedBuffers:DerivedBuffer[] = interp.derivedBuffers;
+    let derivedBuffers:ClassBuffer[] = interp.classBuffers;
     let spec = interp.legend as Config.LegendSpec;
 
     let svg:any = d3s.select(dest)
@@ -345,7 +345,7 @@ function mixLegend(wrapper:HTMLDivElement, interp:Interpreter) {
     let height = (rowHeight + verticalGutter) * n +
         (titleHeight + verticalGutter) + padding * 2;
 
-    if(["hatching", "propline"].indexOf(interp.compose.mix) < 0 || interp.compose.colprop) {
+    if(["hatching", "propline"].indexOf(interp.assembly.mix) < 0 || interp.assembly.colprop) {
         height += (rowHeight + verticalGutter) * n +
         (titleHeight + verticalGutter);
 
@@ -359,7 +359,7 @@ function mixLegend(wrapper:HTMLDivElement, interp:Interpreter) {
 
 
     // checks whether a mix map is shown
-    if(["max", "mean", "blend"].indexOf(interp.compose.mix) >= 0 && derivedBuffers.length >= 2) {
+    if(["max", "mean", "blend"].indexOf(interp.assembly.mix) >= 0 && derivedBuffers.length >= 2) {
 
         // since <foreignObject> has a rendering issue on Webkit browesers,
         // we create an extra canvas over the svg
@@ -385,7 +385,7 @@ function mixLegend(wrapper:HTMLDivElement, interp:Interpreter) {
 }
 
 function multiplicativeCircles(id:string, interp:Interpreter) {
-    let derivedBuffers:DerivedBuffer[] = interp.derivedBuffers;
+    let derivedBuffers:ClassBuffer[] = interp.classBuffers;
     let spec = interp.legend as Config.LegendSpec;
 
     let size = spec.size;
@@ -410,7 +410,7 @@ function multiplicativeCircles(id:string, interp:Interpreter) {
         .enter()
         .append('circle')
         .attr('r', r)
-        .attr('fill', d => d.color!.css())
+        .attr('fill', d => d.color1!.css())
         .attr('cx', (d, i) => center + r * Math.sin(theta * i) / 2)
         .attr('cy', (d, i) => center - r * Math.cos(theta * i) / 2)
         .style('fill', (d, i) => `url(#${ids[i]})`)
@@ -420,7 +420,7 @@ function multiplicativeCircles(id:string, interp:Interpreter) {
         .data(derivedBuffers)
         .enter()
         .append('text')
-        .text(d => d.originalDataBuffer.name)
+        .text(d => d.dataBuffer.name)
         .attr('text-anchor', 'middle')
         .attr('dy', '0.5em')
         .attr('transform', (d, i) => translate(
@@ -437,7 +437,7 @@ function multiplicativeCircles(id:string, interp:Interpreter) {
 }
 
 function bars(dest:SVGSVGElement, interp:Interpreter) {
-    let derivedBuffers:DerivedBuffer[] = interp.derivedBuffers;
+    let derivedBuffers:ClassBuffer[] = interp.classBuffers;
     let n = derivedBuffers.length;
     let spec = interp.legend as Config.LegendSpec;
 
@@ -464,7 +464,7 @@ function bars(dest:SVGSVGElement, interp:Interpreter) {
         };
     });
 
-    let glyphSpec = interp.compose.glyphSpec!;
+    let glyphSpec = interp.assembly.glyphSpec!;
 
     let barSpec:any = {
         $schema: "https://vega.github.io/schema/vega-lite/v2.0.json",
@@ -493,7 +493,7 @@ function bars(dest:SVGSVGElement, interp:Interpreter) {
                 type: "ordinal",
                 scale: {
                   domain: data.map(d => d.category),
-                  range: data.map((d, i) => derivedBuffers[i].color!.css())
+                  range: data.map((d, i) => derivedBuffers[i].color1!.css())
                 },
                 legend: {
                     orient: "top"
@@ -542,10 +542,10 @@ function bars(dest:SVGSVGElement, interp:Interpreter) {
 }
 
 function punchcard(dest:SVGSVGElement, interp:Interpreter) {
-    let derivedBuffers:DerivedBuffer[] = interp.derivedBuffers;
+    let derivedBuffers:ClassBuffer[] = interp.classBuffers;
     let n = derivedBuffers.length;
     let spec = interp.legend as Config.LegendSpec;
-    let glyphSpec = interp.compose.glyphSpec!;
+    let glyphSpec = interp.assembly.glyphSpec!;
 
     let svg = d3s.select(dest)
         .style('font-family', spec.fontFamily)
@@ -590,8 +590,8 @@ function punchcard(dest:SVGSVGElement, interp:Interpreter) {
                         field: "category",
                         type: "ordinal",
                         scale: {
-                            domain: derivedBuffers.map(b => b.originalDataBuffer.name),
-                            range: derivedBuffers.map(b => (b.color || Color.Blue).css())
+                            domain: derivedBuffers.map(b => b.dataBuffer.name),
+                            range: derivedBuffers.map(b => (b.color1 || Color.Blue).css())
                         },
                         legend: {
                             orient: "left"
@@ -633,14 +633,14 @@ function punchcard(dest:SVGSVGElement, interp:Interpreter) {
 }
 
 export default function LegendBuilder(wrapper:HTMLDivElement, interp:Interpreter) {
-    if(interp.compose.mix === "glyph") {
+    if(interp.assembly.mix === "glyph") {
         let svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
         wrapper.appendChild(svg);
 
-        if(interp.compose.glyphSpec!.template === "bars") {
+        if(interp.assembly.glyphSpec!.template === "bars") {
             bars(svg, interp);
         }
-        else if(interp.compose.glyphSpec!.template === "punchcard") {
+        else if(interp.assembly.glyphSpec!.template === "punchcard") {
             punchcard(svg, interp);
         }
     }

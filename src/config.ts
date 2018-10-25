@@ -205,14 +205,28 @@ export class SchemaSpec {
 
 export interface DataSpec {
     url?: string;
-    reorder?: string[];
-    rename?: DataRenameSpec[];
     schema?: SchemaSpec;
 }
 
-export interface DataRenameSpec {
-    from: string;
-    to: string;
+export interface StyleSpec {
+    classes?: StyleClassSpec[];
+    scale?: StyleScaleSpec;
+}
+
+export interface StyleClassSpec {
+    name: string;
+    alias?: string;
+    color0?: string;
+    color1?: string;
+}
+
+export class StyleScaleSpec {
+    type: "linear" | "log" | "sqrt" | "cbrt" | "equidepth" = "linear";
+    levels: number = 4; // for equidepth
+
+    constructor(options?: ScaleSpec) {
+        if (options) Object.assign(this, options);
+    }
 }
 
 export interface ReencodingLabelScaleSpec {
@@ -273,7 +287,12 @@ export class AssemblySpec {
     glyphSpec?: GlyphSpec;
 
     constructor(options?: AssemblySpec) {
-        if (options) Object.assign(this, options);
+        if (options) {
+            Object.assign(this, options);
+            if (options.glyphSpec) {
+                this.glyphSpec = new GlyphSpec(options.glyphSpec);
+            }
+        }
     }
 }
 
@@ -306,11 +325,11 @@ export class RebinSpec {
     }
 }
 
-export class scaleSpec {
+export class ScaleSpec {
     type: "linear" | "log" | "sqrt" | "cbrt" | "equidepth" = "linear";
     levels: number = 4; // for equidepth
 
-    constructor(options?: scaleSpec) {
+    constructor(options?: ScaleSpec) {
         if (options) Object.assign(this, options);
     }
 }
@@ -393,10 +412,11 @@ export class Config {
     background?: string;
     data: DataSpec;
     blur: number = 0;
+    style?: StyleSpec;
     reencoding?: ReencodingSpec;
     rebin?: RebinSpec;
-    compose?: AssemblySpec;
-    rescale?: scaleSpec;
+    assembly?: AssemblySpec;
+    rescale?: ScaleSpec;
     contour?: ContourSpec;
     width: number = -1;
     height: number = -1;
@@ -413,13 +433,13 @@ export class Config {
         this.parseDescription();
         this.parseBackground();
         this.data = this.parseData();
-
         this.parseSmooth();
+        this.parseStyle();
+        this.parseContour();
         this.parseReencoding();
         this.parseRebin();
-        this.parseCompose();
+        this.parseAssembly();
         this.parseRescale();
-        this.parseContour();
         this.legend = this.parseLegend();
         this.parseStroke();
         this.parseAxis();
@@ -442,6 +462,11 @@ export class Config {
                 this.blur = <number>this.spec.smooth.radius;
         }
     }
+    private parseStyle() {
+        if ("style" in this.spec) {
+            this.style = <StyleSpec>this.spec.style;
+        }
+    }
     private parseContour() {
         if ("contour" in this.spec) {
             this.contour = new ContourSpec(this.spec.contour);
@@ -454,17 +479,13 @@ export class Config {
         if (this.spec.rebin)
             this.rebin = new RebinSpec(this.spec.rebin);
     }
-    private parseCompose() {
-        if (this.spec.compose) {
-            this.compose = new AssemblySpec(this.spec.compose)
-            if (this.spec.compose.glyphSpec) {
-                this.compose.glyphSpec = new GlyphSpec(this.spec.compose.glyphSpec);
-            }
-        }
+    private parseAssembly() {
+        let spec = this.spec.assembly || this.spec.compose;
+        this.assembly = new AssemblySpec(spec);
     }
     private parseRescale() {
         if (this.spec.rescale)
-            this.rescale = new scaleSpec(this.spec.rescale);
+            this.rescale = new ScaleSpec(this.spec.rescale);
     }
     private parseLegend() {
         if (this.spec.legend === false)
@@ -544,8 +565,8 @@ export class Config {
                 error = k;
             }
         });
-        if (this.compose != undefined && this.compose.order != undefined) {
-            let order = this.compose.order;
+        if (this.assembly != undefined && this.assembly.order != undefined) {
+            let order = this.assembly.order;
             let valid = new Set<number>();
             for (let i = 0; i < order.length; i++) {
                 if (order[i] < 0 || order[i] >= schema.dataBuffers.length) {
@@ -609,24 +630,6 @@ export class Config {
                     let dataSpec = new SchemaSpec(JSON.parse(response));
                     this.data.schema = dataSpec;
 
-                    if(this.data.reorder) {
-                        if(this.data.reorder.length != this.data.schema!.dataBuffers.length)
-                            throw new Error(`the length of the order array does not match ${this.data.reorder.length} != ${this.data.schema!.dataBuffers.length}`)
-
-                        let reordered = this.data.reorder.map(name =>
-                            this.data.schema!.dataBuffers.filter(bf => bf.value == name)[0]
-                        )
-
-                        this.data.schema!.dataBuffers = reordered;
-                    }
-
-                    if(this.data.rename) {
-                        let map:{[key:string]: string} = {};
-                        this.data.rename.forEach(r => { map[r.from] = r.to; })
-                        this.data.schema.dataBuffers.forEach(buffer => {
-                            buffer.value = map[buffer.value] || buffer.value;
-                        })
-                    }
                     this.bufferNames = this.data.schema!.dataBuffers.map(b => b.value);
 
                     return this.data.schema!.load(base, useCache);
@@ -647,7 +650,7 @@ export class Config {
         this.loadStroke(base, useCache)]).then(() => this);
     }
 
-    public getBuffers(): DataBuffer[] {
+    public getDataBuffers(): DataBuffer[] {
         let data = this.data;
         if (!data ||
             !data.schema ||
@@ -662,24 +665,6 @@ export class Config {
                 dataBuffer.binnedPixels));
 
         return dataBuffers;
-    }
-
-    public getColors0(): string[] {
-        if (!this.reencoding
-            || !this.reencoding.color
-            || !this.reencoding.color.scale
-            || !this.reencoding.color.scale.range0)
-            return [];
-        return this.reencoding.color.scale.range0;
-    }
-
-    public getColors1(): string[] {
-        if (!this.reencoding
-            || !this.reencoding.color
-            || !this.reencoding.color.scale
-            || !this.reencoding.color.scale.range1)
-            return [];
-        return this.reencoding.color.scale.range1;
     }
 
     public getGeo(): GeoSpec {

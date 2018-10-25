@@ -4,7 +4,7 @@ import Mask from './mask';
 import Tile from './tile';
 import Rect from './rect';
 import * as util from './util';
-import DerivedBuffer from './derived-buffer';
+import ClassBuffer from './class-buffer';
 
 //[jdf] Change internal structure from array of Colors to 4 arrays of numbers.
 // Probably as an ImageData https://developer.mozilla.org/en-US/docs/Web/API/ImageData

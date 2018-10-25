@@ -1,4 +1,4 @@
-import DerivedBuffer from "./derived-buffer";
+import ClassBuffer from "./class-buffer";
 import Color from "./color";
 import { ScaleTrait } from "./scale";
 import extract from "./vega-extractor"
@@ -7,7 +7,7 @@ import * as util from "./util";
 import { isUndefined } from "util";
 
 export default class Assembly {
-    static max(buffers: DerivedBuffer[], values: number[]): Color {
+    static max(buffers: ClassBuffer[], values: number[]): Color {
         let best = values[0];
         let bestIndex = 0;
 
@@ -21,7 +21,7 @@ export default class Assembly {
         return buffers[bestIndex].colorScale.map(best);
     }
 
-    static invmin(buffers: DerivedBuffer[], values: number[], threshold = 1): Color {
+    static invmin(buffers: ClassBuffer[], values: number[], threshold = 1): Color {
         let best = Infinity;
         let bestIndex = -1;
 
@@ -41,7 +41,7 @@ export default class Assembly {
         return buffer.colorScale.map(scaleTrait.domain[1] - best);
     }
 
-    static mean(buffers: DerivedBuffer[], values: number[]): Color {
+    static mean(buffers: ClassBuffer[], values: number[]): Color {
         let sum = 0;
         let ret = new Color(0, 0, 0, 0);
 
@@ -64,7 +64,7 @@ export default class Assembly {
         return ret;
     }
 
-    static additiveMix(buffers: DerivedBuffer[], values: number[]): Color {
+    static additiveMix(buffers: ClassBuffer[], values: number[]): Color {
         let ret = new Color(0, 0, 0, 1);
 
         values.forEach((value, i) => {
@@ -75,7 +75,7 @@ export default class Assembly {
         return ret;
     }
 
-    static multiplicativeMix(buffers: DerivedBuffer[], values: number[]): Color {
+    static multiplicativeMix(buffers: ClassBuffer[], values: number[]): Color {
         let ret = new Color(1, 1, 1, 1);
 
         values.forEach((value, i) => {
@@ -90,15 +90,15 @@ export default class Assembly {
         return ret;
     }
 
-    static none(buffers: DerivedBuffer[], values: number[]): Color {
+    static none(buffers: ClassBuffer[], values: number[]): Color {
         return Color.None;
     }
 
-    static one(buffer: DerivedBuffer, value: number): Color {
+    static one(buffer: ClassBuffer, value: number): Color {
         return buffer.colorScale.map(value);
     }
 
-    static bars(buffers: DerivedBuffer[], names: string[], values: number[],
+    static bars(buffers: ClassBuffer[], names: string[], values: number[],
         options: {
             width?: number,
             height?: number,
@@ -109,7 +109,7 @@ export default class Assembly {
         } = { "y.scale.domain": [0, 1], "y.scale.type": "linear", "y.scale.base": 10 }
     ) {
         let data = buffers.map((buffer, i) => {
-            return { name: buffer.originalDataBuffer.name, value: values[i] }
+            return { name: buffer.dataBuffer.name, value: values[i] }
         }
         );
         let spec = {
@@ -130,7 +130,7 @@ export default class Assembly {
                     type: "ordinal",
                     scale: {
                         domain: data.map(d => d.name),
-                        range: data.map((d, i) => buffers[i].color!.css())
+                        range: data.map((d, i) => buffers[i].color1!.css())
                         // will use a fully opaque color, since we use the length encoding
                     },
                     legend: false
@@ -161,7 +161,7 @@ export default class Assembly {
         return extract(spec);
     }
 
-    static punchcard(buffers: DerivedBuffer[], names: string[], values: number[],
+    static punchcard(buffers: ClassBuffer[], names: string[], values: number[],
         options: {
             width?: number,
             height?: number,
@@ -177,7 +177,7 @@ export default class Assembly {
         let width = options.width || 30;
         let height = options.height || 30;
 
-        let colors = buffers.map(b => (b.color || Color.Blue).css());
+        let colors = buffers.map(b => (b.color1 || Color.Blue).css());
 
         let factor = options.factor || 8;
         // TODO: I am really not sure why this magic number is required to
@@ -279,7 +279,7 @@ export default class Assembly {
         return extract(spec);
     }
 
-    static hatch(tile: Tile, buffers: DerivedBuffer[], dataValues: number[],
+    static hatch(tile: Tile, buffers: ClassBuffer[], dataValues: number[],
         options: {
             thickness: number,
             sort: boolean,
@@ -329,7 +329,7 @@ export default class Assembly {
             if (options.colprop)
                 ctx.strokeStyle = buffer.colorScale.map(dataValue).css();
             else
-                ctx.strokeStyle = buffer.color!.css();
+                ctx.strokeStyle = buffer.color1!.css();
 
             if (isUndefined(options.widthprop))
                 ctx.lineWidth = options.thickness;

@@ -359,15 +359,44 @@
 
             render('Census Data (Class Reordered and Renamed)', {
                 "data": { 
-                    "url": "census.snappy_data.json",
-                    "reorder": ["w", "h", "a", "o", "b"],
-                    "rename": [
-                        {"from": "w", "to": "White"},
-                        {"from": "h", "to": "Hispanic"},
-                        {"from": "a", "to": "Asian"},
-                        {"from": "o", "to": "Others"},
-                        {"from": "b", "to": "Black"},
-                    ]
+                    "url": "census.snappy_data.json"
+                },
+                "style": {
+                    "classes": [
+                        {
+                            "name": "w",
+                            "alias": "White",
+                            "color0": "White",
+                            "color1": "Blue"
+                        },
+                        {
+                            "name": "h",
+                            "alias": "Hispanic",
+                            "color0": "White",
+                            "color1": "Orange"
+                        },
+                        {
+                            "name": "a",
+                            "alias": "Asian",
+                            "color0": "White",
+                            "color1": "Red"
+                        },
+                        {
+                            "name": "b",
+                            "alias": "Black",
+                            "color0": "White",
+                            "color1": "Green"
+                        },
+                        {
+                            "name": "o",
+                            "alias": "Other",
+                            "color0": "White",
+                            "color1": "Brown"
+                        },
+                    ],
+                    "scale": {
+                        "type": "log"
+                    }
                 },
                 "compose": {
                     "mix": "mean",

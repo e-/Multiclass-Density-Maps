@@ -5,14 +5,18 @@ import * as util from './util';
 import * as Scale from './scale';
 import { ContourMultiPolygon } from 'd3-contour';
 
-export default class DerivedBuffer {
+export default class ClassBuffer {
     mask?: Mask;
 
     colorScale: Scale.ColorScale = new Scale.LinearColorScale([0, 1], [Color.White, Color.Black]);
-    color: Color = Color.Black;
-    angle: number = 0;
 
-    constructor(public originalDataBuffer: DataBuffer) {
+    color0: Color = Color.Transparent;
+    color1: Color = Color.Transparent;
+    angle: number = 0;
+    name: string;
+
+    constructor(public dataBuffer: DataBuffer) {
+        this.name = dataBuffer.name;
     }
 
     thresholds(n: number) {
@@ -26,6 +30,6 @@ export default class DerivedBuffer {
     }
 
     contours(thresholds: number[], blur: number = 3) {
-        return this.originalDataBuffer.contours(thresholds, blur);
+        return this.dataBuffer.contours(thresholds, blur);
     }
 }
