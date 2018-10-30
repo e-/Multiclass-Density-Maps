@@ -48,6 +48,7 @@ config.load().then(() => { // load the data
 })
 ```
 
+See our wiki! <https://github.com/e-/Multiclass-Density-Maps/wiki>
 
 ## Development
 
