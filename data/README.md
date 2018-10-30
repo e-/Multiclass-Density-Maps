@@ -79,7 +79,7 @@ mv nyc_crime.csv nyc_crime.raw.csv
 grep -v ',111.0,"' nyc_crime.raw.csv > nyc_crime.csv
 
 # need to crop
-python csv2json.py nyc_crime.csv XCoordinate YCoordinate Offense  --xmin=850000 --ymax=300000 --width=1024 --projection esri:102718
+python csv2json.py nyc_crime.csv XCoordinate YCoordinate Offense  --xmin=850000 --ymax=300000 --width=512 --projection esri:102718
 
 # (Optional) just for visualizing each data buffer
 # if you are not using Anaconda, install some dependencies:
@@ -122,7 +122,7 @@ head -n 1 *_T_ONTIME_REPORTING.csv > flight.csv
 awk '/"(DL|AA|UA).*/' *_T_ONTIME_REPORTING.csv >> flight.csv
 
 # create data buffers. change the column names if you chose different columns.
-python csv2json.py flight.csv DISTANCE ARR_DELAY OP_UNIQUE_CARRIER --width 512 --height 512
+python csv2json.py flight.csv DISTANCE ARR_DELAY OP_UNIQUE_CARRIER --width 256 --height 256
 
 # (Optional) just for visualizing each data buffer
 # if you are not using Anaconda, install some dependencies:
@@ -214,7 +214,7 @@ python notMNIST_merge.py
 conda install pyproj
 
 # run csv2json.py to get the data buffers
-python csv2json.py notMNIST_xylab.csv  --width 1024 x y label
+python csv2json.py notMNIST_xylab.csv  --width 400 x y label
 ```
 
 
