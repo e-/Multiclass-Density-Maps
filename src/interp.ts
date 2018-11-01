@@ -38,7 +38,7 @@ export default class Interpreter {
     public bufferNames: string[] = [];
     public colors0: Color[] = Color.Category10t;
     public colors1: Color[] = Color.Category10;
-    public rebin: any;
+    public rebin?: Config.RebinSpec;
     public assemble: (buffers: ClassBuffer[], values: number[]) => Color = Assembly.none;
 
     public masks: Mask[] = [];
@@ -112,6 +112,7 @@ export default class Interpreter {
         for (let tile of this.tiles) {
             tile.dataValues = tile.aggregate(this.classBuffers.map(cb => cb.dataBuffer), this.tileAggregation);
         }
+
         let maxCount = util.amax(this.tiles.map(tile => tile.maxValue()));
 
         if (this.config.scale.type === "linear")
@@ -129,9 +130,8 @@ export default class Interpreter {
             equidepth.computeBounds();
             this.scale = equidepth;
         }
-        else {
+        else
             throw `undefined rescale type: ${this.config.scale.type}`;
-        }
 
         this.classBuffers.forEach((cb, i) => {
             cb.colorScale = new Scale.ColorScale([cb.color0, cb.color1], this.scale);
@@ -230,7 +230,7 @@ export default class Interpreter {
         else if (this.rebin.type == "topojson") {
             let url = this.rebin.url,
                 topojson = this.rebin.topojson,
-                feature = this.rebin.feature || null; //CHECK
+                feature = this.rebin.feature!;
             this.log('  topojson rebin url=' + url
                 + ' feature=' + feature);
             // TODO get the projection, transform, clip, etc.
@@ -256,7 +256,7 @@ export default class Interpreter {
                 topojson.objects[feature],
                 projection,
                 this.geo.latitudes, this.geo.longitudes,
-                this.rebin.minfeature == -1);
+                (this.rebin as any).minfeature == -1);
         }
         else if (this.rebin.type == "voronoi") {
             if (this.rebin.points) {
@@ -579,7 +579,7 @@ export default class Interpreter {
             }
         }
         else
-            this.log('No composition');
+            this.log('No assembly');
 
         let render = () => {
             let options:any = {};

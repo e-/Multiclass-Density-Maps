@@ -1,33 +1,96 @@
 {
-  "projection": {
-    "type": "esri:102718"
+  "source": {
+    "rows": 1123463,
+    "filename": "nyc_crime.csv",
+    "type": "csv"
   },
+  "buffers": [
+    {
+      "url": "nyc_crime_cat_BURGLARY.json",
+      "range": [
+        0,
+        443
+      ],
+      "count": 191369,
+      "value": "BURGLARY"
+    },
+    {
+      "url": "nyc_crime_cat_GRAND LARCENY OF MOTOR VEHICLE.json",
+      "range": [
+        0,
+        196
+      ],
+      "count": 101963,
+      "value": "GRAND LARCENY OF MOTOR VEHICLE"
+    },
+    {
+      "url": "nyc_crime_cat_GRAND LARCENY.json",
+      "range": [
+        0,
+        2590
+      ],
+      "count": 428993,
+      "value": "GRAND LARCENY"
+    },
+    {
+      "url": "nyc_crime_cat_RAPE.json",
+      "range": [
+        0,
+        581
+      ],
+      "count": 13779,
+      "value": "RAPE"
+    },
+    {
+      "url": "nyc_crime_cat_FELONY ASSAULT.json",
+      "range": [
+        0,
+        1438
+      ],
+      "count": 184041,
+      "value": "FELONY ASSAULT"
+    },
+    {
+      "url": "nyc_crime_cat_MURDER & NON-NEGL. MANSLAUGHTE.json",
+      "range": [
+        0,
+        17
+      ],
+      "count": 4574,
+      "value": "MURDER & NON-NEGL. MANSLAUGHTE"
+    },
+    {
+      "url": "nyc_crime_cat_ROBBERY.json",
+      "range": [
+        0,
+        396
+      ],
+      "count": 198744,
+      "value": "ROBBERY"
+    }
+  ],
   "encoding": {
-    "x": {
-      "field": "XCoordinate",
-      "bin": {
-        "maxbins": 1024
-      },
-      "aggregate": "count",
-      "type": "latitude",
+    "z": {
+      "type": "nominal",
       "scale": {
         "domain": [
-          -74.48270604450188,
-          -73.69958921931877
-        ],
-        "range": [
-          0,
-          1024
+          "BURGLARY",
+          "GRAND LARCENY OF MOTOR VEHICLE",
+          "GRAND LARCENY",
+          "RAPE",
+          "FELONY ASSAULT",
+          "MURDER & NON-NEGL. MANSLAUGHTE",
+          "ROBBERY"
         ]
-      }
+      },
+      "field": "Offense"
     },
     "y": {
-      "field": "YCoordinate",
       "bin": {
-        "maxbins": 843
+        "maxbins": 421
       },
-      "aggregate": "count",
       "type": "longitude",
+      "aggregate": "count",
       "scale": {
         "domain": [
           40.49799608112919,
@@ -35,94 +98,31 @@
         ],
         "range": [
           0,
-          843
+          421
         ]
-      }
+      },
+      "field": "YCoordinate"
     },
-    "z": {
-      "field": "Offense",
-      "type": "nominal",
+    "x": {
+      "bin": {
+        "maxbins": 512
+      },
+      "type": "latitude",
+      "aggregate": "count",
       "scale": {
         "domain": [
-          "RAPE",
-          "GRAND LARCENY",
-          "BURGLARY",
-          "ROBBERY",
-          "GRAND LARCENY OF MOTOR VEHICLE",
-          "FELONY ASSAULT",
-          "MURDER & NON-NEGL. MANSLAUGHTE"
+          -74.48270604450188,
+          -73.69958921931877
+        ],
+        "range": [
+          0,
+          512
         ]
-      }
+      },
+      "field": "XCoordinate"
     }
   },
-  "buffers": [
-    {
-      "count": 13779,
-      "value": "RAPE",
-      "range": [
-        0,
-        581
-      ],
-      "url": "nyc_crime_cat_RAPE.json"
-    },
-    {
-      "count": 428993,
-      "value": "GRAND LARCENY",
-      "range": [
-        0,
-        2588
-      ],
-      "url": "nyc_crime_cat_GRAND LARCENY.json"
-    },
-    {
-      "count": 191369,
-      "value": "BURGLARY",
-      "range": [
-        0,
-        443
-      ],
-      "url": "nyc_crime_cat_BURGLARY.json"
-    },
-    {
-      "count": 198744,
-      "value": "ROBBERY",
-      "range": [
-        0,
-        382
-      ],
-      "url": "nyc_crime_cat_ROBBERY.json"
-    },
-    {
-      "count": 101963,
-      "value": "GRAND LARCENY OF MOTOR VEHICLE",
-      "range": [
-        0,
-        186
-      ],
-      "url": "nyc_crime_cat_GRAND LARCENY OF MOTOR VEHICLE.json"
-    },
-    {
-      "count": 184041,
-      "value": "FELONY ASSAULT",
-      "range": [
-        0,
-        1438
-      ],
-      "url": "nyc_crime_cat_FELONY ASSAULT.json"
-    },
-    {
-      "count": 4574,
-      "value": "MURDER & NON-NEGL. MANSLAUGHTE",
-      "range": [
-        0,
-        17
-      ],
-      "url": "nyc_crime_cat_MURDER & NON-NEGL. MANSLAUGHTE.json"
-    }
-  ],
-  "source": {
-    "filename": "nyc_crime.csv",
-    "rows": 1123463,
-    "type": "csv"
+  "projection": {
+    "type": "esri:102718"
   }
 }

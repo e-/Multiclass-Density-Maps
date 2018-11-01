@@ -1,155 +1,155 @@
 {
   "buffers": [
     {
-      "value": "A",
-      "url": "notMNIST_xylab_cat_A.json",
+      "count": 52912,
+      "range": [
+        0,
+        196
+      ],
+      "value": "F",
+      "url": "notMNIST_xylab_cat_F.json"
+    },
+    {
+      "count": 52912,
+      "range": [
+        0,
+        214
+      ],
+      "value": "H",
+      "url": "notMNIST_xylab_cat_H.json"
+    },
+    {
+      "count": 52912,
+      "range": [
+        0,
+        896
+      ],
+      "value": "I",
+      "url": "notMNIST_xylab_cat_I.json"
+    },
+    {
+      "count": 52912,
+      "range": [
+        0,
+        209
+      ],
+      "value": "C",
+      "url": "notMNIST_xylab_cat_C.json"
+    },
+    {
+      "count": 52911,
+      "range": [
+        0,
+        234
+      ],
+      "value": "B",
+      "url": "notMNIST_xylab_cat_B.json"
+    },
+    {
       "count": 52909,
       "range": [
         0,
-        75
-      ]
+        199
+      ],
+      "value": "A",
+      "url": "notMNIST_xylab_cat_A.json"
     },
     {
-      "value": "G",
-      "url": "notMNIST_xylab_cat_G.json",
       "count": 52912,
       "range": [
         0,
-        85
-      ]
-    },
-    {
-      "value": "C",
-      "url": "notMNIST_xylab_cat_C.json",
-      "count": 52912,
-      "range": [
-        0,
-        90
-      ]
-    },
-    {
-      "value": "J",
-      "url": "notMNIST_xylab_cat_J.json",
-      "count": 52911,
-      "range": [
-        0,
-        79
-      ]
-    },
-    {
-      "value": "H",
-      "url": "notMNIST_xylab_cat_H.json",
-      "count": 52912,
-      "range": [
-        0,
-        107
-      ]
-    },
-    {
+        138
+      ],
       "value": "E",
-      "url": "notMNIST_xylab_cat_E.json",
+      "url": "notMNIST_xylab_cat_E.json"
+    },
+    {
+      "count": 52911,
+      "range": [
+        0,
+        190
+      ],
+      "value": "J",
+      "url": "notMNIST_xylab_cat_J.json"
+    },
+    {
       "count": 52912,
       "range": [
         0,
-        84
-      ]
+        239
+      ],
+      "value": "G",
+      "url": "notMNIST_xylab_cat_G.json"
     },
     {
-      "value": "F",
-      "url": "notMNIST_xylab_cat_F.json",
-      "count": 52912,
+      "count": 52911,
       "range": [
         0,
-        91
-      ]
-    },
-    {
-      "value": "I",
-      "url": "notMNIST_xylab_cat_I.json",
-      "count": 52912,
-      "range": [
-        0,
-        378
-      ]
-    },
-    {
+        135
+      ],
       "value": "D",
-      "url": "notMNIST_xylab_cat_D.json",
-      "count": 52911,
-      "range": [
-        0,
-        68
-      ]
-    },
-    {
-      "value": "B",
-      "url": "notMNIST_xylab_cat_B.json",
-      "count": 52911,
-      "range": [
-        0,
-        107
-      ]
+      "url": "notMNIST_xylab_cat_D.json"
     }
   ],
   "source": {
     "rows": 529114,
-    "filename": "notMNIST_xylab.csv",
-    "type": "csv"
+    "type": "csv",
+    "filename": "notMNIST_xylab.csv"
   },
   "encoding": {
     "z": {
-      "field": "label",
       "type": "nominal",
       "scale": {
         "domain": [
-          "A",
-          "G",
-          "C",
-          "J",
-          "H",
-          "E",
           "F",
+          "H",
           "I",
-          "D",
-          "B"
+          "C",
+          "B",
+          "A",
+          "E",
+          "J",
+          "G",
+          "D"
         ]
-      }
-    },
-    "x": {
-      "field": "x",
-      "aggregate": "count",
-      "type": "quantitative",
-      "bin": {
-        "maxbins": 1024
       },
-      "scale": {
-        "range": [
-          0,
-          1024
-        ],
-        "domain": [
-          -43.547977,
-          43.804802
-        ]
-      }
+      "field": "label"
     },
     "y": {
-      "field": "y",
       "aggregate": "count",
-      "type": "quantitative",
       "bin": {
-        "maxbins": 1047
+        "maxbins": 409
       },
+      "type": "quantitative",
       "scale": {
-        "range": [
-          0,
-          1047
-        ],
         "domain": [
           -45.452454,
           43.936481
+        ],
+        "range": [
+          0,
+          409
         ]
-      }
+      },
+      "field": "y"
+    },
+    "x": {
+      "aggregate": "count",
+      "bin": {
+        "maxbins": 400
+      },
+      "type": "quantitative",
+      "scale": {
+        "domain": [
+          -43.547977,
+          43.804802
+        ],
+        "range": [
+          0,
+          400
+        ]
+      },
+      "field": "x"
     }
   }
 }
