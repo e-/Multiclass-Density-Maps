@@ -270,7 +270,7 @@ export class AssemblySpec {
         "weaving" | "propline" | "hatching" | "separate" | "glyph" | "dotdensity" | "time" = "mean";
 
     // blend
-    mixing: "additive" | "multiplicative" = "additive";
+    blending: "additive" | "multiplicative" = "additive";
 
     // weaving*
     shape: "random" | "square" | "hex" | "tri" = "random"
@@ -486,6 +486,7 @@ export class Config {
     }
     private parseAssembly() {
         let spec = this.spec.assembly || this.spec.compose;
+        if(spec.mixing && !spec.blending) spec.blending = spec.mixing;
         this.assembly = new AssemblySpec(spec);
     }
     private parseRescale() {

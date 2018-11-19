@@ -300,7 +300,7 @@ export default class Interpreter {
         else if (assemblyConfig.mix === "invmin")
             this.assemble = Assembly.invmin;
         else if (assemblyConfig.mix === "blend") {
-            if (assemblyConfig.mixing === "multiplicative")
+            if (assemblyConfig.blending === "multiplicative")
                 this.assemble = Assembly.multiplicativeMix;
             else
                 this.assemble = Assembly.additiveMix;

@@ -261,7 +261,7 @@ function colorMixMap(g:d3s.Selection<d3s.BaseType, {}, HTMLElement, any>,
     let titleHeight = spec.titleHeight;
     let size = spec.mixMapSize;
 
-    let name = interp.config.assembly!.mix === "blend" ? interp.config.assembly!.mixing : interp.config.assembly!.mix;
+    let name = interp.config.assembly!.mix === "blend" ? interp.config.assembly!.blending : interp.config.assembly!.mix;
     g.append('text')
         .text(`${title} (${name})`)
         .attr('dy', spec.titleDy)
