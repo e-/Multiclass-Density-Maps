@@ -63,7 +63,8 @@ Here is a huge example of an MDM specification:
 | - | - | -
 | data | [`DataSpec`](#type-dataspec) | Specify the location of a schema file and data buffers |
 | style | [`StyleSpec`](#type-stylespec) | (Optional) Specify the visual properties for data buffers |
-
+| rebin | [`RebinSpec`](#type-rebinspec) | (Optional) Specify how the visualization space is tiled and the prebinned pixels one the same tile are aggregated |
+| assembly | [`AssemblySpec`](#type-assemblyspec) | Specify the assembly function used for encoding multiclass data |
 
 ### Type `DataSpec`
 
@@ -89,20 +90,54 @@ The `scale` property determines a scale that is used to map counts to a visual v
 
 #### Type `ClassSpec`
 
+A `ClassSpec` represents properties that are added to a data buffer to make it a class buffer. 
+
 | Property | Type | Description |
 | - | - | - |
-| name | string | The class name in the schema file  |
-| alias | string | (Optional) The name to be displayed for `name` in a legend (default: `name`)|
+| name | string | The class name in the schema file. By default, this is displayed in the legend  |
+| alias | string | (Optional) The alternative name to be displayed in the legend for a specific class (default: `name`)|
 | color0 | [Color](#type-color) | (Optional) A class-specific color to which 0 is mapped (default: white, `rgba(255, 255, 255, 1)`) |
 | color1 | [Color](#type-color) | (Optional) A class-specific color to which `max_count` is mapped (default: one of [d3's 10 categorical colors](http://bl.ocks.org/aaizemberg/78bd3dade9593896a59d)) |
 
-A `ClassSpec` represents properties that are added to a data buffer to make it a class buffer. `name` is a name of a data buffer (i.e., a class).
 
 #### Type `ScaleSpec`
 
+| Property | Type | Description |
+| - | - | - |
+| type | string | The type of a scale. It must be one of `linear`, `log`, `sqrt` (square root), `cbrt` (cubic root), and `equidepth`. (default: `linear`) |
+| levels | number | The number of different bands for an `equidepth` scale (default: `4`)|
+
+An `equidepth` scale sorts and discretizes data values to `levels` bins with each bin having the same number of data values. Data values in the same bin are encoded with the same color.
 
 #### Type `Color`
 
 A color is a string code such as `rgb(50, 30, 20)`, `rgba(50, 30, 20, 0.5)`, `#ffffff`, or `blue`. We support human-readable color names for [d3's 10 categorical colors](http://bl.ocks.org/aaizemberg/78bd3dade9593896a59d), such as blue, orange, green, red, purple, brown, pink, gray, yellow, and skyblue.
 
+### Type `RebinSepc`
 
+| Property | Type | Description |
+| -| - | - |
+| type | string | The type of a scale. It must be one of `linear`, `log`, `sqrt` (square root), `cbrt` (cubic root), and `equidepth`. (default: `linear`) |
+| aggregation | number | The number of different bands for an `equidepth` scale (default: `4`)|
+| width | number | The number of different bands for an `equidepth` scale (default: `4`)|
+| height | number | The number of different bands for an `equidepth` scale (default: `4`)|
+| size | number | The number of different bands for an `equidepth` scale (default: `4`)|
+| feature | number | The number of different bands for an `equidepth` scale (default: `4`)|
+| topojson | number | The number of different bands for an `equidepth` scale (default: `4`)|
+| points | number | The number of different bands for an `equidepth` scale (default: `4`)|
+
+### Type `AssemblySpec`
+
+| Property | Type | Description |
+| - | - | - |
+| mix | string |  |
+| mixing | string |  |
+| shape | string |  |
+| size | string |  |
+| interval | string |  |
+| threshold | string |  |
+| sort | string |  |
+| colprop | string |  |
+| widthprop | string |  |
+| order | string |  |
+| glyphSpec | string |  |
