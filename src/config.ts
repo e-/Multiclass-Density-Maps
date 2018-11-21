@@ -266,12 +266,9 @@ export interface ReencodingSpec {
 }
 
 export class AssemblySpec {
-    type: "none" | "invmin" | "mean" | "max" | "blend" |
+    type: "none" | "invmin" | "mean" | "max" | "add" | "multiply" |
         "weaving" | "propline" | "hatching" | "separate" |
         "glyph" | "dotdensity" | "time" = "mean";
-
-    // blend
-    blending: "additive" | "multiplicative" = "additive";
 
     // weaving*
     shape: "square" | "hex" | "tri" = "square";
@@ -512,6 +509,10 @@ export class Config {
             spec.random = true;
         }
 
+        if(spec.type == "blend") {
+            if(spec.blending == "multiplicative") spec.type = "multiply";
+            else if(spec.blending == "additive") spec.type = "add";
+        }
         this.assembly = new AssemblySpec(spec);
     }
     private parseRescale() {

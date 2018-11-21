@@ -96,7 +96,7 @@ export default class Interpreter {
     public interpret() {
         // create class buffers first
         this.classBuffers = this.config.getDataBuffers().map(dataBuffer => new ClassBuffer(dataBuffer));
-;
+        ;
 
         this.computePreprocess();
 
@@ -141,7 +141,7 @@ export default class Interpreter {
     }
 
     private computePreprocess() {
-        if(this.config.preprocess && this.config.preprocess.gaussian) {
+        if (this.config.preprocess && this.config.preprocess.gaussian) {
             this.classBuffers.forEach(cb => {
                 cb.dataBuffer = cb.dataBuffer.blur(this.config.preprocess!.gaussian);
             });
@@ -154,21 +154,21 @@ export default class Interpreter {
         if (config.background)
             this.background = config.background;
 
-        if(config.style) {
-            if(config.style.classes) {
-                if(config.style.classes.length != this.classBuffers!.length) {
+        if (config.style) {
+            if (config.style.classes) {
+                if (config.style.classes.length != this.classBuffers!.length) {
                     throw new Error(`the length of the classes does not match ${config.style.classes.length} != ${this.classBuffers!.length}`);
                 }
 
                 let buffers = config.style.classes.map(cl => {
                     let buffer = this.classBuffers!.find(cb => cb.name === cl.name);
 
-                    if(!buffer)
+                    if (!buffer)
                         throw new Error(`cannot find a class buffer with name ${cl}`);
 
                     buffer.name = cl.alias || buffer.name;
-                    if(cl.color0) buffer.color0 = Color.parse(cl.color0);
-                    if(cl.color1) buffer.color1 = Color.parse(cl.color1);
+                    if (cl.color0) buffer.color0 = Color.parse(cl.color0);
+                    if (cl.color1) buffer.color1 = Color.parse(cl.color1);
 
                     return buffer;
                 })
@@ -178,8 +178,8 @@ export default class Interpreter {
         }
 
         this.classBuffers.forEach((cb, i) => {
-            if(cb.color0 == Color.None) cb.color0 = Color.White;
-            if(cb.color1 == Color.None) cb.color1 = Color.Category10[i % Color.Category10.length];
+            if (cb.color0 == Color.None) cb.color0 = Color.White;
+            if (cb.color1 == Color.None) cb.color1 = Color.Category10[i % Color.Category10.length];
         })
 
         this.bufferNames = this.classBuffers.map(cb => cb.name);
@@ -299,12 +299,10 @@ export default class Interpreter {
             this.assemble = Assembly.mean;
         else if (assemblyConfig.type === "invmin")
             this.assemble = Assembly.invmin;
-        else if (assemblyConfig.type === "blend") {
-            if (assemblyConfig.blending === "multiplicative")
-                this.assemble = Assembly.multiplicativeMix;
-            else
-                this.assemble = Assembly.additiveMix;
-        }
+        else if (assemblyConfig.type === "multiply")
+            this.assemble = Assembly.multiplicativeMix;
+        else if (assemblyConfig.type === "add")
+            this.assemble = Assembly.additiveMix;
         else if (assemblyConfig.type === "weaving" && assemblyConfig.shape == "square")
             this.masks = Weaving.squareMasks(this.n,
                 assemblyConfig.size,
@@ -319,7 +317,7 @@ export default class Interpreter {
                 this.width, this.height, assemblyConfig.random);
     }
 
-    private setup(canvas: HTMLCanvasElement, width:number, height:number) {
+    private setup(canvas: HTMLCanvasElement, width: number, height: number) {
         canvas.style.width = `${width}px`;
         canvas.style.height = `${height}px`;
 
@@ -578,7 +576,7 @@ export default class Interpreter {
             this.log('No assembly');
 
         let render = () => {
-            let options:any = {};
+            let options: any = {};
 
             if (assemblyConfig.type === "time") {
                 options.interval = assemblyConfig.interval;
