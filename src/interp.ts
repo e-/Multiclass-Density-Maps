@@ -579,7 +579,7 @@ export default class Interpreter {
             let options: any = {};
 
             if (assemblyConfig.type === "time") {
-                options.interval = assemblyConfig.interval;
+                options.interval = assemblyConfig.duration;
                 options.wrapper = wrapper;
             }
 

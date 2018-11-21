@@ -278,7 +278,7 @@ export class AssemblySpec {
     size: number = 8;
 
     // time
-    interval: number = 0.6;
+    duration: number = 0.6;
 
     // invmin
     threshold: number = 1;
