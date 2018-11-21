@@ -261,7 +261,7 @@ function colorMixMap(g:d3s.Selection<d3s.BaseType, {}, HTMLElement, any>,
     let titleHeight = spec.titleHeight;
     let size = spec.mixMapSize;
 
-    let name = interp.config.assembly!.mix === "blend" ? interp.config.assembly!.blending : interp.config.assembly!.mix;
+    let name = interp.config.assembly!.type === "blend" ? interp.config.assembly!.blending : interp.config.assembly!.type;
     g.append('text')
         .text(`${title} (${name})`)
         .attr('dy', spec.titleDy)
@@ -345,7 +345,7 @@ function mixLegend(wrapper:HTMLDivElement, interp:Interpreter) {
     let height = (rowHeight + verticalGutter) * n +
         (titleHeight + verticalGutter) + padding * 2;
 
-    if(["hatching", "propline"].indexOf(interp.config.assembly!.mix) < 0 || interp.config.assembly!.colprop) {
+    if(["hatching", "propline"].indexOf(interp.config.assembly!.type) < 0 || interp.config.assembly!.colprop) {
         height += (rowHeight + verticalGutter) * n +
         (titleHeight + verticalGutter);
 
@@ -359,7 +359,7 @@ function mixLegend(wrapper:HTMLDivElement, interp:Interpreter) {
 
 
     // checks whether a mix map is shown
-    if(["max", "mean", "blend"].indexOf(interp.config.assembly!.mix) >= 0 && derivedBuffers.length >= 2) {
+    if(["max", "mean", "blend"].indexOf(interp.config.assembly!.type) >= 0 && derivedBuffers.length >= 2) {
 
         // since <foreignObject> has a rendering issue on Webkit browesers,
         // we create an extra canvas over the svg
@@ -633,7 +633,7 @@ function punchcard(dest:SVGSVGElement, interp:Interpreter) {
 }
 
 export default function LegendBuilder(wrapper:HTMLDivElement, interp:Interpreter) {
-    if(interp.config.assembly!.mix === "glyph") {
+    if(interp.config.assembly!.type === "glyph") {
         let svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
         wrapper.appendChild(svg);
 

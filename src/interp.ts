@@ -293,34 +293,30 @@ export default class Interpreter {
     private computeAssembly(context = {}) {
         let assemblyConfig = this.config.assembly!;
 
-        if (assemblyConfig.mix === "max")
+        if (assemblyConfig.type === "max")
             this.assemble = Assembly.max;
-        else if (assemblyConfig.mix === "mean")
+        else if (assemblyConfig.type === "mean")
             this.assemble = Assembly.mean;
-        else if (assemblyConfig.mix === "invmin")
+        else if (assemblyConfig.type === "invmin")
             this.assemble = Assembly.invmin;
-        else if (assemblyConfig.mix === "blend") {
+        else if (assemblyConfig.type === "blend") {
             if (assemblyConfig.blending === "multiplicative")
                 this.assemble = Assembly.multiplicativeMix;
             else
                 this.assemble = Assembly.additiveMix;
         }
-        else if (assemblyConfig.mix === "weaving" && assemblyConfig.shape == "random")
-            this.masks = Weaving.randomMasks(this.n,
-                assemblyConfig.size,
-                this.width, this.height);
-        else if (assemblyConfig.mix === "weaving" && assemblyConfig.shape == "square")
+        else if (assemblyConfig.type === "weaving" && assemblyConfig.shape == "square")
             this.masks = Weaving.squareMasks(this.n,
                 assemblyConfig.size,
-                this.width, this.height);
-        else if (assemblyConfig.mix === "weaving" && assemblyConfig.shape == "hex")
+                this.width, this.height, assemblyConfig.random);
+        else if (assemblyConfig.type === "weaving" && assemblyConfig.shape == "hex")
             this.masks = Weaving.hexMasks(this.n,
                 assemblyConfig.size,
-                this.width, this.height);
-        else if (assemblyConfig.mix === "weaving" && assemblyConfig.shape == "tri")
+                this.width, this.height, assemblyConfig.random);
+        else if (assemblyConfig.type === "weaving" && assemblyConfig.shape == "tri")
             this.masks = Weaving.triangleMasks(this.n,
                 assemblyConfig.size,
-                this.width, this.height);
+                this.width, this.height, assemblyConfig.random);
     }
 
     private setup(canvas: HTMLCanvasElement, width:number, height:number) {
@@ -337,7 +333,7 @@ export default class Interpreter {
         let assemblyConfig = this.config.assembly!;
         let promises = [];
 
-        if (assemblyConfig.mix === "separate") { // small multiples
+        if (assemblyConfig.type === "separate") { // small multiples
             this.image = this.classBuffers.map((b) => new Image(this.width, this.height));
             for (let tile of this.tiles) {
                 this.classBuffers.forEach((derivedBuffer, i) => {
@@ -346,7 +342,7 @@ export default class Interpreter {
                 });
             }
         }
-        else if (assemblyConfig.mix === "time") { // time multiplexing
+        else if (assemblyConfig.type === "time") { // time multiplexing
             this.image = this.classBuffers.map((b) => new Image(this.width, this.height));
             for (let tile of this.tiles) {
                 this.classBuffers.forEach((derivedBuffer, i) => {
@@ -360,7 +356,7 @@ export default class Interpreter {
         }
 
         // Need the tiles to compute dot density plots
-        if (assemblyConfig.mix === "dotdensity") {
+        if (assemblyConfig.type === "dotdensity") {
             let size = assemblyConfig.size;
 
             // create one mask per databuffer
@@ -455,7 +451,7 @@ export default class Interpreter {
                 });
             }
         }
-        else if (assemblyConfig.mix === "propline") {
+        else if (assemblyConfig.type === "propline") {
             for (let tile of this.tiles) {
                 let hatch = Assembly.hatch(tile, this.classBuffers, tile.dataValues, {
                     thickness: assemblyConfig.size,
@@ -467,7 +463,7 @@ export default class Interpreter {
                 this.image[0].render(hatch, tile.center);
             }
         }
-        else if (assemblyConfig.mix === "hatching") {
+        else if (assemblyConfig.type === "hatching") {
             let maxCount = util.amax(this.tiles.map(tile => tile.maxValue()));
             this.classBuffers.forEach((derivedBuffer: ClassBuffer, i: number) => {
                 // Ugly side effect, should pass dataValues to Composer.hatch instead
@@ -495,7 +491,7 @@ export default class Interpreter {
                 this.image[0].render(hatch, tile.center);
             }
         }
-        else if (assemblyConfig.mix === "glyph") {
+        else if (assemblyConfig.type === "glyph") {
             let maxCount = util.amax(this.tiles.map(tile => tile.maxValue()));
             let glyphSpec = assemblyConfig.glyphSpec!;
 
@@ -584,7 +580,7 @@ export default class Interpreter {
         let render = () => {
             let options:any = {};
 
-            if (assemblyConfig.mix === "time") {
+            if (assemblyConfig.type === "time") {
                 options.interval = assemblyConfig.interval;
                 options.wrapper = wrapper;
             }

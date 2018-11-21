@@ -177,19 +177,8 @@
                         "levels": 4
                     }
                 });
-
-
-            render('Random Rectangular Weaving',
-                {
-                    "data": { "url": "mn_data.json" },
-                    "compose": {
-                        "mix": "weaving",
-                        "shape": "random"
-                    }
-                });
-
-
-            render('Square Rectangular Weaving',
+    
+            render('Square Weaving',
                 {
                     "data": { "url": "mn_data.json" },
                     "compose": {
@@ -198,7 +187,17 @@
                     }
                 });
 
-            render('Linear Color Scale Hex',
+            render('Random Square Weaving',
+            {
+                "data": { "url": "mn_data.json" },
+                "compose": {
+                    "mix": "weaving",
+                    "shape": "square",
+                    "random": true
+                }
+            });
+
+            render('Hexagonal Weaving',
                 {
                     "description": "multivariate normal data",
                     "data": { "url": "mn_data.json" },
@@ -208,12 +207,13 @@
                     }
                 });
 
-            render('EquiDepth Color Scale Triangles',
+            render('Random Trianglular Weaving',
                 {
                     "data": { "url": "mn_data.json" },
                     "compose": {
                         "mix": "weaving",
-                        "shape": "tri"
+                        "shape": "tri",
+                        "random": true
                     },
                     "rescale": {
                         "type": "equidepth"
