@@ -107,8 +107,6 @@ A `ClassSpec` represents properties that are added to a data buffer to make it a
 | type | string | The type of a scale. One of `linear`, `log`, `sqrt` (square root), `cbrt` (cubic root), and `equidepth` (default: `linear`). An `equidepth` scale sorts and discretizes data values to `levels` bins with each bin having the same number of data values. Data values in the same bin are encoded with the same color. |
 | levels | number | The number of different bands for an `equidepth` scale (default: `4`)|
 
-
-
 #### Type `Color`
 
 A color is a string code such as `rgb(50, 30, 20)`, `rgba(50, 30, 20, 0.5)`, `#ffffff`, or `blue`. We support human-readable color names for [d3's 10 categorical colors](http://bl.ocks.org/aaizemberg/78bd3dade9593896a59d), such as blue, orange, green, red, purple, brown, pink, gray, yellow, and skyblue.
@@ -131,45 +129,51 @@ Rebinning is optional, but for some assembly operations, it is highly recommende
 
 ### Type `AssemblySpec`
 
-The `AssemblySpec` specifies how aggregated counts on the same tile are visualized. 
+The `AssemblySpec` specifies how *normalized counts* on the same tile are visualized. Note that the aggregated counts produced in the rebinning stage are normalized to `[0, 1]` using a specified scale. Let `N` and `M` be the number of classes and tiles, respectively. For each of the `M` tiles, we have `N` normalized counts (hereafter, *counts*). An assembly operation takes these `N` normalize counts on a tile as an input and visualizes it on the visualization space of the tile. The `type` property determines which assembly operation will be used.
 
 | Property | Type | Description |
 | - | - | - |
-| type | string | One of `invmin`, `mean`, `max`, `blend`, `weaving`, `propline`, `hatching`, `separate`, `glyph`, `dotdensity`, and `time` (default: `mean`). |
+| type | string | One of `mean`, `add`, `multiply`, `max`, `invmin`, `weaving`, `propline`, `hatching`, `separate`, `glyph`, `dotdensity`, and `time` (default: `mean`). |
 
-Let `N` and `M` be the number of classes and tiles, respectively. For each of the `M` tiles, we have `N` aggregated counts, all together *a data vector*. An assembly operation takes the `N` aggregated counts on a tile as an input and visualizes it on the visualization space of the tile.
-There have been many different ways of assembling the counts.
-Here is a list of the assembly operations we provide.
+Each assembly operation provides different options as follows.
 
-#### `invmin` and `max`
+#### `mean`, `add`, and `multiply`
 
-`min`
+These three operations first map the `N` counts to `N` colors and the blends the colors in some ways.
+The `mean` operation computes the mean RGB code of the `N` output colors and paints the whole tile with the mean color.
+The `add` operation adds each of the `N` colors to the base color (i.e., `rgb(0, 0, 0)`). This can be seen as *additive blending*, producing a brighter color for larger counts. The last `multiply` operation multiplies each of the `N` colors to the base color (i.e., `rgb(255, 255, 255)). This can be seen as *multiplicative blending*, producing a darker color for larger counts.
 
-#### `blend` `mean`,
+#### `max` and `invmin`
+
+The `invmin` and `max` operations choose only one color from `N` colors and paint the whole tile with the color. The `max` operation chooses the color with the maximum count, while the `invmin` operation uses the color with the minimum count. Note that the `invmin` operation inverts the color range of the scale. 
+It means that a smaller count will be shown in an intenser color, which might be effective in showing outliers. This is why we call it `invmin` not `min`.
 
 #### `weaving`
 
+| Property | Type | Description |
+| - | - | - |
+| shape | string | One of `square`, `hex`, and `tri` (default: `square`) |
+| random | boolean | default: false |
+
+The `weaving` operation implements the weaving technique to show multiple colors on a tile  where colors are displayed only on the patches that are assigned to each class. The `shape` property determines the shape of the patches, while the `random` property determines whether the patches will be assigned to classes randomly or regularly.
+
 #### `propline` and `hatching`
-
-#### `separate`
-
-#### `glyph`
 
 #### `dotdensity`
 
+#### `separate`
+
+The `separate` operation renders each of the `N` classes as a separate image and merges the images into one by putting them side-by-side. This technique is called *small multiples*.
+
 #### `time`
 
+Simliar to the `separate` operation, the `time` operation renders each of the `N` classes as a separate image. However, in this case, we separate the images *temporally* using animation, i.e., transiting one to another.
 
-| mixing | string |  |
-| shape | string |  |
-| size | string |  |
-| interval | string |  |
-| threshold | string |  |
-| sort | string |  |
-| colprop | string |  |
-| widthprop | string |  |
-| order | string |  |
-| glyphSpec | string |  |
+| Property | Type | Description |
+| - | - | - |
+| duration | number | The duration in which one image is displayed on the screen (default: 0.6) |
+
+#### `glyph`
 
 ### Type `GlyphSpec`
 
