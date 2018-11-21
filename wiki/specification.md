@@ -71,7 +71,7 @@ Here is a huge example of an MDM specification:
 A `DataSpec` specifies the location of data buffers that are generated in the binning stage (the first stage in our model, see <https://github.com/e-/Multiclass-Density-Maps/tree/master/data> for how to use our scripts to convert your data to data buffers).
 After running the scripts, a dataset with `N` classes is converted to `N + 1` files which are one schema file (e.g., `census.snappy_data.json` in the above example) and `N` data buffers, one for each class.
 
-These files must be located in the same directory, and the schema file must be referenced by its name (e.g., `census.snappy_data.json`) not by the full path to it (e.g., `/my/data/census.snappy_data.json`). The prefix of the path will later be provided when you load the schema file (e.g., `spec.load('/my/data').then(...)`).
+These files must be located in the same directory, and the schema file must be referenced by its name (e.g., `census.snappy_data.json`) not by the full path to it (e.g., `/my/data/census.snappy_data.json`). The prefix of the path must be provided later when you load the schema file (e.g., `spec.load('/my/data').then(...)`).
 
 | Property | Type | Description |
 | - | - | - |
@@ -107,11 +107,7 @@ A `ClassSpec` represents properties that are added to a data buffer to make it a
 | type | string | The type of a scale. One of `linear`, `log`, `sqrt` (square root), `cbrt` (cubic root), and `equidepth` (default: `linear`). An `equidepth` scale sorts and discretizes data values to `levels` bins with each bin having the same number of data values. Data values in the same bin are encoded with the same color. |
 | levels | number | The number of different bands for an `equidepth` scale (default: `4`)|
 
-#### Type `Color`
-
-A color is a string code such as `rgb(50, 30, 20)`, `rgba(50, 30, 20, 0.5)`, `#ffffff`, or `blue`. We support human-readable color names for [d3's 10 categorical colors](http://bl.ocks.org/aaizemberg/78bd3dade9593896a59d), such as blue, orange, green, red, purple, brown, pink, gray, yellow, and skyblue.
-
-### Type `RebinSepc`
+### Type `RebinSpec`
 
 | Property | Type | Description |
 | -| - | - |
@@ -141,7 +137,7 @@ Each assembly operation provides different options as follows.
 
 These three operations first map the `N` counts to `N` colors and the blends the colors in some ways.
 The `mean` operation computes the mean RGB code of the `N` output colors and paints the whole tile with the mean color.
-The `add` operation adds each of the `N` colors to the base color (i.e., `rgb(0, 0, 0)`). This can be seen as *additive blending*, producing a brighter color for larger counts. The last `multiply` operation multiplies each of the `N` colors to the base color (i.e., `rgb(255, 255, 255)). This can be seen as *multiplicative blending*, producing a darker color for larger counts.
+The `add` operation adds each of the `N` colors to the base color (i.e., `rgb(0, 0, 0)`). This can be seen as *additive blending*, producing a brighter color for larger counts. The last `multiply` operation multiplies each of the `N` colors to the base color (i.e., `rgb(255, 255, 255)`). This can be seen as *multiplicative blending*, producing a darker color for larger counts.
 
 #### `max` and `invmin`
 
@@ -150,16 +146,24 @@ It means that a smaller count will be shown in an intenser color, which might be
 
 #### `weaving`
 
+The `weaving` operation implements the weaving technique to show multiple colors on a tile  where colors are displayed only on the patches that are assigned to each class.
+
 | Property | Type | Description |
 | - | - | - |
-| shape | string | One of `square`, `hex`, and `tri` (default: `square`) |
-| random | boolean | default: false |
-
-The `weaving` operation implements the weaving technique to show multiple colors on a tile  where colors are displayed only on the patches that are assigned to each class. The `shape` property determines the shape of the patches, while the `random` property determines whether the patches will be assigned to classes randomly or regularly.
+| shape | string | The shape of patches. One of `square`, `hex`, and `tri` (default: `square`) |
+| size | number | The size of patches (default: 4). |
+| random | boolean | Whether the patches will be assigned to classes randomly or regularly (default: `false`, which means regular assignment) |
 
 #### `propline` and `hatching`
 
-#### `dotdensity`
+The `propline` and `hatching` operations visualize the counts with evenly spaced lines. The only difference is that the `propline` operation uses aligned vertical lines, while the `hatching` operation rotates the lines using class-specific angles.
+
+| Property | Type | Description |
+| - | - | - |
+| size | number | The thickness of a line (default: 8) |
+| sort | boolean | If `sort` is set to `true`, the lines are drawn with an increasing order of their counts (i.e., the line with the minimum count is drawn the first) (default: `true`). Otherwise, the line for the first class is drawn the first. |
+| colprop | boolean | If `colprop` is set to `true`, the color of a line encodes the count (default: `false`). |
+| widthprop | undefined, 'percent', or number | If `widthprop` is undefined, the lines are drawn with the same thickness (i.e., `size` pixels). If it is set to `percent`, `size` * `N` pixels are allocated to classes proportional to their counts and used as thickness. Setting `widthprop` to a number is simliar to `percent`, but thickness is normalized by `widthprop` not the sum of counts. (default: undefined)|
 
 #### `separate`
 
@@ -175,5 +179,12 @@ Simliar to the `separate` operation, the `time` operation renders each of the `N
 
 #### `glyph`
 
+
+#### `dotdensity`
+
+
 ### Type `GlyphSpec`
 
+#### Type `Color`
+
+A color is a string code such as `rgb(50, 30, 20)`, `rgba(50, 30, 20, 0.5)`, `#ffffff`, or `blue`. We support human-readable color names for [d3's 10 categorical colors](http://bl.ocks.org/aaizemberg/78bd3dade9593896a59d), such as blue, orange, green, red, purple, brown, pink, gray, yellow, and skyblue.

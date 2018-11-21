@@ -300,9 +300,9 @@ export default class Interpreter {
         else if (assemblyConfig.type === "invmin")
             this.assemble = Assembly.invmin;
         else if (assemblyConfig.type === "multiply")
-            this.assemble = Assembly.multiplicativeMix;
+            this.assemble = Assembly.multiply;
         else if (assemblyConfig.type === "add")
-            this.assemble = Assembly.additiveMix;
+            this.assemble = Assembly.add;
         else if (assemblyConfig.type === "weaving" && assemblyConfig.shape == "square")
             this.masks = Weaving.squareMasks(this.n,
                 assemblyConfig.size,
@@ -521,7 +521,7 @@ export default class Interpreter {
                     if (tile.mask.width < width
                         || tile.mask.height < height) continue;
 
-                    let promise = Assembly.bars(this.classBuffers, this.bufferNames, tile.dataValues, {
+                    let promise = Assembly.bars(this.classBuffers, tile.dataValues, {
                         width: glyphSpec.width,
                         height: glyphSpec.height,
                         'y.scale.domain': this.scale.domain as [number, number],

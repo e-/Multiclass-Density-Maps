@@ -1,6 +1,5 @@
 import ClassBuffer from "./class-buffer";
 import Color from "./color";
-import { ScaleTrait } from "./scale";
 import extract from "./vega-extractor"
 import Tile from "./tile";
 import * as util from "./util";
@@ -64,7 +63,7 @@ export default class Assembly {
         return ret;
     }
 
-    static additiveMix(buffers: ClassBuffer[], values: number[]): Color {
+    static add(buffers: ClassBuffer[], values: number[]): Color {
         let ret = new Color(0, 0, 0, 1);
 
         values.forEach((value, i) => {
@@ -75,7 +74,7 @@ export default class Assembly {
         return ret;
     }
 
-    static multiplicativeMix(buffers: ClassBuffer[], values: number[]): Color {
+    static multiply(buffers: ClassBuffer[], values: number[]): Color {
         let ret = new Color(1, 1, 1, 1);
 
         values.forEach((value, i) => {
@@ -90,7 +89,7 @@ export default class Assembly {
         return ret;
     }
 
-    static none(buffers: ClassBuffer[], values: number[]): Color {
+    static none(): Color {
         return Color.None;
     }
 
@@ -98,7 +97,7 @@ export default class Assembly {
         return buffer.colorScale.map(value);
     }
 
-    static bars(buffers: ClassBuffer[], names: string[], values: number[],
+    static bars(buffers: ClassBuffer[], values: number[],
         options: {
             width?: number,
             height?: number,
