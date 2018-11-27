@@ -204,6 +204,14 @@ export class SchemaSpec {
 
         return Promise.all(requests);
     }
+    loadJson(data: any) {
+        let requests: Promise<DataBufferSpec>[] = [];
+        this.dataBuffers.forEach(buffer => {
+            if (!buffer.binnedPixels) {
+                buffer.binnedPixels = data;
+            }}  );  
+        return Promise.all(requests);
+    }
 }
 
 export interface DataSpec {
@@ -675,6 +683,27 @@ export class Config {
 
         return Promise.resolve(this);
     }
+    
+    private loadDataJson(data: any): Promise<any> {
+        if (!this.data.schema) {
+            return Promise.resolve(data)
+                .then(response => {
+                    let dataSpec = new SchemaSpec(response);
+                    this.data.schema = dataSpec;
+
+                    this.bufferNames = this.data.schema!.dataBuffers.map(b => b.value);
+
+                    return this.data.schema!.loadJson(data);
+                })
+                .catch((reason) => {
+                    console.error(`Cannot load dataSpec : ${reason}`);
+                })
+        }
+
+        return Promise.resolve(this);
+    }
+    
+
 
     // load data from the server if this.data contains url
     load(base: string, useCache = true): Promise<Config> {
@@ -682,6 +711,10 @@ export class Config {
         return Promise.all([this.loadData(base, useCache),
         this.loadTopojson(base, useCache),
         this.loadStroke(base, useCache)]).then(() => this);
+    }
+
+    loadJson(data: any): Promise<Config> {
+        return Promise.all([this.loadDataJson(data)]).then(() => this);
     }
 
     public getDataBuffers(): DataBuffer[] {
