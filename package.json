@@ -46,7 +46,7 @@
     "ts-loader": "^3.5.0",
     "typescript": "^2.8.1",
     "webpack": "^3.11.0",
-    "webpack-bundle-analyzer": "^2.11.1",
+    "webpack-bundle-analyzer": "^3.6.0",
     "webpack-dev-server": "^2.11.2"
   },
   "scripts": {
