@@ -1,8 +1,8 @@
 import CanvasRender from './canvas-renderer';
 import Color from './color';
-import Composer from './composer';
+import Assembly from './assembly';
 import DataBuffer from './data-buffer';
-import DerivedBuffer from './derived-buffer';
+import ClassBuffer from './class-buffer';
 import gaussian_blur from './gaussian-blur';
 import Image from './image';
 import Interpreter from './interp';
@@ -18,4 +18,4 @@ import * as Tiling from './tiling';
 import * as Util from './util';
 import VegaExtractor from './vega-extractor';
 import * as Weaving from './weaving';
-export { CanvasRender, Color, Composer, DataBuffer, DerivedBuffer, gaussian_blur, Image, Interpreter, LegendBuilder, Mask, Config, Path, Point, Rect, Scale, Tile, Tiling, Util, VegaExtractor, Weaving };
+export { CanvasRender, Color, Assembly, DataBuffer, ClassBuffer, gaussian_blur, Image, Interpreter, LegendBuilder, Mask, Config, Path, Point, Rect, Scale, Tile, Tiling, Util, VegaExtractor, Weaving };

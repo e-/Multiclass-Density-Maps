@@ -87,7 +87,7 @@ function colorCategories(g, derivedBuffers, spec, labels, title = "category") {
     categoryEnter
         .append('circle')
         .attr('r', 5)
-        .attr('fill', d => d.color.css())
+        .attr('fill', d => d.color1.css())
         .attr('transform', translate(5, 2.5));
     categoryEnter
         .append('text')
@@ -106,7 +106,7 @@ function colorRamps(g, defs, derivedBuffers, interp, spec, title = "scale") {
     let verticalGutter = spec.verticalGutter;
     let titleHeight = spec.titleHeight;
     g.append('text')
-        .text(`${title} (${interp.rescale.type})`)
+        .text(`${title} (${interp.scale.type})`)
         .attr('font-weight', 'bold')
         .attr('dy', spec.titleDy);
     let gradientFunc;
@@ -116,14 +116,14 @@ function colorRamps(g, defs, derivedBuffers, interp, spec, title = "scale") {
     let markerValues = [];
     let colormapScale = (v, i) => interp.scale.map(v) * width;
     // scales that show continuous color maps
-    if (!interp.rescale || ["linear", "pow", "sqrt", "cbrt", "log"].indexOf(interp.rescale.type) >= 0) {
+    if (!interp.scale || ["linear", "pow", "sqrt", "cbrt", "log"].indexOf(interp.scale.type) >= 0) {
         gradientFunc = linearGradient;
         let n = spec.markers;
         tickValues = [derivedBuffers[0].colorScale.interpolator.domain[0],
             derivedBuffers[0].colorScale.interpolator.domain[1]];
         markerValues = d3a.range(n).map(i => tickValues[0] + (tickValues[1] - tickValues[0]) * (i + 1) / (n + 1));
     }
-    else if (interp.rescale.type === "equidepth") { // discrete such as equidepth
+    else if (interp.scale.type === "equidepth") { // discrete such as equidepth
         let interpolator = derivedBuffers[0].colorScale.interpolator;
         gradientFunc = equiDepthColorMap;
         // tickValues = [interpolator.domain[0],
@@ -207,7 +207,7 @@ function colorMixMap(g, canvas, derivedBuffers, interp, spec, top, title = "blen
     let verticalGutter = spec.verticalGutter;
     let titleHeight = spec.titleHeight;
     let size = spec.mixMapSize;
-    let name = interp.compose.mix === "blend" ? interp.compose.mixing : interp.compose.mix;
+    let name = interp.config.assembly.type;
     g.append('text')
         .text(`${title} (${name})`)
         .attr('dy', spec.titleDy)
@@ -224,10 +224,10 @@ function colorMixMap(g, canvas, derivedBuffers, interp, spec, top, title = "blen
     let buffer1 = derivedBuffers[0];
     let buffer2 = derivedBuffers[1];
     let domain = x => 0;
-    if (["linear", "pow", "sqrt", "cbrt", "log"].indexOf(interp.rescale.type) >= 0) {
+    if (["linear", "pow", "sqrt", "cbrt", "log"].indexOf(interp.scale.type) >= 0) {
         domain = x => interp.scale.invmap(x);
     }
-    else if (interp.rescale.type === "equidepth") {
+    else if (interp.scale.type === "equidepth") {
         domain = x => interp.scale.invmap(x);
     }
     for (let r = 0; r < size; ++r) {
@@ -237,7 +237,7 @@ function colorMixMap(g, canvas, derivedBuffers, interp, spec, top, title = "blen
             // console.log(interp.scale, c, cValue);
             // let rColor = buffer1.colorScale.map(rValue);
             // let cColor = buffer2.colorScale.map(cValue);
-            let color = interp.composer([buffer1, buffer2], [rValue, cValue]);
+            let color = interp.assemble([buffer1, buffer2], [rValue, cValue]);
             let offset = (r * size + c) * 4;
             data[offset + 0] = color.r * 255;
             data[offset + 1] = color.g * 255;
@@ -250,7 +250,7 @@ function colorMixMap(g, canvas, derivedBuffers, interp, spec, top, title = "blen
 function mixLegend(wrapper, interp) {
     let dest = document.createElementNS("http://www.w3.org/2000/svg", "svg");
     wrapper.appendChild(dest);
-    let derivedBuffers = interp.derivedBuffers;
+    let derivedBuffers = interp.classBuffers;
     let spec = interp.legend;
     let svg = d3s.select(dest)
         .style('font-family', spec.fontFamily)
@@ -271,7 +271,7 @@ function mixLegend(wrapper, interp) {
     colorCategories(categoryG, derivedBuffers, spec, labels, spec.title);
     let height = (rowHeight + verticalGutter) * n +
         (titleHeight + verticalGutter) + padding * 2;
-    if (["hatching", "propline"].indexOf(interp.compose.mix) < 0 || interp.compose.colprop) {
+    if (["hatching", "propline"].indexOf(interp.config.assembly.type) < 0 || interp.config.assembly.colprop) {
         height += (rowHeight + verticalGutter) * n +
             (titleHeight + verticalGutter);
         rampG.attr('transform', translate(0, titleHeight + verticalGutter + (rowHeight + verticalGutter) * n + padding));
@@ -280,7 +280,7 @@ function mixLegend(wrapper, interp) {
     // interp.compose.mix == max or mean or blend
     // interp.compose.mixing == multiplicative or additive
     // checks whether a mix map is shown
-    if (["max", "mean", "blend"].indexOf(interp.compose.mix) >= 0 && derivedBuffers.length >= 2) {
+    if (["max", "mean", "blend"].indexOf(interp.config.assembly.type) >= 0 && derivedBuffers.length >= 2) {
         // since <foreignObject> has a rendering issue on Webkit browesers,
         // we create an extra canvas over the svg
         let canvas = document.createElement("canvas");
@@ -296,7 +296,7 @@ function mixLegend(wrapper, interp) {
         .attr('height', height + padding * 2);
 }
 function multiplicativeCircles(id, interp) {
-    let derivedBuffers = interp.derivedBuffers;
+    let derivedBuffers = interp.classBuffers;
     let spec = interp.legend;
     let size = spec.size;
     let svg = d3s.select('#' + id)
@@ -317,7 +317,7 @@ function multiplicativeCircles(id, interp) {
         .enter()
         .append('circle')
         .attr('r', r)
-        .attr('fill', d => d.color.css())
+        .attr('fill', d => d.color1.css())
         .attr('cx', (d, i) => center + r * Math.sin(theta * i) / 2)
         .attr('cy', (d, i) => center - r * Math.cos(theta * i) / 2)
         .style('fill', (d, i) => `url(#${ids[i]})`)
@@ -326,7 +326,7 @@ function multiplicativeCircles(id, interp) {
         .data(derivedBuffers)
         .enter()
         .append('text')
-        .text(d => d.originalDataBuffer.name)
+        .text(d => d.dataBuffer.name)
         .attr('text-anchor', 'middle')
         .attr('dy', '0.5em')
         .attr('transform', (d, i) => translate(center + r * Math.sin(theta * i) * 2, center - r * Math.cos(theta * i) * 2));
@@ -336,7 +336,7 @@ function multiplicativeCircles(id, interp) {
     // .style('mix-blend-mode', 'multiply');
 }
 function bars(dest, interp) {
-    let derivedBuffers = interp.derivedBuffers;
+    let derivedBuffers = interp.classBuffers;
     let n = derivedBuffers.length;
     let spec = interp.legend;
     let svg = d3s.select(dest)
@@ -357,7 +357,7 @@ function bars(dest, interp) {
             value: (domain[1] - domain[0]) * (i + 1) / n + domain[0]
         };
     });
-    let glyphSpec = interp.compose.glyphSpec;
+    let glyphSpec = interp.config.assembly.glyphSpec;
     let barSpec = {
         $schema: "https://vega.github.io/schema/vega-lite/v2.0.json",
         data: {
@@ -385,7 +385,7 @@ function bars(dest, interp) {
                 type: "ordinal",
                 scale: {
                     domain: data.map(d => d.category),
-                    range: data.map((d, i) => derivedBuffers[i].color.css())
+                    range: data.map((d, i) => derivedBuffers[i].color1.css())
                 },
                 legend: {
                     orient: "top"
@@ -431,10 +431,10 @@ function bars(dest, interp) {
     });
 }
 function punchcard(dest, interp) {
-    let derivedBuffers = interp.derivedBuffers;
+    let derivedBuffers = interp.classBuffers;
     let n = derivedBuffers.length;
     let spec = interp.legend;
-    let glyphSpec = interp.compose.glyphSpec;
+    let glyphSpec = interp.config.assembly.glyphSpec;
     let svg = d3s.select(dest)
         .style('font-family', spec.fontFamily)
         .style('font-size', spec.fontSize);
@@ -473,8 +473,8 @@ function punchcard(dest, interp) {
                         field: "category",
                         type: "ordinal",
                         scale: {
-                            domain: derivedBuffers.map(b => b.originalDataBuffer.name),
-                            range: derivedBuffers.map(b => (b.color || color_1.default.Blue).css())
+                            domain: derivedBuffers.map(b => b.dataBuffer.name),
+                            range: derivedBuffers.map(b => (b.color1 || color_1.default.Blue).css())
                         },
                         legend: {
                             orient: "left"
@@ -513,13 +513,13 @@ function punchcard(dest, interp) {
     });
 }
 function LegendBuilder(wrapper, interp) {
-    if (interp.compose.mix === "glyph") {
+    if (interp.config.assembly.type === "glyph") {
         let svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
         wrapper.appendChild(svg);
-        if (interp.compose.glyphSpec.template === "bars") {
+        if (interp.config.assembly.glyphSpec.template === "bars") {
             bars(svg, interp);
         }
-        else if (interp.compose.glyphSpec.template === "punchcard") {
+        else if (interp.config.assembly.glyphSpec.template === "punchcard") {
             punchcard(svg, interp);
         }
     }

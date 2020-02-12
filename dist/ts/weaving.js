@@ -4,7 +4,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const mask_1 = __importDefault(require("./mask"));
-function squareMasks(m, size, width, height, xincr = 1) {
+function squareMasks(m, size, width, height, random, xincr = 1) {
     let masks = Array(m);
     size = Math.floor(size);
     if (xincr < 0) {
@@ -19,8 +19,8 @@ function squareMasks(m, size, width, height, xincr = 1) {
         for (let j = 0; j < (width / size); j++) {
             let col = j * size;
             let col_max = Math.min(col + size, width);
-            let selected = (i * xincr + j);
-            let mask = masks[selected % m];
+            let selected = random ? Math.floor(Math.random() * m) : (i * xincr + j) % m;
+            let mask = masks[selected];
             for (let r = row; r < row_max; r++) {
                 for (let c = col; c < col_max; c++) {
                     mask.mask[r][c] = 1;
@@ -31,7 +31,7 @@ function squareMasks(m, size, width, height, xincr = 1) {
     return masks;
 }
 exports.squareMasks = squareMasks;
-function hexMasks(m, size, width, height, xincr = 1) {
+function hexMasks(m, size, width, height, random, xincr = 1) {
     let masks = Array(m);
     size = Math.floor(size);
     if (xincr < 0) {
@@ -44,9 +44,14 @@ function hexMasks(m, size, width, height, xincr = 1) {
         for (let i = 0; i < (width / size); i++) {
             let col = i * size;
             let row = j * size;
-            let selected = (i + (j * 2) % 8) % m;
-            if (j % 2 == 1) { // brick effect
-                col += size / 2;
+            let selected;
+            if (random)
+                selected = Math.floor(Math.random() * m);
+            else {
+                selected = (i + (j * 2) % 8) % m;
+                if (j % 2 == 1) { // brick effect
+                    col += size / 2;
+                }
             }
             let mask = masks[selected];
             let path = mask.getPath();
@@ -73,7 +78,7 @@ function hexMasks(m, size, width, height, xincr = 1) {
     return masks;
 }
 exports.hexMasks = hexMasks;
-function triangleMasks(m, size, width, height) {
+function triangleMasks(m, size, width, height, random) {
     //TODO (jdf) fix to work with any m or throw exception when m is odd??
     let masks = Array(m);
     size = Math.floor(size);
@@ -83,9 +88,14 @@ function triangleMasks(m, size, width, height) {
     for (let j = 0; j <= (height / size); j++) {
         for (let i = 0; i < (width / size); i++) {
             //let selected = (((i-j%2) +(width/size)- j))%m;
-            let selected = i % (m / 2);
-            if (j % 2 == 1)
-                selected = i % (m / 2) + m / 2;
+            let selected;
+            if (random)
+                selected = Math.floor(Math.random() * m);
+            else {
+                selected = i % (m / 2);
+                if (j % 2 == 1)
+                    selected = i % (m / 2) + m / 2;
+            }
             let row = (j - 1) * size;
             let col = (i - 1) * size * 1.5 - (j % 2) * (size * 0.75);
             let mask = masks[selected];
@@ -112,26 +122,4 @@ function triangleMasks(m, size, width, height) {
     return masks;
 }
 exports.triangleMasks = triangleMasks;
-function randomMasks(m, size, width, height) {
-    let masks = Array(m);
-    size = Math.floor(size);
-    for (let i = 0; i < m; i++) {
-        masks[i] = new mask_1.default(width, height, 0);
-    }
-    for (let row = 0; row < height; row += size) {
-        let row_max = Math.min(row + size, height);
-        for (let col = 0; col < width; col += size) {
-            let col_max = Math.min(col + size, width);
-            let selected = Math.floor(Math.random() * m);
-            let mask = masks[selected];
-            for (let r = row; r < row_max; r++) {
-                for (let c = col; c < col_max; c++) {
-                    mask.mask[r][c] = 1;
-                }
-            }
-        }
-    }
-    return masks;
-}
-exports.randomMasks = randomMasks;
 //# sourceMappingURL=weaving.js.map

@@ -31,10 +31,10 @@ export interface EncodingSpec {
     y: XYEncodingSpec;
     z: BufferEncodingSpec;
 }
-export interface BufferSpec {
+export interface DataBufferSpec {
     value: string;
     url?: string;
-    data?: number[][];
+    binnedPixels?: number[][];
     count?: number;
     range?: NumPair;
 }
@@ -45,69 +45,81 @@ export declare class GeoSpec {
     proj4: string | undefined;
     constructor(projection?: string, latitudes?: [number, number] | undefined, longitudes?: [number, number] | undefined, proj4?: string | undefined);
 }
-export declare class DataSpec {
+export declare class SchemaSpec {
     spec: any;
     source?: SourceSpec;
     geo?: GeoSpec;
     encoding: EncodingSpec;
-    buffers: BufferSpec[];
+    dataBuffers: DataBufferSpec[];
     constructor(spec: any);
     parseProjection(): void;
-    load(base: string, useCache?: boolean): Promise<BufferSpec[]>;
+    /**
+     * load all binned pixels.
+     * Before calling this function, a schema spec has only urls of data buffers.
+     * Calling this function, binnedPixels of data buffers are filled.
+     */
+    load(base: string, useCache?: boolean): Promise<DataBufferSpec[]>;
+    loadJson(data: any): Promise<DataBufferSpec[]>;
 }
-export interface ConfigDataSpec {
+export interface DataSpec {
     url?: string;
-    reorder?: string[];
-    rename?: ConfigDataRenameSpec[];
-    dataSpec?: DataSpec;
+    schema?: SchemaSpec;
 }
-export interface ConfigDataRenameSpec {
-    from: string;
-    to: string;
+export interface PreprocessSpec {
+    gaussian?: number;
 }
-export interface ConfigReencodingLabelScaleSpec {
+export interface StyleSpec {
+    classes?: StyleClassSpec[];
+    scale?: StyleScaleSpec;
+}
+export interface StyleClassSpec {
+    name: string;
+    alias?: string;
+    color0?: string;
+    color1?: string;
+}
+export declare class StyleScaleSpec {
+    type: "linear" | "log" | "sqrt" | "cbrt" | "equidepth";
+    levels: number;
+    constructor(options?: ScaleSpec);
+}
+export interface ReencodingLabelScaleSpec {
     domain: string[];
     range: string[];
 }
-export interface ConfigReencodingLabelSpec {
+export interface ReencodingLabelSpec {
     field: string;
     type?: string;
-    scale: ConfigReencodingLabelScaleSpec;
+    scale: ReencodingLabelScaleSpec;
 }
-export interface ConfigReencodingColorScaleSpec {
+export interface ReencodingColorScaleSpec {
     domain?: string[];
     range0: string[];
     range1: string[];
     type?: string;
 }
-export interface ConfigReencodingColorSpec {
+export interface ReencodingColorSpec {
     field: string;
     type?: string;
-    scale: ConfigReencodingColorScaleSpec;
+    scale: ReencodingColorScaleSpec;
 }
-export interface ConfigReencodingHatchingSpec {
-    domain?: string[];
-    range: string[];
-    type?: string;
+export interface ReencodingSpec {
+    label?: ReencodingLabelSpec;
+    color?: ReencodingColorSpec;
 }
-export interface ConfigReencodingSpec {
-    label?: ConfigReencodingLabelSpec;
-    color?: ConfigReencodingColorSpec;
-    hatching?: ConfigReencodingHatchingSpec;
-}
-export declare class ComposeSpec {
-    mix: "none" | "invmin" | "mean" | "max" | "blend" | "weaving" | "propline" | "hatching" | "separate" | "glyph" | "dotdensity" | "time";
-    mixing: "additive" | "multiplicative";
-    shape: "random" | "square" | "hex" | "tri";
+export declare class AssemblySpec {
+    type: "none" | "invmin" | "mean" | "max" | "add" | "multiply" | "weaving" | "propline" | "hatching" | "separate" | "glyph" | "dotdensity" | "time";
+    shape: "square" | "hex" | "tri";
+    random: boolean;
     size: number;
-    interval: number;
+    duration: number;
     threshold: number;
     sort: boolean;
     colprop: boolean;
     widthprop?: 'percent' | number;
     order?: number[];
     glyphSpec?: GlyphSpec;
-    constructor(options?: ComposeSpec);
+    constructor(options?: AssemblySpec);
 }
 export declare class GlyphSpec {
     template?: "bars" | "punchcard";
@@ -129,10 +141,10 @@ export declare class RebinSpec {
     aggregation: "max" | "mean" | "sum" | "min";
     constructor(options?: RebinSpec);
 }
-export declare class RescaleSpec {
+export declare class ScaleSpec {
     type: "linear" | "log" | "sqrt" | "cbrt" | "equidepth";
     levels: number;
-    constructor(options?: RescaleSpec);
+    constructor(options?: ScaleSpec);
 }
 export declare class ContourSpec {
     stroke: number;
@@ -187,12 +199,13 @@ export declare class Config {
     spec: any;
     description?: string;
     background?: string;
-    data: ConfigDataSpec;
-    blur: number;
-    reencoding?: ConfigReencodingSpec;
+    data: DataSpec;
+    preprocess?: PreprocessSpec;
+    style?: StyleSpec;
+    reencoding?: ReencodingSpec;
     rebin?: RebinSpec;
-    compose?: ComposeSpec;
-    rescale?: RescaleSpec;
+    assembly?: AssemblySpec;
+    scale: ScaleSpec;
     contour?: ContourSpec;
     width: number;
     height: number;
@@ -203,12 +216,13 @@ export declare class Config {
     constructor(spec: any);
     private parseDescription();
     private parseBackground();
+    private parsePreprocess();
     private parseData();
-    private parseSmooth();
+    private parseStyle();
     private parseContour();
     private parseReencoding();
     private parseRebin();
-    private parseCompose();
+    private parseAssembly();
     private parseRescale();
     private parseLegend();
     private parseStroke();
@@ -217,10 +231,10 @@ export declare class Config {
     private loadTopojson(base, useCache?);
     private loadStroke(base, useCache?);
     private loadData(base, useCache?);
+    private loadDataJson(data);
     load(base: string, useCache?: boolean): Promise<Config>;
-    getBuffers(): DataBuffer[];
-    getColors0(): string[];
-    getColors1(): string[];
+    loadJson(data: any): Promise<Config>;
+    getDataBuffers(): DataBuffer[];
     getGeo(): GeoSpec;
     getXDomain(): NumPair;
     getYDomain(): NumPair;

@@ -10,6 +10,7 @@ class LinearScale {
     constructor(domain, range, clamp = true) {
         this.domain = domain;
         this.range = range;
+        this.type = "linear";
         this.scale = (this.range[1] - this.range[0]) / (this.domain[1] - this.domain[0]);
         this.min = util_1.amin(this.range);
         this.max = util_1.amax(this.range);
@@ -42,6 +43,7 @@ class LogScale {
         this.domain = domain;
         this.range = range;
         this.base = base;
+        this.type = "log";
         this.logBase = Math.log(base);
         this.internalScale = new LinearScale([Math.log(domain[0]) / this.logBase, Math.log(domain[1]) / this.logBase], range);
     }
@@ -60,6 +62,7 @@ class RootScale {
         this.domain = domain;
         this.range = range;
         this.degree = degree;
+        this.type = "root";
         this.internalScale = new LinearScale([Math.pow(domain[0], 1 / degree), Math.pow(domain[1], 1 / degree)], range);
     }
     map(value) {
@@ -75,6 +78,7 @@ class SquareRootScale extends RootScale {
         super(domain, range, 2);
         this.domain = domain;
         this.range = range;
+        this.type = "sqrt";
     }
 }
 exports.SquareRootScale = SquareRootScale;
@@ -83,6 +87,7 @@ class CubicRootScale extends RootScale {
         super(domain, range, 3);
         this.domain = domain;
         this.range = range;
+        this.type = "cbrt";
     }
 }
 exports.CubicRootScale = CubicRootScale;
@@ -91,6 +96,7 @@ class EquiDepthScale {
         this.domain = domain;
         this.range = range;
         this.level = level;
+        this.type = "equidepth";
         this.bounds = [];
         this.minBound = 0;
         this.digest = new tdigest_1.Digest();

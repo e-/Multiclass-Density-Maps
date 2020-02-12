@@ -36,8 +36,8 @@ export default class Color {
     static Skyblue: Color;
     static Transparent: Color;
     static ColorByName: any;
-    static rgb(code: string): Color;
-    static get(name: string): Color;
+    static rgba(code: string): Color;
+    static parse(name: string): Color;
     static Category10: Color[];
     static Category10t: Color[];
     static Category10a: Color[];

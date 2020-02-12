@@ -22,14 +22,14 @@ class GeoSpec {
     }
 }
 exports.GeoSpec = GeoSpec;
-class DataSpec {
+class SchemaSpec {
     constructor(spec) {
         this.spec = spec;
         if ("source" in this.spec)
             this.source = this.spec.source;
         this.parseProjection();
         this.encoding = this.spec.encoding;
-        this.buffers = this.spec.buffers;
+        this.dataBuffers = this.spec.buffers;
     }
     parseProjection() {
         if ("projection" in this.spec) {
@@ -45,10 +45,15 @@ class DataSpec {
                 geo.longitudes = encoding.y.scale.domain;
         }
     }
+    /**
+     * load all binned pixels.
+     * Before calling this function, a schema spec has only urls of data buffers.
+     * Calling this function, binnedPixels of data buffers are filled.
+     */
     load(base, useCache = true) {
         let requests = [];
-        this.buffers.forEach(buffer => {
-            if (!buffer.data) {
+        this.dataBuffers.forEach(buffer => {
+            if (!buffer.binnedPixels) {
                 let url = base + buffer.url;
                 let responseType = undefined;
                 if (url.toLowerCase().endsWith(".png")) {
@@ -57,7 +62,7 @@ class DataSpec {
                 let promise = util.get(url, useCache, responseType)
                     .then((data) => {
                     if (url.toLowerCase().endsWith(".json"))
-                        buffer.data = JSON.parse(data);
+                        buffer.binnedPixels = JSON.parse(data);
                     else {
                         let pngBuffer = new Buffer(data);
                         let png = pngjs3_1.PNG.sync.read(pngBuffer, { skipRescale: true });
@@ -69,7 +74,8 @@ class DataSpec {
                                 prebinned[i][j] = png.data[(i * png.width + j) * 4] / max;
                             }
                         }
-                        buffer.data = prebinned;
+                        // filling binnedPixels
+                        buffer.binnedPixels = prebinned;
                     }
                     return buffer;
                 })
@@ -82,29 +88,50 @@ class DataSpec {
         });
         return Promise.all(requests);
     }
+    loadJson(data) {
+        let requests = [];
+        this.dataBuffers.forEach(buffer => {
+            if (!buffer.binnedPixels) {
+                buffer.binnedPixels = data;
+            }
+        });
+        return Promise.all(requests);
+    }
 }
-exports.DataSpec = DataSpec;
-class ComposeSpec {
+exports.SchemaSpec = SchemaSpec;
+class StyleScaleSpec {
     constructor(options) {
-        this.mix = "mean";
-        // blend
-        this.mixing = "additive";
+        this.type = "linear";
+        this.levels = 4; // for equidepth
+        if (options)
+            Object.assign(this, options);
+    }
+}
+exports.StyleScaleSpec = StyleScaleSpec;
+class AssemblySpec {
+    constructor(options) {
+        this.type = "mean";
         // weaving*
-        this.shape = "random";
+        this.shape = "square";
+        this.random = false;
         // weaving & dotdensity
         this.size = 8;
         // time
-        this.interval = 0.6;
+        this.duration = 0.6;
         // invmin
         this.threshold = 1;
         // propline & hatching
         this.sort = true;
         this.colprop = false;
-        if (options)
+        if (options) {
             Object.assign(this, options);
+            if (options.glyphSpec) {
+                this.glyphSpec = new GlyphSpec(options.glyphSpec);
+            }
+        }
     }
 }
-exports.ComposeSpec = ComposeSpec;
+exports.AssemblySpec = AssemblySpec;
 class GlyphSpec {
     constructor(options) {
         this.width = 32;
@@ -124,7 +151,7 @@ class RebinSpec {
     }
 }
 exports.RebinSpec = RebinSpec;
-class RescaleSpec {
+class ScaleSpec {
     constructor(options) {
         this.type = "linear";
         this.levels = 4; // for equidepth
@@ -132,7 +159,7 @@ class RescaleSpec {
             Object.assign(this, options);
     }
 }
-exports.RescaleSpec = RescaleSpec;
+exports.ScaleSpec = ScaleSpec;
 class ContourSpec {
     constructor(options) {
         this.stroke = 0;
@@ -193,7 +220,7 @@ exports.AxisSpec = AxisSpec;
 class Config {
     constructor(spec) {
         this.spec = spec;
-        this.blur = 0;
+        this.scale = new ScaleSpec();
         this.width = -1;
         this.height = -1;
         this.bufferNames = [];
@@ -202,13 +229,14 @@ class Config {
         }
         this.parseDescription();
         this.parseBackground();
+        this.parsePreprocess();
         this.data = this.parseData();
-        this.parseSmooth();
+        this.parseStyle();
+        this.parseContour();
         this.parseReencoding();
         this.parseRebin();
-        this.parseCompose();
+        this.parseAssembly();
         this.parseRescale();
-        this.parseContour();
         this.legend = this.parseLegend();
         this.parseStroke();
         this.parseAxis();
@@ -221,13 +249,16 @@ class Config {
         if ("background" in this.spec)
             this.background = this.spec.background;
     }
+    parsePreprocess() {
+        if ("pre" in this.spec)
+            this.preprocess = this.spec.pre;
+    }
     parseData() {
         return this.spec.data;
     }
-    parseSmooth() {
-        if ("smooth" in this.spec) {
-            if (this.spec.smooth.radius)
-                this.blur = this.spec.smooth.radius;
+    parseStyle() {
+        if ("style" in this.spec) {
+            this.style = this.spec.style;
         }
     }
     parseContour() {
@@ -242,17 +273,46 @@ class Config {
         if (this.spec.rebin)
             this.rebin = new RebinSpec(this.spec.rebin);
     }
-    parseCompose() {
-        if (this.spec.compose) {
-            this.compose = new ComposeSpec(this.spec.compose);
-            if (this.spec.compose.glyphSpec) {
-                this.compose.glyphSpec = new GlyphSpec(this.spec.compose.glyphSpec);
-            }
+    parseAssembly() {
+        let spec = this.spec.assembly || this.spec.compose; // backward compatibility
+        if (spec.mix && !spec.type)
+            spec.type = spec.mix; // backward compatibility
+        if (spec.mixing && !spec.blending)
+            spec.blending = spec.mixing; // backward compatibility
+        if (spec.type == "weavingrandom") { // backward compatibility
+            spec.type = "weaving";
+            spec.shape = "square";
+            spec.random = true;
         }
+        else if (spec.type == "weavingsquare") {
+            spec.type = "weaving";
+            spec.shape = "square";
+        }
+        else if (spec.type == "weavingtri") {
+            spec.type = "weaving";
+            spec.shape = "tri";
+        }
+        else if (spec.type == "weavinghex") {
+            spec.type = "weaving";
+            spec.shape = "hex";
+        }
+        else if (spec.type == "weaving" && spec.shape == "random") {
+            spec.shape = "square";
+            spec.random = true;
+        }
+        if (spec.type == "blend") {
+            if (spec.blending == "multiplicative")
+                spec.type = "multiply";
+            else if (spec.blending == "additive")
+                spec.type = "add";
+        }
+        this.assembly = new AssemblySpec(spec);
     }
     parseRescale() {
         if (this.spec.rescale)
-            this.rescale = new RescaleSpec(this.spec.rescale);
+            this.scale = new ScaleSpec(this.spec.rescale);
+        else if (this.style && this.style.scale)
+            this.scale = this.style.scale;
     }
     parseLegend() {
         if (this.spec.legend === false)
@@ -273,14 +333,14 @@ class Config {
         if (!this.data)
             return false;
         let widths = new Map(), heights = new Map();
-        let data = this.data.dataSpec;
-        if (!data ||
-            !data.encoding ||
-            !data.encoding.x ||
-            !data.encoding.y ||
-            !data.buffers)
+        let schema = this.data.schema;
+        if (!schema ||
+            !schema.encoding ||
+            !schema.encoding.x ||
+            !schema.encoding.y ||
+            !schema.dataBuffers)
             return false;
-        let x_enc = data.encoding.x, y_enc = data.encoding.y;
+        let x_enc = schema.encoding.x, y_enc = schema.encoding.y;
         if (x_enc) {
             if (x_enc.bin && "maxbins" in x_enc.bin && x_enc.bin.maxbins)
                 widths.set("maxbins", x_enc.bin.maxbins);
@@ -301,12 +361,12 @@ class Config {
             && this.reencoding.label
             && this.reencoding.label.scale
             && this.reencoding.label.scale.range
-            && this.reencoding.label.scale.range.length >= data.buffers.length)
+            && this.reencoding.label.scale.range.length >= schema.dataBuffers.length)
             labelScaleRange = this.reencoding.label.scale.range;
-        data.buffers.forEach((buffer, i) => {
-            if (buffer.data instanceof Array) {
-                heights.set(buffer.value, buffer.data.length);
-                widths.set(buffer.value, buffer.data[0].length);
+        schema.dataBuffers.forEach((buffer, i) => {
+            if (buffer.binnedPixels instanceof Array) {
+                heights.set(buffer.value, buffer.binnedPixels.length);
+                widths.set(buffer.value, buffer.binnedPixels[0].length);
             }
             else {
                 error = "invalid buffer " + buffer.value;
@@ -328,11 +388,11 @@ class Config {
                 error = k;
             }
         });
-        if (this.compose != undefined && this.compose.order != undefined) {
-            let order = this.compose.order;
+        if (this.assembly != undefined && this.assembly.order != undefined) {
+            let order = this.assembly.order;
             let valid = new Set();
             for (let i = 0; i < order.length; i++) {
-                if (order[i] < 0 || order[i] >= data.buffers.length) {
+                if (order[i] < 0 || order[i] >= schema.dataBuffers.length) {
                     error = "invalid buffer index " + order[i];
                     break;
                 }
@@ -380,31 +440,33 @@ class Config {
         return Promise.resolve(this);
     }
     loadData(base, useCache = true) {
-        if (!this.data.dataSpec && this.data.url) {
+        if (!this.data.schema && this.data.url) {
             let url = base + this.data.url;
             return util
                 .get(url, useCache)
                 .then(response => {
-                let dataSpec = new DataSpec(JSON.parse(response));
-                this.data.dataSpec = dataSpec;
-                if (this.data.reorder) {
-                    if (this.data.reorder.length != this.data.dataSpec.buffers.length)
-                        throw new Error(`the length of the order array does not match ${this.data.reorder.length} != ${this.data.dataSpec.buffers.length}`);
-                    let reordered = this.data.reorder.map(name => this.data.dataSpec.buffers.filter(bf => bf.value == name)[0]);
-                    this.data.dataSpec.buffers = reordered;
-                }
-                if (this.data.rename) {
-                    let map = {};
-                    this.data.rename.forEach(r => { map[r.from] = r.to; });
-                    this.data.dataSpec.buffers.forEach(buffer => {
-                        buffer.value = map[buffer.value] || buffer.value;
-                    });
-                }
-                this.bufferNames = this.data.dataSpec.buffers.map(b => b.value);
-                return this.data.dataSpec.load(base, useCache);
+                let dataSpec = new SchemaSpec(JSON.parse(response));
+                this.data.schema = dataSpec;
+                this.bufferNames = this.data.schema.dataBuffers.map(b => b.value);
+                return this.data.schema.load(base, useCache);
             })
                 .catch((reason) => {
                 console.error(`Cannot load dataSpec at ${url}: ${reason}`);
+            });
+        }
+        return Promise.resolve(this);
+    }
+    loadDataJson(data) {
+        if (!this.data.schema) {
+            return Promise.resolve(data)
+                .then(response => {
+                let dataSpec = new SchemaSpec(response);
+                this.data.schema = dataSpec;
+                this.bufferNames = this.data.schema.dataBuffers.map(b => b.value);
+                return this.data.schema.loadJson(data);
+            })
+                .catch((reason) => {
+                console.error(`Cannot load dataSpec : ${reason}`);
             });
         }
         return Promise.resolve(this);
@@ -417,41 +479,28 @@ class Config {
             this.loadTopojson(base, useCache),
             this.loadStroke(base, useCache)]).then(() => this);
     }
-    getBuffers() {
+    loadJson(data) {
+        return Promise.all([this.loadDataJson(data)]).then(() => this);
+    }
+    getDataBuffers() {
         let data = this.data;
         if (!data ||
-            !data.dataSpec ||
-            !data.dataSpec.buffers)
+            !data.schema ||
+            !data.schema.dataBuffers)
             return [];
-        let spec = data.dataSpec;
-        let dataBuffers = spec.buffers.map((bufferSpec) => new data_buffer_1.default(bufferSpec.value, this.width, this.height, bufferSpec.data));
+        let spec = data.schema;
+        let dataBuffers = spec.dataBuffers.map((dataBuffer) => new data_buffer_1.default(dataBuffer.value, this.width, this.height, dataBuffer.binnedPixels));
         return dataBuffers;
     }
-    getColors0() {
-        if (!this.reencoding
-            || !this.reencoding.color
-            || !this.reencoding.color.scale
-            || !this.reencoding.color.scale.range0)
-            return [];
-        return this.reencoding.color.scale.range0;
-    }
-    getColors1() {
-        if (!this.reencoding
-            || !this.reencoding.color
-            || !this.reencoding.color.scale
-            || !this.reencoding.color.scale.range1)
-            return [];
-        return this.reencoding.color.scale.range1;
-    }
     getGeo() {
-        let geo = this.data.dataSpec.geo;
+        let geo = this.data.schema.geo;
         if (this.spec.rebin &&
             this.spec.rebin.proj4)
             geo.proj4 = this.spec.rebin.proj4;
         return geo;
     }
     getXDomain() {
-        let data = this.data.dataSpec;
+        let data = this.data.schema;
         if (!data ||
             !data.encoding ||
             !data.encoding.x ||
@@ -461,7 +510,7 @@ class Config {
         return data.encoding.x.scale.domain;
     }
     getYDomain() {
-        let data = this.data.dataSpec;
+        let data = this.data.schema;
         if (!data ||
             !data.encoding ||
             !data.encoding.y ||

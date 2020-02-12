@@ -3,6 +3,7 @@ import { Digest } from 'tdigest';
 export interface ScaleTrait {
     domain: [number, number] | number[];
     range: [number, number] | number[];
+    type: string;
     map(value: number): number;
     invmap(value: number): number;
 }
@@ -12,6 +13,7 @@ export declare class LinearScale implements ScaleTrait {
     scale: number;
     min: number;
     max: number;
+    type: string;
     constructor(domain: [number, number], range: [number, number], clamp?: boolean);
     clamp(value: number): number;
     map(value: number): number;
@@ -23,6 +25,7 @@ export declare class LogScale implements ScaleTrait {
     base: number;
     logBase: number;
     internalScale: LinearScale;
+    type: string;
     constructor(domain: [number, number], range: [number, number], base?: number);
     map(value: number): number;
     invmap(value: number): number;
@@ -32,6 +35,7 @@ export declare class RootScale implements ScaleTrait {
     range: [number, number];
     degree: number;
     internalScale: LinearScale;
+    type: string;
     constructor(domain: [number, number], range: [number, number], degree?: number);
     map(value: number): number;
     invmap(value: number): number;
@@ -39,17 +43,20 @@ export declare class RootScale implements ScaleTrait {
 export declare class SquareRootScale extends RootScale {
     domain: [number, number];
     range: [number, number];
+    type: string;
     constructor(domain: [number, number], range: [number, number]);
 }
 export declare class CubicRootScale extends RootScale {
     domain: [number, number];
     range: [number, number];
+    type: string;
     constructor(domain: [number, number], range: [number, number]);
 }
 export declare class EquiDepthScale implements ScaleTrait {
     domain: number[];
     range: [number, number];
     level: number;
+    type: string;
     digest: Digest;
     bounds: number[];
     minBound: number;

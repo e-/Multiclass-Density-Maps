@@ -87,7 +87,7 @@ class Color {
     static interpolate(a, b, r) {
         return Color.compose(a, 1 - r, b, r);
     }
-    static rgb(code) {
+    static rgba(code) {
         if (code.startsWith('rgba')) {
             let res = code.split(/[(,)]/);
             if (res.length >= 5) {
@@ -120,11 +120,11 @@ class Color {
         }
         return Color.None;
     }
-    static get(name) {
+    static parse(name) {
         name = name.toLowerCase();
         if (name in Color.ColorByName)
             return Color.ColorByName[name];
-        return this.rgb(name);
+        return this.rgba(name);
     }
     ;
 }
