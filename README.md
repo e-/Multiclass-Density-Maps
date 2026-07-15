@@ -1,3 +1,5 @@
+**📢 News!** A **deck.gl version** of this project (also usable standalone) is now available at [progressivis/mdm](https://github.com/progressivis/mdm).
+
 # Multiclass Density Maps
 
 ![teaser](https://raw.githubusercontent.com/e-/Multiclass-Density-Maps/master/teaser.png?raw=true)
